@@ -1,0 +1,10 @@
+[33md9168add8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mclean-implementation[m[33m)[m feat(platform): implement comprehensive DojoPool platform features
+[33m4f54f76f5[m chore: add comprehensive .gitignore for large files and build artifacts
+[33m9282b953e[m[33m ([m[1;32mmain[m[33m)[m feat(platform): implement comprehensive DojoPool platform features
+[33mb70338c7a[m docs(pr): add clean clone instructions to merge fresh-start into main safely
+[33mf64952f52[m chore(pr): add automation to create+merge PR from fresh-start to main and provide PR body + instructions
+[33mfc91895ba[m feat: update remaining services and documentation
+[33m922dd832a[m feat(refactoring): Complete import path refactoring for services directory - update all relative imports to use @/ path aliases
+[33m0d33ac717[m feat: update services and components with recent improvements
+[33m5a4130cc0[m feat(consolidation): Major directory consolidation - copy Avatar, Dashboard, Game, Tournament, Social, wallet components and all supporting directories
+[33m071247ec9[m feat(consolidation): Begin directory consolidation - move QRCodeScanner to Common, copy venue components and APIs

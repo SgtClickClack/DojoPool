@@ -1,0 +1,84 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\components.js",
+  "typescript_file": "src\\dojopool\\static\\js\\components.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\components.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "Modal",
+        "extends": null,
+        "properties": []
+      },
+      {
+        "name": "Tabs",
+        "extends": null,
+        "properties": []
+      },
+      {
+        "name": "Dropdown",
+        "extends": null,
+        "properties": []
+      },
+      {
+        "name": "Toast",
+        "extends": null,
+        "properties": []
+      },
+      {
+        "name": "FormValidator",
+        "extends": null,
+        "properties": []
+      },
+      {
+        "name": "DataTable",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "closeButtons",
+        "type": "any"
+      },
+      {
+        "name": "targetPanel",
+        "type": "any"
+      },
+      {
+        "name": "rules",
+        "type": "any"
+      },
+      {
+        "name": "isValid",
+        "type": "any"
+      },
+      {
+        "name": "errorMessage",
+        "type": "any"
+      },
+      {
+        "name": "isValid",
+        "type": "any"
+      },
+      {
+        "name": "errorElement",
+        "type": "any"
+      },
+      {
+        "name": "error",
+        "type": "any"
+      }
+    ],
+    "imports": ["./utils.js"],
+    "exports": []
+  },
+  "generated_types": {
+    "Modal": "\nclass Modal {\n    // Properties and methods\n}",
+    "Tabs": "\nclass Tabs {\n    // Properties and methods\n}",
+    "Dropdown": "\nclass Dropdown {\n    // Properties and methods\n}",
+    "Toast": "\nclass Toast {\n    // Properties and methods\n}",
+    "FormValidator": "\nclass FormValidator {\n    // Properties and methods\n}",
+    "DataTable": "\nclass DataTable {\n    // Properties and methods\n}"
+  }
+}

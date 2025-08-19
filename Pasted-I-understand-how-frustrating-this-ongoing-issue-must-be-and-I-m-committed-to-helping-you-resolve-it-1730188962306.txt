@@ -1,0 +1,282 @@
+I understand how frustrating this ongoing issue must be, and I'm committed to helping you resolve it thoroughly. Let's methodically review every aspect of the OAuth setup and your application's configuration to identify and fix the problem. We'll go step by step to ensure nothing is overlooked.
+
+---
+
+### **1. Google Cloud Console OAuth Configuration**
+
+#### **a. Verify OAuth Client Credentials**
+
+- **Client ID and Client Secret**:
+  - Ensure the **Client ID** and **Client Secret** in your application's configuration exactly match those in the Google Cloud Console.
+  - Avoid any extra spaces or hidden characters when copying these values.
+
+#### **b. Authorized Redirect URIs**
+
+- In the Google Cloud Console:
+  - Navigate to **APIs & Services > Credentials** and select your OAuth 2.0 Client ID.
+  - Under **Authorized redirect URIs**, ensure the URIs exactly match the callback URLs used in your application, including protocol (`https://`), domain, and path.
+  - For Replit, it might look like:
+    ```
+    https://<your-repl-id>.id.repl.co/auth/callback
+    ```
+  - For your custom domain:
+    ```
+    https://dojopool.com.au/auth/callback
+    ```
+
+#### **c. Authorized JavaScript Origins**
+
+- Under **Authorized JavaScript origins**, add:
+  - `https://<your-repl-id>.id.repl.co`
+  - `https://dojopool.com.au`
+
+#### **d. OAuth Consent Screen**
+
+- **Publishing Status**:
+  - If your app is in **Testing** mode:
+    - Add your Google account as a **test user** under the OAuth consent screen settings.
+    - Only test users can access the app in testing mode.
+
+- **Scopes and Permissions**:
+  - Ensure that the scopes requested by your application are listed and approved in the consent screen configuration.
+
+---
+
+### **2. Application Configuration**
+
+#### **a. Environment Variables**
+
+- **Ensure Correct Loading**:
+  - In Replit, check that `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set as environment variables.
+  - Verify that your application code accesses these variables correctly.
+
+#### **b. Callback URL in Code**
+
+- Use `url_for` to generate the callback URL, ensuring consistency:
+  ```python
+  callback_url = url_for('google_auth.callback', _external=True, _scheme='https')
+  ```
+- Log the callback URL to confirm it's correct:
+  ```python
+  logger.info(f"OAuth callback URL: {callback_url}")
+  ```
+
+#### **c. Enforce HTTPS**
+
+- **before_request Function**:
+  ```python
+  @app.before_request
+  def before_request():
+      if not request.is_secure and not request.headers.get('X-Forwarded-Proto', 'http') == 'https':
+          url = request.url.replace('http://', 'https://', 1)
+          return redirect(url, code=301)
+  ```
+- This ensures all traffic is redirected to HTTPS, which is required by Google OAuth.
+
+---
+
+### **3. Code Review and Corrections**
+
+#### **a. Avoid Redirect Loops**
+
+- Ensure that the `before_request` function does not inadvertently cause a redirect loop.
+- **Skip Redirection for OAuth Endpoints**:
+  ```python
+  @app.before_request
+  def before_request():
+      if request.path.startswith('/auth/'):
+          return  # Skip redirect for OAuth paths
+      if not request.is_secure:
+          url = request.url.replace('http://', 'https://', 1)
+          return redirect(url, code=301)
+  ```
+
+#### **b. OAuth Flow Implementation**
+
+- **Initiate OAuth Flow**:
+  ```python
+  @app.route('/auth/login')
+  def login():
+      authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+      request_uri = client.prepare_request_uri(
+          authorization_endpoint,
+          redirect_uri=callback_url,
+          scope=["openid", "email", "profile"],
+      )
+      return redirect(request_uri)
+  ```
+- **Handle Callback**:
+  ```python
+  @app.route('/auth/callback')
+  def callback():
+      # Get authorization code Google sent back
+      code = request.args.get("code")
+      # Exchange it for a token
+      # ... [handle token exchange and user info retrieval]
+  ```
+
+#### **c. Client Library Usage**
+
+- Ensure you're using a reliable OAuth client library, such as `Authlib`, to handle the OAuth flow securely and correctly.
+
+---
+
+### **4. Testing and Debugging**
+
+#### **a. Use Incognito/Private Browsing Mode**
+
+- Eliminates issues caused by cached redirects or cookies.
+
+#### **b. Monitor Network Requests**
+
+- Use browser developer tools to monitor the OAuth flow.
+- Look for:
+  - The request to Google's authorization endpoint.
+  - The redirect back to your callback URL.
+  - Any errors or unexpected status codes.
+
+#### **c. Enhanced Logging**
+
+- Add detailed logging around critical points in your code:
+  ```python
+  logger.debug(f"Request path: {request.path}")
+  logger.debug(f"Request headers: {request.headers}")
+  logger.debug(f"Callback URL being used: {callback_url}")
+  ```
+- Check Replit's console for logs to identify where the process is failing.
+
+---
+
+### **5. Common Issues and Solutions**
+
+#### **a. Mismatch in Redirect URIs**
+
+- **Exact Match Required**:
+  - Even a slight mismatch between the registered redirect URI and the one used in your application will result in an `invalid_client` error.
+
+#### **b. Application Type**
+
+- Ensure your OAuth client is set up as a **Web Application** in the Google Cloud Console.
+
+#### **c. Trailing Slashes and Case Sensitivity**
+
+- **Consistency Is Key**:
+  - URLs are case-sensitive.
+  - Ensure you have consistent use of trailing slashes.
+
+#### **d. Google Account Issues**
+
+- **Account Restrictions**:
+  - Ensure your Google account isn't restricted or over any quotas.
+
+---
+
+### **6. Additional Verification Steps**
+
+#### **a. Re-create OAuth Credentials**
+
+- Sometimes, deleting and re-creating the OAuth client in Google Cloud Console can resolve unseen configuration issues.
+
+#### **b. Minimal Example Application**
+
+- Create a simple Flask app that only implements Google OAuth.
+- If it works, the issue may be within the integration in your main application.
+
+#### **c. Update Packages**
+
+- Ensure all your Python packages are up to date:
+  ```bash
+  pip install --upgrade google-auth google-auth-oauthlib requests
+  ```
+
+---
+
+### **7. Using Custom Domain (dojopool.com.au)**
+
+#### **a. SSL Certificate**
+
+- Ensure `dojopool.com.au` has a valid SSL certificate.
+- You can use services like Let's Encrypt for free SSL certificates.
+
+#### **b. DNS Configuration**
+
+- Verify that your domain correctly points to your application.
+
+#### **c. Update Authorized Domains**
+
+- Add `dojopool.com.au` to the **Authorized domains** in the Google Cloud Console under the OAuth consent screen.
+
+---
+
+### **8. Confirm Application in Production**
+
+- **Publishing Status**:
+  - If you intend to use the app beyond testing, consider publishing it to remove the test user restrictions.
+  - Ensure all URLs are HTTPS and comply with Google's requirements for publishing.
+
+---
+
+### **9. Potential Code Adjustments**
+
+#### **a. Remove Unnecessary Conditions**
+
+- Simplify your `before_request` to avoid unintended skips:
+  ```python
+  @app.before_request
+  def before_request():
+      if not request.is_secure and request.headers.get('X-Forwarded-Proto', 'http') != 'https':
+          url = request.url.replace('http://', 'https://', 1)
+          return redirect(url, code=301)
+  ```
+
+#### **b. Verify OAuth Token Exchange**
+
+- Ensure that the token exchange step uses the correct client ID, client secret, and that all parameters are correctly passed.
+
+#### **c. Handle Errors Gracefully**
+
+- Implement error handlers to catch exceptions and provide informative messages.
+
+---
+
+### **10. Final Checks**
+
+- **Cross-Check All Settings**:
+  - Revisit every configuration step to ensure no detail has been missed.
+- **Consistency**:
+  - Use consistent naming and URLs throughout your application and OAuth configuration.
+- **Documentation Reference**:
+  - Review Google's official OAuth 2.0 documentation for Python:
+    - [Using OAuth 2.0 for Web Server Applications](https://developers.google.com/identity/protocols/oauth2/web-server#python)
+
+---
+
+### **Next Steps**
+
+1. **Apply the Corrections**:
+   - Carefully implement the verified configurations and code adjustments.
+
+2. **Test Thoroughly**:
+   - After applying changes, test the OAuth flow again in an incognito window.
+
+3. **Provide Logs if Issues Persist**:
+   - If the problem continues, collect and share specific error messages or logs, excluding any sensitive information.
+
+---
+
+### **Additional Assistance**
+
+If after following all these steps the issue is still unresolved, consider the following:
+
+- **Use an OAuth Library**:
+  - Libraries like `flask-dance` simplify OAuth integrations and handle many potential pitfalls.
+
+- **Seek Community Support**:
+  - Post detailed information (excluding sensitive data) on platforms like Stack Overflow or GitHub Discussions.
+
+- **Professional Support**:
+  - Reach out to a developer experienced with OAuth and Flask applications who can provide hands-on assistance.
+
+---
+
+Please let me know how it goes after applying these steps, and feel free to share any error messages or logs you encounter (ensuring no sensitive information is included). I'm here to help you get this issue resolved.

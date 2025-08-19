@@ -1,0 +1,43 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\connectionManager.js",
+  "typescript_file": "src\\dojopool\\static\\js\\connectionManager.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\connectionManager.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "ConnectionManager",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "connection",
+        "type": "any"
+      },
+      {
+        "name": "prevQuality",
+        "type": "any"
+      },
+      {
+        "name": "delay",
+        "type": "any"
+      },
+      {
+        "name": "event",
+        "type": "any"
+      },
+      {
+        "name": "connectionManager",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": ["ConnectionManager", "connectionManager"]
+  },
+  "generated_types": {
+    "ConnectionManager": "\nclass ConnectionManager {\n    // Properties and methods\n}",
+    "connectionManager": "\ninterface connectionManager {\n    // Properties\n}"
+  }
+}

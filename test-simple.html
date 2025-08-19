@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DojoPool Test</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background: #000;
+        color: #00ff88;
+      }
+      .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #00ff88;
+        border-radius: 10px;
+      }
+      .status {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .success {
+        background: rgba(0, 255, 0, 0.2);
+        border: 1px solid #00ff00;
+      }
+      .error {
+        background: rgba(255, 0, 0, 0.2);
+        border: 1px solid #ff0000;
+      }
+      .info {
+        background: rgba(0, 255, 255, 0.2);
+        border: 1px solid #00ffff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>DojoPool Development Test</h1>
+
+      <div class="status info">
+        <h3>Server Status</h3>
+        <p>Development server should be running on http://localhost:3000</p>
+        <p>If you can see this page, the server is working.</p>
+      </div>
+
+      <div class="status success">
+        <h3>✅ Environment Check</h3>
+        <p>Node.js: v24.4.1</p>
+        <p>npm: v11.4.2</p>
+        <p>Dependencies: Installed</p>
+        <p>Server: Running on port 3000</p>
+      </div>
+
+      <div class="status info">
+        <h3>Next Steps</h3>
+        <p>1. Open http://localhost:3000 in your browser</p>
+        <p>2. Check browser console for any errors</p>
+        <p>3. The cyberpunk overlays should be visible</p>
+      </div>
+
+      <div class="status error">
+        <h3>If Still Loading:</h3>
+        <p>1. Check browser console (F12) for JavaScript errors</p>
+        <p>2. Try refreshing the page</p>
+        <p>3. Check if the React app is compiling properly</p>
+      </div>
+
+      <div style="margin-top: 20px">
+        <h3>Cyberpunk Features to Look For:</h3>
+        <ul>
+          <li>🎱 8-Ball Dojo icons with clan colors</li>
+          <li>🌍 Territory boundaries with clan-specific styling</li>
+          <li>⚡ Animated connection lines between districts</li>
+          <li>✨ Floating particles for cyberpunk atmosphere</li>
+          <li>📊 Territory information panels</li>
+          <li>👤 Player HUD overlay</li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      // Test if JavaScript is working
+      console.log('DojoPool Test Page Loaded');
+
+      // Test if we can access the main app
+      fetch('http://localhost:3000')
+        .then((response) => {
+          console.log('Main app accessible:', response.status);
+        })
+        .catch((error) => {
+          console.error('Main app error:', error);
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor Project Rules
+
+These are the interaction rules for the Cursor AI in this project. They define how suggestions, responses, and task flows should behave to suit the working style of the Dojo Pool developer.
+
+---
+
+## 🔧 Response Style
+
+- **No Explanations**: Do not explain code unless explicitly asked. Just provide the solution.
+- **Direct Code Output**: Respond with the required code or fix immediately.
+- **Minimal Text**: Avoid filler, summaries, or justifications unless requested.
+- **Interaction First**: Prioritize making the solution easy to click, test, or run. Avoid instructions that require unnecessary copy/paste or setup steps.
+
+---
+
+## 🚫 Suggestions & Decisions
+
+- **Do Not Offer Options**: Only suggest one course of action — the top-priority task based on the dev roadmap.
+- **No “Would You Like to...” Phrasing**: Assumptions have already been decided in project plans.
+- **No Reconfirming**: Don’t recheck things that are already in the development tracking files.
+
+---
+
+## ✅ Task Flow
+
+- **Single Next Task**: Always show one clear, actionable task — the highest priority based on current status.
+- **Do Not Jump Ahead**: Avoid pre-empting future features unless instructed.
+- **Align With Dev Tracker**: All tasks and flows should strictly follow the tracking files (`dev-tasks.md`, `todo.md`, or equivalent).
+
+---
+
+## 📁 Project Context
+
+- Cursor should assume all context is available in:
+  - `C:\Users\julia\OneDrive\Documents\GitHub\dojopool\DEVELOPMENT_TRACKING_PART_03.md`
+  - `roadmap.md`
+  C:\Users\julia\OneDrive\Documents\GitHub\dojopool\.claude\commands\CONTINUITY_WORKFLOW.md
+  - `components/` and `features/` folders
+  - Project README and API docs
+- Do not ask for clarification if it can be found in these files.
+
+---
+
+## 💡 Additional Behaviors
+
+- **Respect Developer Time**: Responses should reduce cognitive load and friction.
+- **No “Hope this helps!” or Friendly Closings**: This is a focused dev environment, not a support chat.
+- **Skip Obvious Imports**: Only include imports if they are non-standard or important to the context.
+
+---
+
+> These rules reflect the preferred working style for Cursor in this workspace. Stick to them unless explicitly told otherwise in a prompt.
+
+

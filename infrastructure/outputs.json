@@ -1,0 +1,13 @@
+{
+  "DojoPoolInfrastructureStack": {
+    "VenuesTableName": "dojopool-venues",
+    "ApiGatewayUrl": "https://o0qqp95btl.execute-api.ap-southeast-2.amazonaws.com/prod/",
+    "GameSessionsTableName": "dojopool-game-sessions",
+    "UsersTableName": "dojopool-users",
+    "TournamentsTableName": "dojopool-tournaments",
+    "AnalyticsTableName": "dojopool-analytics",
+    "VenueAssetsBucketName": "dojopool-venue-assets-558721173871",
+    "CloudFrontDistributionId": "E33M0VPHO0CB9K",
+    "DojoPoolApiEndpointF8A56013": "https://o0qqp95btl.execute-api.ap-southeast-2.amazonaws.com/prod/"
+  }
+}

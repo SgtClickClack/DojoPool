@@ -1,0 +1,48 @@
+{% extends "layout.html" %} {% block title %}Welcome to DojoPool{% endblock %}
+{% block content %}
+<div
+  class="landing-wrapper d-flex align-items-center justify-content-center"
+  style="min-height: 70vh"
+>
+  <div
+    class="card shadow-lg p-4"
+    style="
+      max-width: 420px;
+      width: 100%;
+      background: rgba(20, 24, 32, 0.97);
+      border-radius: 18px;
+    "
+  >
+    <div class="text-center mb-3">
+      <i
+        class="fa-solid fa-billiards fa-3x mb-2"
+        style="color: var(--primary-color)"
+      ></i>
+      <h1
+        class="mb-2"
+        style="font-family: 'Orbitron', sans-serif; letter-spacing: 1px"
+      >
+        Welcome to DojoPool
+      </h1>
+      <div class="tagline mb-3 text-muted">
+        Real-World Pool Meets Digital Rewards
+      </div>
+    </div>
+    <p class="mb-4" style="color: #a0a0b2">
+      Create your avatar, join real venues, play pool, and earn Dojo Coin
+      rewards. Dive into the future of social pool, tournaments, and digital
+      collectibles.
+    </p>
+    <a
+      href="{{ url_for('auth.register') }}"
+      class="btn btn-primary btn-lg w-100 mb-2"
+      >Get Started</a
+    >
+    <a
+      href="{{ url_for('auth.login') }}"
+      class="btn btn-outline-secondary w-100"
+      >Log In</a
+    >
+  </div>
+</div>
+{% endblock %}

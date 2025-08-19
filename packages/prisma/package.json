@@ -1,0 +1,13 @@
+{
+  "name": "@dojopool/prisma",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@prisma/client": "6.6.0",
+    "prisma": "6.6.0"
+  }
+}

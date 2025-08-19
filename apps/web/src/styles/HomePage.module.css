@@ -1,0 +1,25 @@
+.homeContainer {
+  padding: 20px;
+  background-color: #1a1a1a;
+  min-height: 100vh;
+  color: #00ff9d;
+}
+
+.contentWrapper {
+  margin-top: 20px;
+  /* Ensures the map and dojo interior have a consistent height */
+  height: 70vh;
+  width: 100%;
+}
+
+.pageLink {
+  display: block;
+  margin-top: 20px;
+  color: #00a8ff;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.pageLink:hover {
+  color: #ffffff;
+}

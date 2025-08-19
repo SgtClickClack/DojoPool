@@ -1,0 +1,16 @@
+[Unit]
+Description=DojoPool Automated Backup Service
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=dojopool
+Group=dojopool
+WorkingDirectory=/opt/dojopool
+Environment=PYTHONPATH=/opt/dojopool
+ExecStart=/usr/bin/python3 /opt/dojopool/src/dojopool/scripts/run_backups.py
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target 

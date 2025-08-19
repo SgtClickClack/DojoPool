@@ -1,0 +1,34 @@
+{
+  "original_file": "src\\dojopool\\scripts\\convert_to_avif.js",
+  "typescript_file": "src\\dojopool\\scripts\\convert_to_avif.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\convert_to_avif.js",
+  "analysis": {
+    "functions": [
+      {
+        "name": "convertToAvif",
+        "params": ["inputPath", "outputPath", "quality = 80", "speed = 4"],
+        "return_type": "any"
+      }
+    ],
+    "classes": [],
+    "variables": [
+      {
+        "name": "sharp",
+        "type": "any"
+      },
+      {
+        "name": "path",
+        "type": "any"
+      },
+      {
+        "name": "fs",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "convertToAvif": "\nfunction convertToAvif(inputPath: any, outputPath: any, quality = 80: any, speed = 4: any): any {\n    // Implementation\n}"
+  }
+}

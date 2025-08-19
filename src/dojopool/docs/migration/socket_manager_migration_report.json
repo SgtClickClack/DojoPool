@@ -1,0 +1,114 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\socket_manager.js",
+  "typescript_file": "src\\dojopool\\static\\js\\socket_manager.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\socket_manager.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "SocketManager",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "protocol",
+        "type": "any"
+      },
+      {
+        "name": "isWebview",
+        "type": "any"
+      },
+      {
+        "name": "messages",
+        "type": "any"
+      },
+      {
+        "name": "message",
+        "type": "any"
+      },
+      {
+        "name": "jitter",
+        "type": "any"
+      },
+      {
+        "name": "delay",
+        "type": "any"
+      },
+      {
+        "name": "backoffDelay",
+        "type": "any"
+      },
+      {
+        "name": "interval",
+        "type": "any"
+      },
+      {
+        "name": "now",
+        "type": "any"
+      },
+      {
+        "name": "lastEventAge",
+        "type": "any"
+      },
+      {
+        "name": "maxAge",
+        "type": "any"
+      },
+      {
+        "name": "errorMessage",
+        "type": "any"
+      },
+      {
+        "name": "statusElement",
+        "type": "any"
+      },
+      {
+        "name": "refreshButton",
+        "type": "any"
+      },
+      {
+        "name": "statusElement",
+        "type": "any"
+      },
+      {
+        "name": "refreshButton",
+        "type": "any"
+      },
+      {
+        "name": "pingTimeout",
+        "type": "any"
+      },
+      {
+        "name": "state",
+        "type": "any"
+      },
+      {
+        "name": "savedState",
+        "type": "any"
+      },
+      {
+        "name": "messages",
+        "type": "any"
+      },
+      {
+        "name": "statusElement",
+        "type": "any"
+      },
+      {
+        "name": "styles",
+        "type": "any"
+      },
+      {
+        "name": "socketManager",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "SocketManager": "\nclass SocketManager {\n    // Properties and methods\n}"
+  }
+}

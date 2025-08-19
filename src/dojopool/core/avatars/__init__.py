@@ -1,0 +1,1 @@
+"""DojoPool avatars module."""

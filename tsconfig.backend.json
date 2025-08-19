@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",
+    "lib": [
+      "ES2020"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "noEmit": false,
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "src/backend/**/*",
+    "src/config/monitoring.ts",
+    "src/config/environment.backend.ts",
+    "src/types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "src/frontend/**/*",
+    "src/components/**/*",
+    "src/pages/**/*",
+    "src/config/environment.ts",
+    "src/services/**/*",
+    "src/firebase/**/*",
+    "src/utils/**/*",
+    "src/backend/routes/advanced-*.ts",
+    "src/backend/routes/enhanced-*.ts",
+    "src/backend/routes/venue-*.ts"
+  ]
+}

@@ -1,0 +1,671 @@
+// Gameflow Cyberpunk Styling
+@import 'variables';
+@import 'mixins';
+
+// Neon color palette specific to game flow
+$game-neon-primary: #00ff88;
+$game-neon-secondary: #ff0099;
+$game-neon-warning: #ffcc00;
+$game-neon-error: #ff0044;
+$game-neon-info: #00ccff;
+$game-neon-purple: #8b00ff;
+$game-neon-orange: #ff6600;
+
+// Game flow specific mixins
+@mixin game-flow-card {
+  background: linear-gradient(
+    135deg,
+    transparentize($dark-surface, 0.05) 0%,
+    transparentize($dark-bg, 0.02) 100%
+  );
+  @include neon-border($game-neon-primary);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      circle,
+      transparentize($game-neon-primary, 0.9) 0%,
+      transparent 70%
+    );
+    animation: rotate-gradient 10s linear infinite;
+  }
+}
+
+@mixin step-indicator($color) {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparentize($color, 0.8);
+  border: 2px solid $color;
+  color: $color;
+  transition: all 0.3s ease;
+
+  &.active {
+    @include pulse-animation($color);
+    box-shadow: 0 0 20px $color;
+  }
+
+  &.completed {
+    background: transparentize($color, 0.6);
+    box-shadow: 0 0 15px transparentize($color, 0.5);
+  }
+}
+
+// Game Flow Orchestrator
+.game-flow-orchestrator {
+  min-height: 100vh;
+  background: $dark-bg;
+  position: relative;
+
+  &__background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.1;
+    background-image:
+      radial-gradient(
+        circle at 20% 50%,
+        $game-neon-primary 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 80%,
+        $game-neon-secondary 0%,
+        transparent 50%
+      ),
+      radial-gradient(circle at 40% 20%, $game-neon-info 0%, transparent 50%);
+    animation: background-shift 20s ease-in-out infinite;
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: 3rem;
+
+    h1 {
+      @include cyberpunk-gradient($game-neon-primary, $game-neon-secondary);
+      font-size: 3rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      @include neon-glow($game-neon-primary, 30px);
+    }
+
+    p {
+      color: transparentize(white, 0.3);
+      font-size: 1.1rem;
+    }
+  }
+
+  &__progress {
+    margin-bottom: 3rem;
+
+    &-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: transparentize($game-neon-primary, 0.8);
+      overflow: hidden;
+
+      &-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          $game-neon-primary 0%,
+          $game-neon-info 100%
+        );
+        box-shadow: 0 0 20px $game-neon-primary;
+        transition: width 0.5s ease;
+      }
+    }
+
+    &-info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+
+      span:first-child {
+        color: $game-neon-primary;
+      }
+
+      span:last-child {
+        color: transparentize(white, 0.5);
+      }
+    }
+  }
+
+  &__stepper {
+    @include game-flow-card;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  &__step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+
+    &.active,
+    &.completed {
+      opacity: 1;
+    }
+
+    &-indicator {
+      @include step-indicator($game-neon-info);
+      margin-right: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    &-content {
+      flex: 1;
+
+      h3 {
+        color: $game-neon-info;
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+        transition: all 0.3s ease;
+      }
+
+      p {
+        color: transparentize(white, 0.3);
+        font-size: 0.875rem;
+      }
+    }
+
+    &-component {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: transparentize($dark-surface, 0.5);
+      border-radius: 0.5rem;
+      @include neon-border($game-neon-info, 1px);
+      animation: fadeIn 0.5s ease;
+    }
+
+    &.active &-content h3 {
+      @include neon-glow($game-neon-info, 10px);
+    }
+
+    &.completed &-indicator {
+      background: transparentize($game-neon-primary, 0.6);
+      border-color: $game-neon-primary;
+      color: $game-neon-primary;
+    }
+  }
+
+  &__current-step {
+    @include game-flow-card;
+    padding: 3rem;
+    text-align: center;
+    animation: slideIn 0.5s ease;
+
+    &-icon {
+      font-size: 64px;
+      color: $game-neon-info;
+      margin-bottom: 1rem;
+      @include neon-glow($game-neon-info, 20px);
+    }
+
+    &-title {
+      color: $game-neon-info;
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      @include neon-glow($game-neon-info, 10px);
+    }
+
+    &-description {
+      color: transparentize(white, 0.3);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+  }
+
+  &__summary {
+    margin-top: 2rem;
+
+    h3 {
+      color: $game-neon-secondary;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    &-chips {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+
+      .chip {
+        background: transparentize($game-neon-primary, 0.8);
+        color: $game-neon-primary;
+        border: 1px solid $game-neon-primary;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+
+        &--warning {
+          background: transparentize($game-neon-warning, 0.8);
+          color: $game-neon-warning;
+          border-color: $game-neon-warning;
+        }
+
+        &--info {
+          background: transparentize($game-neon-info, 0.8);
+          color: $game-neon-info;
+          border-color: $game-neon-info;
+        }
+
+        &--secondary {
+          background: transparentize($game-neon-secondary, 0.8);
+          color: $game-neon-secondary;
+          border-color: $game-neon-secondary;
+        }
+      }
+    }
+  }
+}
+
+// Game State Manager
+.game-state {
+  &__indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+
+    &-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: transparentize($dark-surface, 0.1);
+      @include neon-border($game-neon-primary, 1px);
+      border-radius: 30px;
+      backdrop-filter: blur(10px);
+
+      &-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: $game-neon-primary;
+        @include pulse-animation($game-neon-primary, 1s);
+
+        &--waiting {
+          background: $game-neon-warning;
+          @include pulse-animation($game-neon-warning, 2s);
+        }
+
+        &--error {
+          background: $game-neon-error;
+          @include pulse-animation($game-neon-error, 0.5s);
+        }
+      }
+
+      &-text {
+        color: $game-neon-primary;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+    }
+  }
+
+  &__sync-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    &.syncing {
+      animation: rotate 1s linear infinite;
+      color: $game-neon-info;
+      @include neon-glow($game-neon-info, 5px);
+    }
+  }
+}
+
+// Game Analytics
+.game-analytics {
+  &__container {
+    padding: 2rem;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h2 {
+      @include cyberpunk-gradient($game-neon-primary, $game-neon-secondary);
+      font-size: 2rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    &-refresh {
+      &.rotating {
+        animation: rotate 1s linear infinite;
+      }
+    }
+  }
+
+  &__player-card {
+    @include game-flow-card;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    &-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+
+      &-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          $game-neon-primary 0%,
+          $game-neon-secondary 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-weight: bold;
+        color: white;
+        @include neon-glow($game-neon-primary, 10px);
+      }
+
+      &-name {
+        color: $game-neon-info;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      &-rating {
+        background: transparentize($game-neon-primary, 0.8);
+        color: $game-neon-primary;
+        border: 1px solid $game-neon-primary;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: bold;
+        margin-left: 0.5rem;
+      }
+    }
+
+    &-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+
+      &-item {
+        text-align: center;
+
+        &-value {
+          font-size: 2.5rem;
+          font-weight: bold;
+          color: $game-neon-primary;
+          @include neon-glow($game-neon-primary, 5px);
+
+          &--warning {
+            color: $game-neon-warning;
+            @include neon-glow($game-neon-warning, 5px);
+          }
+        }
+
+        &-label {
+          font-size: 0.75rem;
+          color: transparentize(white, 0.5);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+
+    &-details {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid transparentize($game-neon-info, 0.7);
+
+      &-item {
+        text-align: center;
+
+        &-value {
+          font-size: 1.25rem;
+          color: $game-neon-info;
+          font-weight: 600;
+
+          &--warning {
+            color: $game-neon-warning;
+          }
+
+          &--error {
+            color: $game-neon-error;
+          }
+        }
+
+        &-label {
+          font-size: 0.625rem;
+          color: transparentize(white, 0.5);
+          text-transform: uppercase;
+        }
+      }
+    }
+
+    &-progress {
+      margin-top: 1rem;
+
+      &-label {
+        font-size: 0.75rem;
+        color: transparentize(white, 0.5);
+        margin-bottom: 0.25rem;
+      }
+
+      &-bar {
+        height: 6px;
+        border-radius: 3px;
+        background: transparentize($game-neon-purple, 0.8);
+        overflow: hidden;
+
+        &-fill {
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            $game-neon-purple 0%,
+            $game-neon-secondary 100%
+          );
+          border-radius: 3px;
+          transition: width 0.3s ease;
+        }
+      }
+    }
+  }
+
+  &__insights {
+    @include game-flow-card;
+    padding: 1.5rem;
+
+    &-header {
+      color: $game-neon-secondary;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    &-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    &-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      animation: fadeIn 0.5s ease;
+
+      &--tip {
+        background: transparentize($game-neon-info, 0.9);
+        border: 1px solid transparentize($game-neon-info, 0.7);
+      }
+
+      &--warning {
+        background: transparentize($game-neon-warning, 0.9);
+        border: 1px solid transparentize($game-neon-warning, 0.7);
+      }
+
+      &--prediction {
+        background: transparentize($game-neon-primary, 0.9);
+        border: 1px solid transparentize($game-neon-primary, 0.7);
+      }
+
+      &-icon {
+        font-size: 24px;
+        flex-shrink: 0;
+      }
+
+      &-content {
+        flex: 1;
+
+        &-message {
+          color: white;
+          font-size: 0.875rem;
+          line-height: 1.4;
+          margin-bottom: 0.25rem;
+        }
+
+        &-meta {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          font-size: 0.75rem;
+          color: transparentize(white, 0.5);
+        }
+      }
+    }
+  }
+
+  &__chart {
+    @include game-flow-card;
+    padding: 1.5rem;
+
+    &-placeholder {
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparentize($game-neon-primary, 0.95);
+      border: 1px solid transparentize($game-neon-primary, 0.8);
+      border-radius: 0.5rem;
+      color: transparentize(white, 0.5);
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Animations
+@keyframes rotate-gradient {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes background-shift {
+  0%,
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+  33% {
+    transform: scale(1.1) translate(-5%, 5%);
+  }
+  66% {
+    transform: scale(0.9) translate(5%, -5%);
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .game-flow-orchestrator {
+    &__header h1 {
+      font-size: 2rem;
+    }
+
+    &__stepper {
+      padding: 1rem;
+    }
+
+    &__step {
+      &-indicator {
+        width: 40px;
+        height: 40px;
+        margin-right: 1rem;
+      }
+
+      &-content h3 {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .game-analytics {
+    &__player-card {
+      &-stats {
+        &-item-value {
+          font-size: 2rem;
+        }
+      }
+
+      &-details {
+        gap: 0.5rem;
+
+        &-item-value {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+}

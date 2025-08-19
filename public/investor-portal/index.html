@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dojo Pool - Interactive Investor Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'dojo-orange': '#B45309',
+              'dojo-gold': '#F59E0B',
+              'dojo-dark': '#1F2937',
+              'dojo-light': '#F5F5F4',
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+      .cyberpunk-bg {
+        background: linear-gradient(
+          135deg,
+          #1a1a2e 0%,
+          #16213e 25%,
+          #0f3460 50%,
+          #16213e 75%,
+          #1a1a2e 100%
+        );
+      }
+
+      .glow-text {
+        text-shadow:
+          0 0 10px #f59e0b,
+          0 0 20px #f59e0b,
+          0 0 30px #f59e0b;
+      }
+
+      .card-glow {
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+        border: 1px solid rgba(245, 158, 11, 0.5);
+      }
+
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      .orbitron {
+        font-family: 'Orbitron', monospace;
+      }
+      .inter {
+        font-family: 'Inter', sans-serif;
+      }
+
+      .hidden {
+        display: none;
+      }
+      .visible {
+        display: block;
+      }
+    </style>
+  </head>
+  <body class="cyberpunk-bg min-h-screen text-white inter">
+    <!-- Password Protection Screen -->
+    <div
+      id="password-screen"
+      class="min-h-screen flex items-center justify-center p-4"
+    >
+      <div class="card-glow rounded-lg p-8 max-w-md w-full text-center">
+        <img
+          src="/images/logo.jpg"
+          alt="Dojo Pool Logo"
+          class="h-20 w-20 rounded-full object-cover mx-auto mb-6"
+        />
+        <h1 class="orbitron text-2xl font-bold mb-4 glow-text">
+          Dojo Pool Investor Portal
+        </h1>
+        <p class="mb-6 text-gray-300">
+          Enter credentials to access confidential investor materials
+        </p>
+        <input
+          type="email"
+          id="email-input"
+          placeholder="Enter email address..."
+          class="w-full p-3 bg-gray-800 border border-dojo-orange rounded-lg text-white mb-4 focus:outline-none focus:ring-2 focus:ring-dojo-gold"
+        />
+        <input
+          type="password"
+          id="password-input"
+          placeholder="Enter password..."
+          class="w-full p-3 bg-gray-800 border border-dojo-orange rounded-lg text-white mb-4 focus:outline-none focus:ring-2 focus:ring-dojo-gold"
+        />
+        <button
+          onclick="checkPassword()"
+          class="w-full bg-dojo-orange hover:bg-dojo-gold text-white font-bold py-3 px-6 rounded-lg transition-colors"
+        >
+          Access Portal
+        </button>
+        <div id="error-message" class="text-red-400 mt-4 hidden"></div>
+      </div>
+    </div>
+
+    <!-- Main Portal Content -->
+    <div id="main-content" class="hidden">
+      <!-- Header -->
+      <header
+        class="bg-gray-900 bg-opacity-90 backdrop-blur-sm sticky top-0 z-50"
+      >
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <img
+                src="/images/logo.jpg"
+                alt="Dojo Pool Logo"
+                class="h-12 w-12 rounded-full object-cover"
+              />
+              <h1 class="orbitron text-xl font-bold glow-text">Dojo Pool</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+              <a href="#overview" class="hover:text-dojo-gold transition-colors"
+                >Overview</a
+              >
+              <a
+                href="#technology"
+                class="hover:text-dojo-gold transition-colors"
+                >Technology</a
+              >
+              <a href="#market" class="hover:text-dojo-gold transition-colors"
+                >Market</a
+              >
+              <a href="#team" class="hover:text-dojo-gold transition-colors"
+                >Team</a
+              >
+              <a
+                href="#financials"
+                class="hover:text-dojo-gold transition-colors"
+                >Financials</a
+              >
+              <a href="#roadmap" class="hover:text-dojo-gold transition-colors"
+                >Roadmap</a
+              >
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      <!-- Hero Section -->
+      <section class="py-20 px-4">
+        <div class="container mx-auto text-center">
+          <h1
+            class="orbitron text-4xl md:text-6xl font-bold mb-6 glow-text animate-float"
+          >
+            Pool Battle Arena
+          </h1>
+          <p class="text-xl md:text-2xl mb-8 text-gray-300 max-w-4xl mx-auto">
+            Transform physical pool gaming into an immersive, avatar-driven
+            battle experience with AI-enhanced gameplay, territory control, and
+            blockchain rewards.
+          </p>
+          <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <div class="card-glow rounded-lg p-4 bg-gray-800 bg-opacity-50">
+              <div class="text-2xl font-bold text-dojo-gold">$850K</div>
+              <div class="text-sm text-gray-400">Seed Round Target</div>
+            </div>
+            <div class="card-glow rounded-lg p-4 bg-gray-800 bg-opacity-50">
+              <div class="text-2xl font-bold text-dojo-gold">50M+</div>
+              <div class="text-sm text-gray-400">Target Pool Players</div>
+            </div>
+            <div class="card-glow rounded-lg p-4 bg-gray-800 bg-opacity-50">
+              <div class="text-2xl font-bold text-dojo-gold">$500B</div>
+              <div class="text-sm text-gray-400">Gaming Market Size</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Core Concept Section -->
+      <section id="overview" class="py-16 px-4">
+        <div class="container mx-auto">
+          <h2 class="orbitron text-3xl font-bold text-center mb-12 glow-text">
+            The Dojo Pool Experience
+          </h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <div class="text-4xl mb-4">🎮</div>
+              <h3 class="orbitron text-xl font-bold mb-4 text-dojo-gold">
+                Avatar-Driven Gameplay
+              </h3>
+              <p class="text-gray-300">
+                Players control evolving anime-style avatars that gain power
+                through real pool victories, creating personalized storylines.
+              </p>
+            </div>
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <div class="text-4xl mb-4">🏆</div>
+              <h3 class="orbitron text-xl font-bold mb-4 text-dojo-gold">
+                Territory Control
+              </h3>
+              <p class="text-gray-300">
+                Win real matches to claim and defend physical venues as
+                NFT-backed territories with passive income potential.
+              </p>
+            </div>
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <div class="text-4xl mb-4">🤖</div>
+              <h3 class="orbitron text-xl font-bold mb-4 text-dojo-gold">
+                AI Enhancement
+              </h3>
+              <p class="text-gray-300">
+                Advanced AI tracking, real-time commentary, and the mystical
+                Pool Gods system add magic to every match.
+              </p>
+            </div>
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <div class="text-4xl mb-4">⚔️</div>
+              <h3 class="orbitron text-xl font-bold mb-4 text-dojo-gold">
+                Clan Wars
+              </h3>
+              <p class="text-gray-300">
+                Join factions, battle for clan-controlled territories, and
+                participate in epic multi-day faction wars.
+              </p>
+            </div>
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <div class="text-4xl mb-4">💰</div>
+              <h3 class="orbitron text-xl font-bold mb-4 text-dojo-gold">
+                Blockchain Economy
+              </h3>
+              <p class="text-gray-300">
+                Earn Dojo Coins and NFTs through gameplay, with multi-chain
+                support and real-world value.
+              </p>
+            </div>
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <div class="text-4xl mb-4">🏢</div>
+              <h3 class="orbitron text-xl font-bold mb-4 text-dojo-gold">
+                Venue Management
+              </h3>
+              <p class="text-gray-300">
+                Comprehensive portal for venue owners to manage events, track
+                analytics, and create digital experiences.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Technology Section -->
+      <section id="technology" class="py-16 px-4 bg-gray-900 bg-opacity-50">
+        <div class="container mx-auto">
+          <h2 class="orbitron text-3xl font-bold text-center mb-12 glow-text">
+            Cutting-Edge Technology Stack
+          </h2>
+          <div class="grid md:grid-cols-2 gap-12">
+            <div>
+              <h3 class="orbitron text-2xl font-bold mb-6 text-dojo-gold">
+                AI Integration
+              </h3>
+              <ul class="space-y-4 text-gray-300">
+                <li class="flex items-start">
+                  <span class="text-dojo-gold mr-2">•</span>
+                  <div>
+                    <strong>Diception AI:</strong> Advanced ball tracking with
+                    3D position detection and multi-camera support
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-dojo-gold mr-2">•</span>
+                  <div>
+                    <strong>Sky-T1 AI Referee:</strong> Rule interpretation,
+                    foul detection, and decision explanation
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-dojo-gold mr-2">•</span>
+                  <div>
+                    <strong>Wan 2.1 Content Generation:</strong> Match
+                    highlights, promotional content, and educational materials
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-dojo-gold mr-2">•</span>
+                  <div>
+                    <strong>AudioCraft Integration:</strong> Dynamic soundscapes
+                    and real-time commentary
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="orbitron text-2xl font-bold mb-6 text-dojo-gold">
+                Platform Architecture
+              </h3>
+              <ul class="space-y-4 text-gray-300">
+                <li class="flex items-start">
+                  <span class="text-dojo-gold mr-2">•</span>
+                  <div>
+                    <strong>Frontend:</strong> React/TypeScript with real-time
+                    UI and mobile compatibility
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-dojo-gold mr-2">•</span>
+                  <div>
+                    <strong>Backend Services:</strong> Microservices
+                    architecture with analytics, avatar, and tournament systems
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-dojo-gold mr-2">•</span>
+                  <div>
+                    <strong>Blockchain:</strong> Multi-chain support (Ethereum,
+                    Solana) with smart contracts
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-dojo-gold mr-2">•</span>
+                  <div>
+                    <strong>Hardware Integration:</strong> Camera systems,
+                    sensors, and AR device compatibility
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Market Opportunity -->
+      <section id="market" class="py-16 px-4">
+        <div class="container mx-auto">
+          <h2 class="orbitron text-3xl font-bold text-center mb-12 glow-text">
+            Market Opportunity
+          </h2>
+          <div class="grid md:grid-cols-3 gap-8 mb-12">
+            <div class="text-center">
+              <div class="text-4xl font-bold text-dojo-gold mb-2">$500B</div>
+              <div class="text-gray-300">Global Gaming Market</div>
+            </div>
+            <div class="text-center">
+              <div class="text-4xl font-bold text-dojo-gold mb-2">50M+</div>
+              <div class="text-gray-300">Pool Players Worldwide</div>
+            </div>
+            <div class="text-center">
+              <div class="text-4xl font-bold text-dojo-gold mb-2">$50B</div>
+              <div class="text-gray-300">Sports Gaming Revenue</div>
+            </div>
+          </div>
+          <div class="card-glow rounded-lg p-8 bg-gray-800 bg-opacity-50">
+            <h3 class="orbitron text-2xl font-bold mb-6 text-dojo-gold">
+              Strategic Advantages
+            </h3>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 class="font-bold mb-2 text-white">First-Mover Advantage</h4>
+                <p class="text-gray-300">
+                  First to combine physical pool with avatar-driven narrative
+                  gameplay
+                </p>
+              </div>
+              <div>
+                <h4 class="font-bold mb-2 text-white">Existing Player Base</h4>
+                <p class="text-gray-300">
+                  Tap into established pool communities and venues globally
+                </p>
+              </div>
+              <div>
+                <h4 class="font-bold mb-2 text-white">Scalable Technology</h4>
+                <p class="text-gray-300">
+                  AI-driven platform scales efficiently across multiple venues
+                </p>
+              </div>
+              <div>
+                <h4 class="font-bold mb-2 text-white">
+                  Multiple Revenue Streams
+                </h4>
+                <p class="text-gray-300">
+                  Venue partnerships, in-game purchases, NFT sales, tournament
+                  fees
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Team Section -->
+      <section id="team" class="py-16 px-4 bg-gray-900 bg-opacity-50">
+        <div class="container mx-auto">
+          <h2 class="orbitron text-3xl font-bold text-center mb-12 glow-text">
+            Leadership Team
+          </h2>
+          <div class="flex justify-center">
+            <div
+              class="card-glow rounded-lg p-8 bg-gray-800 bg-opacity-50 max-w-md"
+            >
+              <div class="text-center">
+                <div
+                  class="w-24 h-24 rounded-full bg-dojo-orange mx-auto mb-4 flex items-center justify-center"
+                >
+                  <img
+                    src="https://placehold.co/96x96/B45309/F5F5F4?text=JGR"
+                    alt="Julian Gilbert-Roberts Profile"
+                    class="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+                <h3 class="orbitron text-xl font-bold mb-2 text-dojo-gold">
+                  Julian Gilbert-Roberts
+                </h3>
+                <p class="text-gray-300 mb-4">Co-Founder & CEO</p>
+                <div class="text-left text-sm text-gray-300">
+                  <p class="mb-2">• 15+ years in gaming and technology</p>
+                  <p class="mb-2">
+                    • Former Senior Developer at major gaming studios
+                  </p>
+                  <p class="mb-2">
+                    • Expert in AI integration and blockchain development
+                  </p>
+                  <p>• Passionate pool player and gaming enthusiast</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Financial Projections -->
+      <section id="financials" class="py-16 px-4">
+        <div class="container mx-auto">
+          <h2 class="orbitron text-3xl font-bold text-center mb-12 glow-text">
+            Investment Opportunity
+          </h2>
+          <div class="grid md:grid-cols-2 gap-12">
+            <div class="card-glow rounded-lg p-8 bg-gray-800 bg-opacity-50">
+              <h3 class="orbitron text-2xl font-bold mb-6 text-dojo-gold">
+                Funding Requirements
+              </h3>
+              <div class="space-y-4">
+                <div class="flex justify-between">
+                  <span>Seed Round Target:</span>
+                  <span class="font-bold text-dojo-gold">$850,000</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Large Investor (20% equity):</span>
+                  <span class="font-bold">$170,000</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Small Investors Pool (5% equity):</span>
+                  <span class="font-bold">$42,500</span>
+                </div>
+                <div class="border-t border-gray-600 pt-4">
+                  <div class="flex justify-between">
+                    <span>Founders (50% equity):</span>
+                    <span class="font-bold">Julian & Mo Turbo</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Employee Pool (20% equity):</span>
+                    <span class="font-bold">Reserved</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Option Pool (5% equity):</span>
+                    <span class="font-bold">Reserved</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-glow rounded-lg p-8 bg-gray-800 bg-opacity-50">
+              <h3 class="orbitron text-2xl font-bold mb-6 text-dojo-gold">
+                Revenue Projections
+              </h3>
+              <div class="space-y-4">
+                <div>
+                  <h4 class="font-bold mb-2">Year 1: $500K ARR</h4>
+                  <ul class="text-sm text-gray-300 space-y-1">
+                    <li>• 100 venues onboarded</li>
+                    <li>• 10,000 active players</li>
+                    <li>• $50/month average venue subscription</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="font-bold mb-2">Year 2: $2.5M ARR</h4>
+                  <ul class="text-sm text-gray-300 space-y-1">
+                    <li>• 500 venues globally</li>
+                    <li>• 50,000 active players</li>
+                    <li>• NFT and token economy launch</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="font-bold mb-2">Year 3: $10M ARR</h4>
+                  <ul class="text-sm text-gray-300 space-y-1">
+                    <li>• 2,000 venues worldwide</li>
+                    <li>• 200,000 active players</li>
+                    <li>• Full franchise system</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Development Roadmap -->
+      <section id="roadmap" class="py-16 px-4 bg-gray-900 bg-opacity-50">
+        <div class="container mx-auto">
+          <h2 class="orbitron text-3xl font-bold text-center mb-12 glow-text">
+            Development Roadmap
+          </h2>
+          <div class="space-y-8">
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <div class="flex items-center mb-4">
+                <div
+                  class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center mr-4"
+                >
+                  <span class="text-white font-bold">✓</span>
+                </div>
+                <h3 class="orbitron text-xl font-bold text-dojo-gold">
+                  Phase 1: MVP Complete
+                </h3>
+              </div>
+              <ul class="text-gray-300 space-y-2 ml-12">
+                <li>• Core venue management portal</li>
+                <li>• Tournament creation and management</li>
+                <li>• Basic AI integration</li>
+                <li>• Frontend-backend integration</li>
+              </ul>
+            </div>
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <div class="flex items-center mb-4">
+                <div
+                  class="w-8 h-8 rounded-full bg-dojo-gold flex items-center justify-center mr-4"
+                >
+                  <span class="text-white font-bold">2</span>
+                </div>
+                <h3 class="orbitron text-xl font-bold text-dojo-gold">
+                  Phase 2: Enhanced Experience (Current)
+                </h3>
+              </div>
+              <ul class="text-gray-300 space-y-2 ml-12">
+                <li>• Avatar system and customization</li>
+                <li>• Territory control mechanics</li>
+                <li>• AI referee and commentary</li>
+                <li>• Social features and clans</li>
+              </ul>
+            </div>
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <div class="flex items-center mb-4">
+                <div
+                  class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center mr-4"
+                >
+                  <span class="text-white font-bold">3</span>
+                </div>
+                <h3 class="orbitron text-xl font-bold text-dojo-gold">
+                  Phase 3: Blockchain Integration
+                </h3>
+              </div>
+              <ul class="text-gray-300 space-y-2 ml-12">
+                <li>• Dojo Coin and NFT marketplace</li>
+                <li>• Multi-chain wallet integration</li>
+                <li>• Territory NFTs and trading</li>
+                <li>• Reward distribution system</li>
+              </ul>
+            </div>
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <div class="flex items-center mb-4">
+                <div
+                  class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center mr-4"
+                >
+                  <span class="text-white font-bold">4</span>
+                </div>
+                <h3 class="orbitron text-xl font-bold text-dojo-gold">
+                  Phase 4: Global Scaling
+                </h3>
+              </div>
+              <ul class="text-gray-300 space-y-2 ml-12">
+                <li>• Franchise system rollout</li>
+                <li>• International venue partnerships</li>
+                <li>• Advanced AI features</li>
+                <li>• Mobile AR integration</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Interactive Q&A Assistant -->
+      <section class="py-16 px-4">
+        <div class="container mx-auto">
+          <h2 class="orbitron text-3xl font-bold text-center mb-12 glow-text">
+            AI Investment Assistant
+          </h2>
+          <div class="card-glow rounded-lg p-8 bg-gray-800 bg-opacity-50">
+            <div class="mb-6">
+              <h3 class="orbitron text-xl font-bold mb-4 text-dojo-gold">
+                Ask Questions About Dojo Pool
+              </h3>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <button
+                  onclick="askQuestion('What is the total addressable market for Dojo Pool?')"
+                  class="bg-dojo-orange hover:bg-dojo-gold text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                >
+                  Market Size
+                </button>
+                <button
+                  onclick="askQuestion('How does the revenue model work?')"
+                  class="bg-dojo-orange hover:bg-dojo-gold text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                >
+                  Revenue Model
+                </button>
+                <button
+                  onclick="askQuestion('What are the key competitive advantages?')"
+                  class="bg-dojo-orange hover:bg-dojo-gold text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                >
+                  Competitive Edge
+                </button>
+                <button
+                  onclick="askQuestion('What is the technology stack?')"
+                  class="bg-dojo-orange hover:bg-dojo-gold text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                >
+                  Technology
+                </button>
+              </div>
+              <textarea
+                id="question-input"
+                placeholder="Type your question about Dojo Pool..."
+                class="w-full p-4 bg-gray-700 border border-dojo-orange rounded-lg text-white resize-none h-24 focus:outline-none focus:ring-2 focus:ring-dojo-gold"
+              ></textarea>
+              <button
+                onclick="submitQuestion()"
+                class="mt-4 bg-dojo-orange hover:bg-dojo-gold text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              >
+                Get AI Analysis
+              </button>
+            </div>
+            <div id="ai-response" class="hidden">
+              <h4 class="font-bold mb-2 text-dojo-gold">AI Analysis:</h4>
+              <div
+                id="response-content"
+                class="bg-gray-700 p-4 rounded-lg text-gray-300"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Risk Assessment -->
+      <section class="py-16 px-4 bg-gray-900 bg-opacity-50">
+        <div class="container mx-auto">
+          <h2 class="orbitron text-3xl font-bold text-center mb-12 glow-text">
+            Investment Risk Analysis
+          </h2>
+          <div class="grid md:grid-cols-2 gap-8">
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <h3 class="orbitron text-xl font-bold mb-4 text-red-400">
+                Key Risks
+              </h3>
+              <ul class="space-y-3 text-gray-300">
+                <li class="flex items-start">
+                  <span class="text-red-400 mr-2">⚠️</span>
+                  <div>
+                    <strong>Market Adoption:</strong> Requires venue
+                    partnerships and player adoption
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-red-400 mr-2">⚠️</span>
+                  <div>
+                    <strong>Technology Risk:</strong> Complex AI integration and
+                    hardware requirements
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-red-400 mr-2">⚠️</span>
+                  <div>
+                    <strong>Competition:</strong> Established gaming platforms
+                    may enter market
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-red-400 mr-2">⚠️</span>
+                  <div>
+                    <strong>Regulatory:</strong> Blockchain and gaming
+                    regulations may change
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="card-glow rounded-lg p-6 bg-gray-800 bg-opacity-50">
+              <h3 class="orbitron text-xl font-bold mb-4 text-green-400">
+                Risk Mitigation
+              </h3>
+              <ul class="space-y-3 text-gray-300">
+                <li class="flex items-start">
+                  <span class="text-green-400 mr-2">✅</span>
+                  <div>
+                    <strong>Proven Concept:</strong> Working MVP with venue
+                    partnerships
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-400 mr-2">✅</span>
+                  <div>
+                    <strong>Scalable Technology:</strong> Cloud-based, modular
+                    architecture
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-400 mr-2">✅</span>
+                  <div>
+                    <strong>First-Mover Advantage:</strong> Unique positioning
+                    in hybrid gaming
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-green-400 mr-2">✅</span>
+                  <div>
+                    <strong>Experienced Team:</strong> Deep gaming and
+                    technology expertise
+                  </div>
+                </li>
+              </ul>
+              <button
+                onclick="analyzeRisk()"
+                class="mt-4 bg-dojo-orange hover:bg-dojo-gold text-white font-bold py-2 px-4 rounded-lg transition-colors"
+              >
+                AI Risk Assessment
+              </button>
+              <div id="risk-analysis" class="hidden mt-4">
+                <div
+                  class="bg-gray-700 p-4 rounded-lg text-gray-300"
+                  id="risk-content"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Call to Action -->
+      <section class="py-20 px-4">
+        <div class="container mx-auto text-center">
+          <h2 class="orbitron text-4xl font-bold mb-6 glow-text">
+            Join the Revolution
+          </h2>
+          <p class="text-xl mb-8 text-gray-300 max-w-2xl mx-auto">
+            Be part of the first platform to merge physical pool gaming with
+            immersive digital experiences. Help us build the future of hybrid
+            gaming.
+          </p>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a
+              href="mailto:julian@dojopool.com.au?subject=Investment Inquiry"
+              class="bg-dojo-orange hover:bg-dojo-gold text-white font-bold py-4 px-8 rounded-lg transition-colors text-lg"
+            >
+              Schedule Meeting
+            </a>
+            <a
+              href="mailto:julian@dojopool.com.au?subject=Information Request"
+              class="border-2 border-dojo-orange hover:bg-dojo-orange text-white font-bold py-4 px-8 rounded-lg transition-colors text-lg"
+            >
+              Request More Info
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="bg-gray-900 py-8 px-4">
+        <div class="container mx-auto text-center">
+          <div class="flex items-center justify-center space-x-4 mb-4">
+            <img
+              src="/images/logo.jpg"
+              alt="Dojo Pool Logo"
+              class="h-8 w-8 rounded-full object-cover"
+            />
+            <span class="orbitron font-bold text-dojo-gold">Dojo Pool</span>
+          </div>
+          <p class="text-gray-400 text-sm">
+            © 2025 Dojo Pool. Confidential Investor Materials.
+          </p>
+          <p class="text-gray-500 text-xs mt-2">
+            This portal contains confidential and proprietary information.
+          </p>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Server-side authentication for investor portal
+      let currentUser = null;
+
+      async function checkPassword() {
+        const emailInput = document.getElementById('email-input');
+        const passwordInput = document.getElementById('password-input');
+        const errorMessage = document.getElementById('error-message');
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+          showError('Email and password are required');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/investor/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include',
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            currentUser = result.user;
+            document.getElementById('password-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            // Clear sensitive data from memory
+            emailInput.value = '';
+            passwordInput.value = '';
+            hideError();
+          } else {
+            showError(result.error || 'Authentication failed');
+          }
+        } catch (error) {
+          console.error('Login error:', error);
+          showError('Connection error. Please try again.');
+        }
+      }
+
+      function showError(message) {
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.textContent = message;
+        errorMessage.classList.remove('hidden');
+        setTimeout(() => {
+          hideError();
+        }, 5000);
+      }
+
+      function hideError() {
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.classList.add('hidden');
+      }
+
+      // Allow Enter key to submit password
+      document
+        .getElementById('password-input')
+        .addEventListener('keypress', function (e) {
+          if (e.key === 'Enter') {
+            checkPassword();
+          }
+        });
+
+      // Check authentication status on page load
+      async function checkAuthStatus() {
+        try {
+          const response = await fetch('/api/investor/auth/verify', {
+            method: 'GET',
+            credentials: 'include',
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            currentUser = result.user;
+            document.getElementById('password-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+          }
+        } catch (error) {
+          console.error('Auth check error:', error);
+        }
+      }
+
+      // Logout function
+      async function logout() {
+        try {
+          await fetch('/api/investor/auth/logout', {
+            method: 'POST',
+            credentials: 'include',
+          });
+
+          currentUser = null;
+          document.getElementById('password-screen').classList.remove('hidden');
+          document.getElementById('main-content').classList.add('hidden');
+        } catch (error) {
+          console.error('Logout error:', error);
+        }
+      }
+
+      // Gemini AI Integration
+      const apiKey = ''; // This should remain empty for Canvas environment
+
+      function askQuestion(question) {
+        document.getElementById('question-input').value = question;
+      }
+
+      async function submitQuestion() {
+        const question = document.getElementById('question-input').value;
+        if (!question.trim()) return;
+
+        const responseDiv = document.getElementById('ai-response');
+        const contentDiv = document.getElementById('response-content');
+
+        responseDiv.classList.remove('hidden');
+        contentDiv.innerHTML = 'Analyzing your question...';
+
+        try {
+          // Mock response for demonstration - in production, this would use Gemini API
+          const mockResponse = generateMockResponse(question);
+          contentDiv.innerHTML = mockResponse;
+        } catch (error) {
+          contentDiv.innerHTML =
+            'Sorry, I encountered an error processing your question. Please try again or contact julian@dojopool.com.au directly.';
+        }
+      }
+
+      function generateMockResponse(question) {
+        // Simple mock responses based on question content
+        const lowerQuestion = question.toLowerCase();
+
+        if (
+          lowerQuestion.includes('market') ||
+          lowerQuestion.includes('size')
+        ) {
+          return `
+                    <strong>Market Analysis:</strong><br><br>
+                    The total addressable market for Dojo Pool spans multiple sectors:<br><br>
+                    • <strong>Global Gaming Market:</strong> $500B+ with 15% annual growth<br>
+                    • <strong>Pool/Billiards Market:</strong> 50M+ active players worldwide<br>
+                    • <strong>Sports Gaming:</strong> $50B revenue with strong mobile adoption<br>
+                    • <strong>Blockchain Gaming:</strong> $25B+ and rapidly expanding<br><br>
+                    Our unique positioning at the intersection of physical and digital gaming creates a first-mover advantage in an underserved market segment.
+                `;
+        } else if (
+          lowerQuestion.includes('revenue') ||
+          lowerQuestion.includes('business model')
+        ) {
+          return `
+                    <strong>Revenue Model Analysis:</strong><br><br>
+                    Multiple revenue streams create a robust business model:<br><br>
+                    • <strong>Venue Subscriptions:</strong> $50-200/month per venue (primary revenue)<br>
+                    • <strong>Transaction Fees:</strong> 5-10% on in-game purchases and NFT trades<br>
+                    • <strong>Tournament Fees:</strong> Entry fees and prize pool management<br>
+                    • <strong>Premium Features:</strong> Advanced analytics and customization<br>
+                    • <strong>Partnership Revenue:</strong> Hardware sales and venue integrations<br><br>
+                    This diversified approach reduces dependency on any single revenue source.
+                `;
+        } else if (
+          lowerQuestion.includes('competitive') ||
+          lowerQuestion.includes('advantage')
+        ) {
+          return `
+                    <strong>Competitive Advantages:</strong><br><br>
+                    Key differentiators that create strong market position:<br><br>
+                    • <strong>First-Mover:</strong> No direct competitors in hybrid pool gaming<br>
+                    • <strong>Physical Integration:</strong> Real pool skills matter, not just digital<br>
+                    • <strong>AI Enhancement:</strong> Advanced tracking and commentary systems<br>
+                    • <strong>Narrative Depth:</strong> RPG-style progression and storytelling<br>
+                    • <strong>Venue Network:</strong> Physical presence creates community<br>
+                    • <strong>Blockchain Integration:</strong> True ownership and cross-game assets<br><br>
+                    These advantages create high barriers to entry and strong network effects.
+                `;
+        } else if (
+          lowerQuestion.includes('technology') ||
+          lowerQuestion.includes('tech')
+        ) {
+          return `
+                    <strong>Technology Stack Analysis:</strong><br><br>
+                    Modern, scalable architecture built for growth:<br><br>
+                    • <strong>Frontend:</strong> React/TypeScript for responsive, real-time UI<br>
+                    • <strong>Backend:</strong> Node.js microservices with high availability<br>
+                    • <strong>AI Integration:</strong> Multiple AI services (Diception, Sky-T1, Wan 2.1)<br>
+                    • <strong>Blockchain:</strong> Multi-chain support (Ethereum, Solana)<br>
+                    • <strong>Database:</strong> PostgreSQL with Redis caching<br>
+                    • <strong>Infrastructure:</strong> Cloud-native with auto-scaling<br><br>
+                    The modular design allows rapid feature development and easy scaling.
+                `;
+        } else {
+          return `
+                    <strong>Dojo Pool Overview:</strong><br><br>
+                    Thank you for your question about "${question}"<br><br>
+                    Dojo Pool is revolutionizing pool gaming by combining:<br><br>
+                    • Real pool gameplay with digital avatar progression<br>
+                    • Territory control and clan warfare systems<br>
+                    • AI-enhanced game tracking and commentary<br>
+                    • Blockchain rewards and NFT ownership<br>
+                    • Comprehensive venue management platform<br><br>
+                    For specific questions about investment terms, technical details, or partnership opportunities, 
+                    please contact julian@dojopool.com.au directly.
+                `;
+        }
+      }
+
+      async function analyzeRisk() {
+        const riskDiv = document.getElementById('risk-analysis');
+        const contentDiv = document.getElementById('risk-content');
+
+        riskDiv.classList.remove('hidden');
+        contentDiv.innerHTML = 'Generating risk assessment...';
+
+        // Mock risk analysis
+        const riskAssessment = `
+                <strong>AI Risk Assessment Summary:</strong><br><br>
+                <strong>Overall Risk Level: MODERATE</strong><br><br>
+                
+                <strong>Strengths (Low Risk):</strong><br>
+                • Proven MVP with working technology<br>
+                • Experienced team with relevant expertise<br>
+                • Large addressable market with growth potential<br>
+                • Multiple revenue streams reduce dependency<br><br>
+                
+                <strong>Areas of Concern (Medium Risk):</strong><br>
+                • Market education required for new concept<br>
+                • Technology complexity requires ongoing development<br>
+                • Venue partnership acquisition timeline<br><br>
+                
+                <strong>Mitigation Strategies:</strong><br>
+                • Phased rollout minimizes execution risk<br>
+                • Strong technical foundation reduces development risk<br>
+                • Clear go-to-market strategy with venue partners<br>
+                • Experienced advisory board provides guidance<br><br>
+                
+                <strong>Investment Recommendation:</strong> Suitable for investors comfortable with moderate risk and 2-3 year investment horizon.
+            `;
+
+        contentDiv.innerHTML = riskAssessment;
+      }
+
+      // Smooth scrolling for navigation
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+            });
+          }
+        });
+      });
+
+      // Initialize authentication
+      document.getElementById('main-content').classList.add('hidden');
+      document.getElementById('password-screen').classList.remove('hidden');
+
+      // Check authentication status on page load
+      checkAuthStatus();
+    </script>
+  </body>
+</html>

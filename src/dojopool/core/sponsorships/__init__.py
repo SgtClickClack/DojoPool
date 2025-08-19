@@ -1,0 +1,1 @@
+"""DojoPool sponsorships module."""

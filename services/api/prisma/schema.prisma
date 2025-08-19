@@ -1,0 +1,365 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String                 @id @default(uuid())
+  email         String                 @unique
+  username      String                 @unique
+  passwordHash  String
+  role          UserRole               @default(USER)
+  profile       Profile?
+  settings      UserSettings?
+  wallets       Wallet[]
+  nfts          UserNFT[]
+  achievements  UserAchievement[]
+  memberships   ClanMember[]
+  territories   Territory[]            @relation("TerritoryOwner")
+  checkIns      CheckIn[]
+  challengesAsChallenger Challenge[]   @relation("ChallengeChallenger")
+  challengesAsDefender   Challenge[]   @relation("ChallengeDefender")
+  ledClans      Clan[]                 @relation("ClanLeader")
+  matchesAsPlayerA Match[]             @relation("PlayerA")
+  matchesAsPlayerB Match[]             @relation("PlayerB")
+  matchesAsWinner  Match[]             @relation("MatchWinner")
+  matchesAsLoser   Match[]             @relation("MatchLoser")
+  tournaments   TournamentParticipant[]
+  transactions  Transaction[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+  venues        Venue[]
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+}
+
+enum UserRole {
+  USER
+  VENUE_ADMIN
+  ADMIN
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName String?
+  bio         String?
+  avatarUrl   String?
+  location    String?
+  skillRating Int      @default(0)
+  clanTitle   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserSettings {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailNotifications Boolean  @default(true)
+  pushNotifications  Boolean  @default(true)
+  darkMode           Boolean  @default(false)
+  language           String   @default("en")
+  timezone           String   @default("UTC")
+  privacySettings    Json     @default("{}")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Venue {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  lat         Float
+  lng         Float
+  address     String?
+  ownerId     String?
+  owner       User?         @relation(fields: [ownerId], references: [id])
+  tables      Table[]
+  tournaments Tournament[]
+  territories Territory[]
+  checkIns    CheckIn[]
+  challenges  Challenge[]
+  matches     Match[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Table {
+  id        String      @id @default(uuid())
+  venueId   String
+  venue     Venue       @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  name      String
+  status    TableStatus @default(AVAILABLE)
+  matches   Match[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+enum TableStatus {
+  AVAILABLE
+  IN_USE
+  MAINTENANCE
+  RESERVED
+}
+
+model Tournament {
+  id          String                 @id @default(uuid())
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  venueId     String
+  venue       Venue                  @relation(fields: [venueId], references: [id])
+  participants TournamentParticipant[]
+  matches     Match[]
+  status      TournamentStatus       @default(REGISTRATION)
+  maxPlayers  Int?
+  entryFee    Int?
+  prizePool   Int?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+}
+
+enum TournamentStatus {
+  REGISTRATION
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model TournamentParticipant {
+  id           String     @id @default(uuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  finalRank    Int?
+  joinedAt     DateTime   @default(now())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([tournamentId, userId])
+}
+
+model Match {
+  id           String        @id @default(uuid())
+  tournamentId String
+  tournament   Tournament    @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  venueId      String
+  venue        Venue         @relation(fields: [venueId], references: [id])
+  playerAId    String
+  playerA      User          @relation("PlayerA", fields: [playerAId], references: [id])
+  playerBId    String
+  playerB      User          @relation("PlayerB", fields: [playerBId], references: [id])
+  winnerId     String?
+  winner       User?         @relation("MatchWinner", fields: [winnerId], references: [id])
+  loserId      String?
+  loser        User?         @relation("MatchLoser", fields: [loserId], references: [id])
+  scoreA       Int?
+  scoreB       Int?
+  round        Int
+  status       MatchStatus   @default(PENDING)
+  startedAt    DateTime?
+  endedAt      DateTime?
+  tableId      String?
+  table        Table?        @relation(fields: [tableId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum MatchStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model Territory {
+  id        String   @id @default(uuid())
+  name      String
+  venueId   String
+  venue     Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  ownerId   String
+  owner     User     @relation("TerritoryOwner", fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Challenge {
+  id          String        @id @default(uuid())
+  challengerId String
+  challenger  User          @relation("ChallengeChallenger", fields: [challengerId], references: [id])
+  defenderId  String
+  defender    User          @relation("ChallengeDefender", fields: [defenderId], references: [id])
+  venueId     String
+  venue       Venue         @relation(fields: [venueId], references: [id])
+  status      ChallengeStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum ChallengeStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+model CheckIn {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  venueId   String
+  venue     Venue    @relation(fields: [venueId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Clan {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  leaderId    String
+  leader      User          @relation("ClanLeader", fields: [leaderId], references: [id])
+  members     ClanMember[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model ClanMember {
+  id        String   @id @default(uuid())
+  clanId    String
+  clan      Clan     @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String   @default("MEMBER")
+  joinedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([clanId, userId])
+}
+
+model Wallet {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chain     String
+  address   String
+  createdAt DateTime @default(now())
+
+  @@unique([chain, address])
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int
+  currency  String   @default("DOJO")
+  type      TxType
+  metadata  Json
+  createdAt DateTime @default(now())
+}
+
+enum TxType {
+  CREDIT
+  DEBIT
+  PRIZE
+  FEE
+  PURCHASE
+}
+
+model NFT {
+  id        String    @id @default(uuid())
+  contract  String
+  tokenId   String
+  chain     String
+  metadata  Json
+  users     UserNFT[]
+  createdAt DateTime  @default(now())
+
+  @@unique([contract, tokenId, chain])
+}
+
+model UserNFT {
+  id        String   @id @default(uuid())
+  userId    String
+  nftId     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nft       NFT      @relation(fields: [nftId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, nftId])
+}
+
+model Achievement {
+  id          String            @id @default(uuid())
+  key         String            @unique
+  name        String
+  desc        String?
+  description String?
+  icon        String?
+  criteria    Json?
+  points      Int               @default(0)
+  users       UserAchievement[]
+  createdAt   DateTime          @default(now())
+}
+
+model UserAchievement {
+  id            String      @id @default(uuid())
+  userId        String
+  achievementId String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  earnedAt      DateTime    @default(now())
+
+  @@unique([userId, achievementId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  payload   Json
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id])
+  action    String
+  target    String?
+  metadata  Json
+  ts        DateTime @default(now())
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  BLOCKED
+}
+
+model Friendship {
+  id           String            @id @default(uuid())
+  requesterId  String
+  addresseeId  String
+  requester    User              @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee    User              @relation("FriendAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status       FriendshipStatus  @default(PENDING)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+  @@index([requesterId, status])
+}

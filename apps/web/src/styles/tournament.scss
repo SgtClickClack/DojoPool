@@ -1,0 +1,292 @@
+// Cyberpunk Neon Color Palette
+$neon-primary: #00ff88;
+$neon-secondary: #ff0099;
+$neon-warning: #ffcc00;
+$neon-error: #ff0044;
+$neon-info: #00ccff;
+$neon-purple: #8b00ff;
+$neon-orange: #ff6600;
+
+// Dark backgrounds
+$dark-bg: #0a0a0a;
+$dark-surface: #1a1a1a;
+$dark-elevated: #2a2a2a;
+
+// Utility mixins
+@mixin neon-glow($color, $intensity: 10px) {
+  filter: drop-shadow(0 0 $intensity $color);
+  text-shadow: 0 0 $intensity $color;
+}
+
+@mixin neon-border($color, $width: 2px) {
+  border: $width solid transparentize($color, 0.7);
+  box-shadow:
+    0 0 10px transparentize($color, 0.5),
+    inset 0 0 10px transparentize($color, 0.9);
+}
+
+@mixin cyberpunk-gradient($color1, $color2) {
+  background: linear-gradient(135deg, $color1 0%, $color2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@mixin pulse-animation($color, $duration: 1.5s) {
+  animation: pulse-#{$color} $duration infinite;
+
+  @keyframes pulse-#{$color} {
+    0% {
+      box-shadow: 0 0 20px transparentize($color, 0.8);
+    }
+    50% {
+      box-shadow: 0 0 30px transparentize($color, 0.6);
+    }
+    100% {
+      box-shadow: 0 0 20px transparentize($color, 0.8);
+    }
+  }
+}
+
+// Tournament Component Styles
+.tournament-container {
+  background: $dark-bg;
+  min-height: 100vh;
+
+  &__header {
+    @include cyberpunk-gradient($neon-primary, $neon-secondary);
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+  }
+}
+
+.tournament-card {
+  background: transparentize($dark-surface, 0.1);
+  @include neon-border($neon-primary);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    @include neon-border($neon-secondary);
+    @include pulse-animation($neon-secondary, 1s);
+  }
+
+  &__title {
+    color: $neon-info;
+    @include neon-glow($neon-info, 5px);
+  }
+
+  &__state {
+    &--registration {
+      background: transparentize($neon-primary, 0.9);
+      color: $neon-primary;
+      @include neon-glow($neon-primary, 3px);
+    }
+
+    &--in-progress {
+      background: transparentize($neon-warning, 0.9);
+      color: $neon-warning;
+      @include neon-glow($neon-warning, 3px);
+    }
+
+    &--completed {
+      background: transparentize($neon-error, 0.9);
+      color: $neon-error;
+      @include neon-glow($neon-error, 3px);
+    }
+  }
+}
+
+.tournament-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  .filter-input {
+    background: transparentize($dark-surface, 0.5);
+    border: 1px solid transparentize($neon-primary, 0.7);
+    color: white;
+
+    &:focus {
+      @include neon-border($neon-info);
+      outline: none;
+    }
+  }
+}
+
+.tournament-registration {
+  &__dialog {
+    background: $dark-surface !important;
+    @include neon-border($neon-primary);
+  }
+
+  &__stepper {
+    .step-active {
+      color: $neon-primary !important;
+      @include neon-glow($neon-primary, 5px);
+    }
+
+    .step-completed {
+      color: $neon-info !important;
+    }
+  }
+
+  &__payment {
+    background: transparentize($dark-elevated, 0.5);
+    @include neon-border($neon-warning);
+
+    &-processing {
+      @include pulse-animation($neon-info);
+    }
+
+    &-success {
+      @include neon-border($neon-primary);
+      @include neon-glow($neon-primary, 10px);
+    }
+
+    &-error {
+      @include neon-border($neon-error);
+      @include neon-glow($neon-error, 10px);
+    }
+  }
+}
+
+// Neon Button Styles
+.neon-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &--primary {
+    background: linear-gradient(45deg, $neon-primary 30%, $neon-info 90%);
+    box-shadow: 0 0 20px transparentize($neon-primary, 0.5);
+
+    &:hover {
+      box-shadow: 0 0 30px transparentize($neon-primary, 0.3);
+      transform: scale(1.02);
+    }
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent,
+        transparentize($neon-primary, 0.5),
+        transparent
+      );
+      transform: rotate(45deg);
+      transition: all 0.5s;
+    }
+
+    &:hover:before {
+      animation: shine 0.5s ease-in-out;
+    }
+  }
+
+  &--secondary {
+    background: transparent;
+    border: 2px solid $neon-secondary;
+    color: $neon-secondary;
+    @include neon-glow($neon-secondary, 5px);
+
+    &:hover {
+      background: transparentize($neon-secondary, 0.9);
+      @include neon-glow($neon-secondary, 10px);
+    }
+  }
+}
+
+// Animations
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Loading Effects
+.cyberpunk-loader {
+  width: 50px;
+  height: 50px;
+  border: 3px solid transparentize($neon-info, 0.7);
+  border-top-color: $neon-info;
+  border-radius: 50%;
+  animation: cyberpunk-spin 1s linear infinite;
+  @include neon-glow($neon-info, 10px);
+}
+
+@keyframes cyberpunk-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .tournament-container__header {
+    font-size: 2rem;
+  }
+
+  .tournament-filters {
+    flex-direction: column;
+  }
+}
+
+// Utility classes
+.neon-text {
+  &--primary {
+    color: $neon-primary;
+    @include neon-glow($neon-primary, 5px);
+  }
+  &--secondary {
+    color: $neon-secondary;
+    @include neon-glow($neon-secondary, 5px);
+  }
+  &--info {
+    color: $neon-info;
+    @include neon-glow($neon-info, 5px);
+  }
+  &--warning {
+    color: $neon-warning;
+    @include neon-glow($neon-warning, 5px);
+  }
+  &--error {
+    color: $neon-error;
+    @include neon-glow($neon-error, 5px);
+  }
+}
+
+.cyber-surface {
+  background: transparentize($dark-surface, 0.1);
+  backdrop-filter: blur(10px);
+  @include neon-border($neon-primary, 1px);
+}

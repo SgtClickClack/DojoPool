@@ -1,0 +1,220 @@
+/* Table Card Container */
+.tableCardContainer {
+  position: relative;
+  width: 100%;
+}
+
+.tableCard {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 157, 0.1) 0%,
+    rgba(0, 168, 255, 0.1) 100%
+  );
+  border: 1px solid rgba(0, 255, 157, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.tableCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+  border-color: rgba(0, 255, 157, 0.5);
+}
+
+.tableCard:active {
+  transform: translateY(-1px);
+}
+
+.tableCard:focus {
+  outline: 2px solid rgba(0, 255, 157, 0.5);
+  outline-offset: 2px;
+}
+
+/* Table Header */
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tableHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Status Badge */
+.statusBadge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.statusAvailable {
+  background: rgba(0, 255, 157, 0.2);
+  color: #00ff9d;
+  border: 1px solid rgba(0, 255, 157, 0.5);
+  box-shadow: 0 0 10px rgba(0, 255, 157, 0.2);
+}
+
+.statusInUse {
+  background: rgba(255, 153, 0, 0.2);
+  color: #ff9900;
+  border: 1px solid rgba(255, 153, 0, 0.5);
+  box-shadow: 0 0 10px rgba(255, 153, 0, 0.2);
+}
+
+.statusMaintenance {
+  background: rgba(255, 0, 68, 0.2);
+  color: #ff0044;
+  border: 1px solid rgba(255, 0, 68, 0.5);
+  box-shadow: 0 0 10px rgba(255, 0, 68, 0.2);
+}
+
+.statusUnknown {
+  background: rgba(128, 128, 128, 0.2);
+  color: #808080;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  box-shadow: 0 0 10px rgba(128, 128, 128, 0.2);
+}
+
+/* Current Match Info */
+.currentMatch {
+  font-size: 0.875rem;
+  color: #888;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.currentMatch p {
+  margin: 0;
+}
+
+/* Click Hint */
+.clickHint {
+  font-size: 0.75rem;
+  color: #666;
+  text-align: center;
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: rgba(0, 255, 157, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 157, 0.2);
+  transition: all 0.3s ease;
+}
+
+.tableCard:hover .clickHint {
+  background: rgba(0, 255, 157, 0.2);
+  border-color: rgba(0, 255, 157, 0.4);
+  color: #00ff9d;
+}
+
+/* Status-specific hover effects */
+.tableCard:hover .statusAvailable {
+  background: rgba(0, 255, 157, 0.3);
+  border-color: rgba(0, 255, 157, 0.7);
+  box-shadow: 0 0 15px rgba(0, 255, 157, 0.4);
+}
+
+.tableCard:hover .statusInUse {
+  background: rgba(255, 153, 0, 0.3);
+  border-color: rgba(255, 153, 0, 0.7);
+  box-shadow: 0 0 15px rgba(255, 153, 0, 0.4);
+}
+
+.tableCard:hover .statusMaintenance {
+  background: rgba(255, 0, 68, 0.3);
+  border-color: rgba(255, 0, 68, 0.7);
+  box-shadow: 0 0 15px rgba(255, 0, 68, 0.4);
+}
+
+.tableCard:hover .statusUnknown {
+  background: rgba(128, 128, 128, 0.3);
+  border-color: rgba(128, 128, 128, 0.7);
+  box-shadow: 0 0 15px rgba(128, 128, 128, 0.4);
+}
+
+/* Management Mode Styles */
+.managementMode {
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.1) 0%,
+    rgba(147, 51, 234, 0.1) 100%
+  ) !important;
+}
+
+.managementMode:hover {
+  border-color: rgba(59, 130, 246, 0.8) !important;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4) !important;
+}
+
+.managementActions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+
+.editButton,
+.deleteButton {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.editButton:hover {
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  transform: scale(1.1);
+}
+
+.deleteButton:hover {
+  background: rgba(220, 38, 38, 0.9);
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tableCard {
+    padding: 12px;
+  }
+
+  .tableHeader h3 {
+    font-size: 1rem;
+  }
+
+  .statusBadge {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+  }
+
+  .clickHint {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+  }
+}

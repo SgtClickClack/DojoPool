@@ -1,0 +1,266 @@
+/* Chat container layout */
+.chat-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  height: calc(100vh - 80px);
+  padding: 20px;
+  margin: 0 auto;
+  max-width: 1600px;
+}
+
+/* Chat rooms sidebar */
+.chat-rooms {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-rooms-header {
+  padding: 15px;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-rooms-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.chat-rooms-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.chat-room-item {
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid transparent;
+}
+
+.chat-room-item:hover {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateX(4px);
+}
+
+.chat-room-item.active {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.room-name {
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.last-message {
+  font-size: 0.9em;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chat messages area */
+.chat-messages {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages-header {
+  padding: 15px;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  display: flex;
+  align-items: center;
+}
+
+.chat-messages-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+.chat-message {
+  max-width: 80%;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.chat-message.sent {
+  margin-left: auto;
+}
+
+.chat-message.received {
+  margin-right: auto;
+}
+
+.message-content {
+  color: #fff;
+  line-height: 1.4;
+}
+
+.message-meta {
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4px;
+}
+
+.sent .message-meta {
+  text-align: right;
+}
+
+.system-message {
+  text-align: center;
+  margin: 1rem 0;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+/* Chat input area */
+.chat-messages-input {
+  padding: 15px;
+  border-top: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.input-group input {
+  flex: 1;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.input-group button {
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Friend list in new chat modal */
+.friend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.4);
+  transition: all 0.2s ease;
+}
+
+.friend-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.friend-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.friend-name {
+  color: #fff;
+  font-weight: 500;
+}
+
+.friend-status {
+  font-size: 0.8em;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.status-available {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.status-unavailable {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* Typing indicator */
+.typing-indicator {
+  padding: 8px 15px;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .chat-container {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-rooms {
+    display: none;
+  }
+
+  .chat-rooms.show {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+  }
+
+  .chat-messages {
+    display: none;
+  }
+
+  .back-to-rooms {
+    margin-right: 10px;
+    color: rgba(59, 130, 246, 0.8);
+  }
+}
+
+/* Modal customization */
+.modal-content {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.modal-header {
+  border-bottom-color: rgba(59, 130, 246, 0.2);
+}
+
+.modal-footer {
+  border-top-color: rgba(59, 130, 246, 0.2);
+}
+
+.btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}

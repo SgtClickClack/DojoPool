@@ -1,0 +1,25 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JS-XML2JS-567476:
+    - '*':
+        reason: No fix available
+        expires: '2024-12-31T00:00:00.000Z'
+  SNYK-JS-ZOD-567476:
+    - '*':
+        reason: No fix available
+        expires: '2024-12-31T00:00:00.000Z'
+  SNYK-JS-INFLIGHT-6095116:
+    - '*':
+        reason: None Given
+        expires: 2025-05-12T18:58:43.429Z
+        created: 2025-04-12T18:58:43.433Z
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:typeorm:20180215':
+    - typeorm > sqlite3:
+        patched: '2024-01-16T00:00:00.000Z'
+  'npm:next:20180215':
+    - next > @next/env:
+        patched: '2024-01-16T00:00:00.000Z'

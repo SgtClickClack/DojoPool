@@ -1,0 +1,2 @@
+export type BrandId = string;
+
