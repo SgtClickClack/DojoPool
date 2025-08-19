@@ -17,6 +17,19 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   webpack: (config, { isServer, dev }) => {
+    // Exclude backup directories from build
+    config.module.rules.push({
+      test: /\.(ts|tsx)$/,
+      exclude: [
+        /node_modules/,
+        /components_backup/,
+        /components_root_backup/,
+        /pages_backup/,
+        /\.backup/,
+        /\.backup2/
+      ],
+    });
+
     // Optimize chunks
     config.optimization = {
       ...config.optimization,
