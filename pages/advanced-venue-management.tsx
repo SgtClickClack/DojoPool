@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { AdvancedVenueManagementDashboard } from '../src/frontend/components/analytics/AdvancedVenueManagementDashboard';
+import { AdvancedVenueManagementDashboard } from '../src/components/analytics/AdvancedVenueManagementDashboard';
 
 const AdvancedVenueManagementPage: NextPage = () => {
   return (

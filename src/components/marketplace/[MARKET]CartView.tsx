@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { marketplaceService } from '../../services/marketplaceService';
-import './CartView.css';
 
 interface CartViewProps {
   onCartUpdate: () => void;

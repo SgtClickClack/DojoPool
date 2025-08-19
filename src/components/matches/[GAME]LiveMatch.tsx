@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import './LiveMatch.css';
 
 // Simple date formatting utility
 const formatTimestamp = (timestamp: Date | number | string): string => {

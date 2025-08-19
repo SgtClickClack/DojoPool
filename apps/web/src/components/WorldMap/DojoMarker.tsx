@@ -1,6 +1,6 @@
+import { Group, LocationOn, Shield } from '@mui/icons-material';
+import { Avatar, Box, Chip, Paper, Typography } from '@mui/material';
 import React from 'react';
-import { Box, Typography, Chip, Avatar, Paper } from '@mui/material';
-import { LocationOn, Group, EmojiEvents, Shield } from '@mui/icons-material';
 
 interface DojoMarkerProps {
   id: string;
@@ -103,7 +103,14 @@ const DojoMarker: React.FC<DojoMarkerProps> = ({
       }}
     >
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          mb: 1,
+        }}
+      >
         <Typography variant="h6" component="h3" gutterBottom>
           {name}
         </Typography>
@@ -135,10 +142,12 @@ const DojoMarker: React.FC<DojoMarkerProps> = ({
             src={currentController.avatarUrl}
             sx={{ width: 20, height: 20, fontSize: '0.75rem' }}
           >
-            {!currentController.avatarUrl && currentController.name.charAt(0).toUpperCase()}
+            {!currentController.avatarUrl &&
+              currentController.name.charAt(0).toUpperCase()}
           </Avatar>
           <Typography variant="body2" color="text.secondary">
-            Controlled by {currentController.name} (Level {currentController.level})
+            Controlled by {currentController.name} (Level{' '}
+            {currentController.level})
           </Typography>
         </Box>
       )}
@@ -201,7 +210,7 @@ const DojoMarker: React.FC<DojoMarkerProps> = ({
         >
           View Details
         </Box>
-        
+
         {isAvailable && !isFull && (
           <Box
             component="button"
@@ -222,7 +231,7 @@ const DojoMarker: React.FC<DojoMarkerProps> = ({
             Challenge
           </Box>
         )}
-        
+
         {!isAvailable && (
           <Box
             sx={{

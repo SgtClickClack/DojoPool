@@ -1,5 +1,5 @@
 import { NextPage } from 'next';
-import { AICommentaryHighlightsDashboard } from '../src/frontend/components/ai/AICommentaryHighlightsDashboard';
+import { AICommentaryHighlightsDashboard } from '../src/components/AI/AICommentaryHighlightsDashboard';
 
 const AICommentaryHighlightsPage: NextPage = () => {
   return (

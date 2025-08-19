@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Param, Patch, Post, Put } from '@nestjs/common';
 import { VenuesService } from './venues.service';
+import type { TableStatus } from '@prisma/client';
 
 class UpdateTableDto {
   status!: string;
@@ -26,7 +27,8 @@ export class VenuesController {
     @Param('venueId') venueId: string,
     @Body() body: CreateTableDto
   ) {
-    return this.venuesService.createTable(venueId, body);
+    const payload = { name: body.name, status: (body.status as any) as TableStatus };
+    return this.venuesService.createTable(venueId, payload);
   }
 
   // PUT /api/v1/venues/:venueId/tables/:tableId

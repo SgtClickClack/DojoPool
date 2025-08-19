@@ -1,6 +1,6 @@
 import React from 'react';
-import { EnhancedBlockchainPanel } from '../src/frontend/components/blockchain/EnhancedBlockchainPanel';
-import { Layout } from '../src/frontend/components/layout/Layout';
+import Layout from '../src/components/Layout/Layout';
+import EnhancedBlockchainPanel from '../src/components/blockchain/EnhancedBlockchainPanel';
 
 const EnhancedBlockchainPage: React.FC = () => {
   return (

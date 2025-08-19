@@ -1,6 +1,6 @@
 import { Box, Container, Typography } from '@mui/material';
 import React from 'react';
-import { AdvancedTournamentDashboard } from '../src/frontend/components/avatar/AdvancedTournamentDashboard';
+import { AdvancedTournamentDashboard } from '../src/components/Avatar/AdvancedTournamentDashboard';
 
 const AdvancedTournamentPage: React.FC = () => {
   return (

@@ -1,6 +1,6 @@
-import { Container } from '@/components/Container';
-import { Layout } from '@/components/Layout';
 import { NextPage } from 'next';
+import { Layout } from '../../src/components/layout';
+import { Container } from '../../src/components/ui';
 
 const GameStrategyPage: NextPage = () => {
   return (

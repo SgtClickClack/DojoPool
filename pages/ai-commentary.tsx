@@ -18,10 +18,10 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-import { AIMatchAnalysisComponent } from '../src/frontend/components/ai/AIMatchAnalysisComponent';
-import { LiveCommentary } from '../src/frontend/components/ai/LiveCommentary';
-import PageBackground from '../src/frontend/components/common/PageBackground';
-import Layout from '../src/frontend/components/layout/Layout';
+import { AIMatchAnalysisComponent } from '../src/components/AI/AIMatchAnalysisComponent';
+import { LiveCommentary } from '../src/components/AI/LiveCommentary';
+import PageBackground from '../src/components/Common/PageBackground';
+import Layout from '../src/components/Layout/Layout';
 
 const AICommentaryPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<

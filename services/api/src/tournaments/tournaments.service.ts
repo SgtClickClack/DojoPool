@@ -13,6 +13,28 @@ export class TournamentsService {
     private achievementsService: AchievementsService
   ) {}
 
+  // Backwards-compat create used by VenueTournamentsController
+  async create(dto: any, venueId: string): Promise<Tournament> {
+    try {
+      const data: Prisma.TournamentCreateInput = {
+        name: dto.name,
+        startDate: dto.startTime ?? new Date(),
+        endDate: dto.endTime ?? null,
+        venue: { connect: { id: venueId } },
+        status: 'REGISTRATION',
+        maxPlayers: dto.maxParticipants ?? dto.maxPlayers ?? null,
+        entryFee: dto.entryFee ?? null,
+        prizePool: dto.prizePool ?? null,
+      } as any;
+      return await this.prisma.tournament.create({ data });
+    } catch (err) {
+      this.logger.error(
+        ErrorUtils.formatErrorMessage('create tournament', undefined, err)
+      );
+      throw err;
+    }
+  }
+
   async createTournament(
     data: Prisma.TournamentCreateInput
   ): Promise<Tournament> {
@@ -21,6 +43,20 @@ export class TournamentsService {
     } catch (err) {
       this.logger.error(
         ErrorUtils.formatErrorMessage('create tournament', undefined, err)
+      );
+      throw err;
+    }
+  }
+
+  async findTournamentsByVenue(venueId: string): Promise<Tournament[]> {
+    try {
+      return await this.prisma.tournament.findMany({
+        where: { venueId },
+        include: { venue: true },
+      });
+    } catch (err) {
+      this.logger.error(
+        ErrorUtils.formatErrorMessage('fetch tournaments by venue', venueId, err)
       );
       throw err;
     }

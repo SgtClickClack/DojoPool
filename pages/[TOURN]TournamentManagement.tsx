@@ -38,13 +38,13 @@ import {
   Delete,
   Visibility,
 } from '@mui/icons-material';
-import TournamentBracket from '../components/Tournament/TournamentBracket';
+import TournamentBracket from '../src/components/Tournament/TournamentBracket';
 import {
   Tournament,
   TournamentMatch,
   TournamentStatus,
   TournamentFormat,
-} from '../../types/tournament';
+} from '../src/types/tournament';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
 

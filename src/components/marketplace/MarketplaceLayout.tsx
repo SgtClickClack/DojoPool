@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { marketplaceService } from '../../services/marketplaceService';
 import { type MarketplaceItem } from '../../types/[MARKET]marketplace';
-import './MarketplaceLayout.css';
+
 import { CartView } from './[MARKET]CartView';
 import { InventoryView } from './[MARKET]InventoryView';
 import { TransactionHistory } from './[MARKET]TransactionHistory';

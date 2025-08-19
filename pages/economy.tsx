@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DojoCoinEconomyPanel } from '../src/frontend/components/economy/DojoCoinEconomyPanel';
+import DojoCoinEconomyPanel from '../src/components/economy/DojoCoinEconomyPanel';
 import { DojoCoinTransaction } from '../src/frontend/services/economy/DojoCoinEconomyService';
 
 export default function EconomyPage() {

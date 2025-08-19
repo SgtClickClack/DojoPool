@@ -1,6 +1,6 @@
-import { Layout } from '@/components/layout';
-import { Container } from '@/components/ui';
 import { NextPage } from 'next';
+import { Layout } from '../../src/components/layout';
+import { Container } from '../../src/components/ui';
 
 const GameAnalysis: NextPage = () => {
   return (

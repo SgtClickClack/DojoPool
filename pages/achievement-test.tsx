@@ -1,8 +1,8 @@
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
 import Head from 'next/head';
 import { useState } from 'react';
-import AchievementPanel from '../apps/web/src/components/game/AchievementPanel';
-import TournamentList from '../apps/web/src/components/tournament/TournamentList';
+import AchievementPanel from '../src/components/Game/AchievementPanel';
+import TournamentList from '../src/components/Tournament/TournamentList';
 
 export default function AchievementTestPage() {
   const [showAchievements, setShowAchievements] = useState(false);

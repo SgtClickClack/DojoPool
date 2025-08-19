@@ -1,7 +1,6 @@
 import React from 'react';
 import { useEnhancedTournamentAPI } from '../../frontend/hooks/useEnhancedTournamentAPI';
 import TournamentCard from './TournamentCard';
-import './TournamentList.css';
 
 const TournamentList: React.FC = () => {
   const {

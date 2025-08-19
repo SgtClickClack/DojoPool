@@ -23,9 +23,7 @@ interface ChatMessage {
     origin: '*',
   },
 })
-export class MatchesGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+export class MatchesGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server!: Server;
 
@@ -131,5 +129,22 @@ export class MatchesGateway
     this.server.to(matchId).emit('matchUpdated', update);
 
     this.logger.log(`Match ${matchId} updated: ${JSON.stringify(update)}`);
+  }
+
+  // Venue-level broadcast helpers for table updates
+  broadcastVenueTablesUpdated(venueId: string, tables: any[]) {
+    try {
+      this.server.to(`venue:${venueId}`).emit('tablesUpdated', tables);
+    } catch (err) {
+      this.logger.warn(`broadcastVenueTablesUpdated failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  broadcastVenueTableUpdate(venueId: string, table: any) {
+    try {
+      this.server.to(`venue:${venueId}`).emit('tableUpdated', table);
+    } catch (err) {
+      this.logger.warn(`broadcastVenueTableUpdate failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 }

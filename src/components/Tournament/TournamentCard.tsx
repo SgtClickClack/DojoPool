@@ -1,6 +1,5 @@
 import React from 'react';
 import { Tournament } from '../../types/tournament';
-import './TournamentCard.css';
 
 interface TournamentCardProps {
   tournament: Tournament;

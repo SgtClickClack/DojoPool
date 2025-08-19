@@ -1,8 +1,8 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useState } from 'react';
-import { Layout } from '../src/frontend/components/common/Layout';
-import { VenueLeaderboardDashboard } from '../src/frontend/components/venue/VenueLeaderboardDashboard';
+import Layout from '../src/components/Layout/Layout';
+import VenueLeaderboardDashboard from '../src/components/venue/VenueLeaderboardDashboard';
 
 const VenueLeaderboardPage: NextPage = () => {
   const [selectedVenueId, setSelectedVenueId] = useState<string | undefined>();

@@ -1,4 +1,4 @@
-import Signup from '../src/frontend/components/auth/[AUTH]Signup';
+import Signup from '../src/components/Auth/Signup';
 
 export default function SignupPage() {
   return <Signup />;

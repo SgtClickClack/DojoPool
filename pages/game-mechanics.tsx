@@ -1,34 +1,19 @@
-import {
-  Badge,
-  Box,
-  Button,
-  Grid,
-  GridItem,
-  HStack,
-  Heading,
-  Tab,
-  TabPanel,
-  Tabs,
-  TabsList,
-  TabsPanels,
-  Text,
-  VStack,
-  useToast,
-} from '@chakra-ui/react';
+import { Badge, Box, Button, Grid, Tab, TabPanel, Tabs } from '@mui/material';
 import React, { useState } from 'react';
-import AchievementPanel from '../src/frontend/components/game/AchievementPanel';
-import ChallengeCreationPanel from '../src/frontend/components/game/ChallengeCreationPanel';
-import GameBalancePanel from '../src/frontend/components/game/GameBalancePanel';
-import PlayerMovementPanel from '../src/frontend/components/game/PlayerMovementPanel';
-import RealTimeMatchTracker from '../src/frontend/components/game/RealTimeMatchTracker';
-import TerritoryControlPanel from '../src/frontend/components/game/TerritoryControlPanel';
-import PerformanceOptimizationPanel from '../src/frontend/components/performance/PerformanceOptimizationPanel';
-import GameMechanicsService from '../src/frontend/services/GameMechanicsService';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import AchievementPanel from '../src/components/Game/AchievementPanel';
+import ChallengeCreationPanel from '../src/components/Game/ChallengeCreationPanel';
+import GameBalancePanel from '../src/components/Game/GameBalancePanel';
+import PlayerMovementPanel from '../src/components/Game/PlayerMovementPanel';
+import RealTimeMatchTracker from '../src/components/Game/RealTimeMatchTracker';
+import TerritoryControlPanel from '../src/components/Game/TerritoryControlPanel';
+import PerformanceOptimizationPanel from '../src/components/performance/PerformanceOptimizationPanel';
+import GameMechanicsService from '../src/services/GameMechanicsService';
 
 // Advanced Components
 const AdvancedChallengePanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState('tournament');
-  const toast = useToast();
 
   const createTournamentChallenge = async () => {
     try {
@@ -54,21 +39,11 @@ const AdvancedChallengePanel: React.FC = () => {
         },
       });
 
-      toast({
-        title: 'Tournament Created',
-        description: `Tournament "${tournament.tournamentName}" created successfully!`,
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.success(
+        `Tournament "${tournament.tournamentName}" created successfully!`
+      );
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to create tournament challenge',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.error('Failed to create tournament challenge');
     }
   };
 
@@ -91,21 +66,11 @@ const AdvancedChallengePanel: React.FC = () => {
         },
       });
 
-      toast({
-        title: 'Clan Challenge Created',
-        description: `Clan challenge between ${clanChallenge.clanName} and ${clanChallenge.defendingClanName} created!`,
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.success(
+        `Clan challenge between ${clanChallenge.clanName} and ${clanChallenge.defendingClanName} created!`
+      );
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to create clan challenge',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.error('Failed to create clan challenge');
     }
   };
 

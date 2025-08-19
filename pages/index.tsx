@@ -1,12 +1,9 @@
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 
-const WorldHub = dynamic(
-  () => import('../apps/web/src/components/world/WorldHub'),
-  {
-    ssr: false,
-  }
-);
+const WorldHub = dynamic(() => import('../src/components/world/WorldHub'), {
+  ssr: false,
+});
 
 export default function HomePage() {
   return (

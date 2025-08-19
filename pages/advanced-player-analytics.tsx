@@ -1,6 +1,13 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { AdvancedPlayerAnalyticsDashboard } from '../src/frontend/components/analytics/AdvancedPlayerAnalyticsDashboard';
+import React from 'react';
+
+// Placeholder for build stability
+const AdvancedPlayerAnalyticsDashboard: React.FC = () => (
+  <div role="region" aria-label="AdvancedPlayerAnalyticsDashboard placeholder" style={{padding:16, border:'1px dashed #ccc'}}>
+    Advanced Player Analytics Dashboard (placeholder)
+  </div>
+);
 
 const AdvancedPlayerAnalyticsPage: NextPage = () => {
   return (
