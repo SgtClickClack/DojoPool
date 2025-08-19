@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/layout/Layout';
+import Layout from '@/components/layout/Layout';
 
 const Main: React.FC = () => {
   const [backendStatus, setBackendStatus] = useState<string>('Checking...');
