@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+.next/
+coverage/
+generated/
+public/app-store-assets/
+
+# Known problematic or binary-like sources
+src/pages-backup/tournaments/enhanced-bracket.tsx
+src/pages/tournaments/enhanced-bracket.tsx
+
+turbo.json
+vercel.json
+

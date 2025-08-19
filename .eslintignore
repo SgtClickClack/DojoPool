@@ -1,0 +1,9 @@
+# Ignore node_modules (if not already ignored)
+node_modules/
+
+# Ignore the virtual environment folder
+venv/
+
+# Optionally ignore other build or dependency folders
+dist/
+build/ 

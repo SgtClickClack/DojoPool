@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Page - DojoPool</title>
+    <style>
+      body {
+        background-color: black;
+        color: white;
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        min-height: 100vh;
+      }
+      h1 {
+        color: lime;
+        font-size: 2rem;
+      }
+      .status-box {
+        margin-top: 20px;
+        padding: 15px;
+        border: 2px solid lime;
+        background-color: #333;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🎱 DojoPool</h1>
+    <p style="font-size: 1.2rem">
+      If you can see this text, static HTML is working!
+    </p>
+    <p>Current time: <span id="time"></span></p>
+    <div class="status-box">
+      <h3>Status:</h3>
+      <ul>
+        <li>✅ Static HTML is working</li>
+        <li>✅ CSS styling is working</li>
+        <li>✅ JavaScript is working</li>
+        <li>🔍 Testing Next.js integration</li>
+      </ul>
+    </div>
+    <script>
+      document.getElementById('time').textContent = new Date().toLocaleString();
+      console.log('Static HTML page loaded successfully!');
+    </script>
+  </body>
+</html>

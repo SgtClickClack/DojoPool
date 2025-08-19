@@ -1,0 +1,264 @@
+type CommunityTexture {
+  id: ID!
+  userId: ID!
+  username: String!
+  userAvatar: String
+  textureUrl: String!
+  thumbnailUrl: String!
+  prompt: String!
+  style: TextureStyle!
+  resolution: String!
+  createdAt: String!
+  updatedAt: String!
+
+  # Community features
+  likes: Int!
+  downloads: Int!
+  shares: Int!
+  views: Int!
+  featured: Boolean!
+
+  # Moderation
+  moderationStatus: ModerationStatus!
+  moderationReason: String
+  moderatedAt: String
+  moderatedBy: String
+
+  # Tags and categories
+  tags: [String!]!
+  category: TextureCategory!
+
+  # Usage tracking
+  usedByCount: Int!
+  remixedFromId: ID
+  remixCount: Int!
+
+  # Related data
+  user: CommunityUser
+  remixedFrom: CommunityTexture
+}
+
+type CommunityUser {
+  id: ID!
+  username: String!
+  email: String!
+  avatar: String
+  bio: String
+
+  # Stats
+  texturesCreated: Int!
+  totalLikes: Int!
+  totalDownloads: Int!
+  followerCount: Int!
+  followingCount: Int!
+
+  # Reputation
+  reputation: Int!
+  badges: [String!]!
+  level: Int!
+
+  # Preferences
+  preferences: UserPreferences!
+
+  createdAt: String!
+  lastActiveAt: String!
+
+  # Related data
+  textures: [CommunityTexture!]!
+}
+
+type UserPreferences {
+  showProfile: Boolean!
+  allowRemixes: Boolean!
+  emailNotifications: Boolean!
+  featuredOptIn: Boolean!
+}
+
+type CommunityInteraction {
+  id: ID!
+  userId: ID!
+  textureId: ID!
+  type: InteractionType!
+  createdAt: String!
+  metadata: String
+}
+
+type ShowcaseStats {
+  totalTextures: Int!
+  totalUsers: Int!
+  totalLikes: Int!
+  totalDownloads: Int!
+  featuredTextures: Int!
+  categoryCounts: [CategoryCount!]!
+  styleCounts: [StyleCount!]!
+  topTags: [TagCount!]!
+}
+
+type CategoryCount {
+  category: String!
+  count: Int!
+}
+
+type StyleCount {
+  style: String!
+  count: Int!
+}
+
+type TagCount {
+  tag: String!
+  count: Int!
+}
+
+type PopularPrompt {
+  prompt: String!
+  count: Int!
+  category: String!
+}
+
+type ShowcaseResult {
+  textures: [CommunityTexture!]!
+  total: Int!
+  hasMore: Boolean!
+}
+
+enum TextureStyle {
+  REALISTIC
+  CARTOON
+  ARTISTIC
+  CYBERPUNK
+}
+
+enum TextureCategory {
+  CHARACTER
+  ENVIRONMENT
+  OBJECT
+  ABSTRACT
+  OTHER
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FLAGGED
+}
+
+enum InteractionType {
+  LIKE
+  DOWNLOAD
+  SHARE
+  VIEW
+  REMIX
+  REPORT
+}
+
+enum SortBy {
+  NEWEST
+  POPULAR
+  TRENDING
+  MOST_LIKED
+  MOST_DOWNLOADED
+}
+
+enum TimeRange {
+  DAY
+  WEEK
+  MONTH
+  YEAR
+  ALL
+}
+
+input ShowcaseFilters {
+  category: TextureCategory
+  style: TextureStyle
+  tags: [String!]
+  featured: Boolean
+  timeRange: TimeRange
+  sortBy: SortBy
+  userId: ID
+  search: String
+}
+
+input TextureGenerationInput {
+  prompt: String!
+  userId: ID!
+  avatarId: ID!
+  style: TextureStyle
+  resolution: String
+  seed: Int
+}
+
+type TextureGenerationResult {
+  id: ID!
+  textureUrl: String!
+  thumbnailUrl: String!
+  prompt: String!
+  style: String!
+  resolution: String!
+  generatedAt: String!
+  processingTime: Int
+  status: GenerationStatus!
+}
+
+enum GenerationStatus {
+  GENERATING
+  COMPLETED
+  FAILED
+}
+
+type Query {
+  # Showcase queries
+  getShowcaseTextures(
+    filters: ShowcaseFilters
+    limit: Int = 20
+    offset: Int = 0
+  ): ShowcaseResult!
+
+  getTextureById(id: ID!): CommunityTexture
+  getUserById(id: ID!): CommunityUser
+  getFeaturedTextures(limit: Int = 10): [CommunityTexture!]!
+  getTrendingTextures(limit: Int = 10): [CommunityTexture!]!
+  getShowcaseStats: ShowcaseStats!
+  getPopularPrompts(limit: Int = 20): [PopularPrompt!]!
+
+  # Texture AI queries
+  getTextureGenerationResult(id: ID!): TextureGenerationResult
+  getTextureGenerationStatus(id: ID!): GenerationStatus!
+  getUserGenerations(userId: ID!, limit: Int = 20): [TextureGenerationResult!]!
+  getTextureAIPopularPrompts(limit: Int = 10): [PopularPrompt!]!
+}
+
+type Mutation {
+  # Community interactions
+  likeTexture(userId: ID!, textureId: ID!): Boolean!
+  downloadTexture(userId: ID!, textureId: ID!): Boolean!
+  shareTexture(userId: ID!, textureId: ID!, platform: String!): Boolean!
+
+  # Texture generation
+  generateTexture(input: TextureGenerationInput!): String!
+
+  # User management
+  updateUserPreferences(
+    userId: ID!
+    preferences: UserPreferences!
+  ): CommunityUser
+  followUser(userId: ID!, targetUserId: ID!): Boolean!
+  unfollowUser(userId: ID!, targetUserId: ID!): Boolean!
+
+  # Content moderation
+  reportTexture(userId: ID!, textureId: ID!, reason: String!): Boolean!
+  moderateTexture(
+    textureId: ID!
+    status: ModerationStatus!
+    reason: String
+    moderatorId: ID!
+  ): CommunityTexture
+}
+
+type Subscription {
+  # Real-time updates
+  textureGenerated(userId: ID!): TextureGenerationResult!
+  textureInteraction(textureId: ID!): CommunityInteraction!
+  newFeaturedTexture: CommunityTexture!
+  showcaseStatsUpdated: ShowcaseStats!
+}

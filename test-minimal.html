@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minimal Test</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        background: #000;
+        color: #00ff88;
+        text-align: center;
+      }
+      .test-box {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 30px;
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid #00ff88;
+        border-radius: 10px;
+      }
+      .status {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .success {
+        background: rgba(0, 255, 0, 0.2);
+        border: 1px solid #00ff00;
+      }
+      .error {
+        background: rgba(255, 0, 0, 0.2);
+        border: 1px solid #ff0000;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-box">
+      <h1>🎱 DojoPool Server Test</h1>
+
+      <div class="status success">
+        <h3>✅ Server Connection</h3>
+        <p>If you can see this page, the server is working!</p>
+        <p>URL: http://localhost:3000</p>
+      </div>
+
+      <div class="status success">
+        <h3>✅ Static File Serving</h3>
+        <p>This HTML file is being served by the development server</p>
+      </div>
+
+      <div class="status error">
+        <h3>❌ React App Issue</h3>
+        <p>The React application is not loading properly</p>
+        <p>This suggests a compilation or import error</p>
+      </div>
+
+      <div style="margin-top: 30px">
+        <h3>🔧 Next Steps:</h3>
+        <ol style="text-align: left">
+          <li>Check browser console (F12) for JavaScript errors</li>
+          <li>Check terminal for compilation errors</li>
+          <li>Verify all dependencies are installed</li>
+          <li>Check import paths in React components</li>
+        </ol>
+      </div>
+
+      <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7">
+        <p>Server Status: ✅ Running on port 3000</p>
+        <p>Node.js: ✅ v24.4.1</p>
+        <p>Dependencies: ✅ Installed</p>
+        <p>React App: ❌ Not loading</p>
+      </div>
+    </div>
+
+    <script>
+      console.log('Minimal test page loaded');
+      console.log('Server is responding to static files');
+
+      // Test if we can access the main React app
+      fetch('/')
+        .then((response) => {
+          console.log('Main app response:', response.status);
+          if (response.ok) {
+            console.log('Main app HTML received');
+          } else {
+            console.log('Main app not responding properly');
+          }
+        })
+        .catch((error) => {
+          console.error('Error accessing main app:', error);
+        });
+    </script>
+  </body>
+</html>

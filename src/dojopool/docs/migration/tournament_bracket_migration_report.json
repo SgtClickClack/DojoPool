@@ -1,0 +1,102 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\tournament_bracket.js",
+  "typescript_file": "src\\dojopool\\static\\js\\tournament_bracket.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\tournament_bracket.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "TournamentBracket",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "response",
+        "type": "any"
+      },
+      {
+        "name": "data",
+        "type": "any"
+      },
+      {
+        "name": "bracketContainer",
+        "type": "any"
+      },
+      {
+        "name": "round",
+        "type": "any"
+      },
+      {
+        "name": "roundHeader",
+        "type": "any"
+      },
+      {
+        "name": "matchElement",
+        "type": "any"
+      },
+      {
+        "name": "matchContainer",
+        "type": "any"
+      },
+      {
+        "name": "matchContent",
+        "type": "any"
+      },
+      {
+        "name": "player1",
+        "type": "any"
+      },
+      {
+        "name": "player2",
+        "type": "any"
+      },
+      {
+        "name": "statusBadge",
+        "type": "any"
+      },
+      {
+        "name": "rounds",
+        "type": "any"
+      },
+      {
+        "name": "matches",
+        "type": "any"
+      },
+      {
+        "name": "connector",
+        "type": "any"
+      },
+      {
+        "name": "totalRounds",
+        "type": "any"
+      },
+      {
+        "name": "modal",
+        "type": "any"
+      },
+      {
+        "name": "modalInstance",
+        "type": "any"
+      },
+      {
+        "name": "form",
+        "type": "any"
+      },
+      {
+        "name": "bracketContainer",
+        "type": "any"
+      },
+      {
+        "name": "tournamentId",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "TournamentBracket": "\nclass TournamentBracket {\n    // Properties and methods\n}"
+  }
+}

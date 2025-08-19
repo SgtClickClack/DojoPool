@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Performance Dashboard</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+
+      .dashboard {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .panel {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .panel-title {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+      }
+
+      .visualization-container {
+        width: 100%;
+        height: 300px;
+        background: #fafafa;
+        border-radius: 4px;
+      }
+
+      #performance-graphs {
+        height: 400px;
+      }
+
+      .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+      }
+
+      .resource-chart {
+        aspect-ratio: 1;
+        background: #fafafa;
+        border-radius: 4px;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+
+      .metric-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      .metric-value {
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #2196f3;
+        margin: 10px 0;
+      }
+
+      .metric-label {
+        color: #666;
+        font-size: 0.9em;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="dashboard">
+      <!-- Performance Graphs -->
+      <div class="panel full-width">
+        <div class="panel-header">
+          <h2 class="panel-title">Performance Metrics</h2>
+          <div class="panel-actions">
+            <button onclick="exportReport()">Export Report</button>
+          </div>
+        </div>
+        <div id="performance-graphs" class="visualization-container"></div>
+      </div>
+
+      <!-- Resource Usage -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Resource Usage</h2>
+        </div>
+        <div id="resource-charts" class="resource-grid">
+          <div class="resource-chart"></div>
+          <div class="resource-chart"></div>
+          <div class="resource-chart"></div>
+        </div>
+      </div>
+
+      <!-- Network Metrics -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Network Activity</h2>
+        </div>
+        <div id="network-metrics" class="visualization-container"></div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value" id="active-requests">0</div>
+            <div class="metric-label">Active Requests</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="avg-latency">0ms</div>
+            <div class="metric-label">Average Latency</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="success-rate">100%</div>
+            <div class="metric-label">Success Rate</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="total-transferred">0 KB</div>
+            <div class="metric-label">Total Transferred</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializePerformanceMonitoring } from '../static/js/performance-init.js';
+
+      // Initialize performance monitoring
+      const performanceSystem = initializePerformanceMonitoring({
+        containers: {
+          graphs: document.getElementById('performance-graphs'),
+          resources: document.getElementById('resource-charts'),
+          network: document.getElementById('network-metrics'),
+        },
+        monitor: {
+          sampleInterval: 1000, // Update every second
+        },
+        reporting: {
+          autoExport: true,
+          exportInterval: 3600000, // Export report every hour
+          format: {
+            type: 'html',
+            includeVisualizations: true,
+          },
+        },
+        network: {
+          enabled: true,
+          includeInReports: true,
+        },
+      });
+
+      // Start monitoring
+      performanceSystem.start();
+
+      // Update network metrics display
+      setInterval(() => {
+        const metrics = performanceSystem.networkProfiler?.getMetrics();
+        if (metrics) {
+          document.getElementById('active-requests').textContent =
+            metrics.stats.activeRequests;
+          document.getElementById('avg-latency').textContent =
+            `${metrics.stats.averageLatency.toFixed(0)}ms`;
+          document.getElementById('success-rate').textContent =
+            `${((1 - metrics.stats.errorRate) * 100).toFixed(1)}%`;
+          document.getElementById('total-transferred').textContent =
+            formatBytes(metrics.stats.totalBytes);
+        }
+      }, 1000);
+
+      // Export report handler
+      window.exportReport = () => {
+        performanceSystem.reporter.exportReport();
+      };
+
+      // Utility function to format bytes
+      function formatBytes(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
+      }
+
+      // Cleanup on page unload
+      window.addEventListener('unload', () => {
+        performanceSystem.cleanup();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0;
+        background-color: white;
+      }
+      * {
+        font-family: -apple-system, system-ui, BlinkMacSystemFont;
+      }
+      button {
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      button:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="
+        padding: 60px;
+        font-family: -apple-system, system-ui, BlinkMacSystemFont;
+        background: linear-gradient(135deg, #1976d2, #64b5f6);
+        min-height: 100vh;
+        color: white;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: center;
+      "
+    >
+      <div>
+        <h1
+          style="
+            font-size: 64px;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in;
+          "
+        >
+          Welcome to DojoPool
+        </h1>
+        <p
+          style="
+            font-size: 32px;
+            margin-bottom: 50px;
+            animation: fadeIn 1s ease-in 0.2s;
+          "
+        >
+          Transform your pool game with AI-powered analysis
+        </p>
+        <div
+          style="display: flex; gap: 30px; animation: fadeIn 1s ease-in 0.4s"
+        >
+          <button
+            style="
+              padding: 20px 40px;
+              font-size: 24px;
+              background: white;
+              color: #1976d2;
+              border: none;
+              border-radius: 12px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            "
+          >
+            Get Started
+          </button>
+          <button
+            style="
+              padding: 20px 40px;
+              font-size: 24px;
+              background: transparent;
+              color: white;
+              border: 2px solid white;
+              border-radius: 12px;
+            "
+          >
+            Learn More
+          </button>
+        </div>
+      </div>
+      <div
+        style="
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          padding: 30px;
+          animation: fadeIn 1s ease-in 0.6s;
+        "
+      >
+        <h2 style="font-size: 32px; margin-bottom: 20px">Key Features</h2>
+        <ul style="font-size: 24px; list-style: none; padding: 0">
+          <li
+            style="
+              margin-bottom: 15px;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <span
+              style="
+                width: 30px;
+                height: 30px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+              >✓</span
+            >
+            Real-time shot analysis
+          </li>
+          <li
+            style="
+              margin-bottom: 15px;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <span
+              style="
+                width: 30px;
+                height: 30px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+              >✓</span
+            >
+            AI-powered coaching
+          </li>
+          <li
+            style="
+              margin-bottom: 15px;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <span
+              style="
+                width: 30px;
+                height: 30px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+              >✓</span
+            >
+            Performance tracking
+          </li>
+          <li
+            style="
+              margin-bottom: 15px;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <span
+              style="
+                width: 30px;
+                height: 30px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+              >✓</span
+            >
+            Social features
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

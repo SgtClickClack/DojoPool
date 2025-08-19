@@ -1,0 +1,267 @@
+{% extends "base.html" %} {% block styles %}
+<link
+  href="{{ url_for('static', filename='css/debug-panel.css') }}"
+  rel="stylesheet"
+/>
+{% endblock %} {% block content %}
+<div class="container-fluid">
+  <div class="hero-section text-center py-5">
+    <picture>
+      <source
+        sizes="(max-width: 400px) 400px,
+                           (max-width: 800px) 800px,
+                           (max-width: 1200px) 1200px,
+                           1600px"
+        srcset="{{ url_for('static', filename=image_paths.PosterDojoPool.xl.avif) }} 1600w,
+                            {{ url_for('static', filename=image_paths.PosterDojoPool.lg.avif) }} 1200w,
+                            {{ url_for('static', filename=image_paths.PosterDojoPool.md.avif) }} 800w,
+                            {{ url_for('static', filename=image_paths.PosterDojoPool.sm.avif) }} 400w"
+        type="image/avif"
+      />
+      <source
+        sizes="(max-width: 400px) 400px,
+                           (max-width: 800px) 800px,
+                           (max-width: 1200px) 1200px,
+                           1600px"
+        srcset="{{ url_for('static', filename=image_paths.PosterDojoPool.xl.webp) }} 1600w,
+                            {{ url_for('static', filename=image_paths.PosterDojoPool.lg.webp) }} 1200w,
+                            {{ url_for('static', filename=image_paths.PosterDojoPool.md.webp) }} 800w,
+                            {{ url_for('static', filename=image_paths.PosterDojoPool.sm.webp) }} 400w"
+        type="image/webp"
+      />
+      <img
+        alt="DojoPool Hero"
+        class="hero-image"
+        data-size="{{ image_paths.PosterDojoPool.size }}"
+        data-sizes='{"sm": 400, "md": 800, "lg": 1200, "xl": 1600}'
+        loading="eager"
+        sizes="(max-width: 400px) 400px,
+                        (max-width: 800px) 800px,
+                        (max-width: 1200px) 1200px,
+                        1600px"
+        src="{{ url_for('static', filename=image_paths.PosterDojoPool.md.original) }}"
+        srcset="{{ url_for('static', filename=image_paths.PosterDojoPool.xl.original) }} 1600w,
+                         {{ url_for('static', filename=image_paths.PosterDojoPool.lg.original) }} 1200w,
+                         {{ url_for('static', filename=image_paths.PosterDojoPool.md.original) }} 800w,
+                         {{ url_for('static', filename=image_paths.PosterDojoPool.sm.original) }} 400w"
+      />
+    </picture>
+    <h1
+      class="display-4 mb-4"
+      style="
+        font-family: 'Orbitron', sans-serif;
+        color: #00ff00;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      "
+    >
+      EXPERIENCE POOL LIKE NEVER BEFORE
+    </h1>
+    <h2
+      class="mb-5"
+      style="
+        font-family: 'Orbitron', sans-serif;
+        font-size: 4rem;
+        color: #00ff00;
+        text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+      "
+    >
+      DOJO × POOL
+    </h2>
+    <p class="lead mb-5" style="color: #ffffff">
+      Merge physical pool gameplay with cutting-edge digital enhancements.<br />
+      Track your shots, analyze your performance, and compete in a whole new
+      way.
+    </p>
+    <div class="d-flex justify-content-center gap-4">
+      <a class="btn btn-cyber" href="#">CREATE AVATAR</a>
+      <a class="btn btn-cyber" href="{{ url_for('map_page') }}">FIND VENUES</a>
+    </div>
+  </div>
+  <div class="features-section py-5">
+    <h2
+      class="text-center mb-5"
+      style="
+        font-family: 'Orbitron', sans-serif;
+        color: #00ff00;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      "
+    >
+      PLATFORM FEATURES
+    </h2>
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="cyber-card h-100 text-center">
+          <picture>
+            <source
+              srcset="{{ url_for('static', filename=image_paths.features.geo.sm.avif) }}"
+              type="image/avif"
+            />
+            <source
+              srcset="{{ url_for('static', filename=image_paths.features.geo.sm.webp) }}"
+              type="image/webp"
+            />
+            <img
+              alt="Interactive Map"
+              class="feature-icon"
+              data-size="{{ image_paths.features.geo.size }}"
+              data-sizes='{"sm": 64}'
+              loading="lazy"
+              src="{{ url_for('static', filename=image_paths.features.geo.sm.original) }}"
+            />
+          </picture>
+          <h3 class="h5 mt-3" style="font-family: 'Orbitron', sans-serif">
+            INTERACTIVE MAP
+          </h3>
+          <p>
+            Find DojoPool-enabled venues near you with real-time availability
+            and player stats.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="cyber-card h-100 text-center">
+          <picture>
+            <source
+              srcset="{{ url_for('static', filename=image_paths.features.avatar.sm.avif) }}"
+              type="image/avif"
+            />
+            <source
+              srcset="{{ url_for('static', filename=image_paths.features.avatar.sm.webp) }}"
+              type="image/webp"
+            />
+            <img
+              alt="Avatar System"
+              class="feature-icon"
+              data-sizes='{"sm": 64}'
+              loading="lazy"
+              src="{{ url_for('static', filename=image_paths.features.avatar.sm.original) }}"
+            />
+          </picture>
+          <h3 class="h5 mt-3" style="font-family: 'Orbitron', sans-serif">
+            AVATAR SYSTEM
+          </h3>
+          <p>
+            Create and customize your digital identity with achievements and
+            rankings.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="cyber-card h-100 text-center">
+          <picture>
+            <source
+              srcset="{{ url_for('static', filename=image_paths.features.tracking.sm.avif) }}"
+              type="image/avif"
+            />
+            <source
+              srcset="{{ url_for('static', filename=image_paths.features.tracking.sm.webp) }}"
+              type="image/webp"
+            />
+            <img
+              alt="Live Tracking"
+              class="feature-icon"
+              data-sizes='{"sm": 64}'
+              loading="lazy"
+              src="{{ url_for('static', filename=image_paths.features.tracking.sm.original) }}"
+            />
+          </picture>
+          <h3 class="h5 mt-3" style="font-family: 'Orbitron', sans-serif">
+            LIVE TRACKING
+          </h3>
+          <p>
+            Real-time shot tracking and game analytics powered by computer
+            vision.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="cyber-card h-100 text-center">
+          <picture>
+            <source
+              srcset="{{ url_for('static', filename=image_paths.features.rankings.sm.avif) }}"
+              type="image/avif"
+            />
+            <source
+              srcset="{{ url_for('static', filename=image_paths.features.rankings.sm.webp) }}"
+              type="image/webp"
+            />
+            <img
+              alt="Global Rankings"
+              class="feature-icon"
+              data-sizes='{"sm": 64}'
+              loading="lazy"
+              src="{{ url_for('static', filename=image_paths.features.rankings.sm.original) }}"
+            />
+          </picture>
+          <h3 class="h5 mt-3" style="font-family: 'Orbitron', sans-serif">
+            GLOBAL RANKINGS
+          </h3>
+          <p>
+            Compete on worldwide leaderboards and earn recognition for your
+            skills.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<script
+  src="{{ url_for('static', filename='js/multiplayer.js') }}"
+  type="module"
+></script>
+<script
+  src="{{ url_for('static', filename='js/umpire.js') }}"
+  type="module"
+></script>
+<script
+  src="{{ url_for('static', filename='js/imageLoader.js') }}"
+  type="module"
+></script>
+<script
+  src="{{ url_for('static', filename='js/bandwidthTracker.js') }}"
+  type="module"
+></script>
+<script
+  src="{{ url_for('static', filename='js/networkStatus.js') }}"
+  type="module"
+></script>
+<script
+  src="{{ url_for('static', filename='js/debugPanel.js') }}"
+  type="module"
+></script>
+<script type="module">
+  import imageLoader from "{{ url_for('static', filename='js/imageLoader.js') }}";
+  import bandwidthTracker from "{{ url_for('static', filename='js/bandwidthTracker.js') }}";
+  import networkStatus from "{{ url_for('static', filename='js/networkStatus.js') }}";
+  import debugPanel from "{{ url_for('static', filename='js/debugPanel.js') }}";
+
+  // Initialize image loading and monitoring
+  document.addEventListener('DOMContentLoaded', () => {
+    imageLoader.preloadCriticalImages();
+    imageLoader.initLazyLoading();
+
+    // Monitor network changes
+    window.addEventListener('online', () => {
+      imageLoader.updateLoadedImages();
+      networkStatus.updateStatus();
+    });
+    window.addEventListener('offline', () => {
+      imageLoader.updateLoadedImages();
+      networkStatus.updateStatus();
+    });
+
+    // Monitor bandwidth optimization events
+    window.addEventListener('bandwidthOptimization', (event) => {
+      const { recommendations, stats } = event.detail;
+      console.debug('Bandwidth optimization:', { recommendations, stats });
+    });
+
+    // Enable debug mode in development
+    if (process.env.NODE_ENV === 'development') {
+      document.body.classList.add('debug-mode');
+    }
+  });
+</script>
+{% endblock %}

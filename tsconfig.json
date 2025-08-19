@@ -1,0 +1,134 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext",
+      "ES2015.Core",
+      "ES2015.Collection",
+      "ES2015.Iterable"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@/components/*": [
+        "src/frontend/components/*",
+        "src/dojopool/frontend/components/*"
+      ],
+      "@/contexts/*": [
+        "src/dojopool/frontend/contexts/*"
+      ],
+      "@/hooks/*": [
+        "src/dojopool/frontend/hooks/*"
+      ],
+      "@/services/*": [
+        "src/dojopool/frontend/services/*"
+      ],
+      "@/types/*": [
+        "src/dojopool/frontend/types/*"
+      ],
+      "@/utils/*": [
+        "src/dojopool/frontend/utils/*"
+      ],
+      "@/styles/*": [
+        "src/dojopool/frontend/styles/*"
+      ],
+      "@/constants/*": [
+        "src/dojopool/frontend/constants/*"
+      ]
+    },
+    "incremental": true,
+    "types": [
+      "react",
+      "react-dom"
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/dojopool/frontend/**/*.ts",
+    "src/dojopool/frontend/**/*.tsx",
+    "src/dojopool/frontend/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "vite.config.ts",
+    ".next",
+    ".turbo",
+    ".cache",
+    "out",
+    "coverage",
+    "**/coverage/**/*",
+    "lcov-report",
+    "**/lcov-report/**/*",
+    "reports",
+    "cypress",
+    "apps/web/**/*",
+    "apps/**/*",
+    "packages/**/*",
+    "DojoPool*/**/*",
+    "Dojo_Pool*/**/*",
+    "Dojo Pool*/**/*",
+    "combined/**/*",
+    "generated/**/*",
+    "blueprints/**/*",
+    "blockchain/**/*",
+    "infrastructure/**/*",
+    "k8s/**/*",
+    "monitoring/**/*",
+    "narrative/**/*",
+    "ranking/**/*",
+    "spectator/**/*",
+    "static/**/*",
+    "templates/**/*",
+    "tests/**/*",
+    "utils/**/*",
+    "venv/**/*",
+    "src/pages-backup/**/*",
+    "src/scripts/**/*",
+    "src/migrations/**/*",
+    "src/logs/**/*",
+    "src/instance/**/*",
+    "src/firebase/**/*",
+    "src/graphql/**/*",
+    "src/hooks/**/*",
+    "src/security/**/*",
+    "src/verification/**/*",
+    "src/validation/**/*",
+    "src/tournament/**/*",
+    "src/performance/**/*",
+    "src/frame-processor/**/*",
+    "src/screens/**/*"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "target": "ES2020"
+    }
+  }
+}

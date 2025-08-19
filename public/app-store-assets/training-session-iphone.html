@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0;
+        background-color: white;
+      }
+      * {
+        font-family: -apple-system, system-ui, BlinkMacSystemFont;
+      }
+      button {
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      button:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="
+        padding: 40px;
+        font-family: -apple-system, system-ui, BlinkMacSystemFont;
+        background: #f5f5f5;
+        min-height: 100vh;
+      "
+    >
+      <h1 style="font-size: 48px; color: #1976d2; margin-bottom: 30px">
+        Training Session
+      </h1>
+      <div
+        style="
+          background: white;
+          padding: 20px;
+          border-radius: 12px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          margin-bottom: 20px;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+          "
+        >
+          <h2 style="color: #1976d2; margin: 0">Drill: Bank Shots</h2>
+          <span
+            style="
+              background: #4caf50;
+              color: white;
+              padding: 5px 10px;
+              border-radius: 12px;
+              font-size: 14px;
+            "
+            >In Progress</span
+          >
+        </div>
+        <div
+          style="
+            height: 200px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            position: relative;
+          "
+        >
+          <div
+            style="
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              text-align: center;
+            "
+          >
+            <h3 style="color: #1976d2; margin: 0 0 10px 0">Current Shot</h3>
+            <p style="color: #666; margin: 0">Bank shot from corner pocket</p>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 8px">
+            <h4 style="color: #1976d2; margin: 0 0 10px 0">Progress</h4>
+            <p style="font-size: 24px; margin: 0">7/10</p>
+            <div
+              style="
+                width: 100%;
+                height: 8px;
+                background: #e0e0e0;
+                border-radius: 4px;
+                margin-top: 10px;
+              "
+            >
+              <div
+                style="
+                  width: 70%;
+                  height: 100%;
+                  background: #1976d2;
+                  border-radius: 4px;
+                "
+              ></div>
+            </div>
+          </div>
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 8px">
+            <h4 style="color: #1976d2; margin: 0 0 10px 0">Accuracy</h4>
+            <p style="font-size: 24px; margin: 0">85%</p>
+            <div
+              style="
+                width: 100%;
+                height: 8px;
+                background: #e0e0e0;
+                border-radius: 4px;
+                margin-top: 10px;
+              "
+            >
+              <div
+                style="
+                  width: 85%;
+                  height: 100%;
+                  background: #4caf50;
+                  border-radius: 4px;
+                "
+              ></div>
+            </div>
+          </div>
+        </div>
+        <button
+          style="
+            width: 100%;
+            padding: 15px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          "
+        >
+          Next Shot
+        </button>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,331 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Container
+.container {
+  @include container;
+}
+
+.container-fluid {
+  width: 100%;
+  padding-right: spacing(4);
+  padding-left: spacing(4);
+}
+
+// Grid system
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -$grid-gutter-width / 2;
+  margin-left: -$grid-gutter-width / 2;
+}
+
+// Columns
+@for $i from 1 through $grid-columns {
+  .col-#{$i} {
+    flex: 0 0 percentage($i / $grid-columns);
+    max-width: percentage($i / $grid-columns);
+    padding-right: $grid-gutter-width / 2;
+    padding-left: $grid-gutter-width / 2;
+  }
+}
+
+// Responsive columns
+@each $breakpoint, $width in $breakpoints {
+  @include breakpoint($breakpoint) {
+    @for $i from 1 through $grid-columns {
+      .col-#{$breakpoint}-#{$i} {
+        flex: 0 0 percentage($i / $grid-columns);
+        max-width: percentage($i / $grid-columns);
+        padding-right: $grid-gutter-width / 2;
+        padding-left: $grid-gutter-width / 2;
+      }
+    }
+  }
+}
+
+// Auto columns
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+  padding-right: $grid-gutter-width / 2;
+  padding-left: $grid-gutter-width / 2;
+}
+
+.col-auto {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 100%;
+  padding-right: $grid-gutter-width / 2;
+  padding-left: $grid-gutter-width / 2;
+}
+
+// Column offset
+@for $i from 0 through ($grid-columns - 1) {
+  .offset-#{$i} {
+    margin-left: if($i > 0, percentage($i / $grid-columns), 0);
+  }
+}
+
+// Responsive column offset
+@each $breakpoint, $width in $breakpoints {
+  @include breakpoint($breakpoint) {
+    @for $i from 0 through ($grid-columns - 1) {
+      .offset-#{$breakpoint}-#{$i} {
+        margin-left: if($i > 0, percentage($i / $grid-columns), 0);
+      }
+    }
+  }
+}
+
+// Flex utilities
+.d-flex {
+  display: flex !important;
+}
+.d-inline-flex {
+  display: inline-flex !important;
+}
+
+// Flex direction
+.flex-row {
+  flex-direction: row !important;
+}
+.flex-column {
+  flex-direction: column !important;
+}
+.flex-row-reverse {
+  flex-direction: row-reverse !important;
+}
+.flex-column-reverse {
+  flex-direction: column-reverse !important;
+}
+
+// Flex wrap
+.flex-wrap {
+  flex-wrap: wrap !important;
+}
+.flex-nowrap {
+  flex-wrap: nowrap !important;
+}
+.flex-wrap-reverse {
+  flex-wrap: wrap-reverse !important;
+}
+
+// Justify content
+.justify-content-start {
+  justify-content: flex-start !important;
+}
+.justify-content-end {
+  justify-content: flex-end !important;
+}
+.justify-content-center {
+  justify-content: center !important;
+}
+.justify-content-between {
+  justify-content: space-between !important;
+}
+.justify-content-around {
+  justify-content: space-around !important;
+}
+.justify-content-evenly {
+  justify-content: space-evenly !important;
+}
+
+// Align items
+.align-items-start {
+  align-items: flex-start !important;
+}
+.align-items-end {
+  align-items: flex-end !important;
+}
+.align-items-center {
+  align-items: center !important;
+}
+.align-items-baseline {
+  align-items: baseline !important;
+}
+.align-items-stretch {
+  align-items: stretch !important;
+}
+
+// Align self
+.align-self-start {
+  align-self: flex-start !important;
+}
+.align-self-end {
+  align-self: flex-end !important;
+}
+.align-self-center {
+  align-self: center !important;
+}
+.align-self-baseline {
+  align-self: baseline !important;
+}
+.align-self-stretch {
+  align-self: stretch !important;
+}
+
+// Flex grow
+.flex-grow-0 {
+  flex-grow: 0 !important;
+}
+.flex-grow-1 {
+  flex-grow: 1 !important;
+}
+
+// Flex shrink
+.flex-shrink-0 {
+  flex-shrink: 0 !important;
+}
+.flex-shrink-1 {
+  flex-shrink: 1 !important;
+}
+
+// Order
+@for $i from 0 through 5 {
+  .order-#{$i} {
+    order: $i !important;
+  }
+}
+
+// Responsive flex utilities
+@each $breakpoint, $width in $breakpoints {
+  @include breakpoint($breakpoint) {
+    .d-#{$breakpoint}-flex {
+      display: flex !important;
+    }
+    .d-#{$breakpoint}-inline-flex {
+      display: inline-flex !important;
+    }
+
+    .flex-#{$breakpoint}-row {
+      flex-direction: row !important;
+    }
+    .flex-#{$breakpoint}-column {
+      flex-direction: column !important;
+    }
+    .flex-#{$breakpoint}-row-reverse {
+      flex-direction: row-reverse !important;
+    }
+    .flex-#{$breakpoint}-column-reverse {
+      flex-direction: column-reverse !important;
+    }
+
+    .flex-#{$breakpoint}-wrap {
+      flex-wrap: wrap !important;
+    }
+    .flex-#{$breakpoint}-nowrap {
+      flex-wrap: nowrap !important;
+    }
+    .flex-#{$breakpoint}-wrap-reverse {
+      flex-wrap: wrap-reverse !important;
+    }
+
+    .justify-content-#{$breakpoint}-start {
+      justify-content: flex-start !important;
+    }
+    .justify-content-#{$breakpoint}-end {
+      justify-content: flex-end !important;
+    }
+    .justify-content-#{$breakpoint}-center {
+      justify-content: center !important;
+    }
+    .justify-content-#{$breakpoint}-between {
+      justify-content: space-between !important;
+    }
+    .justify-content-#{$breakpoint}-around {
+      justify-content: space-around !important;
+    }
+    .justify-content-#{$breakpoint}-evenly {
+      justify-content: space-evenly !important;
+    }
+
+    .align-items-#{$breakpoint}-start {
+      align-items: flex-start !important;
+    }
+    .align-items-#{$breakpoint}-end {
+      align-items: flex-end !important;
+    }
+    .align-items-#{$breakpoint}-center {
+      align-items: center !important;
+    }
+    .align-items-#{$breakpoint}-baseline {
+      align-items: baseline !important;
+    }
+    .align-items-#{$breakpoint}-stretch {
+      align-items: stretch !important;
+    }
+
+    @for $i from 0 through 5 {
+      .order-#{$breakpoint}-#{$i} {
+        order: $i !important;
+      }
+    }
+  }
+}
+
+// Grid system
+.grid {
+  display: grid;
+  gap: $grid-gutter-width;
+}
+
+// Grid columns
+@for $i from 1 through $grid-columns {
+  .grid-cols-#{$i} {
+    grid-template-columns: repeat($i, minmax(0, 1fr));
+  }
+}
+
+// Responsive grid columns
+@each $breakpoint, $width in $breakpoints {
+  @include breakpoint($breakpoint) {
+    @for $i from 1 through $grid-columns {
+      .grid-cols-#{$breakpoint}-#{$i} {
+        grid-template-columns: repeat($i, minmax(0, 1fr));
+      }
+    }
+  }
+}
+
+// Grid gap
+@each $key, $value in $spacing {
+  .gap-#{$key} {
+    gap: $value;
+  }
+
+  .gap-x-#{$key} {
+    column-gap: $value;
+  }
+
+  .gap-y-#{$key} {
+    row-gap: $value;
+  }
+}
+
+// Grid span
+@for $i from 1 through $grid-columns {
+  .col-span-#{$i} {
+    grid-column: span $i / span $i;
+  }
+
+  .row-span-#{$i} {
+    grid-row: span $i / span $i;
+  }
+}
+
+// Responsive grid span
+@each $breakpoint, $width in $breakpoints {
+  @include breakpoint($breakpoint) {
+    @for $i from 1 through $grid-columns {
+      .col-span-#{$breakpoint}-#{$i} {
+        grid-column: span $i / span $i;
+      }
+
+      .row-span-#{$breakpoint}-#{$i} {
+        grid-row: span $i / span $i;
+      }
+    }
+  }
+}

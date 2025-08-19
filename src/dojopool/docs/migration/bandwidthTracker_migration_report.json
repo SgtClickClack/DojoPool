@@ -1,0 +1,76 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\bandwidthTracker.js",
+  "typescript_file": "src\\dojopool\\static\\js\\bandwidthTracker.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\bandwidthTracker.js",
+  "analysis": {
+    "functions": [],
+    "classes": [
+      {
+        "name": "BandwidthTracker",
+        "extends": null,
+        "properties": []
+      }
+    ],
+    "variables": [
+      {
+        "name": "observer",
+        "type": "any"
+      },
+      {
+        "name": "size",
+        "type": "any"
+      },
+      {
+        "name": "loadTime",
+        "type": "any"
+      },
+      {
+        "name": "url",
+        "type": "any"
+      },
+      {
+        "name": "sessionDuration",
+        "type": "any"
+      },
+      {
+        "name": "currentUsage",
+        "type": "any"
+      },
+      {
+        "name": "recommendations",
+        "type": "any"
+      },
+      {
+        "name": "recommendations",
+        "type": "any"
+      },
+      {
+        "name": "usage",
+        "type": "any"
+      },
+      {
+        "name": "avgLoadTime",
+        "type": "any"
+      },
+      {
+        "name": "event",
+        "type": "any"
+      },
+      {
+        "name": "usage",
+        "type": "any"
+      },
+      {
+        "name": "bandwidthTracker",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": ["instance", "bandwidthTracker"]
+  },
+  "generated_types": {
+    "BandwidthTracker": "\nclass BandwidthTracker {\n    // Properties and methods\n}",
+    "instance": "\ninterface instance {\n    // Properties\n}",
+    "bandwidthTracker": "\ninterface bandwidthTracker {\n    // Properties\n}"
+  }
+}

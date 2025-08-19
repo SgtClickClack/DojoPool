@@ -1,0 +1,319 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Leaderboard header
+.leaderboard-header {
+  padding: spacing(8) 0;
+  margin-bottom: spacing(8);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-primary);
+
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 spacing(6);
+  }
+
+  .header-title {
+    margin-bottom: spacing(4);
+    @include font-size(4xl);
+    @include font-weight(bold);
+    color: var(--color-text-primary);
+  }
+
+  .header-description {
+    margin-bottom: spacing(6);
+    color: var(--color-text-secondary);
+    max-width: 600px;
+  }
+}
+
+// Leaderboard filters
+.leaderboard-filters {
+  max-width: 1200px;
+  margin: 0 auto spacing(8);
+  padding: 0 spacing(6);
+
+  .filters-container {
+    padding: spacing(6);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-primary);
+    @include rounded(xl);
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: spacing(4);
+  }
+
+  .filter-group {
+    .filter-label {
+      margin-bottom: spacing(2);
+      @include font-weight(medium);
+      color: var(--color-text-primary);
+    }
+  }
+}
+
+// Leaderboard table
+.leaderboard-table {
+  max-width: 1200px;
+  margin: 0 auto spacing(8);
+  padding: 0 spacing(6);
+
+  .table-container {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-primary);
+    @include rounded(xl);
+    overflow: hidden;
+  }
+
+  .table-row {
+    display: grid;
+    grid-template-columns: 80px 1fr repeat(4, minmax(100px, 1fr));
+    align-items: center;
+    padding: spacing(4) spacing(6);
+
+    @include media-breakpoint-down(md) {
+      grid-template-columns: 60px 1fr repeat(2, minmax(80px, 1fr));
+
+      .hide-mobile {
+        display: none;
+      }
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--color-border-primary);
+    }
+
+    &.table-header {
+      background-color: var(--color-background);
+      @include font-weight(medium);
+      color: var(--color-text-primary);
+    }
+
+    &:hover:not(.table-header) {
+      background-color: var(--color-surface-hover);
+    }
+  }
+
+  .rank-cell {
+    @include font-weight(bold);
+    color: var(--color-text-primary);
+
+    &.top-1 {
+      color: var(--color-warning-500);
+    }
+    &.top-2 {
+      color: var(--color-gray-400);
+    }
+    &.top-3 {
+      color: var(--color-warning-700);
+    }
+  }
+
+  .player-cell {
+    display: flex;
+    align-items: center;
+    gap: spacing(4);
+
+    .player-avatar {
+      width: spacing(10);
+      height: spacing(10);
+      @include rounded(full);
+    }
+
+    .player-info {
+      min-width: 0;
+
+      .player-name {
+        margin-bottom: spacing(1);
+        @include font-weight(medium);
+        color: var(--color-text-primary);
+        @include truncate;
+      }
+
+      .player-title {
+        color: var(--color-text-secondary);
+        @include font-size(sm);
+        @include truncate;
+      }
+    }
+  }
+
+  .stat-cell {
+    @include font-weight(medium);
+    color: var(--color-text-primary);
+
+    .stat-label {
+      display: block;
+      @include font-size(sm);
+      @include font-weight(normal);
+      color: var(--color-text-secondary);
+
+      @include media-breakpoint-up(lg) {
+        display: none;
+      }
+    }
+  }
+
+  .trend-cell {
+    display: flex;
+    align-items: center;
+    gap: spacing(2);
+
+    &.positive {
+      color: var(--color-success-500);
+    }
+    &.negative {
+      color: var(--color-error-500);
+    }
+
+    .trend-icon {
+      width: spacing(4);
+      height: spacing(4);
+    }
+  }
+}
+
+// Top players section
+.top-players {
+  max-width: 1200px;
+  margin: 0 auto spacing(8);
+  padding: 0 spacing(6);
+
+  .section-header {
+    margin-bottom: spacing(6);
+
+    .section-title {
+      @include font-size(2xl);
+      @include font-weight(bold);
+      color: var(--color-text-primary);
+    }
+  }
+
+  .players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: spacing(6);
+  }
+
+  .player-card {
+    position: relative;
+    padding: spacing(6);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border-primary);
+    @include rounded(xl);
+    @include transition(transform, box-shadow);
+
+    &:hover {
+      transform: translateY(-2px);
+      @include shadow(lg);
+    }
+
+    .rank-badge {
+      position: absolute;
+      top: spacing(4);
+      right: spacing(4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: spacing(8);
+      height: spacing(8);
+      background-color: var(--color-primary-50);
+      color: var(--color-primary-500);
+      @include font-weight(bold);
+      @include rounded(full);
+
+      &.top-1 {
+        background-color: var(--color-warning-50);
+        color: var(--color-warning-500);
+      }
+
+      &.top-2 {
+        background-color: var(--color-gray-50);
+        color: var(--color-gray-500);
+      }
+
+      &.top-3 {
+        background-color: var(--color-warning-50);
+        color: var(--color-warning-700);
+      }
+    }
+
+    .player-header {
+      display: flex;
+      align-items: center;
+      gap: spacing(4);
+      margin-bottom: spacing(4);
+
+      .player-avatar {
+        width: spacing(16);
+        height: spacing(16);
+        @include rounded(full);
+      }
+
+      .player-info {
+        .player-name {
+          margin-bottom: spacing(1);
+          @include font-weight(medium);
+          color: var(--color-text-primary);
+        }
+
+        .player-title {
+          color: var(--color-text-secondary);
+          @include font-size(sm);
+        }
+      }
+    }
+
+    .player-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: spacing(4);
+      margin-bottom: spacing(4);
+
+      .stat-item {
+        text-align: center;
+
+        .stat-value {
+          margin-bottom: spacing(1);
+          @include font-size(xl);
+          @include font-weight(bold);
+          color: var(--color-text-primary);
+        }
+
+        .stat-label {
+          color: var(--color-text-secondary);
+          @include font-size(sm);
+        }
+      }
+    }
+
+    .player-achievements {
+      display: flex;
+      gap: spacing(2);
+      margin-bottom: spacing(4);
+
+      .achievement-badge {
+        width: spacing(8);
+        height: spacing(8);
+        padding: spacing(1);
+        background-color: var(--color-surface-hover);
+        @include rounded(lg);
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+      }
+    }
+
+    .player-actions {
+      display: flex;
+      gap: spacing(4);
+    }
+  }
+}

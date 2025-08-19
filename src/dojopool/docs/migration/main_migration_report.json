@@ -1,0 +1,68 @@
+{
+  "original_file": "src\\dojopool\\static\\js\\main.js",
+  "typescript_file": "src\\dojopool\\static\\js\\main.ts",
+  "backup_file": "src\\dojopool\\backups\\js_migration\\main.js",
+  "analysis": {
+    "functions": [
+      {
+        "name": "updateOnlineStatus",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "syncData",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "startPeriodicRefresh",
+        "params": [],
+        "return_type": "any"
+      },
+      {
+        "name": "stopPeriodicRefresh",
+        "params": [],
+        "return_type": "any"
+      }
+    ],
+    "classes": [],
+    "variables": [
+      {
+        "name": "db",
+        "type": "any"
+      },
+      {
+        "name": "syncManager",
+        "type": "any"
+      },
+      {
+        "name": "syncTag",
+        "type": "any"
+      },
+      {
+        "name": "installButton",
+        "type": "any"
+      },
+      {
+        "name": "status",
+        "type": "any"
+      },
+      {
+        "name": "offlineIndicator",
+        "type": "any"
+      },
+      {
+        "name": "registration",
+        "type": "any"
+      }
+    ],
+    "imports": [],
+    "exports": []
+  },
+  "generated_types": {
+    "updateOnlineStatus": "\nfunction updateOnlineStatus(): any {\n    // Implementation\n}",
+    "syncData": "\nfunction syncData(): any {\n    // Implementation\n}",
+    "startPeriodicRefresh": "\nfunction startPeriodicRefresh(): any {\n    // Implementation\n}",
+    "stopPeriodicRefresh": "\nfunction stopPeriodicRefresh(): any {\n    // Implementation\n}"
+  }
+}

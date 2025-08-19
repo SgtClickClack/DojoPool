@@ -1,0 +1,86 @@
+/* Main Navbar Container */
+.nav {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(10, 10, 10, 0.95) 0%,
+    rgba(26, 26, 26, 0.95) 50%,
+    rgba(10, 10, 10, 0.95) 100%
+  );
+  border-bottom: 1px solid rgba(0, 255, 157, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 255, 157, 0.2);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  z-index: 1200;
+  padding: 10px 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo Styles */
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logoIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #00ff9d, #00a8ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  box-shadow: 0 0 15px rgba(0, 255, 157, 0.5);
+  color: #000;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.logoText {
+  font-weight: 700;
+  color: #00ff9d;
+  font-family: 'Orbitron', monospace;
+  text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+  font-size: 18px;
+}
+
+/* Navigation Links Styles */
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.navLink {
+  background: none;
+  border: none;
+  color: #00ff9d;
+  font-family: 'Orbitron', monospace;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+/* Replaces the JavaScript mouse events with a more efficient CSS pseudo-class */
+.navLink:hover {
+  color: #00a8ff;
+  text-shadow: 0 0 10px rgba(0, 168, 255, 0.5);
+  transform: translateY(-2px);
+}

@@ -1,0 +1,376 @@
+{% extends "venue/base_venue.html" %} {% block venue_content %}
+<div class="venue-tournaments-container">
+  <div class="tournaments-header">
+    <h1 class="neon-text">{{ venue.name }} Tournaments</h1>
+    <div class="tournament-filters">
+      <select id="tournament-status" class="gaming-select">
+        <option value="all">All Tournaments</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="ongoing">Ongoing</option>
+        <option value="completed">Completed</option>
+      </select>
+      <select id="tournament-type" class="gaming-select">
+        <option value="all">All Types</option>
+        <option value="8-ball">8-Ball</option>
+        <option value="9-ball">9-Ball</option>
+        <option value="straight">Straight Pool</option>
+      </select>
+    </div>
+    {% if current_user.is_admin %}
+    <div class="tournament-actions">
+      <button class="gaming-button" id="create-tournament-btn">
+        <i class="fas fa-plus"></i> Create Tournament
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Current/Featured Tournament -->
+  {% if current_tournament %}
+  <div class="current-tournament gaming-card highlight">
+    <div class="tournament-banner">
+      <h2>Current Tournament</h2>
+      <span class="tournament-status ongoing">In Progress</span>
+    </div>
+    <div class="tournament-content">
+      <div class="tournament-info">
+        <h3>{{ current_tournament.name }}</h3>
+        <p class="tournament-description">
+          {{ current_tournament.description }}
+        </p>
+        <div class="tournament-details">
+          <div class="detail-item">
+            <i class="fas fa-users"></i>
+            <span
+              >{{ current_tournament.player_count }}/{{
+              current_tournament.max_players }} Players</span
+            >
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-trophy"></i>
+            <span>Prize Pool: ${{ current_tournament.prize_pool }}</span>
+          </div>
+          <div class="detail-item">
+            <i class="fas fa-clock"></i>
+            <span>Started {{ current_tournament.start_time|timeago }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="tournament-actions">
+        <a
+          href="{{ url_for('tournament.tournament_detail', tournament_id=current_tournament.id) }}"
+          class="gaming-button"
+        >
+          View Details
+        </a>
+        {% if current_user.is_authenticated and not
+        current_user.is_registered(current_tournament.id) %}
+        <button
+          class="gaming-button success register-btn"
+          data-tournament-id="{{ current_tournament.id }}"
+        >
+          Register Now
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Tournament Grid -->
+  <div class="tournament-grid">
+    {% for tournament in tournaments %}
+    <div class="tournament-card gaming-card">
+      <div class="tournament-header">
+        <h3>{{ tournament.name }}</h3>
+        <span class="tournament-status {{ tournament.status }}"
+          >{{ tournament.status|title }}</span
+        >
+      </div>
+      <div class="tournament-body">
+        <p>{{ tournament.description }}</p>
+        <div class="tournament-stats">
+          <div class="stat-item">
+            <i class="fas fa-users"></i>
+            <span
+              >{{ tournament.player_count }}/{{ tournament.max_players }}</span
+            >
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-trophy"></i>
+            <span>${{ tournament.prize_pool }}</span>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-gamepad"></i>
+            <span>{{ tournament.game_type }}</span>
+          </div>
+        </div>
+        {% if tournament.status == 'upcoming' %}
+        <div
+          class="tournament-countdown"
+          data-start-time="{{ tournament.start_time }}"
+        >
+          Starts in: <span class="countdown-timer"></span>
+        </div>
+        {% endif %}
+      </div>
+      <div class="tournament-footer">
+        <a
+          href="{{ url_for('tournament.tournament_detail', tournament_id=tournament.id) }}"
+          class="gaming-button"
+        >
+          View Details
+        </a>
+        {% if current_user.is_authenticated %} {% if tournament.status ==
+        'upcoming' and not current_user.is_registered(tournament.id) %}
+        <button
+          class="gaming-button success register-btn"
+          data-tournament-id="{{ tournament.id }}"
+        >
+          Register
+        </button>
+        {% elif current_user.is_registered(tournament.id) %}
+        <button
+          class="gaming-button danger unregister-btn"
+          data-tournament-id="{{ tournament.id }}"
+        >
+          Unregister
+        </button>
+        {% endif %} {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- No tournaments message -->
+  {% if not tournaments %}
+  <div class="no-tournaments gaming-card">
+    <p>No tournaments found matching your criteria</p>
+  </div>
+  {% endif %}
+
+  <!-- Load more button -->
+  {% if has_more %}
+  <button id="load-more" class="gaming-button load-more">
+    Load More Tournaments
+  </button>
+  {% endif %}
+</div>
+
+<!-- Create Tournament Modal -->
+{% if current_user.is_admin %}
+<div class="modal fade" id="createTournamentModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content gaming-card">
+      <div class="modal-header">
+        <h5 class="modal-title">Create New Tournament</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="createTournamentForm">
+          <div class="form-group">
+            <label for="tournamentName">Tournament Name</label>
+            <input
+              type="text"
+              class="gaming-input"
+              id="tournamentName"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="tournamentDescription">Description</label>
+            <textarea
+              class="gaming-input"
+              id="tournamentDescription"
+              rows="3"
+              required
+            ></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="gameType">Game Type</label>
+              <select class="gaming-select" id="gameType" required>
+                <option value="8-ball">8-Ball</option>
+                <option value="9-ball">9-Ball</option>
+                <option value="straight">Straight Pool</option>
+              </select>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="maxPlayers">Maximum Players</label>
+              <input
+                type="number"
+                class="gaming-input"
+                id="maxPlayers"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="startTime">Start Time</label>
+              <input
+                type="datetime-local"
+                class="gaming-input"
+                id="startTime"
+                required
+              />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="prizePool">Prize Pool ($)</label>
+              <input
+                type="number"
+                class="gaming-input"
+                id="prizePool"
+                required
+              />
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="gaming-button" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="gaming-button success"
+          id="createTournamentSubmit"
+        >
+          Create Tournament
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %} {% endblock %} {% block scripts %} {{ super() }}
+<script>
+  // Handle filter changes
+  document.getElementById('tournament-status').addEventListener('change', updateTournaments);
+  document.getElementById('tournament-type').addEventListener('change', updateTournaments);
+
+  function updateTournaments() {
+      const status = document.getElementById('tournament-status').value;
+      const type = document.getElementById('tournament-type').value;
+
+      // Show loading indicator
+      document.getElementById('loading-indicator').style.display = 'block';
+
+      // Fetch updated tournament data
+      fetch(`/api/v1/venues/${venueId}/tournaments?status=${status}&type=${type}`)
+          .then(response => response.json())
+          .then(data => {
+              // Update the tournaments content
+              updateTournamentsContent(data);
+              document.getElementById('loading-indicator').style.display = 'none';
+          })
+          .catch(error => {
+              console.error('Error updating tournaments:', error);
+              document.getElementById('loading-indicator').style.display = 'none';
+          });
+  }
+
+  // Update countdown timers
+  function updateCountdowns() {
+      document.querySelectorAll('.tournament-countdown').forEach(countdown => {
+          const startTime = new Date(countdown.dataset.startTime);
+          const now = new Date();
+          const diff = startTime - now;
+
+          if (diff > 0) {
+              const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+              const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+              countdown.querySelector('.countdown-timer').textContent =
+                  `${days}d ${hours}h ${minutes}m`;
+          } else {
+              countdown.textContent = 'Starting soon';
+          }
+      });
+  }
+
+  // Initialize countdown timers
+  setInterval(updateCountdowns, 60000);
+  updateCountdowns();
+
+  {% if current_user.is_admin %}
+  // Tournament creation
+  const createTournamentBtn = document.getElementById('create-tournament-btn');
+  const createTournamentModal = new bootstrap.Modal(document.getElementById('createTournamentModal'));
+  const createTournamentForm = document.getElementById('createTournamentForm');
+  const createTournamentSubmit = document.getElementById('createTournamentSubmit');
+
+  createTournamentBtn.addEventListener('click', () => {
+      createTournamentModal.show();
+  });
+
+  createTournamentSubmit.addEventListener('click', () => {
+      if (createTournamentForm.checkValidity()) {
+          const formData = {
+              name: document.getElementById('tournamentName').value,
+              description: document.getElementById('tournamentDescription').value,
+              game_type: document.getElementById('gameType').value,
+              max_players: document.getElementById('maxPlayers').value,
+              start_time: document.getElementById('startTime').value,
+              prize_pool: document.getElementById('prizePool').value,
+              venue_id: venueId
+          };
+
+          fetch('/api/v1/tournaments', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(formData)
+          })
+              .then(response => response.json())
+              .then(data => {
+                  createTournamentModal.hide();
+                  updateTournaments();
+              })
+              .catch(error => console.error('Error creating tournament:', error));
+      } else {
+          createTournamentForm.reportValidity();
+      }
+  });
+  {% endif %}
+
+  // Tournament registration
+  document.querySelectorAll('.register-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+          const tournamentId = this.dataset.tournamentId;
+          fetch(`/api/v1/tournaments/${tournamentId}/register`, {
+              method: 'POST'
+          })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      updateTournaments();
+                  }
+              })
+              .catch(error => console.error('Error registering for tournament:', error));
+      });
+  });
+
+  // Tournament unregistration
+  document.querySelectorAll('.unregister-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+          const tournamentId = this.dataset.tournamentId;
+          fetch(`/api/v1/tournaments/${tournamentId}/unregister`, {
+              method: 'POST'
+          })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      updateTournaments();
+                  }
+              })
+              .catch(error => console.error('Error unregistering from tournament:', error));
+      });
+  });
+</script>
+{% endblock %}

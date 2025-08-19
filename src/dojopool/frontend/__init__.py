@@ -1,0 +1,1 @@
+"""DojoPool frontend module."""

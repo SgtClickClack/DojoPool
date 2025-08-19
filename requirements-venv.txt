@@ -1,0 +1,37 @@
+# Core dependencies
+Flask==2.0.1
+SQLAlchemy==1.4.23
+python-dotenv==0.19.0
+Flask-Login==0.5.0
+Flask-SQLAlchemy==2.5.1
+Flask-WTF==0.15.1
+WTForms==2.3.3
+email-validator==1.1.3
+Werkzeug==2.0.3
+
+# Security tools
+cryptography==3.4.7
+pyOpenSSL==20.0.1
+schedule==1.1.0
+
+# Testing
+pytest==6.2.5
+pytest-cov==2.12.1
+
+# Development
+black==21.7b0
+flake8==3.9.2
+mypy==0.910
+
+# Image Processing
+Pillow>=10.1.0
+
+# Monitoring
+prometheus-client>=0.17.0
+prometheus-flask-exporter>=0.22.0
+structlog>=23.1.0
+python-json-logger>=2.0.7
+
+# Note: psycopg2-binary requires PostgreSQL development headers
+# Install separately if needed: pip install psycopg2-binary
+

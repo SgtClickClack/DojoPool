@@ -1,0 +1,327 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Dojo Pool – Gameplay Design Document: "Pokémon Meets Pool"
+High Concept
+Dojo Pool is an immersive, avatar-driven pool battle game where players progress through a narrative world by playing actual games of pool. Instead of catching Pokémon, players face off against rival avatars (real users), win real pool games to capture territories, earn clan loyalty, and unlock digital and real-world assets like NFTs and Dojo Coins.
+The ultimate goal is to ascend to the status of a Pool God — a legendary, almost mythological figure within the game’s universe. This status is at once symbolic, social, and spiritual. Players show respect to the Pool Gods in the hopes of earning “flukes” — unexpected moments of fortune and magic in matches. It’s a playful, religious-style mechanic that infuses the game world with humor, mysticism, and reverence.
+Key Pool Gods include:
+The AI Umpire – Oversees matches, enforces fairness, and watches over all games.
+
+
+The Match Commentator – Narrates key match moments with wit and drama.
+
+
+The God of Luck (Fluke) – Said to reward those who show humility, fun, and flair.
+
+
+
+🎮 Core Gameplay Loop
+Explore the Dojo World (digitally & physically)
+
+
+Players roam a game map populated by:
+
+
+Nearby Dojos (real pubs/bars with pool tables)
+
+
+Rival player avatars with territory or story significance
+
+
+Interactions are remote or in-person at physical venues
+
+
+Initiate Battles (Real Pool Games)
+
+
+Players challenge others to real-life pool matches
+
+
+Games are tracked via AI-enhanced cameras and scored live
+
+
+Matches have stakes: Dojo Coins, NFTs, or storyline advancement
+
+
+Win to Progress
+
+
+Winning a match can:
+
+
+Unlock a storyline cutscene
+
+
+Grant clan points (influence, ranking, loyalty)
+
+
+Reward players with NFTs
+
+
+Let players claim or defend territory
+
+
+Increase avatar strength and unlock evolved avatar forms
+
+
+Customize, Strategize, and Grow
+
+
+Spend Dojo Coins to:
+
+
+Customize avatars
+
+
+Recruit allies or defenders
+
+
+Upgrade territory defenses
+
+
+
+👤 Avatars = Your Story Character
+Every player controls an anime-style avatar that:
+
+
+Evolves visually and narratively as they win
+
+
+Becomes known in the Dojo World for their play style
+
+
+Appears in other players' storylines as rivals, bosses, or allies
+
+
+Has a personalized story arc that adapts to player choices
+
+
+
+🗌️ Territory Control System
+The map is divided into neighborhood Dojos (physical venues)
+
+
+Players can:
+
+
+Claim a Dojo by defeating the controlling player
+
+
+Defend it from challengers in real matches
+
+
+Level up a Dojo to make it harder to take
+
+
+Earn passive income in Dojo Coins from controlled venues
+
+
+Territories are NFT-backed digital assets that can be traded
+
+
+
+🏠 Clans and Allegiances
+Players can:
+
+
+Join or form clans (factions)
+
+
+Battle for clan-controlled territories
+
+
+Unlock clan-wide bonuses
+
+
+Enter clan wars to control zones on the map
+
+
+
+🧠 Real Player Avatars in the Story
+The game world features:
+
+
+Rival players controlling key Dojos
+
+
+Dynamic story integration: win or lose, your avatar appears in others’ journeys
+
+
+Players become part of a shared narrative world where actions ripple
+
+
+
+💼 Venue Management Portal (For Dojo Owners)
+Each physical Dojo (venue) has a dedicated management portal:
+
+
+Manage Dojo Profile: Upload images, location, branding
+
+
+Promote Specials & Rewards: Announce drink/food deals, set Dojo Coin bonuses
+
+
+Customize Appearance: Digital decor, vibe settings, sound themes for in-app experience
+
+
+Create & Manage Tournaments: Set rules, entry fees, rewards, brackets
+
+
+Mint NFT Trophies: Issue collectible rewards for tournament winners or achievements
+
+
+Highlight Top Ten Players: Promote local legends and weekly leaders
+
+
+Assign/Promote a Dojo Master: The current top player can be featured with profile and record
+
+
+This system allows venues to attract and retain players, create custom gameplay experiences, and generate real-world foot traffic through digital engagement.
+
+💲 Economy and Assets
+Dojo Coins:
+Earned by:
+
+
+Winning matches
+
+
+Controlling territory
+
+
+Completing story missions
+
+
+Spent on:
+
+
+Avatar upgrades
+
+
+Tournament entries
+
+
+Cosmetics and quest progression
+
+
+NFTs:
+Represent:
+
+
+Rare items, skins, cues
+
+
+Dojo ownership
+
+
+Legendary quest rewards
+
+
+Tradable on a player marketplace
+
+
+
+📱 Example Scenario
+Julian walks into The Jade Tiger, a pool hall in Brisbane, and scans the Dojo QR code.
+The venue is controlled by RyuKlaw, a top-tier player from the Crimson Monkey Clan. RyuKlaw’s avatar appears on Julian’s app, ready to defend.
+They play a real pool match. The game is tracked and rendered as an avatar animation with commentary from a Pool God.
+Julian wins.
+Gains control of the venue
+
+
+Earns coins, boosts his clan influence, and unlocks avatar upgrades
+
+
+RyuKlaw’s story arc now shifts to a revenge mission
+
+
+Julian’s avatar becomes part of the local lore: The Warrior of Jade Tiger
+
+
+Julian receives a blessing from the Pool Gods, and with a wink from the Fluke God, lands an impossible trick shot
+
+
+
+🧰 Game Modes
+Mode
+Description
+Story Mode
+Challenge rivals & unlock narratives
+Territory Battles
+Fight for Dojo ownership
+Clan Wars
+Multi-day faction wars
+Ranked Ladder
+Global PvP leaderboard
+Casual Play
+Friendly matches or training
+
+
+📏 Wireframes
+1. World Map View
+Google Maps-style interface
+
+
+Shows nearby Dojos, active battles, avatars
+
+
+Tap a Dojo to challenge or check control status
+
+
+2. Dojo Venue Page
+Venue name, current controller, leaderboard
+
+
+Options: Challenge, Watch match, Join tournament
+
+
+3. Match Lobby
+Avatar intros, game mode
+
+
+Countdown to match start
+
+
+4. Battle View (Animated Overlay)
+Avatars around digital pool table
+
+
+Live animations from real game tracking
+
+
+Commentary by the Pool Gods
+
+
+5. Avatar Profile Page
+Player stats, avatar evolution stage, clan, territory
+
+
+Track quest progress and honors from Pool Gods
+
+
+6. Marketplace/NFTs
+Buy/Sell avatar items
+
+
+Filter by rarity, price, effects
+
+
+7. Venue Management Portal
+Admin dashboard for venue owners
+
+
+Tabs for: Profile, Specials, Coin Rewards, Tournaments, NFT Trophies, Leaderboard
+
+
+Live stats on players checked in, coin flows, and recent match history
+
+
+
+✨ Summary
+Dojo Pool transforms real-world pool into a digital, narrative-rich universe where players become the heroes, villains, and champions of a growing ecosystem. With territory control, evolving avatars, a reverent Pool God mythology, and real pool as the core mechanic, it blends storytelling, spirituality, and sport like never before.
+
+
+
