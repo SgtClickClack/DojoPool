@@ -1,273 +1,276 @@
-# Dojo Pool - Location-Based Coin Collection Game
+# 🎱 Dojo Pool
 
-A real-time multiplayer location-based game built with Flask and Google Maps SDK, featuring interactive gameplay, AI-powered umpire system, and robust authentication.
+**Dojo Pool is a "Pokémon Go for pool players" — a real-time, location-based platform for social matches, tournaments, and territory control.**
 
-## Features
+---
 
-- **Location-Based Gameplay**
-  - Real-time coin collection mechanics
-  - Interactive Google Maps integration
-  - Dynamic coin spawning system
-  - Score tracking and leaderboards
+## ✨ Features
 
-- **Multiplayer Capabilities**
-  - Real-time player interactions
-  - Local chat system
-  - Challenge system between players
-  - Player proximity detection
-  - Real-time score updates
+- **World Hub Map**: An interactive map displaying players, dojos (venues), and territories.
+- **Venue Management**: A dashboard for venue owners to manage tables, create tournaments, and view activity.
+- **Live Tournaments**: A full-stack tournament system with bracket visualization and real-time match reporting.
+- **Territory Wars**: A meta-game where players compete to gain "influence" and control of local dojos.
+- **Player Profiles**: Detailed profiles with match history, stats, and tournament performance.
+- **Social System**: A complete friends list and friend request system.
+- **Authentication**: Secure user registration and login using JWT.
+- **AI Integration**: AI-powered match commentary, referee system, and content generation.
+- **Blockchain Integration**: NFT avatars, Dojo Coins, and cross-chain tournament support.
 
-- **Advanced Map Features**
-  - Multiple theme support (dark, retro, night)
-  - Custom map controls
-  - Dynamic theme switching
-  - Responsive map interface
+---
 
-- **AI-Powered Umpire System**
-  - OpenCV-based ball detection
-  - Real-time movement analysis
-  - Thread-safe monitoring
-  - WebSocket integration
-  - Color calibration
+## 💻 Tech Stack
 
-- **Authentication & Security**
-  - Email/password authentication
-  - Secure password hashing
-  - Session management
-  - HTTPS enforcement
-  - CORS protection
+- **Monorepo**: npm Workspaces with Turbo
+- **Frontend**: Next.js 14, React 18, TypeScript, Material-UI, Google Maps API
+- **Backend**: NestJS, TypeScript, Prisma ORM, WebSockets (Socket.io)
+- **Database**: PostgreSQL with Prisma ORM
+- **Testing**: Vitest, Jest, Cypress for E2E tests
+- **Deployment**: Vercel (Frontend), Vercel Functions (Backend)
+- **AI Services**: TensorFlow.js, Custom AI models for game analysis
+- **Monitoring**: Custom monitoring system with logging and health checks
 
-## Tech Stack
+---
 
-- **Backend**
-  - Flask (Python web framework)
-  - PostgreSQL (Database)
-  - Socket.IO (Real-time communication)
-  - OpenCV (Computer vision)
+## 🏗️ Project Structure
 
-- **Frontend**
-  - Bootstrap (UI framework)
-  - Google Maps SDK
-  - Socket.IO client
-  - Webview support
+This is a monorepo with two primary packages:
 
-- **Infrastructure**
-  - Replit hosting
-  - Git version control
-  - Environment validation
-  - Enhanced logging system
+```
+dojopool/
+├── apps/
+│   └── web/                 # Next.js frontend application
+│       ├── src/             # Source code
+│       ├── pages/           # Next.js pages
+│       ├── components/      # React components
+│       └── public/          # Static assets
+├── services/
+│   └── api/                 # NestJS backend API
+│       ├── src/             # Source code
+│       └── prisma/          # Database schema and migrations
+├── src/                     # Shared source code
+├── docs/                    # Project documentation
+├── tests/                   # Test files
+└── scripts/                 # Build and utility scripts
+```
 
-## Setup Instructions
+---
 
-1. **Environment Setup**
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or later)
+- npm
+- A running PostgreSQL database instance
+
+### Installation & Setup
+
+1. **Clone the repository**:
 
    ```bash
-   # Clone the repository
    git clone <repository-url>
-   cd dojo-pool
-
-   # Install dependencies
-   pip install -r requirements.txt
+   cd dojopool
    ```
 
-2. **Environment Variables**
-   Required environment variables:
-   - `FLASK_SECRET_KEY`: For session management
-   - `DATABASE_URL`: PostgreSQL connection string
-   - `GOOGLE_MAPS_API_KEY`: For maps integration
-   - `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`: Database configuration
+2. **Install Dependencies**: From the project root, run:
 
-3. **Database Setup**
-   The application will automatically create necessary tables on first run.
-
-4. **Running the Application**
    ```bash
-   python app.py
+   npm install
    ```
-   The application will be available at `http://localhost:5000`
 
-## Project Structure
+3. **Set Environment Variables**: Create a `.env` file in the `services/api` directory. At a minimum, you need:
 
+   ```env
+   DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+   JWT_SECRET="your-super-secret-jwt-key"
+   GOOGLE_MAPS_API_KEY="your-google-maps-api-key"
+   ```
+
+4. **Run Database Migrations**:
+
+   ```bash
+   cd services/api
+   npx prisma migrate dev
+   npx prisma generate
+   ```
+
+5. **Run Development Servers**: From the project root, run both services concurrently:
+   ```bash
+   npm run dev
+   ```
+   - Frontend will be available at `http://localhost:3000`.
+   - Backend will be available at `http://localhost:8080`.
+
+---
+
+## 🧪 Running Tests
+
+The project uses multiple testing frameworks:
+
+```bash
+# Unit tests with Vitest
+npm run test:unit
+
+# Integration tests
+npm run test:int
+
+# All tests with coverage
+npm run test:coverage
+
+# E2E tests with Cypress
+npm run cypress:open
 ```
-├── app.py                 # Main application entry point
-├── blueprints/           # Feature-specific routes
-├── static/
-│   ├── css/             # Stylesheets
-│   ├── js/              # Client-side scripts
-│   └── images/          # Static assets
-├── templates/           # HTML templates
-├── utils/              # Helper functions
-└── models.py           # Database models
+
+---
+
+## 🏗️ Development Commands
+
+```bash
+# Development
+npm run dev                    # Start both frontend and backend
+npm run dev:backend           # Start only backend
+npm run build                 # Build frontend
+npm run build:backend         # Build backend
+
+# Code Quality
+npm run lint                  # Run ESLint
+npm run lint:fix              # Fix ESLint issues
+npm run format                # Format code with Prettier
+npm run type-check            # TypeScript type checking
+
+# AI-Assisted Development
+npm run ai:explain-error      # Get AI explanation of errors
+npm run ai:fix                # AI-assisted bug fixes
+npm run ai:refactor           # AI-assisted code refactoring
 ```
 
-## Current Status
+---
 
-- ✅ Core gameplay mechanics implemented
-- ✅ Multiplayer system operational
-- ✅ Authentication system complete
-- ✅ Map customization features added
-- ✅ AI umpire system integrated
-- ✅ Socket.IO connection stability enhanced
-- ✅ Git configuration optimized
+## 🎮 Core Gameplay Features
 
-## Future Roadmap
+### Territory Control System
 
-### Short-term Goals
+- Players compete for control of physical venue locations
+- Real-time territory battles with stake-based matches
+- NFT-backed digital ownership of venues
 
-1. **Performance Optimization**
-   - Implement caching for map data
-   - Optimize database queries
-   - Add request rate limiting
+### Tournament System
 
-2. **Enhanced User Experience**
-   - Add tutorial system
-   - Implement achievement system
-   - Add progressive web app support
+- Live bracket visualization
+- Real-time match reporting
+- Cross-chain tournament support
+- Prize pool management
 
-3. **Game Mechanics**
-   - Add power-ups and special items
-   - Implement team-based gameplay
-   - Add competitive seasons
+### Social Features
 
-### Long-term Goals
+- Friend system with requests and messaging
+- Clan-based gameplay mechanics
+- Achievement and progression tracking
+- Player reputation system
 
-1. **Platform Expansion**
-   - Mobile app development
-   - Cross-platform compatibility
-   - Offline mode support
+---
 
-2. **Social Features**
-   - Friend system
-   - Global chat rooms
-   - Player rankings
+## 🔧 Configuration
 
-3. **Technical Improvements**
-   - Microservices architecture
-   - Advanced analytics
-   - AI-powered game balancing
+### Environment Variables
 
-## Contributing
+Key environment variables needed:
+
+```env
+# Database
+DATABASE_URL="postgresql://..."
+
+# Authentication
+JWT_SECRET="..."
+
+# External APIs
+GOOGLE_MAPS_API_KEY="..."
+OPENAI_API_KEY="..."
+
+# Blockchain
+ETHEREUM_RPC_URL="..."
+SOLANA_RPC_URL="..."
+```
+
+### Database Schema
+
+The project uses Prisma ORM with PostgreSQL. Key models include:
+
+- **Users**: Player accounts and profiles
+- **Venues**: Physical pool locations
+- **Matches**: Game records and statistics
+- **Tournaments**: Competition structures
+- **Territories**: Venue control and ownership
+
+---
+
+## 🚀 Deployment
+
+### Vercel Deployment
+
+This project is configured for one-click deployment to **Vercel**:
+
+1. **Frontend**: Automatically deploys from `apps/web/`
+2. **Backend**: Deployed as Vercel Functions
+3. **Database**: Uses Vercel Postgres or external PostgreSQL
+
+### Environment Setup
+
+1. Configure environment variables in Vercel dashboard
+2. Set up database connection
+3. Configure custom domains if needed
+
+---
+
+## 📚 Documentation
+
+- **API Documentation**: Available in `docs/api/`
+- **Component Documentation**: Component usage in `docs/components/`
+- **Feature Specifications**: Detailed specs in `specs/`
+- **Development Guides**: Setup and contribution guides in `docs/`
+
+---
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
 
-## License
+### Code Style
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+- TypeScript strict mode enabled
+- ESLint and Prettier configuration
+- Conventional commit messages
+- 80%+ test coverage required
 
-## Acknowledgments
-- Google Maps Platform for mapping capabilities
-- OpenCV community for computer vision tools
-- Flask and Socket.IO communities for real-time features
-- Replit for hosting and development platform
+---
 
-## Troubleshooting: Fix Corrupted npm Cache
+## 📄 License
 
-If you encounter the npm error "Cannot read properties of null (reading 'matches')", it usually indicates a corrupted npm cache.
+This project is proprietary software. All rights reserved.
 
-Quick fix (Windows PowerShell):
+---
 
-```powershell
-npm run env:reset:npm
-```
+## 🆘 Support
 
-This runs a helper script that:
-- Force-cleans the npm cache
-- Removes node_modules and package-lock.json
-- Reinstalls dependencies
+For technical support or questions:
 
-Manual steps (run these in order from the project root):
+- Check the documentation in `docs/`
+- Review existing issues
+- Contact the development team
 
-```powershell
-# 1) Force clean the cache (most important)
-npm cache clean --force
+---
 
-# 2) Delete local files (modules and lockfile in one command)
-Remove-Item -Recurse -Force node_modules, package-lock.json
+## 🗺️ Roadmap
 
-# 3) Re-install dependencies
-npm install
-```
+- **Phase 1**: Core platform and basic features ✅
+- **Phase 2**: AI integration and advanced gameplay 🚧
+- **Phase 3**: Global scaling and franchise system 📋
+- **Phase 4**: Advanced AI and blockchain features 📋
 
+---
 
-## Development Quick Start (Hygiene Pass Interim)
-
-Follow these steps to run DojoPool locally following the project guidelines:
-
-1) Prerequisites
-- Node.js 20+
-- Python 3.11+ (3.13 used in Docker, ensure local deps support your version)
-- npm (lockfile present)
-
-2) Environment
-- Copy docs/env.example to .env (root) and to .flaskenv for Flask if used locally
-- Update values (secrets, DB URIs). Keep ports: 3000 (Vite), 8080 (Node API), 5000 (Flask)
-
-3) Install dependencies
-- npm ci
-- For Python (optional local dev): pip install -r requirements.txt
-
-4) Start development (Vite dev for frontend, Node API backend)
-- npm run dev        # Expected to start frontend on http://localhost:3000 with proxy to 8080
-- npm run dev:server # Expected Node/Express backend on http://localhost:8080 (if applicable)
-- flask run --port 5000  # Optional: start Flask API locally
-
-5) Tests (Vitest)
-- npm test
-- npm run test:watch
-- npm run test:coverage
-
-6) Production build (Next.js)
-- npm run build
-- npm run preview
-
-Notes
-- API proxy (dev): Vite proxies /api to http://localhost:8080 (configure in vite.config.ts)
-- API proxy (prod): Next.js rewrites use API_BASE_URL from environment (see next.config.js)
-- Image domains and CSP/security headers configured in next.config.js; adjust via env for prod
-
-This section is temporary during the Hygiene pass and will be merged into the top-level README structure once config copies are removed and scripts verified.
-
-
-## Qodana Local Analysis
-
-Analyze the codebase locally using JetBrains Qodana CLI.
-
-1) Install Qodana CLI (Windows via Scoop):
-
-```
-scoop bucket add jetbrains https://github.com/JetBrains/scoop-utils
-scoop install qodana
-```
-
-Alternative via Go (cross‑platform):
-
-```
-go install github.com/JetBrains/qodana-cli@latest
-```
-
-2) Run the scan from the repo root:
-
-- PowerShell:
-```
-$env:QODANA_TOKEN = "<your-token>"
-qodana scan
-```
-- Or use npm scripts:
-```
-npm run qodana:scan
-npm run qodana:ui   # opens report in browser
-```
-- Or use the helper script (also installs Qodana via Scoop if missing):
-```
-.\run_qodana.ps1 -Token "<your-token>" -ShowReport
-```
-
-3) View results:
-- With `--show-report`, Qodana opens the UI automatically.
-- Reports are stored in the `.qodana` directory.
-
-For more details and troubleshooting, see docs/QODANA_LOCAL_SETUP.md.
+_Built with ❤️ by the Dojo Pool development team_

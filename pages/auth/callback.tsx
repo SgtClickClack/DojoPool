@@ -1,7 +1,7 @@
 import { Box, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useAuth } from '../../src/components/auth/AuthContext';
+import { useAuth } from '../../src/components/Auth/AuthContext';
 
 export default function AuthCallback() {
   const router = useRouter();

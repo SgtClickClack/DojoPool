@@ -1,27 +1,19 @@
-import React, { useState, useMemo } from 'react';
+import { FilterList, List, Map, MyLocation, Search } from '@mui/icons-material';
 import {
   Box,
-  Typography,
-  Paper,
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Button,
-  Chip,
+  FormControl,
+  Grid,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
   Tooltip,
+  Typography,
 } from '@mui/material';
-import {
-  MyLocation,
-  FilterList,
-  Map,
-  List,
-  Search,
-  Clear,
-} from '@mui/icons-material';
+import React, { useMemo, useState } from 'react';
 import DojoMarker from './DojoMarker';
 
 interface DojoLocation {
@@ -72,17 +64,25 @@ const WorldMap: React.FC<WorldMapProps> = ({
         dojo.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         dojo.location.address.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus = statusFilter === 'all' || dojo.status === statusFilter;
-      const matchesDifficulty = difficultyFilter === 'all' || dojo.difficulty === difficultyFilter;
-      const matchesLocation = locationFilter === 'all' || dojo.location.address.includes(locationFilter);
+      const matchesStatus =
+        statusFilter === 'all' || dojo.status === statusFilter;
+      const matchesDifficulty =
+        difficultyFilter === 'all' || dojo.difficulty === difficultyFilter;
+      const matchesLocation =
+        locationFilter === 'all' ||
+        dojo.location.address.includes(locationFilter);
 
-      return matchesSearch && matchesStatus && matchesDifficulty && matchesLocation;
+      return (
+        matchesSearch && matchesStatus && matchesDifficulty && matchesLocation
+      );
     });
   }, [dojos, searchTerm, statusFilter, difficultyFilter, locationFilter]);
 
   // Get unique locations and statuses for filters
   const uniqueLocations = useMemo(() => {
-    const locations = new Set(dojos.map((d) => d.location.address.split(',')[0].trim()));
+    const locations = new Set(
+      dojos.map((d) => d.location.address.split(',')[0].trim())
+    );
     return Array.from(locations).sort();
   }, [dojos]);
 
@@ -91,7 +91,9 @@ const WorldMap: React.FC<WorldMapProps> = ({
   };
 
   const getDifficultyCount = (difficulty: string) => {
-    return dojos.filter((d) => difficulty === 'all' || d.difficulty === difficulty).length;
+    return dojos.filter(
+      (d) => difficulty === 'all' || d.difficulty === difficulty
+    ).length;
   };
 
   const handleClearFilters = () => {
@@ -118,7 +120,14 @@ const WorldMap: React.FC<WorldMapProps> = ({
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+        }}
+      >
         <Box>
           <Typography variant="h4" component="h1" gutterBottom>
             World Map
@@ -127,14 +136,14 @@ const WorldMap: React.FC<WorldMapProps> = ({
             Explore nearby Dojos and challenge rivals in your area
           </Typography>
         </Box>
-        
+
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Tooltip title="Use Current Location">
             <IconButton onClick={handleUseCurrentLocation} color="primary">
               <MyLocation />
             </IconButton>
           </Tooltip>
-          
+
           <Tooltip title="Toggle View Mode">
             <IconButton
               onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
@@ -157,7 +166,9 @@ const WorldMap: React.FC<WorldMapProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name, description, or address..."
               InputProps={{
-                startAdornment: <Search sx={{ mr: 1, color: 'action.active' }} />,
+                startAdornment: (
+                  <Search sx={{ mr: 1, color: 'action.active' }} />
+                ),
               }}
             />
           </Grid>
@@ -171,10 +182,18 @@ const WorldMap: React.FC<WorldMapProps> = ({
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <MenuItem value="all">All ({getStatusCount('all')})</MenuItem>
-                <MenuItem value="available">Available ({getStatusCount('available')})</MenuItem>
-                <MenuItem value="occupied">Occupied ({getStatusCount('occupied')})</MenuItem>
-                <MenuItem value="at-war">At War ({getStatusCount('at-war')})</MenuItem>
-                <MenuItem value="maintenance">Maintenance ({getStatusCount('maintenance')})</MenuItem>
+                <MenuItem value="available">
+                  Available ({getStatusCount('available')})
+                </MenuItem>
+                <MenuItem value="occupied">
+                  Occupied ({getStatusCount('occupied')})
+                </MenuItem>
+                <MenuItem value="at-war">
+                  At War ({getStatusCount('at-war')})
+                </MenuItem>
+                <MenuItem value="maintenance">
+                  Maintenance ({getStatusCount('maintenance')})
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -187,11 +206,21 @@ const WorldMap: React.FC<WorldMapProps> = ({
                 label="Difficulty"
                 onChange={(e) => setDifficultyFilter(e.target.value)}
               >
-                <MenuItem value="all">All ({getDifficultyCount('all')})</MenuItem>
-                <MenuItem value="beginner">Beginner ({getDifficultyCount('beginner')})</MenuItem>
-                <MenuItem value="intermediate">Intermediate ({getDifficultyCount('intermediate')})</MenuItem>
-                <MenuItem value="advanced">Advanced ({getDifficultyCount('advanced')})</MenuItem>
-                <MenuItem value="expert">Expert ({getDifficultyCount('expert')})</MenuItem>
+                <MenuItem value="all">
+                  All ({getDifficultyCount('all')})
+                </MenuItem>
+                <MenuItem value="beginner">
+                  Beginner ({getDifficultyCount('beginner')})
+                </MenuItem>
+                <MenuItem value="intermediate">
+                  Intermediate ({getDifficultyCount('intermediate')})
+                </MenuItem>
+                <MenuItem value="advanced">
+                  Advanced ({getDifficultyCount('advanced')})
+                </MenuItem>
+                <MenuItem value="expert">
+                  Expert ({getDifficultyCount('expert')})
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>

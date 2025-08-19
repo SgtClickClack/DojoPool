@@ -1,4 +1,4 @@
-import ResetPassword from '../src/frontend/components/auth/[AUTH]ResetPassword';
+import ResetPassword from '../src/components/Auth/ResetPassword';
 
 export default function ForgotPasswordPage() {
   return <ResetPassword />;

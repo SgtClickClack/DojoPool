@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import React from 'react';
-import AdvancedSocialCommunityDashboard from '../src/frontend/components/social/AdvancedSocialCommunityDashboard';
+import { AdvancedSocialCommunityDashboard } from '../src/components/Social/AdvancedSocialCommunityDashboard';
 
 const AdvancedSocialCommunityPage: React.FC = () => {
   return (

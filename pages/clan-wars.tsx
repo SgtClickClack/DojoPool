@@ -10,9 +10,9 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-import PageBackground from '../src/frontend/components/common/PageBackground';
-import Layout from '../src/frontend/components/layout/Layout';
-import { useClanSystem } from '../src/frontend/hooks/useClanSystem';
+import PageBackground from '../src/components/Common/PageBackground';
+import Layout from '../src/components/Layout/Layout';
+import { useClanSystem } from '../src/hooks/useClanSystem';
 
 const ClanWarsPage: React.FC = () => {
   const {

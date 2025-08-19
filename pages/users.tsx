@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUsers } from '@/hooks/useUsers';
+import { useUsers } from '../src/hooks/useUsers';
 
 export default function UsersPage() {
   const { data: users, error, isLoading } = useUsers();

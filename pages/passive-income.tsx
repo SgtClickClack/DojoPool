@@ -1,6 +1,6 @@
 import { Box, Container, Typography } from '@mui/material';
 import React from 'react';
-import { PassiveIncomeDashboard } from '../src/frontend/components/economy/PassiveIncomeDashboard';
+import PassiveIncomeDashboard from '../src/components/economy/PassiveIncomeDashboard';
 
 const PassiveIncomePage: React.FC = () => {
   return (

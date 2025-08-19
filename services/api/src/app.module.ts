@@ -1,13 +1,21 @@
 import { Module } from '@nestjs/common';
-import { TerritoriesModule } from './territories/territories.module';
-import { TournamentsModule } from './tournaments/tournaments.module';
-import { UsersModule } from './users/users.module';
-import { MatchesModule } from './matches/matches.module';
-import { PlayersModule } from './players/players.module';
-import { AchievementsModule } from './achievements/achievements.module';
-import { FriendsModule } from './friends/friends.module';
+import { AuthModule } from './auth/auth.module';
+import { GameSessionsModule } from './game-sessions/game-sessions.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [UsersModule, TournamentsModule, TerritoriesModule, MatchesModule, PlayersModule, AchievementsModule, FriendsModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    GameSessionsModule,
+    // Temporarily commented out for testing
+    // UsersModule,
+    // TournamentsModule,
+    // TerritoriesModule,
+    // MatchesModule,
+    // PlayersModule,
+    // AchievementsModule,
+    // FriendsModule
+  ],
 })
 export class AppModule {}

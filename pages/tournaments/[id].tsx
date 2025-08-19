@@ -1,43 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Paper,
-  Chip,
-  CircularProgress,
+  ArrowBack,
+  AttachMoney,
+  CalendarToday,
+  DeleteForever,
+  EmojiEvents,
+  LocationOn,
+  People,
+} from '@mui/icons-material';
+import {
   Alert,
+  Box,
   Button,
   Card,
   CardContent,
-  Divider,
-  Snackbar,
+  Chip,
+  CircularProgress,
+  Container,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  Snackbar,
+  Typography,
 } from '@mui/material';
-import {
-  EmojiEvents,
-  CalendarToday,
-  People,
-  AttachMoney,
-  LocationOn,
-  ArrowBack,
-  DeleteForever,
-} from '@mui/icons-material';
 import Link from 'next/link';
-import { getTournament, submitMatchResult, deleteTournament } from '@/frontend/api/tournaments';
-import TournamentBracket from '@/components/tournament/TournamentBracket';
-import MatchResultDialog from '@/components/tournament/MatchResultDialog';
-import PageBackground from '@/components/common/PageBackground';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import {
+  deleteTournament,
+  getTournament,
+  submitMatchResult,
+} from '../../src/api/tournaments';
+import PageBackground from '../../src/components/Common/PageBackground';
+import TournamentBracket from '../../src/components/Tournament/TournamentBracket';
+import MatchResultDialog from '../../src/components/tournament/MatchResultDialog';
 import {
   Tournament,
   TournamentBracket as TournamentBracketType,
   TournamentMatch,
-} from '@/types/tournament';
+} from '../../src/types/tournament';
 
 // Add a function to fetch tournament bracket data
 const fetchTournamentBracket = async (
@@ -319,7 +322,19 @@ const TournamentDetailPage: React.FC = () => {
                   label={tournament.status}
                   size="medium"
                   sx={{
-                    background: `rgba(${tournament.status === 'open' ? '0, 255, 157' : tournament.status === 'active' ? '0, 168, 255' : tournament.status === 'full' ? '255, 0, 255' : tournament.status === 'completed' ? '255, 255, 0' : tournament.status === 'cancelled' ? '255, 68, 68' : '136, 136, 136'}, 0.2)`,
+                    background: `rgba(${
+                      tournament.status === 'open'
+                        ? '0, 255, 157'
+                        : tournament.status === 'active'
+                        ? '0, 168, 255'
+                        : tournament.status === 'full'
+                        ? '255, 0, 255'
+                        : tournament.status === 'completed'
+                        ? '255, 255, 0'
+                        : tournament.status === 'cancelled'
+                        ? '255, 68, 68'
+                        : '136, 136, 136'
+                    }, 0.2)`,
                     border: `1px solid ${getStatusColor(tournament.status)}`,
                     color: getStatusColor(tournament.status),
                     textShadow: `0 0 5px ${getStatusColor(tournament.status)}`,
@@ -328,7 +343,9 @@ const TournamentDetailPage: React.FC = () => {
                 />
               </Box>
 
-              <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2 }}>
+              <Box
+                sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2 }}
+              >
                 <Button
                   variant="outlined"
                   color="error"
@@ -525,11 +542,15 @@ const TournamentDetailPage: React.FC = () => {
         )}
 
         {/* Delete Confirmation Dialog */}
-        <Dialog open={confirmOpen} onClose={() => (!isDeleting ? setConfirmOpen(false) : undefined)}>
+        <Dialog
+          open={confirmOpen}
+          onClose={() => (!isDeleting ? setConfirmOpen(false) : undefined)}
+        >
           <DialogTitle>Delete Tournament</DialogTitle>
           <DialogContent>
             <Typography>
-              Are you sure you want to delete this tournament? This action cannot be undone.
+              Are you sure you want to delete this tournament? This action
+              cannot be undone.
             </Typography>
           </DialogContent>
           <DialogActions>

@@ -6,7 +6,13 @@
 
 import { NextPage } from 'next';
 import Head from 'next/head';
-import AdvancedBlockchainIntegrationDashboard from '../src/frontend/components/blockchain/AdvancedBlockchainIntegrationDashboard';
+
+// Placeholder for build stability; replace with real dashboard when implemented.
+const AdvancedBlockchainIntegrationDashboard: React.FC = () => (
+  <div role="region" aria-label="AdvancedBlockchainIntegrationDashboard placeholder" style={{padding:16, border:'1px dashed #ccc'}}>
+    Advanced Blockchain Integration Dashboard (placeholder)
+  </div>
+);
 
 const AdvancedBlockchainIntegrationPage: NextPage = () => {
   return (

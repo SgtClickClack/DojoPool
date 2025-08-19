@@ -86,7 +86,7 @@ export class FriendsService {
     }
   }
 
-  async listFriends(currentUserId: string): Promise<User[]> {
+  async listFriends(currentUserId: string): Promise<Pick<User, 'id' | 'username' | 'email'>[]> {
     try {
       const accepted = await this.prisma.friendship.findMany({
         where: {
@@ -96,7 +96,10 @@ export class FriendsService {
       });
       const friendIds = accepted.map((f) => (f.requesterId === currentUserId ? f.addresseeId : f.requesterId));
       if (friendIds.length === 0) return [] as any;
-      return await this.prisma.user.findMany({ where: { id: { in: friendIds } }, select: { id: true, username: true, email: true } });
+      return (await this.prisma.user.findMany({
+        where: { id: { in: friendIds } },
+        select: { id: true, username: true, email: true },
+      })) as any;
     } catch (err: any) {
       this.logger.warn(`DB listFriends failed, using fallback: ${err?.message ?? String(err)}`);
       const accepted = this.fallback.filter(
