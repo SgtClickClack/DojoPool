@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3002';
 const nextConfig = {
   eslint: {
@@ -16,10 +22,10 @@ const nextConfig = {
     styledComponents: true,
     removeConsole: process.env.NODE_ENV === 'production',
   },
+  // Disable experimental features that might cause DataCloneError
   experimental: {
-    // optimizeCss requires the optional 'critters' package; disabled to avoid runtime dependency
-    scrollRestoration: true,
-    workerThreads: true,
+    // scrollRestoration: true,
+    // workerThreads: true,
   },
   // Add rewrites to proxy API requests to the backend and route SPA paths for investor portal
 
@@ -45,10 +51,6 @@ const nextConfig = {
       },
     ];
   },
-  webpack: (config) => {
-    // Use Next.js default optimization settings to avoid chunk path issues.
-    return config;
-  },
   // Configure headers migrated from Vercel and for API
   async headers() {
     return [
@@ -71,7 +73,7 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value:
-              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.vercel-insights.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https:; font-src 'self' data:; connect-src 'self' https://vitals.vercel-insights.com; frame-ancestors 'none';",
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.vercel-insights.com https://maps.googleapis.com https://maps.gstatic.com https://maps.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https:; font-src 'self' data: https://fonts.gstatic.com https://maps.gstatic.com; connect-src 'self' https://vitals.vercel-insights.com https://maps.googleapis.com https://maps.googleapis.com https://maps.gstatic.com https://maps.google.com http://localhost:3002 http://localhost:8080 ws: wss:; frame-ancestors 'none';",
           },
         ],
       },
