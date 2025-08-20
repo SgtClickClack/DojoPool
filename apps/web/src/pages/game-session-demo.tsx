@@ -1,4 +1,4 @@
-import { GameSessionView } from '@/components/GameSession/GameSessionView';
+import GameSessionView from '@/components/GameSession/GameSessionView';
 import {
   Alert,
   Box,
