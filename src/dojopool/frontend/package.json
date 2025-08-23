@@ -13,7 +13,7 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@babel/helpers": "^7.27.0",
+    "@babel/helpers": "^7.28.2",
     "@babel/runtime": "^7.27.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
