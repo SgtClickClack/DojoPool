@@ -22,6 +22,20 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server!: Server;
 
+  // Match status broadcast helper (room = match:{matchId})
+  broadcastMatchStatusUpdate(matchId: string, status: string) {
+    try {
+      const room = `match:${matchId}`;
+      this.server.to(room).emit('match_status_update', { matchId, status });
+    } catch (err) {
+      this.logger?.warn?.(
+        `MatchGateway.broadcastMatchStatusUpdate failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
+    }
+  }
+
   private readonly logger = new Logger(MatchGateway.name);
 
   constructor(private readonly aiAnalysisService: AiAnalysisService) {}
@@ -53,7 +67,13 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('shot_taken')
   async handleShotTaken(
     @MessageBody()
-    payload: { matchId?: string; playerId?: string; ballSunk?: any; wasFoul?: boolean; [k: string]: any },
+    payload: {
+      matchId?: string;
+      playerId?: string;
+      ballSunk?: any;
+      wasFoul?: boolean;
+      [k: string]: any;
+    },
     @ConnectedSocket() client: Socket
   ) {
     try {
@@ -78,7 +98,8 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
       };
 
       // Generate live commentary
-      const commentary = await this.aiAnalysisService.getLiveCommentary(shotData);
+      const commentary =
+        await this.aiAnalysisService.getLiveCommentary(shotData);
 
       // Broadcast to the match room as a simple string per spec
       this.server.to(room).emit('live_commentary', commentary);

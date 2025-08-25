@@ -9,6 +9,7 @@ The Achievements System in DojoPool provides a comprehensive framework for rewar
 ### Database Models
 
 #### Achievement Model
+
 ```prisma
 model Achievement {
   id          String   @id @default(uuid())
@@ -28,6 +29,7 @@ model Achievement {
 ```
 
 #### PlayerAchievement Model
+
 ```prisma
 model PlayerAchievement {
   id            String      @id @default(uuid())
@@ -47,6 +49,7 @@ model PlayerAchievement {
 ### Core Services
 
 #### AchievementService
+
 - **Location**: `src/dojopool/services/achievement_service.py`
 - **Purpose**: Core achievement management (CRUD operations, progress tracking)
 - **Key Methods**:
@@ -56,6 +59,7 @@ model PlayerAchievement {
   - `get_achievement_stats()`
 
 #### AchievementIntegrationService
+
 - **Location**: `src/dojopool/services/achievement_integration.py`
 - **Purpose**: Integrates achievements with game events
 - **Key Methods**:
@@ -66,6 +70,7 @@ model PlayerAchievement {
 ### API Endpoints
 
 #### Achievement Management
+
 - `GET /api/achievements/` - List all achievements
 - `POST /api/achievements/` - Create new achievement (admin only)
 - `GET /api/achievements/{id}/` - Get achievement details
@@ -73,12 +78,14 @@ model PlayerAchievement {
 - `DELETE /api/achievements/{id}/` - Delete achievement (admin only)
 
 #### Achievement Actions
+
 - `GET /api/achievements/categories/` - Get achievement categories
 - `GET /api/achievements/leaderboard/` - Get achievement leaderboard
 - `POST /api/achievements/check_and_award/` - Check and award achievements
 - `POST /api/achievements/{id}/check_progress/` - Check specific achievement progress
 
 #### User Achievements
+
 - `GET /api/user-achievements/` - Get current user's achievements
 - `GET /api/user-achievements/stats/` - Get achievement statistics
 - `GET /api/user-achievements/recent/` - Get recently unlocked achievements
@@ -87,6 +94,7 @@ model PlayerAchievement {
 ## Achievement Categories
 
 ### Game Achievements
+
 - **First Victory**: Win your first pool match
 - **Win Streak**: Win 5 matches in a row
 - **Unstoppable**: Win 10 matches in a row
@@ -94,11 +102,13 @@ model PlayerAchievement {
 - **Perfect Game**: Win without opponent scoring
 
 ### Tournament Achievements
+
 - **Tournament Champion**: Win your first tournament
 - **Tournament Master**: Win 5 tournaments
 - **Social Butterfly**: Participate in 10 tournaments
 
 ### Territory Achievements
+
 - **Territory Controller**: Control your first venue
 - **Empire Builder**: Control 5 venues
 
@@ -116,6 +126,7 @@ Achievements use a flexible criteria system defined as JSON:
 ```
 
 ### Supported Criteria Types
+
 - `matches_won` - Total matches won
 - `win_streak` - Current win streak
 - `tournaments_won` - Tournaments won
@@ -124,6 +135,7 @@ Achievements use a flexible criteria system defined as JSON:
 - `perfect_game` - Perfect game wins
 
 ### Supported Operators
+
 - `>=` - Greater than or equal to (default)
 - `=` - Exactly equal to
 - `>` - Greater than
@@ -131,19 +143,25 @@ Achievements use a flexible criteria system defined as JSON:
 ## Integration Points
 
 ### Match Completion
+
 When a match is completed, the system automatically:
+
 1. Updates player statistics
 2. Calls `check_match_completion_achievements()`
 3. Awards relevant achievements to winner/loser
 
 ### Tournament Completion
+
 When a tournament ends, the system:
+
 1. Updates final standings
 2. Calls `check_tournament_completion_achievements()`
 3. Awards achievements to all participants
 
 ### Territory Control
+
 When venue ownership changes:
+
 1. Updates territory ownership
 2. Triggers achievement checks for new owner
 3. Updates territory-related achievements
@@ -151,6 +169,7 @@ When venue ownership changes:
 ## Usage Examples
 
 ### Checking Achievements After Match
+
 ```python
 from dojopool.services.achievement_integration import get_achievement_integration_service
 
@@ -166,6 +185,7 @@ await achievement_service.check_match_completion_achievements(match_data)
 ```
 
 ### Manual Achievement Check
+
 ```python
 # Check all achievements for a player
 result = await achievement_service.check_and_award_achievements('player-123')
@@ -176,10 +196,12 @@ if result['success']:
 ## Configuration
 
 ### Environment Variables
+
 - `ACHIEVEMENT_NOTIFICATIONS_ENABLED` - Enable/disable achievement notifications
 - `ACHIEVEMENT_POINTS_MULTIPLIER` - Multiplier for achievement points
 
 ### Achievement Settings
+
 - **Points System**: Each achievement awards points that contribute to player ranking
 - **Rarity Tracking**: System automatically calculates achievement rarity percentages
 - **Secret Achievements**: Hidden achievements that are only revealed when unlocked
@@ -188,6 +210,7 @@ if result['success']:
 ## Testing
 
 ### Running Achievement Tests
+
 ```bash
 # Run all achievement-related tests
 python -m pytest tests/ -k "achievement"
@@ -200,6 +223,7 @@ python -m pytest tests/ --cov=dojopool.services.achievement
 ```
 
 ### Seeding Test Data
+
 ```bash
 # Seed initial achievements
 python src/dojopool/scripts/seed_achievements.py
@@ -211,12 +235,14 @@ python manage.py flush_achievements
 ## Monitoring and Analytics
 
 ### Achievement Metrics
+
 - Total achievements unlocked per user
 - Achievement completion rates
 - Most/least common achievements
 - Achievement unlock trends over time
 
 ### Performance Monitoring
+
 - Achievement check response times
 - Database query performance
 - Cache hit rates for achievement data
@@ -224,6 +250,7 @@ python manage.py flush_achievements
 ## Future Enhancements
 
 ### Planned Features
+
 - **Achievement Chains**: Sequential achievements that unlock progressively
 - **Seasonal Achievements**: Time-limited achievements with special rewards
 - **Community Achievements**: Group achievements requiring multiple players
@@ -231,6 +258,7 @@ python manage.py flush_achievements
 - **Custom Achievements**: Player-created achievements for tournaments
 
 ### Technical Improvements
+
 - **Real-time Updates**: WebSocket notifications for achievement unlocks
 - **Batch Processing**: Optimize achievement checks for multiple players
 - **Machine Learning**: AI-powered achievement recommendations
@@ -239,12 +267,14 @@ python manage.py flush_achievements
 ## Troubleshooting
 
 ### Common Issues
+
 1. **Achievements not unlocking**: Check criteria format and player statistics
 2. **Performance issues**: Verify database indexes on achievement tables
 3. **Missing notifications**: Check notification service configuration
 4. **Data inconsistencies**: Run achievement data validation scripts
 
 ### Debug Commands
+
 ```python
 # Check player statistics
 stats = await achievement_service._get_player_stats('player-123')
@@ -264,6 +294,7 @@ print(f"Should award: {result}")
 ## Support
 
 For technical support or questions about the achievements system:
+
 - Check the logs in `logs/achievement.log`
 - Review the achievement service tests
 - Consult the API documentation

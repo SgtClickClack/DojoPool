@@ -39,7 +39,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response: any) => response,
   (error: any) => {
-    if ((error.response && error.response.status === 401)) {
+    if (error.response && error.response.status === 401) {
       console.error('Unauthorized request - potentially expired token?');
     }
     return Promise.reject(error);

@@ -1,7 +1,14 @@
 export interface Alert {
   id: string;
   type: string;
-  severity: 'info' | 'warning' | 'error' | 'critical' | 'high' | 'medium' | 'low';
+  severity:
+    | 'info'
+    | 'warning'
+    | 'error'
+    | 'critical'
+    | 'high'
+    | 'medium'
+    | 'low';
   message: string;
   timestamp: number;
   acknowledged: boolean;

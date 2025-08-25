@@ -98,7 +98,8 @@ const VenueList: React.FC<VenueListProps> = ({ onVenueSelect }) => {
                 <Card
                   hoverable
                   cover={
-                    venue.photos && venue.photos.length > 0 && (
+                    venue.photos &&
+                    venue.photos.length > 0 && (
                       <img
                         alt={venue.name}
                         src={venue.photos[0]}

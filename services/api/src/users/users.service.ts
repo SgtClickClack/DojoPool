@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import type { Prisma, User } from '@prisma/client';
 import { ErrorUtils } from '../common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -19,7 +24,11 @@ export class UsersService {
 
   constructor(private prisma: PrismaService) {
     // Configure Cloudinary once
-    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+    if (
+      process.env.CLOUDINARY_CLOUD_NAME &&
+      process.env.CLOUDINARY_API_KEY &&
+      process.env.CLOUDINARY_API_SECRET
+    ) {
       cloudinary.config({
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
         api_key: process.env.CLOUDINARY_API_KEY,
@@ -126,7 +135,10 @@ export class UsersService {
     }
   }
 
-  async uploadAvatar(userId: string, file: any): Promise<{ avatarUrl: string }> {
+  async uploadAvatar(
+    userId: string,
+    file: any
+  ): Promise<{ avatarUrl: string }> {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
@@ -148,7 +160,11 @@ export class UsersService {
     }
 
     // Ensure Cloudinary configured
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    if (
+      !process.env.CLOUDINARY_CLOUD_NAME ||
+      !process.env.CLOUDINARY_API_KEY ||
+      !process.env.CLOUDINARY_API_SECRET
+    ) {
       this.logger.error('Cloudinary environment variables are not set');
       throw new BadRequestException('Image upload service not configured');
     }
@@ -163,11 +179,18 @@ export class UsersService {
             resource_type: 'image',
             overwrite: true,
             transformation: [
-              { width: 256, height: 256, crop: 'fill', gravity: 'face', fetch_format: 'auto' },
+              {
+                width: 256,
+                height: 256,
+                crop: 'fill',
+                gravity: 'face',
+                fetch_format: 'auto',
+              },
             ],
           },
           (error, result) => {
-            if (error || !result) return reject(error || new Error('Upload failed'));
+            if (error || !result)
+              return reject(error || new Error('Upload failed'));
             resolve(result);
           }
         );
@@ -183,7 +206,13 @@ export class UsersService {
               resource_type: 'image',
               overwrite: true,
               transformation: [
-                { width: 256, height: 256, crop: 'fill', gravity: 'face', fetch_format: 'auto' },
+                {
+                  width: 256,
+                  height: 256,
+                  crop: 'fill',
+                  gravity: 'face',
+                  fetch_format: 'auto',
+                },
               ],
             })
             .then((res) => resolve(res))
@@ -204,7 +233,9 @@ export class UsersService {
 
       return { avatarUrl };
     } catch (err) {
-      this.logger.error(`Avatar upload failed for user ${userId}: ${ErrorUtils.getErrorMessage(err)}`);
+      this.logger.error(
+        `Avatar upload failed for user ${userId}: ${ErrorUtils.getErrorMessage(err)}`
+      );
       throw err;
     }
   }

@@ -3,6 +3,7 @@
 This document provides step-by-step Windows PowerShell commands to initialize a pnpm/TurboRepo monorepo and create placeholder apps (web, api) and key packages (prisma, types, config).
 
 Notes:
+
 - These commands are idempotent where possible (they check for existing files/folders before creating).
 - They assume you are at the repository root.
 - Adjust organization/package names if needed.

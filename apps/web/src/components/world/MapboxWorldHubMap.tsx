@@ -51,7 +51,7 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = ({
       setPlayerData(player);
 
       // Fetch dojos in the Brisbane area
-      const dojosData = await dojoService.getDojos(
+      const dojosData = await dojoService.getNearbyDojos(
         -27.4698, // Brisbane center
         153.0251,
         10000

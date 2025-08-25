@@ -43,18 +43,18 @@ export enum GameStatus {
   PENDING = 'pending',
   ACTIVE = 'active',
   COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 export enum GamePhase {
   BREAK = 'break',
   PLAY = 'play',
-  END_GAME = 'end_game'
+  END_GAME = 'end_game',
 }
 
 export enum FoulType {
   SCRATCH = 'scratch',
   ILLEGAL_SHOT = 'illegal_shot',
   WRONG_BALL = 'wrong_ball',
-  JUMP_SHOT = 'jump_shot'
+  JUMP_SHOT = 'jump_shot',
 }

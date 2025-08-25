@@ -274,8 +274,8 @@ const LedgerPage: React.FC = () => {
                                 transaction.type === 'credit'
                                   ? '#00ff9d'
                                   : transaction.type === 'debit'
-                                  ? '#ff6b6b'
-                                  : '#00a8ff',
+                                    ? '#ff6b6b'
+                                    : '#00a8ff',
                               fontWeight: 600,
                               fontFamily: 'Orbitron, monospace',
                             }}

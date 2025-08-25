@@ -19,7 +19,9 @@ function installMemoryLocalStorage() {
   ls.clear.mockImplementation(() => {
     memoryStore.clear();
   });
-  ls.key.mockImplementation((index: number) => Array.from(memoryStore.keys())[index] ?? null);
+  ls.key.mockImplementation(
+    (index: number) => Array.from(memoryStore.keys())[index] ?? null
+  );
 }
 
 describe('DojoPresenceService', () => {

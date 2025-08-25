@@ -19,11 +19,14 @@ export function throttleLocationUpdates<T extends (...args: any[]) => any>(
       clearTimeout(timeoutId);
     }
 
-    timeoutId = setTimeout(() => {
-      if (lastArgs) {
-        lastCall = Date.now();
-        func(...lastArgs);
-      }
-    }, delay - (now - lastCall));
+    timeoutId = setTimeout(
+      () => {
+        if (lastArgs) {
+          lastCall = Date.now();
+          func(...lastArgs);
+        }
+      },
+      delay - (now - lastCall)
+    );
   }) as T;
 }

@@ -96,9 +96,7 @@ export const joinClan = async (
   return response.data;
 };
 
-export const leaveClan = async (
-  clanId: string
-): Promise<void> => {
+export const leaveClan = async (clanId: string): Promise<void> => {
   const response = await api.post(`/v1/clans/${clanId}/leave`);
   return response.data;
 };
@@ -110,7 +108,7 @@ export const getActivityFeed = async (
   limit: number = 20
 ): Promise<any> => {
   const response = await api.get('/v1/feed', {
-    params: { filter, page, limit }
+    params: { filter, page, limit },
   });
   return response.data;
 };

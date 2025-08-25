@@ -1,6 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
 import React from 'react';
-import WorldHubMap from '../components/WorldMap/WorldHubMap';
 
 const MapTestPage: React.FC = () => {
   const handleChallengeDojo = (dojoId: string) => {
@@ -27,10 +26,13 @@ const MapTestPage: React.FC = () => {
         </Typography>
       </Paper>
 
-      <WorldHubMap
-        onChallengeDojo={handleChallengeDojo}
-        onViewDojo={handleViewDojo}
-      />
+      {/* Map test temporarily disabled for stabilization build */}
+      <Paper sx={{ p: 2 }}>
+        <Typography variant="body2">
+          Map test is temporarily disabled during stabilization. Enable once map
+          dependencies are finalized.
+        </Typography>
+      </Paper>
     </Box>
   );
 };

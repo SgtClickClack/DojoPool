@@ -1,6 +1,6 @@
 import challengeService, { Challenge } from '@/services/challengeService';
 import { Cancel, CheckCircle } from '@mui/icons-material';
-import { CoinIcon } from '@mui/icons-material/AttachMoney';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney.js';
 import {
   Alert,
   Box,
@@ -96,7 +96,7 @@ export const ChallengeNotification: React.FC<ChallengeNotificationProps> = ({
 
     return (
       <Box display="flex" alignItems="center" gap={1}>
-        <CoinIcon sx={{ color: '#ffd700', fontSize: 16 }} />
+        <AttachMoneyIcon sx={{ color: '#ffd700', fontSize: 16 }} />
         <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
           {challenge.wagerAmount} DojoCoins
         </Typography>
@@ -200,12 +200,12 @@ export const ChallengeNotification: React.FC<ChallengeNotificationProps> = ({
             }}
           >
             <Typography variant="subtitle1" color="warning.main" gutterBottom>
-              ⚠️ Wager Amount: {challenge.wagerAmount} DojoCoins
+              ⚠️ Wager Amount: {challenge.wagerAmount ?? 0} DojoCoins
             </Typography>
             <Typography variant="body2" color="text.secondary">
               By accepting this challenge, you agree to wager{' '}
-              {challenge.wagerAmount} DojoCoins. The winner will receive the
-              total pot of {challenge.wagerAmount * 2} DojoCoins.
+              {challenge.wagerAmount ?? 0} DojoCoins. The winner will receive
+              the total pot of {(challenge.wagerAmount ?? 0) * 2} DojoCoins.
             </Typography>
           </Box>
 

@@ -38,7 +38,7 @@ export const useMapData = (
       setPlayerData(player);
 
       // Fetch dojos in the specified area
-      const dojosData = await dojoService.getDojos(
+      const dojosData = await dojoService.getNearbyDojos(
         centerLat,
         centerLng,
         radius
@@ -66,7 +66,7 @@ export const useMapData = (
         // Join the world map
         websocketService.emit('join_world_map', {
           playerId: playerData?.id || 'anonymous',
-          playerName: playerData?.name || 'Anonymous Player',
+          playerName: playerData?.username || 'Anonymous Player',
         });
 
         // Subscribe to general message activity for heartbeat

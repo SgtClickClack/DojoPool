@@ -3,6 +3,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { useAuth } from '../hooks/useAuth';
@@ -140,17 +141,30 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     }
   }, [user]);
 
-  const value: NotificationContextType = {
-    notifications,
-    unreadCount,
-    totalCount,
-    isLoading,
-    error,
-    fetchNotifications,
-    markAsRead,
-    markAllAsRead,
-    clearError,
-  };
+  const value: NotificationContextType = useMemo(
+    () => ({
+      notifications,
+      unreadCount,
+      totalCount,
+      isLoading,
+      error,
+      fetchNotifications,
+      markAsRead,
+      markAllAsRead,
+      clearError,
+    }),
+    [
+      notifications,
+      unreadCount,
+      totalCount,
+      isLoading,
+      error,
+      fetchNotifications,
+      markAsRead,
+      markAllAsRead,
+      clearError,
+    ]
+  );
 
   return (
     <NotificationContext.Provider value={value}>

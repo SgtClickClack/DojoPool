@@ -16,7 +16,13 @@ export interface ModalProps {
   className?: string;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, className }) => {
+export const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  className,
+}) => {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
@@ -50,7 +56,10 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
                 )}
               >
                 <div className="flex items-start justify-between gap-4">
-                  <Dialog.Title as="h3" className="text-lg font-semibold text-slate-100">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-semibold text-slate-100"
+                  >
                     {title}
                   </Dialog.Title>
                   <button
@@ -73,5 +82,3 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
 };
 
 Modal.displayName = 'Modal';
-
-

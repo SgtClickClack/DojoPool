@@ -6,15 +6,18 @@
 
 ## ✨ Features
 
-- **World Hub Map**: An interactive map displaying players, dojos (venues), and territories.
-- **Venue Management**: A dashboard for venue owners to manage tables, create tournaments, and view activity.
-- **Live Tournaments**: A full-stack tournament system with bracket visualization and real-time match reporting.
-- **Territory Wars**: A meta-game where players compete to gain "influence" and control of local dojos.
-- **Player Profiles**: Detailed profiles with match history, stats, and tournament performance.
-- **Social System**: A complete friends list and friend request system.
-- **Authentication**: Secure user registration and login using JWT.
-- **AI Integration**: AI-powered match commentary, referee system, and content generation.
-- **Blockchain Integration**: NFT avatars, Dojo Coins, and cross-chain tournament support.
+- **World Hub Map**: Interactive map of players, Dojos (venues), and territories.
+- **Territory Control**: Claim, defend, and level up Dojos; NFT-backed ownership.
+- **Venue Management Portal**: Owner dashboards for profile, specials, tournaments, rewards, NFTs.
+- **Live Tournaments**: Brackets, live match reporting, prize pools, cross-chain support.
+- **Clans**: Create/join clans, clan wars, bonuses, and territory influence.
+- **Marketplace**: Trade NFTs, avatar items, and Dojo ownership with filters and pricing.
+- **Player Profiles**: Stats, history, avatar evolution, achievements, ranking.
+- **Direct Messaging**: Friends, DMs, notifications, and social feed integration.
+- **AI Analysis & Commentary**: Sky-T1 referee decisions, Diception tracking, Pool God commentary.
+- **Content Generation**: Highlights, tutorials, promos via Wan 2.1 and AudioCraft.
+- **Authentication**: JWT-based auth with CSRF header and secure CORS.
+- **Blockchain Integration**: Dojo Coin (ERC-20), multi-chain wallets, NFT trophies.
 
 ---
 
@@ -103,11 +106,13 @@ dojopool/
    ```
 
 5. **Run Development Servers**: From the project root, run both services concurrently:
+
    ```bash
    npm run dev
    ```
+
    - Frontend will be available at `http://localhost:3000`.
-   - Backend will be available at `http://localhost:8080`.
+   - Backend will be available at `http://localhost:3002` (via root `npm run dev`) or `http://localhost:8080` when starting `services/api` directly.
 
 ---
 
@@ -283,18 +288,18 @@ For technical support or questions:
 
 _Built with ❤️ by the Dojo Pool development team_
 
-
 ---
 
 ## 🧰 Troubleshooting (Windows)
 
 ### Clean up orphan Node.js processes
+
 If development servers have been stopped but Node.js processes remain running in the background, use the safe, specific cleanup flow below. Avoid broad search patterns that could match protected Windows processes (e.g., wlanext).
 
 Option A — via npm script (recommended):
 
-1) Open PowerShell as Administrator.
-2) Run:
+1. Open PowerShell as Administrator.
+2. Run:
 
 ```
 npm run cleanup:node:win
@@ -313,9 +318,9 @@ powershell -ExecutionPolicy Bypass -File scripts\cleanup-node-processes.ps1
 ```
 
 Notes:
+
 - Running as Administrator is required; otherwise Windows may block termination of certain processes.
 - The script targets only "node" processes to avoid stopping unrelated or protected system processes.
-
 
 ---
 

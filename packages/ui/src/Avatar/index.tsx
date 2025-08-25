@@ -11,7 +11,13 @@ export interface AvatarProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
 }
 
-export const Avatar: React.FC<AvatarProps> = ({ size = 40, className, src, alt = '', ...props }) => {
+export const Avatar: React.FC<AvatarProps> = ({
+  size = 40,
+  className,
+  src,
+  alt = '',
+  ...props
+}) => {
   const dimension = { width: size, height: size } as const;
   return (
     <img
@@ -29,5 +35,3 @@ export const Avatar: React.FC<AvatarProps> = ({ size = 40, className, src, alt =
 };
 
 Avatar.displayName = 'Avatar';
-
-

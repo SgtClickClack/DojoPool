@@ -79,14 +79,17 @@ class ABTestingService {
 
   private setupCleanup() {
     // Clean up expired tests daily
-    setInterval(() => {
-      const now = new Date();
-      this.tests.forEach((test, testId) => {
-        if (test.endDate && test.endDate < now) {
-          this.endTest(testId);
-        }
-      });
-    }, 24 * 60 * 60 * 1000);
+    setInterval(
+      () => {
+        const now = new Date();
+        this.tests.forEach((test, testId) => {
+          if (test.endDate && test.endDate < now) {
+            this.endTest(testId);
+          }
+        });
+      },
+      24 * 60 * 60 * 1000
+    );
   }
 
   private getAssignmentKey(testId: string, userId: string): string {

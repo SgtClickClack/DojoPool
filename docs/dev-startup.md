@@ -10,6 +10,7 @@ This document describes a single, consistent way to run DojoPool in development 
   - You can optionally run Flask (Python) services on http://localhost:5000 using the provided scripts (see Python README or run_flask.py).
 
 Alternative (Next.js dev):
+
 - Command: `npm run dev:next`
   - Starts Next.js dev server on http://localhost:3001
   - Note: In this repo, Vite is preferred for local development speed; Next is used for production builds.
@@ -22,6 +23,7 @@ Alternative (Next.js dev):
 - WebSocket (Socket.io): 8080
 
 Recommended proxy behavior:
+
 - Vite development should proxy API calls (e.g., `/api`, `/socket.io`) to `http://localhost:8080`
 - Any AI/ML endpoints (e.g., `/ai/*`) can be proxied to `http://localhost:5000`
 

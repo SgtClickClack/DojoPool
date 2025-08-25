@@ -36,7 +36,11 @@ export class JournalService {
     return Math.max(1, Math.min(100, Math.floor(l)));
   }
 
-  async getJournal(userId: string, page?: number, limit?: number): Promise<JournalResult> {
+  async getJournal(
+    userId: string,
+    page?: number,
+    limit?: number
+  ): Promise<JournalResult> {
     const pageNum = this.clampPage(page);
     const limitNum = this.clampLimit(limit);
 
@@ -99,7 +103,8 @@ export class JournalService {
       message: e.message,
       rawType: e.type as string,
       timestamp: e.createdAt.toISOString(),
-      relatedEntityId: e.matchId || e.venueId || e.tournamentId || e.clanId || null,
+      relatedEntityId:
+        e.matchId || e.venueId || e.tournamentId || e.clanId || null,
     }));
 
     const notificationItems: JournalItem[] = notifications.map((n) => {
@@ -108,7 +113,13 @@ export class JournalService {
         if (n.payload) {
           const data = JSON.parse(n.payload as unknown as string);
           // Try common keys
-          relatedEntityId = data?.matchId || data?.venueId || data?.tournamentId || data?.clanId || data?.id || null;
+          relatedEntityId =
+            data?.matchId ||
+            data?.venueId ||
+            data?.tournamentId ||
+            data?.clanId ||
+            data?.id ||
+            null;
         }
       } catch (_err) {
         // ignore JSON parse errors, payload might be null or already an object in some environments
@@ -124,7 +135,9 @@ export class JournalService {
 
     const combined = [...activityItems, ...notificationItems];
 
-    combined.sort((a, b) => (a.timestamp > b.timestamp ? -1 : a.timestamp < b.timestamp ? 1 : 0));
+    combined.sort((a, b) =>
+      a.timestamp > b.timestamp ? -1 : a.timestamp < b.timestamp ? 1 : 0
+    );
 
     const start = (pageNum - 1) * limitNum;
     const end = start + limitNum;

@@ -10,7 +10,8 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
  * Stateless, accessible button with Tailwind styling, size/variant options,
  * loading state, and optional left/right icons.
  */
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   isLoading?: boolean;
@@ -54,7 +55,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={clsx(baseClasses, variantClasses[variant], sizeClasses[size], className)}
+        className={clsx(
+          baseClasses,
+          variantClasses[variant],
+          sizeClasses[size],
+          className
+        )}
         disabled={disabled || isLoading}
         {...props}
       >
@@ -72,5 +78,3 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 Button.displayName = 'Button';
-
-

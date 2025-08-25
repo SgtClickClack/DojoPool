@@ -1,4 +1,5 @@
 'use client';
+import { useAuth } from '@/hooks/useAuth';
 import {
   GoogleMap,
   InfoWindow,
@@ -9,6 +10,7 @@ import React, { useState } from 'react';
 import { useMapData } from '../../hooks/useMapData';
 import { DojoData } from '../../services/dojoService';
 import { PlayerPosition } from '../../services/services/network/WebSocketService';
+import { ShadowRunModal } from './ShadowRunModal';
 import styles from './WorldHubMap.module.css';
 
 // Prefer build-time inlined env var to avoid client/runtime env lookup pitfalls
@@ -169,6 +171,9 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerPosition | null>(
     null
   );
+  const [shadowRunOpen, setShadowRunOpen] = useState(false);
+
+  const { user } = useAuth();
 
   // Add error boundary protection
   if (!React || typeof React.useState !== 'function') {
@@ -239,7 +244,9 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
               <circle cx="16" cy="16" r="14" fill="#ff8800" stroke="#ffffff" stroke-width="2"/>
               <text x="16" y="18" text-anchor="middle" fill="#ffffff" font-size="12" font-family="Arial">🏰</text>
               <text x="16" y="28" text-anchor="middle" fill="#ffffff" font-size="8" font-family="Arial">${
-                dojo.controllingClan.tag || 'CLAN'
+                dojo.controllingClan
+                  ? dojo.controllingClan.name.slice(0, 4).toUpperCase()
+                  : 'CLAN'
               }</text>
             </svg>
           `),
@@ -303,6 +310,14 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
       </div>
     );
   }
+
+  const userClanId = (user as any)?.clanId;
+  const isRival = !!(
+    selectedDojo &&
+    selectedDojo.controllingClanId &&
+    selectedDojo.controllingClanId !== userClanId
+  );
+  const isLeader = (user as any)?.clanRole === 'leader';
 
   return (
     <div className={styles.mapContainer} data-height={height}>
@@ -376,7 +391,13 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
             >
               <div className={styles.infoWindowContent}>
                 <h3 className={styles.infoWindowTitle}>{selectedDojo.name}</h3>
-                <p className={styles.infoWindowText}>{selectedDojo.status}</p>
+                <p className={styles.infoWindowText}>
+                  {selectedDojo.isLocked
+                    ? 'Locked'
+                    : selectedDojo.controllingClan
+                      ? 'Controlled'
+                      : 'Available'}
+                </p>
                 <div className={styles.infoWindowSection}>
                   <strong>Coordinates:</strong>{' '}
                   {selectedDojo.coordinates.lat.toFixed(4)},{' '}
@@ -384,39 +405,20 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
                 </div>
                 <div className={styles.infoWindowSection}>
                   <strong>Status:</strong>{' '}
-                  <span
-                    className={
-                      selectedDojo.status === 'active'
-                        ? styles.statusActive
-                        : selectedDojo.status === 'inactive'
-                        ? styles.statusInactive
-                        : styles.statusMaintenance
-                    }
-                  >
-                    {selectedDojo.status.charAt(0).toUpperCase() +
-                      selectedDojo.status.slice(1)}
-                  </span>
+                  {selectedDojo.isLocked
+                    ? 'Locked'
+                    : selectedDojo.controllingClan
+                      ? 'Controlled'
+                      : 'Free'}
                 </div>
                 {selectedDojo.controllingClan && (
                   <div className={styles.infoWindowSection}>
                     <strong>Controlled by:</strong>
                     <div className={styles.controllerContainer}>
-                      {selectedDojo.controllingClan.avatar && (
-                        <img
-                          src={selectedDojo.controllingClan.avatar}
-                          alt={`${selectedDojo.controllingClan.name} emblem`}
-                          className={styles.clanAvatar}
-                        />
-                      )}
                       <div>
                         <div className={styles.clanName}>
                           {selectedDojo.controllingClan.name}
                         </div>
-                        {selectedDojo.controllingClan.tag && (
-                          <div className={styles.clanTagBadge}>
-                            [{selectedDojo.controllingClan.tag}]
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -451,6 +453,14 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
                     View Details
                   </button>
                 </div>
+                {isRival && isLeader && (
+                  <button
+                    onClick={() => setShadowRunOpen(true)}
+                    className={styles.shadowRunButton}
+                  >
+                    Initiate Shadow Run
+                  </button>
+                )}
               </div>
             </InfoWindow>
           )}
@@ -524,6 +534,12 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
           )}
         </GoogleMap>
       </LoadScript>
+      <ShadowRunModal
+        open={shadowRunOpen}
+        onClose={() => setShadowRunOpen(false)}
+        targetVenueId={selectedDojo?.id || ''}
+        targetVenueName={selectedDojo?.name || ''}
+      />
     </div>
   );
 };

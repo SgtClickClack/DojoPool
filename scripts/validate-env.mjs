@@ -48,7 +48,9 @@ async function main() {
   }
 
   // DB either rule
-  const eitherKeys = Array.isArray(schema.required.dbEither) ? schema.required.dbEither : [];
+  const eitherKeys = Array.isArray(schema.required.dbEither)
+    ? schema.required.dbEither
+    : [];
   const hasEither = eitherKeys.some((k) => isSet(process.env[k]));
   if (!hasEither) {
     missing.push(`One of ${eitherKeys.join(', ')} must be set`);
@@ -73,7 +75,8 @@ async function main() {
 
   const isHttpUrl = (u) => typeof u === 'string' && /^https?:\/\//i.test(u);
   const isHttpsUrl = (u) => typeof u === 'string' && /^https:\/\//i.test(u);
-  const isWsUrl = (u) => typeof u === 'string' && /^(wss?|https?):\/\//i.test(u); // allow http(s) base for proxied WS
+  const isWsUrl = (u) =>
+    typeof u === 'string' && /^(wss?|https?):\/\//i.test(u); // allow http(s) base for proxied WS
 
   // NODE_ENV
   if (isSet(process.env.NODE_ENV)) {
@@ -84,7 +87,10 @@ async function main() {
   }
 
   // PORT
-  if (isSet(process.env.PORT) && (!/^\d+$/.test(process.env.PORT) || Number(process.env.PORT) <= 0)) {
+  if (
+    isSet(process.env.PORT) &&
+    (!/^\d+$/.test(process.env.PORT) || Number(process.env.PORT) <= 0)
+  ) {
     invalid.push('PORT must be a positive integer');
   }
 
@@ -94,30 +100,54 @@ async function main() {
   }
 
   // NEXT_PUBLIC_API_URL
-  if (isSet(process.env.NEXT_PUBLIC_API_URL) && !isHttpUrl(process.env.NEXT_PUBLIC_API_URL)) {
+  if (
+    isSet(process.env.NEXT_PUBLIC_API_URL) &&
+    !isHttpUrl(process.env.NEXT_PUBLIC_API_URL)
+  ) {
     invalid.push('NEXT_PUBLIC_API_URL should start with http:// or https://');
-  } else if (!devMode && isSet(process.env.NEXT_PUBLIC_API_URL) && !isHttpsUrl(process.env.NEXT_PUBLIC_API_URL)) {
-    recommendations.push('In production, NEXT_PUBLIC_API_URL should use https://');
+  } else if (
+    !devMode &&
+    isSet(process.env.NEXT_PUBLIC_API_URL) &&
+    !isHttpsUrl(process.env.NEXT_PUBLIC_API_URL)
+  ) {
+    recommendations.push(
+      'In production, NEXT_PUBLIC_API_URL should use https://'
+    );
   }
 
   // CORS_ORIGINS
   if (isSet(process.env.CORS_ORIGINS)) {
-    const origins = process.env.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean);
+    const origins = process.env.CORS_ORIGINS.split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
     const bad = origins.filter((o) => !isHttpUrl(o));
     if (bad.length) {
-      invalid.push(`CORS_ORIGINS must be a comma-separated list of http(s) origins. Invalid: ${bad.join(', ')}`);
+      invalid.push(
+        `CORS_ORIGINS must be a comma-separated list of http(s) origins. Invalid: ${bad.join(', ')}`
+      );
     }
   } else {
-    if (devMode) recommendations.push('For development, set CORS_ORIGINS to http://localhost:3000');
+    if (devMode)
+      recommendations.push(
+        'For development, set CORS_ORIGINS to http://localhost:3000'
+      );
   }
 
   // NEXT_PUBLIC_WEBSOCKET_URL
-  if (isSet(process.env.NEXT_PUBLIC_WEBSOCKET_URL) && !isWsUrl(process.env.NEXT_PUBLIC_WEBSOCKET_URL)) {
-    invalid.push('NEXT_PUBLIC_WEBSOCKET_URL should start with ws://, wss://, http://, or https://');
+  if (
+    isSet(process.env.NEXT_PUBLIC_WEBSOCKET_URL) &&
+    !isWsUrl(process.env.NEXT_PUBLIC_WEBSOCKET_URL)
+  ) {
+    invalid.push(
+      'NEXT_PUBLIC_WEBSOCKET_URL should start with ws://, wss://, http://, or https://'
+    );
   }
 
   // REDIS_URL
-  if (isSet(process.env.REDIS_URL) && !/^redis:\/\//i.test(process.env.REDIS_URL)) {
+  if (
+    isSet(process.env.REDIS_URL) &&
+    !/^redis:\/\//i.test(process.env.REDIS_URL)
+  ) {
     invalid.push('REDIS_URL should start with redis://');
   }
 
@@ -125,17 +155,29 @@ async function main() {
   for (const k of ['SESSION_SECRET', 'JWT_SECRET']) {
     const val = process.env[k];
     if (isSet(val)) {
-      if (val.length < 16) invalid.push(`${k} should be at least 16 characters`);
-      if (!devMode && /^dev[_-]/i.test(val)) recommendations.push(`In production, avoid using development placeholder for ${k}`);
+      if (val.length < 16)
+        invalid.push(`${k} should be at least 16 characters`);
+      if (!devMode && /^dev[_-]/i.test(val))
+        recommendations.push(
+          `In production, avoid using development placeholder for ${k}`
+        );
     } else if (devMode) {
-      recommendations.push(`Set ${k} to a long random string for local development (e.g., via .env)`);
+      recommendations.push(
+        `Set ${k} to a long random string for local development (e.g., via .env)`
+      );
     }
   }
 
   // DATABASE_URL basic scheme check
   if (isSet(process.env.DATABASE_URL)) {
-    if (!/^(postgres(ql)?|mysql|mysqls|mongodb|file|sqlite):\/\//i.test(process.env.DATABASE_URL)) {
-      invalid.push('DATABASE_URL should start with a recognized scheme (postgresql://, postgres://, mysql://, mongodb://, sqlite://)');
+    if (
+      !/^(postgres(ql)?|mysql|mysqls|mongodb|file|sqlite):\/\//i.test(
+        process.env.DATABASE_URL
+      )
+    ) {
+      invalid.push(
+        'DATABASE_URL should start with a recognized scheme (postgresql://, postgres://, mysql://, mongodb://, sqlite://)'
+      );
     }
   }
 
@@ -146,8 +188,14 @@ async function main() {
 
   // Missing recommended dev values
   if (devMode) {
-    if (!isSet(process.env.NEXT_PUBLIC_API_URL)) recommendations.push('For development, NEXT_PUBLIC_API_URL is typically http://localhost:3002/api/v1');
-    if (!isSet(process.env.FRONTEND_URL)) recommendations.push('For development, FRONTEND_URL is typically http://localhost:3000');
+    if (!isSet(process.env.NEXT_PUBLIC_API_URL))
+      recommendations.push(
+        'For development, NEXT_PUBLIC_API_URL is typically http://localhost:3002/api/v1'
+      );
+    if (!isSet(process.env.FRONTEND_URL))
+      recommendations.push(
+        'For development, FRONTEND_URL is typically http://localhost:3000'
+      );
   }
 
   // Report

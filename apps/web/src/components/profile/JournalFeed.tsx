@@ -170,7 +170,7 @@ const JournalFeed: React.FC = () => {
       {!hasMore && entries.length > 0 && (
         <Box sx={{ textAlign: 'center', mt: 3, p: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            You've reached the end of your journal entries.
+            You&apos;ve reached the end of your journal entries.
           </Typography>
         </Box>
       )}

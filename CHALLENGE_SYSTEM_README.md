@@ -19,7 +19,6 @@ The Real-time Player Challenge System allows players to challenge friends to poo
 ### Backend (Express + Socket.io)
 
 - **Challenge Endpoints**:
-
   - `POST /api/v1/challenges` - Create new challenge
   - `PATCH /api/v1/challenges/:id` - Respond to challenge
   - `GET /api/v1/challenges` - Get user challenges
@@ -171,13 +170,11 @@ const loadChallenges = async () => {
 ### Common Issues
 
 1. **WebSocket Connection Failed**
-
    - Check if backend is running on port 3002
    - Verify CORS configuration
    - Check browser console for connection errors
 
 2. **Challenges Not Updating**
-
    - Ensure user is registered with WebSocket
    - Check WebSocket connection status
    - Verify event listeners are properly set up

@@ -295,7 +295,11 @@ export class NetworkTransport extends (EventEmitter as {
     return Math.floor(Math.random() * 1000); // up to 1s
   }
 
-  async send<T>(target: string, type: NetworkMessageType, payload: T): Promise<void> {
+  async send<T>(
+    target: string,
+    type: NetworkMessageType,
+    payload: T
+  ): Promise<void> {
     const connection = this.connections.get(target);
     if (!connection) {
       throw new Error(`No connection to peer ${target}`);
@@ -316,7 +320,9 @@ export class NetworkTransport extends (EventEmitter as {
           reject(err);
         } else {
           this.stats.messagesSent++;
-          this.stats.bytesTransferred += Buffer.byteLength(JSON.stringify(message));
+          this.stats.bytesTransferred += Buffer.byteLength(
+            JSON.stringify(message)
+          );
           resolve();
         }
       });

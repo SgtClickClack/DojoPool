@@ -1,7 +1,11 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { DashboardService, DashboardStats, CdnCostResponse } from './dashboard.service';
+import {
+  DashboardService,
+  DashboardStats,
+  CdnCostResponse,
+} from './dashboard.service';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -10,7 +14,10 @@ export class DashboardController {
   @Get('stats')
   @UseGuards(JwtAuthGuard)
   async getMyStats(
-    @Req() req: ExpressRequest & { user: { userId?: string; sub?: string; id?: string } }
+    @Req()
+    req: ExpressRequest & {
+      user: { userId?: string; sub?: string; id?: string };
+    }
   ): Promise<DashboardStats> {
     const userId = (req.user.userId || req.user.sub || req.user.id) as string;
     return this.dashboardService.getStats(userId);

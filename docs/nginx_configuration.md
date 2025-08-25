@@ -25,6 +25,7 @@ The production environment uses two main configuration files:
 ### Main Production Configuration (`production.conf`)
 
 Key features:
+
 - SSL/TLS configuration with modern security settings
 - Rate limiting for different endpoints
 - WebSocket support with dedicated configuration
@@ -35,11 +36,13 @@ Key features:
 - Optimized static file serving
 
 Rate Limits:
+
 - API endpoints: 100 requests/second with burst=20
 - Authentication: 10 requests/second with burst=5
 - WebSocket: 60 requests/minute with burst=10
 
 Security Features:
+
 - TLS 1.2/1.3 only
 - Strong cipher suite configuration
 - HTTP/2 support
@@ -67,6 +70,7 @@ Security Features:
 ### Production NGINX Configuration (`nginx/production/nginx.conf`)
 
 Handles:
+
 - Load balancing configuration
 - SSL termination
 - Static file serving
@@ -79,6 +83,7 @@ Handles:
 ### Test Configuration (`test/nginx.conf`)
 
 Features:
+
 - Simplified SSL configuration
 - Development-friendly rate limits
 - Mock backend support
@@ -87,6 +92,7 @@ Features:
 - Health check endpoints
 
 Rate Limits (Test):
+
 - API endpoints: 10 requests/second
 - WebSocket: 5 requests/second
 - Analytics: 20 requests/second
@@ -94,6 +100,7 @@ Rate Limits (Test):
 ### Mock Backend (`test/nginx/backend.conf`)
 
 Provides:
+
 - Mock API responses
 - WebSocket connection simulation
 - Authentication endpoint simulation
@@ -102,6 +109,7 @@ Provides:
 ## Common Features
 
 Both environments support:
+
 - WebSocket connections
 - Static file serving
 - Health monitoring
@@ -115,6 +123,7 @@ Both environments support:
 ### Production Deployment
 
 1. SSL Certificate Setup:
+
 ```bash
 # Place SSL certificates
 sudo cp dojopool.crt /etc/nginx/ssl/
@@ -122,6 +131,7 @@ sudo cp dojopool.key /etc/nginx/ssl/
 ```
 
 2. Configuration Setup:
+
 ```bash
 # Copy configuration files
 sudo cp deployment/nginx/production.conf /etc/nginx/conf.d/
@@ -130,11 +140,13 @@ sudo ln -s /etc/nginx/sites-available/dojopool /etc/nginx/sites-enabled/
 ```
 
 3. Verify Configuration:
+
 ```bash
 sudo nginx -t
 ```
 
 4. Restart NGINX:
+
 ```bash
 sudo systemctl restart nginx
 ```
@@ -142,6 +154,7 @@ sudo systemctl restart nginx
 ### Test Environment Setup
 
 1. Configuration Setup:
+
 ```bash
 # Copy test configurations
 cp deployment/nginx/test/nginx.conf /path/to/test/environment/
@@ -149,6 +162,7 @@ cp deployment/nginx/test/nginx/backend.conf /path/to/test/environment/
 ```
 
 2. Start Test Environment:
+
 ```bash
 docker-compose -f docker-compose.test.yml up
 ```
@@ -158,11 +172,13 @@ docker-compose -f docker-compose.test.yml up
 ### Health Checks
 
 Production:
+
 ```bash
 curl -k https://yourdomain.com/health
 ```
 
 Test:
+
 ```bash
 curl http://localhost/health
 ```
@@ -170,10 +186,12 @@ curl http://localhost/health
 ### Log Locations
 
 Production:
+
 - Access Log: `/var/log/nginx/access.log`
 - Error Log: `/var/log/nginx/error.log`
 
 Test:
+
 - Access Log: `/var/log/nginx/test-access.log`
 - Error Log: `/var/log/nginx/test-error.log`
 
@@ -199,6 +217,7 @@ sudo nginx -t -c /path/to/nginx.conf
 ### Performance Tuning
 
 Key settings to monitor and adjust:
+
 - `worker_processes`
 - `worker_connections`
 - `keepalive_timeout`
@@ -246,4 +265,4 @@ Common issues and solutions:
 
 - [NGINX Documentation](https://nginx.org/en/docs/)
 - [Mozilla SSL Configuration Generator](https://ssl-config.mozilla.org/)
-- [NGINX Security Guide](https://www.nginx.com/resources/wiki/start/topics/examples/full/) 
+- [NGINX Security Guide](https://www.nginx.com/resources/wiki/start/topics/examples/full/)

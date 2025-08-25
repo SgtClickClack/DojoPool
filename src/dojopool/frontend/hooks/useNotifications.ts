@@ -20,5 +20,3 @@ export function useNotifications() {
 
   return { notifications, removeNotification };
 }
-
-

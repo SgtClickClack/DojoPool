@@ -4,12 +4,12 @@ describe('Visual Regression Tests', () => {
   });
 
   it('should match login page snapshot', () => {
-    cy.visit('/auth/signin');
+    cy.visit('/login');
     cy.percySnapshot('Login Page');
   });
 
   it('should match signup page snapshot', () => {
-    cy.visit('/auth/signup');
+    cy.visit('/register');
     cy.percySnapshot('Signup Page');
   });
 
@@ -55,7 +55,7 @@ describe('Visual Regression Tests', () => {
     sizes.forEach(([device, width, height]) => {
       it(`should match login page snapshot on ${device}`, () => {
         cy.viewport(width as number, height as number);
-        cy.visit('/auth/signin');
+        cy.visit('/login');
         cy.percySnapshot(`Login Page - ${device}`);
       });
 
@@ -71,7 +71,7 @@ describe('Visual Regression Tests', () => {
   // Test different themes
   describe('Theme Variations', () => {
     it('should match dark theme snapshots', () => {
-      cy.visit('/auth/signin');
+      cy.visit('/login');
       cy.get('[data-testid="theme-toggle"]').click();
       cy.percySnapshot('Login Page - Dark Theme');
 

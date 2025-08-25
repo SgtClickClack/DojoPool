@@ -1,7 +1,7 @@
 import {
   Star as AchievementIcon,
   Bolt as ChallengeIcon,
-  Military as ClanIcon,
+  Groups as ClanIcon,
   AttachMoney as CoinsIcon,
   Group as FriendIcon,
   SportsEsports as GameIcon,

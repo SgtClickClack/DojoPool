@@ -1,7 +1,7 @@
 // Safe config accessor for environments where process may be undefined (browser)
 const readMetaEnv = (key: string): string | undefined => {
   try {
-    const meta: any = (import.meta as any);
+    const meta: any = import.meta as any;
     if (meta && meta.env && meta.env[key] !== undefined) {
       return String(meta.env[key]);
     }
@@ -10,7 +10,11 @@ const readMetaEnv = (key: string): string | undefined => {
 };
 
 const readProcessEnv = (key: string): string | undefined => {
-  if (typeof process !== 'undefined' && process.env && process.env[key] !== undefined) {
+  if (
+    typeof process !== 'undefined' &&
+    process.env &&
+    process.env[key] !== undefined
+  ) {
     return process.env[key] as string;
   }
   return undefined;

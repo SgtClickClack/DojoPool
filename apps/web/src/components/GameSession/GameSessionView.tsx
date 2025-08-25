@@ -1,5 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useGameSession } from '@/hooks/useGameSession';
+import { pauseMatch, resumeMatch } from '@/services/APIService';
+import { websocketService } from '@/services/services/network/WebSocketService';
 import { GameSessionStatus, GameType } from '@/types/gameSession';
 import {
   Pause,
@@ -20,7 +22,7 @@ import {
   LinearProgress,
   Typography,
 } from '@mui/material';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface GameSessionViewProps {
   sessionId: string;
@@ -37,27 +39,37 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({
     loading,
     error,
     updateSession,
+    refreshSession,
     recordShot,
     recordFoul,
     endSession,
   } = useGameSession(sessionId);
 
-  const [isPaused, setIsPaused] = useState(false);
+  // Derive paused state from session status
+  const isPaused = useMemo(
+    () => gameSession?.status === GameSessionStatus.PAUSED,
+    [gameSession?.status]
+  );
   const [showAnalytics, setShowAnalytics] = useState(false);
 
-  const handlePauseResume = useCallback(async () => {
+  // Pause/Resume via API; real-time sync via WebSocket event
+  const handlePause = useCallback(async () => {
     if (!gameSession) return;
-
-    const newStatus = isPaused
-      ? GameSessionStatus.ACTIVE
-      : GameSessionStatus.PAUSED;
     try {
-      await updateSession({ status: newStatus });
-      setIsPaused(!isPaused);
+      await pauseMatch(gameSession.id);
     } catch (error) {
-      console.error('Failed to update session status:', error);
+      console.error('Failed to pause match:', error);
     }
-  }, [gameSession, isPaused, updateSession]);
+  }, [gameSession]);
+
+  const handleResume = useCallback(async () => {
+    if (!gameSession) return;
+    try {
+      await resumeMatch(gameSession.id);
+    } catch (error) {
+      console.error('Failed to resume match:', error);
+    }
+  }, [gameSession]);
 
   const handleEndSession = useCallback(async () => {
     if (!gameSession || !user) return;
@@ -73,6 +85,36 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({
       console.error('Failed to end session:', error);
     }
   }, [gameSession, user, endSession, onSessionEnd]);
+  // Real-time match status updates
+  useEffect(() => {
+    let unsubscribe: (() => void) | null = null;
+    let joined = false;
+
+    (async () => {
+      try {
+        await websocketService.connectToMatch(sessionId);
+        websocketService.joinMatchRoom(sessionId);
+        joined = true;
+        unsubscribe = websocketService.subscribe(
+          'match_status_update',
+          (data: any) => {
+            const targetId = data?.matchId || data?.id;
+            if (targetId === sessionId) {
+              // Refresh session to reflect latest status
+              refreshSession().catch(() => {});
+            }
+          }
+        );
+      } catch (e) {
+        console.error('WebSocket setup failed:', e);
+      }
+    })();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+      if (joined) websocketService.leaveMatchRoom(sessionId);
+    };
+  }, [sessionId, refreshSession]);
 
   const handleRecordShot = useCallback(async () => {
     if (!gameSession || !user) return;
@@ -181,14 +223,15 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({
 
           {/* Session Controls */}
           <Box display="flex" gap={1} mb={2}>
-            <Button
-              variant="contained"
-              startIcon={isPaused ? <PlayArrow /> : <Pause />}
-              onClick={handlePauseResume}
-              disabled={!isActive}
-            >
-              {isPaused ? 'Resume' : 'Pause'}
-            </Button>
+            {isActive && (
+              <Button
+                variant="contained"
+                startIcon={<Pause />}
+                onClick={handlePause}
+              >
+                Pause
+              </Button>
+            )}
             <Button
               variant="outlined"
               color="error"
@@ -372,6 +415,43 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({
           </Grid>
         )}
       </Grid>
+      {/* Paused Overlay */}
+      {isPaused && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          sx={{
+            bgcolor: 'rgba(0,0,0,0.6)',
+            zIndex: (theme) => theme.zIndex.modal + 1,
+          }}
+        >
+          <Card>
+            <CardContent>
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                gap={2}
+              >
+                <Typography variant="h5">Match Paused</Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<PlayArrow />}
+                  onClick={handleResume}
+                >
+                  Resume Match
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -38,8 +38,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private getUserIdFromSocket(client: Socket): string | undefined {
     const headers = client.handshake.headers as Record<string, any>;
-    const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as string | undefined;
-    const fromAuth = (client.handshake.auth && (client.handshake.auth as any).userId) as string | undefined;
+    const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as
+      | string
+      | undefined;
+    const fromAuth = (client.handshake.auth &&
+      (client.handshake.auth as any).userId) as string | undefined;
     return fromHeader || fromAuth;
   }
 
@@ -49,7 +52,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.join(userId);
       this.logger.log(`Client ${client.id} joined private room ${userId}`);
     } else {
-      this.logger.warn(`Client ${client.id} connected without x-user-id/auth.userId; cannot join private room`);
+      this.logger.warn(
+        `Client ${client.id} connected without x-user-id/auth.userId; cannot join private room`
+      );
     }
   }
 
@@ -65,7 +70,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const senderId = this.getUserIdFromSocket(client);
     if (!senderId) {
       this.logger.warn('send_dm received without sender identification');
-      client.emit('error', { message: 'Missing x-user-id/auth.userId for send_dm' });
+      client.emit('error', {
+        message: 'Missing x-user-id/auth.userId for send_dm',
+      });
       return;
     }
     const { receiverId, content } = data || ({} as SendDmPayload);
@@ -74,7 +81,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    const message = await this.chatService.sendDirectMessage(senderId, receiverId, content);
+    const message = await this.chatService.sendDirectMessage(
+      senderId,
+      receiverId,
+      content
+    );
 
     // Emit to receiver's private room and back to sender
     this.server.to(receiverId).emit('new_dm', message);

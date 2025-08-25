@@ -12,6 +12,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import ProtectedRoute from '../components/Common/ProtectedRoute';
 
@@ -199,4 +200,4 @@ const AdminPage: React.FC = () => {
   );
 };
 
-export default AdminPage;
+export default dynamic(() => Promise.resolve(AdminPage), { ssr: false });

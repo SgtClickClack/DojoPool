@@ -4,17 +4,16 @@ const nextConfig = {
   swcMinify: true,
   poweredByHeader: false,
   compress: true,
-  experimental: {
-    scrollRestoration: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  // Disable file tracing to prevent EMFILE errors
+  // Prevent EMFILE errors during build trace collection
   outputFileTracing: false,
-}
+  webpack: (config) => {
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      'mapbox-gl': 'maplibre-gl',
+    };
+    return config;
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

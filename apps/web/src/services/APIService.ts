@@ -306,3 +306,103 @@ export const getCdnCostStats = async (): Promise<CdnCostStats> => {
   const response = await api.get('/v1/dashboard/cdn/cost');
   return response.data;
 };
+
+// Venue API functions
+export const getVenues = async (params?: {
+  search?: string;
+  city?: string;
+  state?: string;
+  hasTournaments?: boolean;
+  hasFood?: boolean;
+  hasBar?: boolean;
+  page?: number;
+  limit?: number;
+}): Promise<{
+  venues: any[];
+  total: number;
+  page: number;
+  totalPages: number;
+}> => {
+  const response = await api.get('/v1/venues', { params });
+  return response.data;
+};
+
+// Dojo Upgrade API function
+export const upgradeDojo = async (
+  venueId: string,
+  upgradeType: string
+): Promise<any> => {
+  const response = await api.post(`/v1/venues/${venueId}/upgrade`, {
+    upgradeType,
+  });
+  return response.data;
+};
+
+export const initiateShadowRun = async (
+  targetVenueId: string,
+  runType: string
+) => {
+  const response = await api.post('/v1/shadow-runs', {
+    targetVenueId,
+    runType,
+  });
+  return response.data;
+};
+
+export const getClanShadowRuns = async (clanId: string) => {
+  const response = await api.get(`/shadow-runs/clan/${clanId}`);
+  return response.data;
+};
+
+// Venue Owner Portal API functions
+export const updateMyVenue = async (data: {
+  description?: string;
+  images?: string[];
+  hours?: Array<{ day: string; open: string; close: string; isOpen?: boolean }>;
+}): Promise<any> => {
+  const response = await api.patch('/v1/venues/me', data);
+  return response.data;
+};
+
+export const getMyVenue = async (): Promise<any> => {
+  const response = await api.get('/v1/venues/me');
+  return response.data;
+};
+
+export const createVenueSpecial = async (data: {
+  title: string;
+  description?: string;
+  startsAt?: string;
+  endsAt?: string;
+  isActive?: boolean;
+}): Promise<any> => {
+  const response = await api.post('/v1/venues/me/specials', data);
+  return response.data;
+};
+
+export const getMyVenueSpecials = async (): Promise<any[]> => {
+  const response = await api.get('/v1/venues/me/specials');
+  return response.data;
+};
+
+export const deleteVenueSpecial = async (
+  specialId: string
+): Promise<{ success: boolean }> => {
+  const response = await api.delete(`/v1/venues/me/specials/${specialId}`);
+  return response.data;
+};
+
+// Match control API functions
+export const pauseMatch = async (
+  matchId: string
+): Promise<{ status: string }> => {
+  const response = await api.post(`/v1/matches/${matchId}/pause`);
+  return response.data;
+};
+
+export const resumeMatch = async (
+  matchId: string
+): Promise<{ status: string }> => {
+  const response = await api.post(`/v1/matches/${matchId}/resume`);
+  return response.data;
+};

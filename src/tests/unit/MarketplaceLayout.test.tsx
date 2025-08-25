@@ -17,8 +17,12 @@ vi.mock('react-router-dom', async () => {
     ),
     Route: ({ element }: any) => <>{element}</>,
     MemoryRouter: ({ children }: any) => <>{children}</>,
-    Link: ({ children, to }: any) => <a href={typeof to === 'string' ? to : '#'}>{children}</a>,
-    NavLink: ({ children, to }: any) => <a href={typeof to === 'string' ? to : '#'}>{children}</a>,
+    Link: ({ children, to }: any) => (
+      <a href={typeof to === 'string' ? to : '#'}>{children}</a>
+    ),
+    NavLink: ({ children, to }: any) => (
+      <a href={typeof to === 'string' ? to : '#'}>{children}</a>
+    ),
   };
 });
 
@@ -34,8 +38,12 @@ vi.mock('../../../apps/web/node_modules/react-router-dom', async () => {
     ),
     Route: ({ element }: any) => <>{element}</>,
     MemoryRouter: ({ children }: any) => <>{children}</>,
-    Link: ({ children, to }: any) => <a href={typeof to === 'string' ? to : '#'}>{children}</a>,
-    NavLink: ({ children, to }: any) => <a href={typeof to === 'string' ? to : '#'}>{children}</a>,
+    Link: ({ children, to }: any) => (
+      <a href={typeof to === 'string' ? to : '#'}>{children}</a>
+    ),
+    NavLink: ({ children, to }: any) => (
+      <a href={typeof to === 'string' ? to : '#'}>{children}</a>
+    ),
   };
 });
 

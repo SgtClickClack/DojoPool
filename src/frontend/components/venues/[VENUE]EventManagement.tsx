@@ -161,8 +161,8 @@ const EventManagement: React.FC<EventManagementProps> = ({
             type === 'tournament'
               ? 'primary'
               : type === 'social'
-              ? 'success'
-              : 'default'
+                ? 'success'
+                : 'default'
           }
           size="small"
         />
@@ -220,10 +220,10 @@ const EventManagement: React.FC<EventManagementProps> = ({
               status === 'upcoming'
                 ? 'primary'
                 : status === 'in_progress'
-                ? 'success'
-                : status === 'completed'
-                ? 'default'
-                : 'error'
+                  ? 'success'
+                  : status === 'completed'
+                    ? 'default'
+                    : 'error'
             }
             size="small"
           />

@@ -1,12 +1,12 @@
 describe('Authentication', () => {
   beforeEach(() => {
-    cy.visit('/auth/signin');
+    cy.visit('/login');
   });
 
   it('should sign in with email and password', () => {
-    cy.get('[data-testid="email-input"]').type('test@example.com');
-    cy.get('[data-testid="password-input"]').type('password123');
-    cy.get('[data-testid="signin-button"]').click();
+    cy.findByLabelText('Email').type('test@example.com');
+    cy.findByLabelText('Password').type('password123');
+    cy.findByRole('button', { name: 'Sign In' }).click();
     cy.url().should('eq', Cypress.config().baseUrl + '/dashboard');
   });
 

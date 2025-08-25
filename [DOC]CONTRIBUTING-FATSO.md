@@ -28,7 +28,6 @@
    ```
 
 2. Make your changes following our guidelines:
-
    - Follow PEP 8 for Python code
    - Use consistent naming conventions
    - Add tests for new features
@@ -57,14 +56,12 @@
 ### Image Assets
 
 1. Place images in appropriate directories:
-
    - `static/images/core/`: Brand assets
    - `static/images/features/`: Feature illustrations
    - `static/images/icons/`: UI icons
    - `static/images/backgrounds/`: Background images
 
 2. Follow naming conventions:
-
    - Use lowercase for all files except core brand assets
    - No spaces in filenames
    - Use descriptive names

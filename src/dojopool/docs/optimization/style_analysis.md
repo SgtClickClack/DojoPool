@@ -335,7 +335,7 @@
 **Duplicate Rules:**
 
 - `.card-footer,
-    .card-img-bottom` defined in:
+.card-img-bottom` defined in:
   - src\dojopool\static\scss\components_cards.scss:131
   - src\dojopool\static\scss\components_cards.scss:146
 - `.card-title` defined in:

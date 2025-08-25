@@ -145,7 +145,10 @@ const TournamentRealTimeStatus: React.FC = () => {
           border-radius: 4px;
           cursor: pointer;
           font-weight: bold;
-          transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+          transition:
+            background-color 0.2s,
+            box-shadow 0.2s,
+            transform 0.2s;
         }
 
         .connect-btn {

@@ -3,8 +3,8 @@ import '@testing-library/cypress/add-commands';
 // Custom command to login
 Cypress.Commands.add('login', (email: string, password: string) => {
   cy.visit('/login');
-  cy.findByLabelText('Email').type(email);
-  cy.findByLabelText('Password').type(password);
+  cy.get('[data-testid="login-email-input"]').type(email);
+  cy.get('[data-testid="login-password-input"]').type(password);
   cy.findByRole('button', { name: 'Sign In' }).click();
 });
 

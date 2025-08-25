@@ -33,7 +33,9 @@ interface TournamentDetailProps {
   tournamentId: string | null;
 }
 
-const TournamentDetail: React.FC<TournamentDetailProps> = ({ tournamentId }) => {
+const TournamentDetail: React.FC<TournamentDetailProps> = ({
+  tournamentId,
+}) => {
   const [details, setDetails] = useState<TournamentDetails | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -147,7 +149,8 @@ const TournamentDetail: React.FC<TournamentDetailProps> = ({ tournamentId }) => 
         <strong>Venue:</strong> {details.venueName}
       </p>
       <p className="mb-4">
-        <strong>Starts:</strong> {new Date(details.startDate).toLocaleDateString()}
+        <strong>Starts:</strong>{' '}
+        {new Date(details.startDate).toLocaleDateString()}
       </p>
       <p className="mb-4">{details.description}</p>
 
@@ -188,7 +191,8 @@ const TournamentDetail: React.FC<TournamentDetailProps> = ({ tournamentId }) => 
         <p className="text-gray-500">Bracket view coming soon...</p>
         {details.matches.map((m) => (
           <div key={m.id} className="text-sm border-t pt-2 mt-2">
-            Round {m.round}: {m.player1?.name ?? 'TBD'} vs {m.player2?.name ?? 'TBD'} ({m.status})
+            Round {m.round}: {m.player1?.name ?? 'TBD'} vs{' '}
+            {m.player2?.name ?? 'TBD'} ({m.status})
           </div>
         ))}
       </div>

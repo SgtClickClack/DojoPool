@@ -25,7 +25,7 @@ export enum ActivityEventType {
   CLAN_LEFT = 'clan_left',
   CHALLENGE_SENT = 'challenge_sent',
   CHALLENGE_ACCEPTED = 'challenge_accepted',
-  CHALLENGE_DECLINED = 'challenge_declined'
+  CHALLENGE_DECLINED = 'challenge_declined',
 }
 
 export interface ActivityFeedResponse {

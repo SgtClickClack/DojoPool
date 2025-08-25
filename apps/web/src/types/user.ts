@@ -39,7 +39,7 @@ export enum SkillLevel {
   INTERMEDIATE = 'intermediate',
   ADVANCED = 'advanced',
   EXPERT = 'expert',
-  MASTER = 'master'
+  MASTER = 'master',
 }
 
 export enum AchievementRarity {
@@ -47,5 +47,5 @@ export enum AchievementRarity {
   UNCOMMON = 'uncommon',
   RARE = 'rare',
   EPIC = 'epic',
-  LEGENDARY = 'legendary'
+  LEGENDARY = 'legendary',
 }

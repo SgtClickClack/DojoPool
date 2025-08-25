@@ -296,8 +296,8 @@ const ClanWarsPage: React.FC = () => {
                               war.status === 'active'
                                 ? '#00ff9d'
                                 : war.status === 'preparing'
-                                ? '#feca57'
-                                : '#00a8ff',
+                                  ? '#feca57'
+                                  : '#00a8ff',
                             color: '#000',
                             fontWeight: 'bold',
                           }}
