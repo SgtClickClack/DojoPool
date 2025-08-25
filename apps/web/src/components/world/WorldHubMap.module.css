@@ -1,0 +1,489 @@
+.errorContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(30, 30, 30, 0.95);
+  color: #ffffff;
+}
+
+.errorContainer[data-height] {
+  height: var(--dynamic-height);
+}
+
+.errorContainer.h100 {
+  height: 100%;
+}
+.errorContainer.h200 {
+  height: 200px;
+}
+.errorContainer.h300 {
+  height: 300px;
+}
+.errorContainer.h400 {
+  height: 400px;
+}
+.errorContainer.h500 {
+  height: 500px;
+}
+.errorContainer.h600 {
+  height: 600px;
+}
+.errorContainer.h700 {
+  height: 700px;
+}
+.errorContainer.h800 {
+  height: 800px;
+}
+.errorContainer.h900 {
+  height: 900px;
+}
+.errorContainer.h100vh {
+  height: 100vh;
+}
+
+.centerContent {
+  text-align: center;
+}
+
+.mapConfigContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(30, 30, 30, 0.95);
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.mapConfigContainer[data-height] {
+  height: var(--dynamic-height);
+}
+
+.mapConfigContainer.h100 {
+  height: 100%;
+}
+.mapConfigContainer.h200 {
+  height: 200px;
+}
+.mapConfigContainer.h300 {
+  height: 300px;
+}
+.mapConfigContainer.h400 {
+  height: 400px;
+}
+.mapConfigContainer.h500 {
+  height: 500px;
+}
+.mapConfigContainer.h600 {
+  height: 600px;
+}
+.mapConfigContainer.h700 {
+  height: 700px;
+}
+.mapConfigContainer.h800 {
+  height: 800px;
+}
+.mapConfigContainer.h900 {
+  height: 900px;
+}
+.mapConfigContainer.h100vh {
+  height: 100vh;
+}
+
+.mapConfigText {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.mapContainer {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.mapContainer[data-height] {
+  height: var(--dynamic-height);
+}
+.mapContainer.h100 {
+  height: 100%;
+}
+.mapContainer.h200 {
+  height: 200px;
+}
+.mapContainer.h300 {
+  height: 300px;
+}
+.mapContainer.h400 {
+  height: 400px;
+}
+.mapContainer.h500 {
+  height: 500px;
+}
+.mapContainer.h600 {
+  height: 600px;
+}
+.mapContainer.h700 {
+  height: 700px;
+}
+.mapContainer.h800 {
+  height: 800px;
+}
+.mapContainer.h900 {
+  height: 900px;
+}
+.mapContainer.h100vh {
+  height: 100vh;
+}
+
+.themeSelector {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.themeSelect {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.infoWindow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.95);
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 300px;
+  z-index: 1001;
+  border: 2px solid #4ecdc4;
+}
+
+.infoWindowContent {
+  padding: 8px;
+  max-width: 300px;
+}
+
+.infoWindowTitle {
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.infoWindowText {
+  margin: 0 0 8px 0;
+  color: #666;
+}
+
+/* Dojo Controller Section (replacing inline styles) */
+.controllerContainer {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  border: 2px solid #ff8800;
+}
+
+.clanAvatar {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  border-radius: 50%;
+}
+
+.clanName {
+  font-weight: bold;
+  color: #ff8800;
+}
+
+.clanTagBadge {
+  font-size: 12px;
+  background-color: #ff8800;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.infoWindowSection {
+  margin-bottom: 8px;
+}
+
+.statusActive {
+  color: #27ae60;
+}
+.statusInactive {
+  color: #f39c12;
+}
+.statusMaintenance {
+  color: #e74c3c;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.challengeButton,
+.viewDetailsButton,
+.navigateButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.challengeButton {
+  background-color: #e74c3c;
+  color: #ffffff;
+}
+.viewDetailsButton {
+  background-color: #3498db;
+  color: #ffffff;
+}
+
+.infoWindowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.infoWindowTitle {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 12px;
+}
+
+.infoWindowContent {
+  margin-bottom: 12px;
+}
+
+.infoWindowText {
+  margin: 0 0 8px 0;
+  color: #cccccc;
+}
+
+.infoWindowController {
+  margin: 0 0 8px 0;
+  color: #4ecdc4;
+}
+
+.infoWindowLocked {
+  margin: 0 0 8px 0;
+  color: #e74c3c;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 8px;
+}
+
+.challengeButton {
+  flex: 1;
+  font-weight: bold;
+}
+
+.navigateButton {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* Connection Status Bar */
+.connectionStatusBar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.statusDot.connected {
+  background-color: #4caf50;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+}
+.statusDot.disconnected {
+  background-color: #f44336;
+  box-shadow: 0 0 6px rgba(244, 67, 54, 0.6);
+}
+
+/* Heartbeat animation for live data */
+.statusDot.heartbeat {
+  animation: heartbeat 1s ease-in-out;
+}
+
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+  }
+  25% {
+    transform: scale(1.3);
+    box-shadow: 0 0 12px rgba(76, 175, 80, 0.8);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.7);
+  }
+  75% {
+    transform: scale(1.2);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+  }
+}
+
+.playerCount {
+  margin-left: auto;
+  font-weight: 500;
+  color: #4a90e2;
+}
+
+/* Connection Status in Loading */
+.connectionStatus {
+  color: #ff9800;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* Retry Button */
+.retryButton {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 12px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.retryButton:hover {
+  background: #357abd;
+}
+
+/* Player Marker Specific Styles with smooth transitions */
+.playerMarker {
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.playerMarker:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+/* Player Info Window Enhancements */
+.playerInfoWindow {
+  min-width: 250px;
+}
+
+.playerStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.playerAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Animation for Real-time Updates */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.playerMarker.updating {
+  animation: pulse 1s ease-in-out;
+}
+
+/* Accessibility focus for buttons */
+.challengeButton:focus-visible,
+.viewDetailsButton:focus-visible,
+.navigateButton:focus-visible,
+.retryButton:focus-visible,
+.closeButton:focus-visible {
+  outline: 2px solid #4ecdc4;
+  outline-offset: 2px;
+}
+
+/* Responsive Design for Status Bar */
+@media (max-width: 768px) {
+  .connectionStatusBar {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  .playerCount {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .connectionStatusBar {
+    left: 5px;
+    right: 5px;
+    padding: 6px 8px;
+  }
+}

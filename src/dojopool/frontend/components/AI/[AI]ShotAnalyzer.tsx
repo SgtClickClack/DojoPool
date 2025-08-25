@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import { PhotoCamera } from '@mui/icons-material';
 import {
+  Alert,
   Box,
-  Paper,
-  Typography,
   Button,
   CircularProgress,
+  Divider,
   List,
   ListItem,
   ListItemText,
-  Divider,
-  Alert,
+  Paper,
+  Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { PhotoCamera } from '@mui/icons-material';
 import axios from 'axios';
+import React, { useState } from 'react';
 
 const AnalyzerContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -161,25 +161,28 @@ export const ShotAnalyzer: React.FC = () => {
         <>
           {analysis.metrics && renderMetrics(analysis.metrics)}
 
-          {analysis.recommendations && analysis.recommendations.length > 0 && (
-            <>
-              <Typography variant="h6" gutterBottom>
-                Recommendations
-              </Typography>
-              <List>
-                {analysis.recommendations.map((recommendation, index) => (
-                  <React.Fragment key={index}>
-                    <ListItem>
-                      <ListItemText primary={recommendation} />
-                    </ListItem>
-                    {index < analysis.recommendations.length - 1 && (
-                      <Divider component="li" />
-                    )}
-                  </React.Fragment>
-                ))}
-              </List>
-            </>
-          )}
+          {(() => {
+            const recs = Array.isArray(analysis.recommendations)
+              ? analysis.recommendations
+              : [];
+            return recs.length > 0 ? (
+              <>
+                <Typography variant="h6" gutterBottom>
+                  Recommendations
+                </Typography>
+                <List>
+                  {recs.map((recommendation, index) => (
+                    <React.Fragment key={index}>
+                      <ListItem>
+                        <ListItemText primary={recommendation} />
+                      </ListItem>
+                      {index < recs.length - 1 && <Divider component="li" />}
+                    </React.Fragment>
+                  ))}
+                </List>
+              </>
+            ) : null;
+          })()}
         </>
       )}
     </AnalyzerContainer>

@@ -9,8 +9,7 @@
 @import './utilities.css';
 
 /* Import component-specific styles */
-@import './tournaments.scss';
-@import './venues.scss';
+/* Removed invalid SCSS imports to prevent 404 in Next.js build */
 
 /* ==========================================================================
    Global Overrides and Final Adjustments
@@ -26,6 +25,22 @@
 /* Optimize critical rendering path */
 .critical {
   contain: layout style paint;
+}
+
+/* ==========================================================================
+   Mapbox Map Styles
+   ========================================================================== */
+
+/* Dojo marker styles */
+.dojo-marker {
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dojo-marker:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 /* ==========================================================================
@@ -46,5 +61,15 @@
   .neon-grid,
   .vs-overlay {
     display: none !important;
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

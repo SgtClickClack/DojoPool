@@ -1,5 +1,5 @@
+import { Box, Paper, Typography } from '@mui/material';
 import React from 'react';
-import { Box, Typography, Paper } from '@mui/material';
 import { type Tournament, type TournamentMatch } from '../../types/tournament';
 
 interface TournamentBracketProps {
@@ -66,20 +66,22 @@ const MatchBox: React.FC<MatchBoxProps> = ({ match, players }) => {
 const TournamentBracket = (props: TournamentBracketProps) => {
   const { tournament } = props;
 
-  // Create a lookup object for quick player access
-  const playerLookup = tournament.players.reduce(
-    (acc, player) => {
-      acc[player.id] = { name: player.name };
-      return acc;
-    },
-    {} as Record<string, { name: string }>
-  );
+  // Create a lookup object for quick player access (guard missing players)
+  const playerLookup = (tournament as any).players
+    ? (tournament as any).players.reduce(
+        (acc: Record<string, { name: string }>, player: any) => {
+          acc[player.id] = { name: player.name };
+          return acc;
+        },
+        {} as Record<string, { name: string }>
+      )
+    : ({} as Record<string, { name: string }>);
 
   // Group matches by round (for single/double elim)
   const matchesByRound =
-    tournament.rounds?.reduce(
-      (acc, round) => {
-        acc[round.roundNumber] = round.matches;
+    (tournament as any).rounds?.reduce(
+      (acc: Record<number, TournamentMatch[]>, round: any) => {
+        acc[round.roundNumber] = round.matches as TournamentMatch[];
         return acc;
       },
       {} as Record<number, TournamentMatch[]>
@@ -87,22 +89,22 @@ const TournamentBracket = (props: TournamentBracketProps) => {
 
   // Group loser bracket matches by round (for double elim)
   const loserMatchesByRound =
-    tournament.loserRounds?.reduce(
-      (acc, round) => {
-        acc[round.roundNumber] = round.matches;
+    (tournament as any).loserRounds?.reduce(
+      (acc: Record<number, TournamentMatch[]>, round: any) => {
+        acc[round.roundNumber] = round.matches as TournamentMatch[];
         return acc;
       },
       {} as Record<number, TournamentMatch[]>
     ) || {};
 
   // For round robin: flatten all matches
-  const allGroupMatches = tournament.groupMatches || [];
+  const allGroupMatches = (tournament as any).groupMatches || [];
 
   // For Swiss: group by round
-  const swissRounds = tournament.swissRounds || [];
+  const swissRounds = (tournament as any).swissRounds || [];
 
   // Render logic by format
-  switch (tournament.format) {
+  switch ((tournament as any).format) {
     case 'DOUBLE_ELIMINATION':
       return (
         <Box>
@@ -120,13 +122,15 @@ const TournamentBracket = (props: TournamentBracketProps) => {
                   <Typography variant="subtitle2">
                     Round {roundNumber}
                   </Typography>
-                  {matches.map((match) => (
-                    <MatchBox
-                      key={match.id}
-                      match={match}
-                      players={playerLookup}
-                    />
-                  ))}
+                  {(matches as TournamentMatch[]).map(
+                    (match: TournamentMatch) => (
+                      <MatchBox
+                        key={match.id}
+                        match={match}
+                        players={playerLookup}
+                      />
+                    )
+                  )}
                 </Box>
               ))}
             </Box>
@@ -141,13 +145,15 @@ const TournamentBracket = (props: TournamentBracketProps) => {
                     <Typography variant="subtitle2">
                       Round {roundNumber}
                     </Typography>
-                    {matches.map((match) => (
-                      <MatchBox
-                        key={match.id}
-                        match={match}
-                        players={playerLookup}
-                      />
-                    ))}
+                    {(matches as TournamentMatch[]).map(
+                      (match: TournamentMatch) => (
+                        <MatchBox
+                          key={match.id}
+                          match={match}
+                          players={playerLookup}
+                        />
+                      )
+                    )}
                   </Box>
                 )
               )}
@@ -166,7 +172,7 @@ const TournamentBracket = (props: TournamentBracketProps) => {
               <thead>
                 <tr>
                   <th>Player</th>
-                  {tournament.players.map((p) => (
+                  {((tournament as any).players || []).map((p: any) => (
                     <th key={p.id}>{p.name}</th>
                   ))}
                   <th>Wins</th>
@@ -174,13 +180,13 @@ const TournamentBracket = (props: TournamentBracketProps) => {
                 </tr>
               </thead>
               <tbody>
-                {tournament.players.map((p1) => (
+                {((tournament as any).players || []).map((p1: any) => (
                   <tr key={p1.id}>
                     <td>{p1.name}</td>
-                    {tournament.players.map((p2) => {
+                    {((tournament as any).players || []).map((p2: any) => {
                       if (p1.id === p2.id) return <td key={p2.id}>-</td>;
-                      const match = allGroupMatches.find(
-                        (m) =>
+                      const match = (allGroupMatches as TournamentMatch[]).find(
+                        (m: any) =>
                           (m.player1Id === p1.id && m.player2Id === p2.id) ||
                           (m.player1Id === p2.id && m.player2Id === p1.id)
                       );
@@ -188,7 +194,9 @@ const TournamentBracket = (props: TournamentBracketProps) => {
                         <td key={p2.id} style={{ textAlign: 'center' }}>
                           {match
                             ? match.status === 'COMPLETED'
-                              ? `${match.score?.player1 || 0} - ${match.score?.player2 || 0}`
+                              ? `${match.score?.player1 || 0} - ${
+                                  match.score?.player2 || 0
+                                }`
                               : 'In Progress'
                             : ''}
                         </td>
@@ -209,14 +217,20 @@ const TournamentBracket = (props: TournamentBracketProps) => {
           <Typography variant="h6" gutterBottom>
             Swiss System Rounds
           </Typography>
-          {swissRounds.map((round, idx) => (
+          {(swissRounds as any[]).map((round: any, idx: number) => (
             <Box key={round.roundNumber || idx} sx={{ mb: 2 }}>
               <Typography variant="subtitle2">
                 Round {round.roundNumber}
               </Typography>
-              {round.matches.map((match: TournamentMatch) => (
-                <MatchBox key={match.id} match={match} players={playerLookup} />
-              ))}
+              {(round.matches as TournamentMatch[]).map(
+                (match: TournamentMatch) => (
+                  <MatchBox
+                    key={match.id}
+                    match={match}
+                    players={playerLookup}
+                  />
+                )
+              )}
             </Box>
           ))}
         </Box>
@@ -248,26 +262,28 @@ const TournamentBracket = (props: TournamentBracketProps) => {
                 <Typography variant="subtitle1" align="center">
                   Round {roundNumber}
                 </Typography>
-                {matches.map((match) => (
-                  <Box
-                    key={match.id}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <MatchBox match={match} players={playerLookup} />
-                    {match.status !== 'COMPLETED' && (
-                      <Box
-                        sx={{
-                          width: 20,
-                          height: 2,
-                          backgroundColor: 'divider',
-                        }}
-                      />
-                    )}
-                  </Box>
-                ))}
+                {(matches as TournamentMatch[]).map(
+                  (match: TournamentMatch) => (
+                    <Box
+                      key={match.id}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <MatchBox match={match} players={playerLookup} />
+                      {match.status !== 'COMPLETED' && (
+                        <Box
+                          sx={{
+                            width: 20,
+                            height: 2,
+                            backgroundColor: 'divider',
+                          }}
+                        />
+                      )}
+                    </Box>
+                  )
+                )}
               </Box>
             ))}
           </Box>

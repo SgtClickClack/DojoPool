@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import tournamentService from '../../services/TournamentService';
 import { Tournament } from '../../types/tournament';
-import TournamentBracket from './TournamentBracket';
+import TournamentBracket from '../tournament/TournamentBracket';
+import styles from './TournamentDetails.module.css';
 
 interface TournamentDetailsProps {
   tournamentId: string;
@@ -150,8 +151,8 @@ const TournamentDetails: React.FC<TournamentDetailsProps> = ({
         </button>
         <div className="tournament-status">
           <div
-            className="status-badge"
-            style={{ backgroundColor: getStatusColor(tournament.status) }}
+            className={`status-badge ${styles.statusBadge}`}
+            data-status={tournament.status}
           >
             {getStatusText(tournament.status)}
           </div>
@@ -279,7 +280,7 @@ const TournamentDetails: React.FC<TournamentDetailsProps> = ({
       {/* Tournament Bracket */}
       <div className="bracket-section">
         <h2>Tournament Bracket</h2>
-        <TournamentBracket tournament={tournament} />
+        <TournamentBracket tournamentId={tournament.id} />
       </div>
     </div>
   );

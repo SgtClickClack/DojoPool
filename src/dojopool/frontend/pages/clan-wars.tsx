@@ -17,7 +17,7 @@ import {
   AccessTime,
   Star,
 } from '@mui/icons-material';
-import Layout from '../src/components/layout/Layout';
+import Layout from '@/components/Layout';
 import PageBackground from '../src/components/common/PageBackground';
 import { useClanSystem } from '../src/hooks/useClanSystem';
 

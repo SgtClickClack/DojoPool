@@ -94,7 +94,7 @@
     border-radius: 4px;
     background-color: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s;
+    transition: box-shadow 0.3s;
 
     &:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -140,7 +140,7 @@
 
   .ant-card {
     height: 100%;
-    transition: all 0.3s;
+    transition: box-shadow 0.3s;
 
     &:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -198,16 +198,16 @@
 
     .ant-card-head {
       border-bottom: none;
+    }
 
-      .ant-card-head-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 20px;
+    .ant-card-head-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
 
-        .anticon {
-          color: #faad14;
-        }
+      .anticon {
+        color: #faad14;
       }
     }
   }
@@ -222,13 +222,11 @@
         background: #fffbe6;
         border-color: #ffe58f;
       }
-
       &.silver {
         color: #595959;
         background: #fafafa;
         border-color: #d9d9d9;
       }
-
       &.bronze {
         color: #ad4e00;
         background: #fff7e6;
@@ -243,11 +241,20 @@
         margin: 0;
         font-size: 16px;
         line-height: 1.5;
-
-        strong {
-          color: #1890ff;
-        }
+      }
+      strong {
+        color: #1890ff;
       }
     }
+  }
+}
+
+/* Reduced motion safeguard */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
   }
 }

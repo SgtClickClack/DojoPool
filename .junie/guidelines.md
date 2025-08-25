@@ -224,3 +224,104 @@ Key directories:
 ---
 
 _Last updated: 2025-08-01_
+
+
+---
+
+## Project-specific Quickstart (verified 2025-08-24 02:03 local)
+
+This section captures verified, repo-specific steps and caveats for advanced contributors. All commands are PowerShell-friendly for Windows.
+
+### Build and Development
+- Node version: 20.x (package type: module). Ensure `node -v` >= 20.
+- Install deps: `npm ci` (prefer CI install for deterministic lockfile resolution).
+- Environment checks:
+  - `npm run env:check` (non-strict) validates required env; used by `npm run dev`.
+  - `npm run env:check:strict` is used by `npm run preview` and should pass before prod preview.
+  - Relevant files: `config.env`, `[ENV].flaskenv`.
+- Dev (Vite + backend): `npm run dev`
+  - Spins up frontend via Vite (port 3000) and backend TypeScript watcher + Nodemon (port 8080 per proxy assumptions). See scripts in package.json. As of 2025-08-24, there is no root `vite.config.ts`; dev runs with Vite defaults.
+  - If Node processes hang on Windows, run `npm run cleanup:node:win`.
+- Dev (Next.js only, optional): `npm run dev:next -p 3001` (already baked: `dev:next` uses 3001).
+- Production build (Next.js):
+  - Build: `npm run build`
+  - Preview: `npm run preview` (runs Next on the built output with strict env check).
+  - Next.js production specifics (from next.config.js):
+    - API proxy: rewrites for `/api/:path*` to `${API_BASE_URL || 'http://localhost:3002'}/api/:path*`; `/healthcheck` -> `/api/health`.
+    - Security headers: HSTS, X-Frame-Options=DENY, CSP with strict defaults; Permissions-Policy; CORS headers for `/api/:path*`.
+    - Images: domains `localhost`, `dojopool.com.au`; formats `webp`, `avif`; output `standalone`.
+    - Webpack tuning on Windows: watchOptions polling and splitChunks vendor/mui groups; increased performance limits.
+- Docker: `docker build -t dojopool .` (multi-stage build consolidates frontend + Flask via Nginx/Supervisor, exposes 5000).
+
+Notes:
+- Path aliases: In Vite/Vitest, `@` resolves to `/src`. TypeScript paths (tsconfig.json) map `@/*` to `src/*`, `src/frontend/*`, and `src/dojopool/frontend/*`.
+- Module format: ESM. Use `import` syntax. For CJS interop, prefer dynamic `import()` in Node scripts.
+
+### Testing (Vitest)
+- Primary command: `npm test` maps to `vitest run --config vitest.unit.config.ts`.
+- Unit test config: `vitest.unit.config.ts`
+  - Environment: `jsdom`
+  - Setup file: `src/tests/setup.ts` (mocks: fetch via whatwg-fetch, localStorage/sessionStorage, WebSocket, matchMedia, Intersection/ResizeObservers, rAF/cAF).
+  - Include pattern: `src/tests/unit/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}`
+  - Excludes several heavy/flaky files by path (see config for the list). Keep this in mind when adding new tests.
+  - Coverage output: `coverage/js/unit` (v8 provider).
+- Integration test config: `vitest.integration.config.ts`
+  - Environment: `node`
+  - Setup: `src/tests/setup-integration.ts`
+  - Include: `src/tests/integration/**/*.{test,spec}.{ts,tsx}`
+  - Coverage output: `coverage/js/integration`.
+- Global config: `vitest.config.ts` exists for broader patterns, but CI and `npm test` intentionally target the unit config by default.
+
+Common commands:
+- Run all unit tests: `npm test`
+- Run a specific test: `npm test -- src\tests\unit\SomeFile.test.ts`
+- Watch mode: `npm run test:watch`
+- Coverage (unit): `npm run test:coverage`
+- Integration: `npm run test:int` (coverage: `npm run test:int:coverage`)
+- Full CI matrix: `npm run test:ci` (unit+integration with coverage)
+- UI runner: `npm run test:ui`
+
+Add new tests:
+- Unit: place under `src/tests/unit/` using `.test.ts`/`.test.tsx`. DOM/component tests should use React Testing Library (`@testing-library/react`) and rely on jsdom + the provided mocks.
+- Integration: place under `src/tests/integration/` targeting Node runtime; avoid DOM globals.
+- Use the `@` alias for imports from `src/` and prefer stable, deterministic data. If a test relies on timers or random, use `vi.useFakeTimers()` or seed randomness.
+
+Verified smoke test (demonstration):
+- We validated the test runner and setup by creating a temporary file at `src\tests\unit\junie.smoke.test.ts` and executing it as follows:
+
+```powershell
+npm test -- src\tests\unit\junie.smoke.test.ts
+```
+
+- Example content used (passed locally 2025-08-24 02:03):
+
+```ts
+import { describe, it, expect } from 'vitest';
+
+describe('Junie smoke test (unit, 2025-08-24)', () => {
+  it('sanity: arithmetic and environment stubs are present', () => {
+    expect(1 + 1).toBe(2);
+    expect(typeof (globalThis as any).fetch).toBe('function');
+    expect(typeof (globalThis as any).localStorage).toBe('object');
+    expect(typeof (globalThis as any).sessionStorage).toBe('object');
+    expect(typeof (globalThis as any).WebSocket).toBe('function');
+  });
+});
+```
+
+- Outcome (2025-08-24 02:03): 1 passed, confirming jsdom + setup mocks are active. The file has been removed after verification to keep the repository clean.
+
+### Advanced Notes / Pitfalls
+- Windows paths: When running a single test, use backslashes in PowerShell (e.g., `src\tests\unit\File.test.ts`).
+- Known flaky tests are excluded in `vitest.unit.config.ts`. Do not rely on those for CI; stabilize and remove from exclude before enabling.
+- Ports: Ensure 3000 (Vite), 3001 (Next dev), 5000 (Flask), 8080 (Node dev) are free.
+- Backend build: TypeScript backend compiles with `tsconfig.backend.json` to `dist/backend`. The dev script watches and executes from `dist/backend` via Nodemon.
+- Lint/format/type-check:
+  - `npm run lint`, `npm run lint:fix`
+  - `npm run format` / `npm run format:check`
+  - `npm run type-check` (splits into `type-check:web` and `type-check:api`).
+- Troubleshooting:
+  - If dev server doesn’t reflect changes, ensure `concurrently` hasn’t left orphaned processes; run `npm run cleanup:node:win`.
+  - If Next build fails due to env, run `npm run env:check:strict` and verify `config.env` / `[ENV].flaskenv`.
+- ESM nuances: The repo uses ESM (`"type": "module"`). Prefer `import` and avoid bare `require` in Node scripts unless using dynamic `import()` or transpiling.
+

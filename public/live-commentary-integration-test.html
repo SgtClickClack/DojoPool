@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Commentary Integration Test - DojoPool</title>
+    <style>
+      body {
+        font-family: 'Courier New', monospace;
+        background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+        color: #00ff41;
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        border-radius: 10px;
+        border: 2px solid #00ff41;
+      }
+      h1 {
+        text-align: center;
+        color: #00ff41;
+        text-shadow: 0 0 10px #00ff41;
+        margin-bottom: 30px;
+      }
+      .test-section {
+        background: rgba(0, 255, 65, 0.1);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #00ff41;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #00ff41;
+        background: rgba(0, 0, 0, 0.8);
+        color: #00ff41;
+        border-radius: 5px;
+        font-family: 'Courier New', monospace;
+      }
+      button {
+        background: #00ff41;
+        color: #000;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+      }
+      button:hover {
+        background: #00cc33;
+        box-shadow: 0 0 15px #00ff41;
+      }
+      .status {
+        text-align: center;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        font-weight: bold;
+      }
+      .status.connected {
+        background: rgba(0, 255, 65, 0.2);
+        color: #00ff41;
+      }
+      .status.disconnected {
+        background: rgba(255, 0, 0, 0.2);
+        color: #ff4444;
+      }
+      .commentary-display {
+        background: rgba(0, 0, 0, 0.9);
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #00ff41;
+        min-height: 300px;
+        overflow-y: auto;
+      }
+      .commentary-item {
+        background: rgba(0, 255, 65, 0.1);
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border-left: 4px solid #00ff41;
+      }
+      .commentary-text {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .commentary-details {
+        font-size: 12px;
+        color: #888;
+      }
+      .shot-history {
+        background: rgba(0, 0, 0, 0.9);
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #00ff41;
+        margin-top: 20px;
+      }
+      .shot-item {
+        background: rgba(0, 255, 65, 0.05);
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 5px;
+        border-left: 3px solid #00ff41;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+      .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎱 Live Commentary Integration Test</h1>
+
+      <div class="test-section">
+        <h3>🔌 Connection Settings</h3>
+        <div class="form-group">
+          <label for="matchId">Match ID:</label>
+          <input
+            type="text"
+            id="matchId"
+            value="test-match-001"
+            placeholder="Enter match ID"
+          />
+        </div>
+        <div class="form-group">
+          <label for="playerName">Player Name:</label>
+          <input
+            type="text"
+            id="playerName"
+            value="CyberPlayer"
+            placeholder="Enter player name"
+          />
+        </div>
+        <div class="form-group">
+          <button id="connectBtn" onclick="connectToMatch()">
+            🚀 Connect to Match
+          </button>
+        </div>
+        <div class="form-group">
+          <button id="disconnectBtn" onclick="disconnectFromMatch()" disabled>
+            ❌ Disconnect
+          </button>
+        </div>
+      </div>
+
+      <div id="status" class="status disconnected">Disconnected</div>
+
+      <div class="grid">
+        <div class="test-section">
+          <h3>🎯 Shot Reporting</h3>
+          <div class="quick-actions">
+            <button
+              onclick="reportShot('successful_pot', true, false)"
+              id="potBtn"
+              disabled
+            >
+              ✅ Successful Pot
+            </button>
+            <button
+              onclick="reportShot('missed_shot', false, false)"
+              id="missBtn"
+              disabled
+            >
+              ❌ Missed Shot
+            </button>
+            <button
+              onclick="reportShot('foul', false, true)"
+              id="foulBtn"
+              disabled
+            >
+              🚨 Report Foul
+            </button>
+            <button
+              onclick="reportShot('scratch', false, true)"
+              id="scratchBtn"
+              disabled
+            >
+              💥 Scratch
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label for="shotType">Custom Shot Type:</label>
+            <select id="shotType">
+              <option value="successful_pot">Successful Pot</option>
+              <option value="missed_shot">Missed Shot</option>
+              <option value="foul">Foul</option>
+              <option value="scratch">Scratch</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label> <input type="checkbox" id="ballSunk" /> Ball Sunk </label>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="wasFoul" /> Foul Committed
+            </label>
+          </div>
+          <div class="form-group">
+            <button onclick="reportCustomShot()" id="customShotBtn" disabled>
+              🎱 Report Custom Shot
+            </button>
+          </div>
+        </div>
+
+        <div class="test-section">
+          <h3>📊 Connection Info</h3>
+          <div id="connectionInfo">
+            <p>
+              <strong>WebSocket Status:</strong>
+              <span id="wsStatus">Disconnected</span>
+            </p>
+            <p><strong>Match Room:</strong> <span id="matchRoom">None</span></p>
+            <p><strong>Events Sent:</strong> <span id="eventsSent">0</span></p>
+            <p>
+              <strong>Events Received:</strong>
+              <span id="eventsReceived">0</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="commentary-display">
+        <h3>🎤 Live AI Commentary</h3>
+        <div id="commentaryContainer">
+          <div class="commentary-item">
+            <div class="commentary-text">
+              Welcome to the cyberpunk pool arena!
+            </div>
+            <div class="commentary-details">System • Just now</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="shot-history">
+        <h3>📊 Shot History</h3>
+        <div id="shotHistoryContainer">
+          <div class="shot-item">No shots taken yet</div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+      let socket;
+      let isConnected = false;
+      let eventsSent = 0;
+      let eventsReceived = 0;
+
+      function updateStatus(connected) {
+        isConnected = connected;
+        const statusEl = document.getElementById('status');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const potBtn = document.getElementById('potBtn');
+        const missBtn = document.getElementById('missBtn');
+        const foulBtn = document.getElementById('foulBtn');
+        const scratchBtn = document.getElementById('scratchBtn');
+        const customShotBtn = document.getElementById('customShotBtn');
+
+        if (connected) {
+          statusEl.textContent = 'Connected to Match';
+          statusEl.className = 'status connected';
+          connectBtn.disabled = true;
+          disconnectBtn.disabled = false;
+          potBtn.disabled = false;
+          missBtn.disabled = false;
+          foulBtn.disabled = false;
+          scratchBtn.disabled = false;
+          customShotBtn.disabled = false;
+
+          document.getElementById('wsStatus').textContent = 'Connected';
+          document.getElementById('matchRoom').textContent =
+            document.getElementById('matchId').value;
+        } else {
+          statusEl.textContent = 'Disconnected';
+          statusEl.className = 'status disconnected';
+          connectBtn.disabled = false;
+          disconnectBtn.disabled = true;
+          potBtn.disabled = true;
+          missBtn.disabled = true;
+          foulBtn.disabled = true;
+          scratchBtn.disabled = true;
+          customShotBtn.disabled = true;
+
+          document.getElementById('wsStatus').textContent = 'Disconnected';
+          document.getElementById('matchRoom').textContent = 'None';
+        }
+      }
+
+      function connectToMatch() {
+        const matchId = document.getElementById('matchId').value;
+        const playerName = document.getElementById('playerName').value;
+
+        if (!matchId || !playerName) {
+          alert('Please enter both Match ID and Player Name');
+          return;
+        }
+
+        // Connect to the WebSocket server
+        socket = io('http://localhost:8080');
+
+        socket.on('connect', () => {
+          console.log('Connected to WebSocket server');
+
+          // Join the match room
+          socket.emit('joinMatch', { matchId });
+
+          // Listen for live commentary
+          socket.on('live_commentary', (data) => {
+            eventsReceived++;
+            document.getElementById('eventsReceived').textContent =
+              eventsReceived;
+            displayCommentary(data);
+            addShotToHistory(data);
+          });
+
+          updateStatus(true);
+        });
+
+        socket.on('disconnect', () => {
+          console.log('Disconnected from WebSocket server');
+          updateStatus(false);
+        });
+
+        socket.on('error', (error) => {
+          console.error('WebSocket error:', error);
+          alert('Connection error: ' + error.message);
+          updateStatus(false);
+        });
+      }
+
+      function disconnectFromMatch() {
+        if (socket) {
+          const matchId = document.getElementById('matchId').value;
+          socket.emit('leaveMatch', { matchId });
+          socket.disconnect();
+          socket = null;
+          updateStatus(false);
+        }
+      }
+
+      function reportShot(shotType, ballSunk, wasFoul) {
+        if (!socket || !isConnected) {
+          alert('Please connect to a match first');
+          return;
+        }
+
+        const matchId = document.getElementById('matchId').value;
+        const playerName = document.getElementById('playerName').value;
+
+        // Emit the shot_taken event
+        socket.emit('shot_taken', {
+          matchId,
+          playerId: 'player-' + Date.now(),
+          ballSunk,
+          wasFoul,
+          playerName,
+          shotType,
+        });
+
+        eventsSent++;
+        document.getElementById('eventsSent').textContent = eventsSent;
+
+        console.log('Shot event emitted:', {
+          matchId,
+          playerName,
+          shotType,
+          ballSunk,
+          wasFoul,
+        });
+      }
+
+      function reportCustomShot() {
+        if (!socket || !isConnected) {
+          alert('Please connect to a match first');
+          return;
+        }
+
+        const matchId = document.getElementById('matchId').value;
+        const playerName = document.getElementById('playerName').value;
+        const shotType = document.getElementById('shotType').value;
+        const ballSunk = document.getElementById('ballSunk').checked;
+        const wasFoul = document.getElementById('wasFoul').checked;
+
+        // Emit the shot_taken event
+        socket.emit('shot_taken', {
+          matchId,
+          playerId: 'player-' + Date.now(),
+          ballSunk,
+          wasFoul,
+          playerName,
+          shotType,
+        });
+
+        eventsSent++;
+        document.getElementById('eventsSent').textContent = eventsSent;
+
+        console.log('Custom shot event emitted:', {
+          matchId,
+          playerName,
+          shotType,
+          ballSunk,
+          wasFoul,
+        });
+      }
+
+      function displayCommentary(data) {
+        const container = document.getElementById('commentaryContainer');
+        const commentaryItem = document.createElement('div');
+        commentaryItem.className = 'commentary-item';
+
+        const timestamp = new Date().toLocaleTimeString();
+        const commentaryText =
+          typeof data === 'string'
+            ? data
+            : data.commentary || 'Commentary received';
+
+        commentaryItem.innerHTML = `
+                <div class="commentary-text">${commentaryText}</div>
+                <div class="commentary-details">
+                    ${data.playerName || 'Unknown'} • ${
+          data.shotType || 'shot'
+        } • ${data.ballSunk ? 'Ball sunk' : 'Miss'} • ${
+          data.wasFoul ? 'FOUL!' : 'Clean'
+        } • ${timestamp}
+                </div>
+            `;
+
+        container.insertBefore(commentaryItem, container.firstChild);
+
+        // Keep only last 10 commentary items
+        while (container.children.length > 10) {
+          container.removeChild(container.lastChild);
+        }
+      }
+
+      function addShotToHistory(data) {
+        const container = document.getElementById('shotHistoryContainer');
+
+        // Remove "No shots taken yet" message
+        if (
+          container.children.length === 1 &&
+          container.firstChild.textContent === 'No shots taken yet'
+        ) {
+          container.removeChild(container.firstChild);
+        }
+
+        const shotItem = document.createElement('div');
+        shotItem.className = 'shot-item';
+
+        const timestamp = new Date().toLocaleTimeString();
+        const result = data.ballSunk ? '✅ Ball sunk' : '❌ Miss';
+        const foul = data.wasFoul ? '🚨 FOUL' : '✅ Clean';
+
+        shotItem.innerHTML = `
+                <strong>${data.playerName || 'Unknown'}</strong> - ${
+          data.shotType || 'shot'
+        } • ${result} • ${foul} • ${timestamp}
+            `;
+
+        container.insertBefore(shotItem, container.firstChild);
+
+        // Keep only last 10 shots
+        while (container.children.length > 10) {
+          container.removeChild(container.lastChild);
+        }
+      }
+
+      // Cleanup on page unload
+      window.addEventListener('beforeunload', () => {
+        if (socket) {
+          socket.disconnect();
+        }
+      });
+    </script>
+  </body>
+</html>

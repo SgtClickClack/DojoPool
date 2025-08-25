@@ -95,8 +95,16 @@ const DebugPanel: React.FC = () => {
           signal: controller.signal,
         });
         return await response.json();
-      } catch (error) {
-        if (error.name === 'AbortError') return null;
+      } catch (error: unknown) {
+        // Handle AbortError and unknown error types safely
+        if (
+          error &&
+          typeof error === 'object' &&
+          'name' in error &&
+          (error as any).name === 'AbortError'
+        ) {
+          return null;
+        }
         console.error(`Error fetching ${url}:`, error);
         return null;
       }
@@ -195,7 +203,9 @@ const DebugPanel: React.FC = () => {
           )}
         </Tooltip>
         <Tooltip
-          title={`Latency: ${latestMetrics.latency.toFixed(0)}ms, Bandwidth: ${latestMetrics.bandwidth.toFixed(1)}Mbps`}
+          title={`Latency: ${latestMetrics.latency.toFixed(
+            0
+          )}ms, Bandwidth: ${latestMetrics.bandwidth.toFixed(1)}Mbps`}
         >
           <Box sx={{ ml: 1, typography: 'body2', color: 'text.secondary' }}>
             {latestMetrics.latency.toFixed(0)}ms

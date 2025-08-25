@@ -1,3 +1,4 @@
+import { getSocketIOUrl } from '@/config/urls';
 import { io, Socket } from 'socket.io-client';
 
 export interface TournamentUpdate {
@@ -40,10 +41,7 @@ export class TournamentRealTimeService {
   private reconnectDelay = 1000;
   private listeners: Map<string, Set<Function>> = new Map();
 
-  constructor(
-    private serverUrl: string = process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
-      'http://localhost:3002'
-  ) {}
+  constructor(private serverUrl: string = getSocketIOUrl()) {}
 
   // Connect to WebSocket server
   connect(): Promise<void> {

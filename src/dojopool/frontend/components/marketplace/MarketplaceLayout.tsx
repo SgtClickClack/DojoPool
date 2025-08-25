@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { marketplaceService } from '../../services/marketplace';
 import { type MarketplaceItem } from '../../types/marketplace';
-import { CartView } from './CartView';
-import { InventoryView } from './InventoryView';
+import { CartView } from './[MARKET]CartView';
+import { InventoryView } from './[MARKET]InventoryView';
 import './MarketplaceLayout.css';
-import { TransactionHistory } from './TransactionHistory';
+import { TransactionHistory } from './[MARKET]TransactionHistory';
 
 export const MarketplaceLayout: React.FC = () => {
   const navigate = useNavigate();

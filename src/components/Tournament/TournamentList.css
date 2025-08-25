@@ -101,7 +101,7 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -109,6 +109,11 @@
 .retry-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(255, 68, 68, 0.4);
+}
+
+.retry-btn:focus-visible {
+  outline: 2px solid #ff4444;
+  outline-offset: 2px;
 }
 
 /* Empty state */
@@ -164,5 +169,15 @@
 
   .tournament-count {
     font-size: 1rem;
+  }
+}
+
+/* Reduced motion safeguard */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
   }
 }

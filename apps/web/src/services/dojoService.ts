@@ -44,6 +44,18 @@ class DojoService {
     }
   }
 
+  async checkInToDojo(
+    venueId: string,
+    location: { lat: number; lng: number }
+  ): Promise<{ success: boolean; message?: string }> {
+    const payload = { lat: location.lat, lng: location.lng };
+    const response = await apiClient.post(
+      `/venues/${venueId}/check-in`,
+      payload
+    );
+    return response.data;
+  }
+
   async getPlayerData(): Promise<PlayerData | null> {
     try {
       const response = await apiClient.get('/players/me');

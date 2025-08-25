@@ -3,7 +3,9 @@
 import functools
 import logging
 import time
-from typing import Any, Callable, Optional
+import traceback
+from typing import Any, Callable, Optional, Union
+from logging.handlers import RotatingFileHandler
 
 from flask import current_app, has_request_context, request
 
@@ -48,9 +50,8 @@ def log_function_call(func: Callable) -> Callable:
             duration = time.time() - start_time
 
             # Log error with traceback
-            context.update(
-                {"duration": duration, "error": str(e), "traceback": logging.Formatter().formatException(e)}
-            )
+            tb = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+            context.update({"duration": duration, "error": str(e), "traceback": tb})
             logger.error(f"Error in {func.__name__}: {str(e)}", extra=context)
             raise
 
@@ -71,10 +72,11 @@ def log_error(
     logger = logging.getLogger("error")
 
     # Prepare error context
+    tb = "".join(traceback.format_exception(type(error), error, error.__traceback__))
     context = {
         "error_type": type(error).__name__,
         "error_message": str(error),
-        "traceback": logging.Formatter().formatException(error),
+        "traceback": tb,
         **kwargs,
     }
 
@@ -98,7 +100,7 @@ def setup_audit_log() -> None:
 
     # Add audit file handler
     if current_app.config.get("AUDIT_LOG_FILE"):
-        handler = logging.handlers.RotatingFileHandler(
+        handler = RotatingFileHandler(
             current_app.config["AUDIT_LOG_FILE"], maxBytes=10 * 1024 * 1024, backupCount=10  # 10MB
         )
         handler.setFormatter(

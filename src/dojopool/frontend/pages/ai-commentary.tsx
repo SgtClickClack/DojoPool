@@ -20,7 +20,7 @@ import {
   Psychology,
   SportsEsports,
 } from '@mui/icons-material';
-import Layout from '../src/components/layout/Layout';
+import Layout from '@/components/Layout';
 import PageBackground from '../src/components/common/PageBackground';
 import { AIMatchAnalysisComponent } from '../src/components/ai/AIMatchAnalysisComponent';
 import { LiveCommentary } from '../src/components/ai/LiveCommentary';

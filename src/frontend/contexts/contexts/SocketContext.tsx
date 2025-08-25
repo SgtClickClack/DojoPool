@@ -6,7 +6,7 @@ import React, {
   type ReactNode,
   useCallback,
 } from 'react';
-import { SocketIOService } from '../services/network/WebSocketService';
+import { SocketIOService } from '@/frontend/services/services/network/SocketIOClient';
 // import { type GameTable } from '../../core/game/GameState'; // Import GameTable type - temporarily disabled
 
 // Stub GameTable type - temporarily created to resolve build issues

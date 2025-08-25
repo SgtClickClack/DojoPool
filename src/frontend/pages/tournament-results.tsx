@@ -1,25 +1,25 @@
-import React, { useState, useCallback } from 'react';
 import {
-  Box,
-  Container,
-  Typography,
-  Grid,
+  Alert,
+  Avatar,
+  Button,
   Card,
   CardContent,
+  CircularProgress,
+  Container,
+  Divider,
+  Grid,
   List,
   ListItem,
-  ListItemText,
   ListItemAvatar,
-  Avatar,
-  Divider,
-  Button,
-  CircularProgress, // For loading states
-  Alert, // For displaying messages
+  ListItemText,
+  Typography,
 } from '@mui/material';
+import React, { useCallback, useState } from 'react';
 // useNavigate is imported but not used. Remove if not planned for use.
 // import { useNavigate, useParams } from 'react-router-dom';
-import { useTournament } from '../hooks/useTournament'; // Assuming this provides tournament data
+import { MatchAnalysisPanel } from '../components/match/MatchAnalysisPanel';
 import { useRewards } from '../hooks/useRewards'; // Assuming this provides rewards and claim function
+import { useTournament } from '../hooks/useTournament'; // Assuming this provides tournament data
 
 // --- Define Interfaces for better Type Safety ---
 interface Match {
@@ -31,6 +31,7 @@ interface Match {
   status: 'completed' | 'in progress' | 'pending' | 'cancelled'; // Example statuses
   winner?: string | null; // Winner's name or ID, null for a draw
   round?: number; // Optional: useful for identifying final match
+  aiAnalysisJson?: string; // AI-generated match analysis in JSON format
   // Add other relevant match properties
 }
 
@@ -336,17 +337,15 @@ const TournamentResults: React.FC<TournamentResultsProps> = ({
                     (
                       match: Match // Use Match interface
                     ) => (
-                      <Grid item xs={12} sm={6} md={4} key={match.id}>
+                      <Grid item xs={12} key={match.id}>
                         <Card
                           variant="outlined" // Subtle distinction for match cards
                           sx={{
-                            height: '100%',
                             display: 'flex',
                             flexDirection: 'column',
-                            justifyContent: 'space-between',
                           }}
                         >
-                          <CardContent sx={{ flexGrow: 1 }}>
+                          <CardContent>
                             <Typography
                               variant="h6"
                               component="h3"
@@ -377,6 +376,14 @@ const TournamentResults: React.FC<TournamentResultsProps> = ({
                               >
                                 Round: {match.round}
                               </Typography>
+                            )}
+
+                            {/* AI Analysis Panel */}
+                            {match.status === 'completed' && (
+                              <MatchAnalysisPanel
+                                aiAnalysisJson={match.aiAnalysisJson}
+                                isLoading={!match.aiAnalysisJson}
+                              />
                             )}
                           </CardContent>
                         </Card>

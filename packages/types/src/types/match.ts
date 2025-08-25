@@ -27,4 +27,5 @@ export interface Match {
   createdAt: Date;
   updatedAt: Date;
   endedAt?: Date;
+  aiAnalysisJson?: string; // AI-generated match analysis in JSON format
 }

@@ -1,12 +1,12 @@
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException, forwardRef } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException, ForbiddenException, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { MatchesGateway } from '../matches/matches.gateway';
-import type { TableStatus } from '@prisma/client';
+
 
 interface UpdateTableInput {
   venueId: string;
   tableId: string;
-  status: TableStatus;
+  status: string;
   matchId?: string;
 }
 
@@ -24,7 +24,7 @@ export class VenuesService {
     return this.prisma.table.findMany({ where: { venueId }, orderBy: { createdAt: 'asc' } });
   }
 
-  async createTable(venueId: string, data: { name: string; status?: TableStatus }) {
+  async createTable(venueId: string, data: { name: string; status?: string }) {
     if (!data?.name || typeof data.name !== 'string') {
       throw new BadRequestException('name is required');
     }
@@ -54,7 +54,7 @@ export class VenuesService {
     return tables;
   }
 
-  async updateTableInfo(venueId: string, tableId: string, data: { name?: string; status?: TableStatus }) {
+  async updateTableInfo(venueId: string, tableId: string, data: { name?: string; status?: string }) {
     const table = await this.prisma.table.findUnique({ where: { id: tableId } });
     if (!table) {
       throw new NotFoundException('Table not found');
@@ -173,5 +173,56 @@ export class VenuesService {
     }
 
     return result;
+  }
+
+  private haversineDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const R = 6371000; // meters
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  async checkIn(params: { venueId: string; userId?: string; lat: number; lng: number }) {
+    const { venueId, userId, lat, lng } = params;
+
+    if (!userId) {
+      throw new BadRequestException('Authenticated user required');
+    }
+    if (
+      typeof lat !== 'number' || Number.isNaN(lat) ||
+      typeof lng !== 'number' || Number.isNaN(lng)
+    ) {
+      throw new BadRequestException('lat and lng must be valid numbers');
+    }
+
+    const venue = await this.prisma.venue.findUnique({ where: { id: venueId } });
+    if (!venue) {
+      throw new NotFoundException('Venue not found');
+    }
+
+    const distance = this.haversineDistanceMeters(lat, lng, venue.lat, venue.lng);
+    const MAX_RADIUS_METERS = 100;
+    if (distance > MAX_RADIUS_METERS) {
+      throw new ForbiddenException('You are too far away to check in.');
+    }
+
+    await this.prisma.dojoCheckIn.create({
+      data: {
+        userId,
+        venueId,
+      },
+    });
+
+    return {
+      status: 'ok',
+      message: 'Checked in successfully',
+      distanceMeters: Math.round(distance),
+    };
   }
 }

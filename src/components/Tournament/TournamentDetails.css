@@ -23,7 +23,7 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3);
@@ -32,6 +32,11 @@
 .back-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+}
+
+.back-btn:focus-visible {
+  outline: 2px solid #00d4ff;
+  outline-offset: 2px;
 }
 
 .status-badge {
@@ -208,7 +213,7 @@
   font-size: 1.2rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 6px 24px rgba(0, 255, 136, 0.4);
@@ -222,6 +227,11 @@
 .register-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.register-btn:focus-visible {
+  outline: 2px solid #00ff88;
+  outline-offset: 2px;
 }
 
 .registration-disabled {
@@ -265,7 +275,7 @@
   background: rgba(255, 0, 128, 0.1);
   border: 1px solid rgba(255, 0, 128, 0.3);
   border-radius: 12px;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .prize-item:hover {
@@ -445,5 +455,13 @@
   .register-btn {
     width: 100%;
     padding: 16px;
+  }
+}
+
+/* Reduced motion safeguard */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
   }
 }

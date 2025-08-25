@@ -1,4 +1,4 @@
-import { SocketIOService } from '../services/network/WebSocketService';
+import { SocketIOService } from '@/frontend/services/services/network/SocketIOClient';
 import { useEffect, useState } from 'react';
 import { type Tournament } from '../types/tournament';
 import { getTournaments } from '../api/tournaments';

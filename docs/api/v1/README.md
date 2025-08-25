@@ -8,13 +8,13 @@ This document describes the DojoPool API v1 endpoints, authentication, and usage
 
 All API requests require authentication using JWT tokens. Include the token in the Authorization header:
 
-```
+```http
 Authorization: Bearer <your_jwt_token>
 ```
 
 ## Endpoints
 
-### Authentication
+### Auth
 
 - [POST /api/v1/auth/register](auth/register.md)
 - [POST /api/v1/auth/login](auth/login.md)

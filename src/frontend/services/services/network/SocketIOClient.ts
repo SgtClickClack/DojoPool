@@ -6,23 +6,28 @@
  - Uses env-configurable URL with sensible local defaults
 */
 
+import { getSocketIOUrl } from '@/config/urls';
 import { io, type Socket } from 'socket.io-client';
 
 function resolveSocketUrl(): string {
-  const url =
-    (typeof process !== 'undefined' &&
-      (process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_WS_URL)) ||
-    (typeof process !== 'undefined' &&
-      (process.env.VITE_SOCKET_URL as string | undefined)) ||
-    (typeof window !== 'undefined'
-      ? `${window.location.protocol.startsWith('https') ? 'https' : 'http'}://${window.location.hostname}:3101`
-      : 'http://localhost:3101');
-  return url;
+  return getSocketIOUrl();
 }
 
 export class SocketIOService {
   private static socket: Socket | null = null;
   private static url: string = resolveSocketUrl();
+  // Internal lightweight event listeners registry for client-side status events
+  private static listeners: Map<string, Set<(data: any) => void>> = new Map();
+
+  private static emitLocal(event: string, payload: any) {
+    const set = this.listeners.get(event);
+    if (!set) return;
+    for (const cb of set) {
+      try {
+        cb(payload);
+      } catch {}
+    }
+  }
 
   private static ensure(): Socket {
     if (!this.socket) {
@@ -36,16 +41,14 @@ export class SocketIOService {
         withCredentials: true,
       });
 
-      const emitStatus = (payload: any) => {
-        this.socket?.emit('__client_status__', payload);
-      };
-
-      this.socket.on('connect', () => emitStatus({ status: 'connected' }));
+      this.socket.on('connect', () =>
+        this.emitLocal('__client_status__', { status: 'connected' })
+      );
       this.socket.on('disconnect', (reason) =>
-        emitStatus({ status: 'disconnected', reason })
+        this.emitLocal('__client_status__', { status: 'disconnected', reason })
       );
       this.socket.on('connect_error', (error) =>
-        emitStatus({ status: 'error', error })
+        this.emitLocal('__client_status__', { status: 'error', error })
       );
     }
     return this.socket;
@@ -61,11 +64,30 @@ export class SocketIOService {
     this.socket?.disconnect();
   }
 
+  static emit<T = any>(event: string, payload?: T): void {
+    this.ensure().emit(event, payload as any);
+  }
+
   static on<T = any>(event: string, callback: (data: T) => void): void {
+    if (event === '__client_status__') {
+      if (!this.listeners.has(event)) this.listeners.set(event, new Set());
+      this.listeners.get(event)!.add(callback as any);
+      return;
+    }
     this.ensure().on(event, callback as any);
   }
 
   static off(event: string, callback?: (data: any) => void): void {
+    if (event === '__client_status__') {
+      if (!callback) {
+        this.listeners.delete(event);
+      } else {
+        const set = this.listeners.get(event);
+        set?.delete(callback as any);
+        if (set && set.size === 0) this.listeners.delete(event);
+      }
+      return;
+    }
     const s = this.ensure();
     if (callback) s.off(event, callback as any);
     else s.off(event);

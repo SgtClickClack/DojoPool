@@ -1,4 +1,12 @@
-import axios, { type AxiosInstance, type AxiosError } from 'axios';
+import axios, { type AxiosError, type AxiosInstance } from 'axios';
+import type { ActivityFeedResponse } from '../types/activity';
+import type {
+  Clan,
+  ClanMember,
+  ClanSearchFilters,
+  CreateClanRequest,
+} from '../types/clan';
+import type { Match, MatchWithAnalysis } from '../types/match';
 
 // Create axios instance with default config
 const api: AxiosInstance = axios.create({
@@ -57,5 +65,140 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Challenge API functions
+export const sendChallenge = async (
+  defenderId: string,
+  stakeCoins: number = 0
+) => {
+  const response = await api.post('/v1/challenges', {
+    challengerId: 'current-user-id', // TODO: Get from auth context
+    defenderId,
+    stakeCoins,
+  });
+  return response.data;
+};
+
+export const respondToChallenge = async (
+  challengeId: string,
+  status: 'ACCEPTED' | 'DECLINED'
+) => {
+  const response = await api.patch(`/v1/challenges/${challengeId}`, { status });
+  return response.data;
+};
+
+export const getUserChallenges = async (userId: string) => {
+  const response = await api.get('/v1/challenges', { params: { userId } });
+  return response.data;
+};
+
+// Clan API functions
+export const createClan = async (
+  clanData: CreateClanRequest
+): Promise<Clan> => {
+  const response = await api.post('/v1/clans', clanData);
+  return response.data;
+};
+
+export const getClans = async (
+  filters?: ClanSearchFilters
+): Promise<Clan[]> => {
+  const response = await api.get('/v1/clans', { params: filters });
+  return response.data;
+};
+
+export const getClanDetails = async (clanId: string): Promise<Clan> => {
+  const response = await api.get(`/v1/clans/${clanId}`);
+  return response.data;
+};
+
+export const getClanMembers = async (clanId: string): Promise<ClanMember[]> => {
+  const response = await api.get(`/v1/clans/${clanId}/members`);
+  return response.data;
+};
+
+export const getClanControlledDojos = async (
+  clanId: string
+): Promise<any[]> => {
+  const response = await api.get(`/v1/territories/clan/${clanId}`);
+  return response.data;
+};
+
+export const joinClan = async (
+  clanId: string,
+  message?: string
+): Promise<void> => {
+  const response = await api.post(`/v1/clans/${clanId}/join`, { message });
+  return response.data;
+};
+
+export const leaveClan = async (clanId: string): Promise<void> => {
+  const response = await api.post(`/v1/clans/${clanId}/leave`);
+  return response.data;
+};
+
+export const getUserClan = async (userId: string): Promise<Clan | null> => {
+  try {
+    const response = await api.get(`/v1/users/${userId}/clan`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+};
+
+export const updateClan = async (
+  clanId: string,
+  updates: Partial<Clan>
+): Promise<Clan> => {
+  const response = await api.patch(`/v1/clans/${clanId}`, updates);
+  return response.data;
+};
+
+export const deleteClan = async (clanId: string): Promise<void> => {
+  const response = await api.delete(`/v1/clans/${clanId}`);
+  return response.data;
+};
+
+// Activity Feed API functions
+export const getActivityFeed = async (
+  filter: 'global' | 'friends' = 'global',
+  page: number = 1,
+  limit: number = 20
+): Promise<ActivityFeedResponse> => {
+  const response = await api.get('/v1/feed', {
+    params: { filter, page, limit },
+  });
+  return response.data;
+};
+
+// Match API functions
+export const getMatchDetails = async (matchId: string): Promise<Match> => {
+  const response = await api.get(`/v1/matches/${matchId}`);
+  return response.data;
+};
+
+export const getMatchWithAnalysis = async (
+  matchId: string
+): Promise<MatchWithAnalysis> => {
+  const response = await api.get(`/v1/matches/${matchId}/analysis`);
+  return response.data;
+};
+
+export const finalizeMatch = async (
+  matchId: string,
+  winnerId: string,
+  scoreA: number,
+  scoreB: number
+): Promise<Match> => {
+  const response = await api.put(`/v1/matches/${matchId}/finalize`, {
+    winnerId,
+    scoreA,
+    scoreB,
+  });
+  return response.data;
+};
 
 export default api;

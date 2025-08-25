@@ -176,7 +176,7 @@ const TournamentDetail: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_, record: TournamentMatch) => (
+      render: (_: any, record: TournamentMatch) => (
         <Space>
           {isAdmin && record.status !== 'completed' && (
             <Button
@@ -198,7 +198,7 @@ const TournamentDetail: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  const totalRounds = tournament.bracket_data?.rounds || 0;
+  const totalRounds = (tournament as any).bracket_data?.rounds || 0;
 
   return (
     <div className="tournament-detail">
@@ -209,27 +209,29 @@ const TournamentDetail: React.FC = () => {
               <h1>{tournament.name}</h1>
               <Tag
                 color={
-                  tournament.status === 'completed'
+                  (tournament.status as any) === 'completed'
                     ? 'success'
-                    : tournament.status === 'in_progress'
+                    : (tournament.status as any) === 'in_progress'
                     ? 'processing'
-                    : tournament.status === 'registration'
+                    : (tournament.status as any) === 'registration'
                     ? 'warning'
-                    : tournament.status === 'cancelled'
+                    : (tournament.status as any) === 'cancelled'
                     ? 'error'
                     : 'default'
                 }
               >
-                {tournament.status.toUpperCase()}
+                {(tournament.status as any).toUpperCase?.() ||
+                  tournament.status}
               </Tag>
             </div>
             <Space>
-              {isAuthenticated && tournament.status === 'registration' && (
-                <Button type="primary" onClick={handleRegister}>
-                  Register
-                </Button>
-              )}
-              {isAdmin && tournament.status === 'registration' && (
+              {isAuthenticated &&
+                (tournament.status as any) === 'registration' && (
+                  <Button type="primary" onClick={handleRegister}>
+                    Register
+                  </Button>
+                )}
+              {isAdmin && (tournament.status as any) === 'registration' && (
                 <Button type="primary" onClick={handleStartTournament}>
                   Start Tournament
                 </Button>
@@ -243,30 +245,44 @@ const TournamentDetail: React.FC = () => {
             {tournament.format}
           </Descriptions.Item>
           <Descriptions.Item label="Start Date">
-            {moment(tournament.start_date).format('MMM D, YYYY')}
+            {moment(
+              (tournament as any).start_date ?? (tournament as any).startDate
+            ).format('MMM D, YYYY')}
           </Descriptions.Item>
           <Descriptions.Item label="Entry Fee">
-            ${tournament.entry_fee.toFixed(2)}
+            $
+            {(
+              Number(
+                (tournament as any).entry_fee ?? (tournament as any).entryFee
+              ) || 0
+            ).toFixed(2)}
           </Descriptions.Item>
           <Descriptions.Item label="Prize Pool">
-            ${tournament.prize_pool.toFixed(2)}
+            $
+            {(
+              Number(
+                (tournament as any).prize_pool ?? (tournament as any).prizePool
+              ) || 0
+            ).toFixed(2)}
           </Descriptions.Item>
-          {tournament.registration_deadline && (
+          {(tournament as any).registration_deadline && (
             <Descriptions.Item label="Registration Deadline">
-              {moment(tournament.registration_deadline).format('MMM D, YYYY')}
+              {moment((tournament as any).registration_deadline).format(
+                'MMM D, YYYY'
+              )}
             </Descriptions.Item>
           )}
-          {tournament.max_participants && (
+          {(tournament as any).max_participants && (
             <Descriptions.Item label="Max Participants">
-              {tournament.max_participants}
+              {(tournament as any).max_participants}
             </Descriptions.Item>
           )}
         </Descriptions>
 
-        {tournament.rules && (
+        {(tournament as any).rules && (
           <div className="tournament-detail__rules">
             <h3>Rules</h3>
-            <p>{tournament.rules}</p>
+            <p>{(tournament as any).rules}</p>
           </div>
         )}
 
@@ -281,7 +297,7 @@ const TournamentDetail: React.FC = () => {
           </TabPane>
           <TabPane tab="Bracket" key="bracket">
             {matches.length > 0 && totalRounds > 0 ? (
-              <TournamentBracket tournament={tournament} />
+              <TournamentBracket tournament={tournament as any} />
             ) : (
               <div>No bracket data available</div>
             )}
@@ -301,7 +317,19 @@ const TournamentDetail: React.FC = () => {
       >
         <Form
           form={form}
-          onFinish={handleUpdateMatch}
+          onFinish={(values: any) => {
+            if (!selectedMatch) return;
+            const winnerId = values.winner_id;
+            const [scoreA, scoreB] = String(values.score ?? '0-0')
+              .split('-')
+              .map((n: string) => parseInt(n.trim(), 10) || 0);
+            handleUpdateMatch(
+              String(selectedMatch.id),
+              scoreA,
+              scoreB,
+              winnerId
+            );
+          }}
           initialValues={selectedMatch}
           layout="vertical"
         >

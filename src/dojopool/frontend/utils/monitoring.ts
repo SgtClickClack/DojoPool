@@ -893,6 +893,17 @@ export class GameMetricsMonitor extends EventEmitter {
     const aggregatedMetrics = await this.calculateAggregatedMetrics();
     const errorStats = this.errorTracker.getErrorStats();
 
+    const recentErrors = this.errorTracker.getRecentErrors().map((error) => ({
+      id: Math.random().toString(36).substr(2, 9),
+      type: error.error.name || 'unknown',
+      message: error.error.message,
+      stack: error.componentStack || '',
+      timestamp: error.timestamp,
+      component:
+        error.errorInfo.componentStack?.split('\n')[1]?.trim() || 'Unknown',
+      context: {},
+    }));
+
     return {
       timestamp: now,
       current: {
@@ -904,38 +915,37 @@ export class GameMetricsMonitor extends EventEmitter {
         memoryAvailable: 0,
         processCount: aggregatedMetrics.processStats.count,
         threadCount: aggregatedMetrics.processStats.threadCount,
+        updateTimes: this.updateTimes,
+        latency: this.latencyData,
+        memoryUsageSeries: this.memoryUsageData,
+        alerts: this.alerts,
       },
       historical: {
         cpuUsage: this.cpuUsageData,
         memoryUsage: this.memoryUsageData,
         diskUsage: this.diskUsageData,
         networkTraffic: [],
+        memoryAvailable: this.memoryAvailableData,
       },
       alerts: this.alerts,
       latencyData: this.latencyData,
-      errorData: this.errorTracker.getRecentErrors().map((error) => ({
-        id: Math.random().toString(36).substr(2, 9),
-        type: error.error.name || 'unknown',
-        message: error.error.message,
-        stack: error.componentStack || '',
-        timestamp: error.timestamp,
-        component:
-          error.errorInfo.componentStack?.split('\n')[1]?.trim() || 'Unknown',
-        context: {},
-      })),
+      errorData: recentErrors,
       updateTimes: this.updateTimes,
       successRate: this.calculateSuccessRate(),
+      latency: this.latencyData,
+      memoryUsage: this.memoryUsageData,
+      errors: recentErrors,
       timestamp: now,
     };
   }
 
-  private calculateSuccessRate(): number[] {
+  private calculateSuccessRate(): number {
     const now = Date.now();
     const hourAgo = now - 3600000;
     const intervals = 12; // 5-minute intervals
     const intervalSize = 3600000 / intervals;
 
-    return Array.from({ length: intervals }, (_, i) => {
+    const series = Array.from({ length: intervals }, (_, i) => {
       const intervalStart = hourAgo + i * intervalSize;
       const intervalEnd = intervalStart + intervalSize;
 
@@ -951,6 +961,7 @@ export class GameMetricsMonitor extends EventEmitter {
         ? ((totalRequests - errors) / totalRequests) * 100
         : 100;
     });
+    return series.length ? series[series.length - 1] : 100;
   }
 
   addMetric(

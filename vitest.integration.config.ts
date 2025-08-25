@@ -31,6 +31,12 @@ export default defineConfig({
         '**/coverage/**',
         'generated/**',
       ],
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 60,
+        statements: 70,
+      },
     },
   },
   resolve: {

@@ -18,7 +18,7 @@ import {
   TrendingUp,
   PlayArrow,
 } from '@mui/icons-material';
-import Layout from '../src/components/layout/Layout';
+import Layout from '@/components/Layout';
 import PageBackground from '../src/components/common/PageBackground';
 
 const TournamentsPage: React.FC = () => {

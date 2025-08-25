@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  Paper,
-  TextField,
-  Button,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Switch,
-  IconButton,
-} from '@mui/material';
-import { TimePicker } from '@mui/x-date-pickers';
-import { TableType } from '../../types/venue';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Switch,
+  TextField,
+  Typography,
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { TableType } from '../../types/venue';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const TimePicker: any =
+  require('@mui/x-date-pickers').TimePicker ?? require('@mui/x-date-pickers');
 
 export const VenueRegister: React.FC = () => {
   const navigate = useNavigate();

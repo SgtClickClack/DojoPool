@@ -4,7 +4,7 @@ This guide explains the organization and structure of the DojoPool project, help
 
 ## Directory Overview
 
-```
+```text
 dojo-pool/
 ├── src/                  # Source code
 │   ├── static/          # Static assets
@@ -24,7 +24,7 @@ dojo-pool/
 
 ### 1. Styles (`src/static/scss/`)
 
-```
+```text
 scss/
 ├── abstracts/           # Variables, mixins, functions
 │   ├── _variables.scss  # Global variables
@@ -59,7 +59,7 @@ scss/
 
 ### 2. JavaScript (`src/static/js/`)
 
-```
+```text
 js/
 ├── api/              # API integration
 │   ├── client.ts    # API client
@@ -81,7 +81,7 @@ js/
 
 ### 3. Core (`src/core/`)
 
-```
+```text
 core/
 ├── config.py        # Configuration
 ├── extensions.py    # Flask extensions
@@ -91,7 +91,7 @@ core/
 
 ### 4. Models (`src/models/`)
 
-```
+```text
 models/
 ├── base.py          # Base model class
 ├── user.py          # User model
@@ -102,11 +102,13 @@ models/
 ## File Naming Conventions
 
 1. **SCSS Files**
+
    - Partial files start with underscore: `_buttons.scss`
    - Main files without underscore: `main.scss`
    - Use kebab-case: `form-controls.scss`
 
 2. **JavaScript/TypeScript Files**
+
    - Components use PascalCase: `Button.ts`
    - Utilities use camelCase: `formValidation.ts`
    - Constants use UPPER_SNAKE_CASE: `API_ENDPOINTS.ts`
@@ -146,7 +148,7 @@ import { validateForm } from '../utils/validation';
 
 ### 1. Component Structure
 
-```
+```text
 components/Button/
 ├── Button.ts        # Component logic
 ├── Button.scss     # Component styles
@@ -171,7 +173,7 @@ export class Button extends Component {
 
 ### 1. Build Configuration
 
-```
+```text
 dojo-pool/
 ├── tsconfig.json           # TypeScript configuration
 ├── vite.config.ts         # Vite configuration
@@ -181,7 +183,7 @@ dojo-pool/
 
 ### 2. Environment Configuration
 
-```
+```text
 dojo-pool/
 ├── .env                   # Default environment variables
 ├── .env.development      # Development variables
@@ -191,18 +193,21 @@ dojo-pool/
 ## Best Practices
 
 1. **File Organization**
+
    - Keep related files together
    - Use clear, descriptive names
    - Maintain consistent structure
    - Follow naming conventions
 
 2. **Import Management**
+
    - Use absolute imports for project files
    - Group imports logically
    - Avoid circular dependencies
    - Use index files for public APIs
 
 3. **Component Structure**
+
    - One component per file
    - Co-locate related files
    - Keep components focused
@@ -218,7 +223,7 @@ dojo-pool/
 
 ### 1. Feature Organization
 
-```
+```text
 features/auth/
 ├── components/     # Feature-specific components
 ├── hooks/         # Custom hooks
@@ -228,7 +233,7 @@ features/auth/
 
 ### 2. Shared Resources
 
-```
+```text
 shared/
 ├── components/    # Shared components
 ├── hooks/        # Shared hooks

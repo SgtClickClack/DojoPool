@@ -4,7 +4,7 @@
 
 - 🟢 Acknowledge these rules with an emoji at the start of every message
 - 🚫 Never ask the user to do something you can accomplish via commands
-- 📋 Always check the Roadmap and development tracking files before suggesting or starting a task. Suggest only one next task at a time—never a list
+- 📋 Always check the Roadmap and development tracking files before starting. Do not offer options to choose from; autonomously execute as many relevant tasks as possible per turn (no “would you like…” prompts)
 - 🗂️ After every completed task, update the split tracking files (DEVELOPMENT_TRACKING_INDEX.md, DEVELOPMENT_TRACKING_PART_01.md, etc.) and the Roadmap as needed. Never update the legacy consolidated file
 - 🏷️ Follow the established format and required sections for new tracking entries:
   - Core Components

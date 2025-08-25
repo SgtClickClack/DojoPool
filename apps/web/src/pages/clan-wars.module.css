@@ -1,0 +1,135 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.title {
+  font-size: 4rem;
+  margin: 0 0 1rem 0;
+}
+
+.subtitle {
+  margin: 0 0 1rem 0;
+}
+
+.description {
+  margin: 0 0 2rem 0;
+}
+
+.homeLink {
+  padding: 0.5rem 1rem;
+  background-color: #0070f3;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.homeLink:hover {
+  background-color: #0051cc;
+}
+
+.homeLink:focus-visible {
+  outline: 2px solid #00ff9d;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title,
+  .subtitle,
+  .description,
+  .homeLink {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Input styles */
+.warInput {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #00a8ff;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+}
+
+.warTextarea {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #00a8ff;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.declareWarButton {
+  background: linear-gradient(45deg, #ff6b6b 0%, #feca57 100%);
+  color: #000;
+  font-family: 'Orbitron', monospace;
+  font-weight: 600;
+  flex: 1;
+}
+
+.declareWarButton:hover {
+  background: linear-gradient(45deg, #feca57 0%, #ff6b6b 100%);
+}
+
+.declareWarButton:focus-visible {
+  outline: 2px solid #feca57;
+  outline-offset: 2px;
+}
+
+.cancelButton {
+  border: 2px solid #00a8ff;
+  color: #00a8ff;
+  font-family: 'Orbitron', monospace;
+  font-weight: 600;
+  flex: 1;
+}
+
+.cancelButton:hover {
+  border: 2px solid #00ff9d;
+  color: #00ff9d;
+}
+
+.cancelButton:focus-visible {
+  outline: 2px solid #00ff9d;
+  outline-offset: 2px;
+}
+
+/* Styles for clan creation inputs to replace inline styles */
+.clan-input {
+  width: 100%;
+  padding: 8px;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.clan-textarea {
+  width: 100%;
+  padding: 8px;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #fff;
+  min-height: 80px;
+  resize: vertical;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .declareWarButton,
+  .cancelButton {
+    transition: none !important;
+    animation: none !important;
+  }
+}

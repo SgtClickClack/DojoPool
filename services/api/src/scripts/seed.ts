@@ -71,11 +71,10 @@ async function main() {
     create: {
       id: 'test-tournament-1',
       name: 'Test Tournament',
+      startDate: new Date(),
       status: 'REGISTRATION',
-      tournamentType: 'SINGLE_ELIMINATION',
-      gameType: 'EIGHT_BALL',
       venueId: venue.id,
-      maxParticipants: 8,
+      maxPlayers: 8,
       entryFee: 25,
     },
   });

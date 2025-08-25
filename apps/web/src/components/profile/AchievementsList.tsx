@@ -1,8 +1,13 @@
 import React from 'react';
+import styles from './AchievementsList.module.css';
 
 const AchievementsList: React.FC = () => {
   return (
-    <div role="region" aria-label="AchievementsList placeholder" style={{ padding: 16, border: '1px dashed #ccc' }}>
+    <div
+      role="region"
+      aria-label="AchievementsList placeholder"
+      className={styles['achievements-list-placeholder']}
+    >
       Achievements List (placeholder)
     </div>
   );

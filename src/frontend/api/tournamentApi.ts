@@ -1,6 +1,7 @@
 import axiosInstance from './axiosInstance';
 import { type Tournament } from '../types/tournament';
 import { type ListEnvelope } from '../types/Api';
+import { type Match } from '@dojopool/types';
 
 // Tournament endpoints
 export const createTournament = async (data: Partial<Tournament>): Promise<Tournament> => {
@@ -33,9 +34,9 @@ export const advanceTournament = async (id: string): Promise<void> => {
 };
 
 // Match endpoints
-export const getMatchById = async (id: string): Promise<unknown> => {
+export const getMatchById = async (id: string): Promise<Match> => {
   const res = await axiosInstance.get(`/v1/matches/${id}`);
-  return res.data as unknown;
+  return res.data as Match;
 };
 
 export const submitMatchResult = async (id: string, data: Record<string, unknown>): Promise<unknown> => {

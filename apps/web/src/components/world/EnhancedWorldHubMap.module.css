@@ -1,0 +1,142 @@
+.errorContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(30, 30, 30, 0.95);
+  color: #ff4444;
+  border-radius: 8px;
+}
+
+.loadingContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(30, 30, 30, 0.95);
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.errorContent,
+.loadingContent {
+  text-align: center;
+}
+
+.errorIcon,
+.loadingIcon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  margin-top: 1rem;
+  padding: 8px 16px;
+  background-color: #ff4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.retryButton:focus-visible {
+  outline: 2px solid #ff9a9a;
+  outline-offset: 2px;
+}
+
+.mapContainer {
+  height: 100%;
+  position: relative;
+}
+
+.themeSelector {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.themeSelect {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.infoWindow {
+  padding: 8px;
+  min-width: 200px;
+}
+
+.infoWindowTitle {
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.infoWindowStatus {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.infoWindowController {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #f39c12;
+}
+
+.infoWindowDistance {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.buttonContainer {
+  margin-top: 12px;
+}
+
+.challengeButton {
+  padding: 6px 12px;
+  background-color: #27ae60;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 8px;
+  font-size: 12px;
+}
+
+.challengeButton:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.challengeButton:focus-visible,
+.viewButton:focus-visible,
+.retryButton:focus-visible {
+  outline: 2px solid #4ecdc4;
+  outline-offset: 2px;
+}
+
+.viewButton {
+  padding: 6px 12px;
+  background-color: #3498db;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

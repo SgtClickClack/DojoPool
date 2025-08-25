@@ -1,42 +1,41 @@
-import React, { useState, useEffect } from 'react';
 import {
+  Download as DownloadIcon,
+  Error as ErrorIcon,
+  Info as InfoIcon,
+  Refresh as RefreshIcon,
+  Warning as WarningIcon,
+} from '@mui/icons-material';
+import {
+  Alert,
+  AlertTitle,
   Box,
+  Button,
   Card,
   CardContent,
-  Grid,
-  Typography,
-  IconButton,
   Chip,
-  Button,
+  CircularProgress,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  CircularProgress,
-  Alert,
-  AlertTitle,
+  Typography,
 } from '@mui/material';
-import {
-  Warning as WarningIcon,
-  Error as ErrorIcon,
-  Info as InfoIcon,
-  CheckCircle as CheckCircleIcon,
-  Refresh as RefreshIcon,
-  Download as DownloadIcon,
-} from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
-import { api } from '../services/api';
+import React, { useEffect, useState } from 'react';
+import api from '../services/APIService';
 
 interface QRAlertsDashboardProps {
   venueId?: string;
@@ -69,7 +68,9 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
   const [alerts, setAlerts] = useState<AlertData[]>([]);
   const [selectedAlert, setSelectedAlert] = useState<AlertData | null>(null);
   const [severityFilter, setSeverityFilter] = useState<string>('all');
-  const [acknowledgedFilter, setAcknowledgedFilter] = useState<boolean>(false);
+  const [acknowledgedFilter, setAcknowledgedFilter] = useState<
+    'active' | 'all'
+  >('active');
   const [refreshInterval, setRefreshInterval] = useState<number>(60);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
@@ -87,7 +88,7 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
           venue_id: venueId,
           table_id: tableId,
           severity: severityFilter !== 'all' ? severityFilter : undefined,
-          include_acknowledged: acknowledgedFilter,
+          include_acknowledged: acknowledgedFilter === 'all',
         },
       });
       setAlerts(response.data);
@@ -201,11 +202,13 @@ export const QRAlertsDashboard: React.FC<QRAlertsDashboardProps> = ({
           <InputLabel>Status</InputLabel>
           <Select
             value={acknowledgedFilter}
-            onChange={(e) => setAcknowledgedFilter(e.target.value as boolean)}
+            onChange={(e) =>
+              setAcknowledgedFilter(e.target.value as 'active' | 'all')
+            }
             label="Status"
           >
-            <MenuItem value={false}>Active</MenuItem>
-            <MenuItem value={true}>All</MenuItem>
+            <MenuItem value="active">Active</MenuItem>
+            <MenuItem value="all">All</MenuItem>
           </Select>
         </FormControl>
 

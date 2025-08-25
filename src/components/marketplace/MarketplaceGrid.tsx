@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './MarketplaceGrid.module.css';
 
 interface MarketplaceItem {
   id: string;
@@ -38,13 +39,9 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
       {items.map((item) => (
         <div
           key={item.id}
-          className="item-card"
+          className={`item-card ${styles.itemCard}`}
+          data-rarity={item.rarity}
           onClick={() => onItemClick(item)}
-          style={
-            {
-              '--rarity-color': getRarityColor(item.rarity),
-            } as React.CSSProperties
-          }
         >
           <div className="item-image">
             <img src={item.image} alt={item.name} />

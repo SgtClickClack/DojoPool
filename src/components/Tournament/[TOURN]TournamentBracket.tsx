@@ -1,8 +1,8 @@
 import { Box, Paper, Typography } from '@mui/material';
 import React from 'react';
-import {
-  type Tournament,
-  type TournamentMatch,
+import type {
+  Tournament,
+  TournamentMatch,
 } from '../../types/[TOURN]tournament';
 
 interface TournamentBracketProps {
@@ -74,10 +74,12 @@ const TournamentBracket = (props: TournamentBracketProps) => {
   const playerLookup: Record<string, { name: string }> = {};
 
   // Extract player data from bracket_data if available, or create placeholder data
-  if (tournament.bracket_data) {
+  if ((tournament as any).bracket_data) {
     // Try to extract player information from bracket_data
     // This is a placeholder - the actual structure would depend on the bracket_data format
-    Object.entries(tournament.bracket_data).forEach(([key, value]) => {
+    Object.entries(
+      (tournament as any).bracket_data as Record<string, any>
+    ).forEach(([_key, value]) => {
       if (
         typeof value === 'object' &&
         value !== null &&
@@ -92,11 +94,14 @@ const TournamentBracket = (props: TournamentBracketProps) => {
   // Since the Tournament interface doesn't have these properties, we'll create placeholder data
   const matchesByRound: Record<number, TournamentMatch[]> = {};
   const loserMatchesByRound: Record<number, TournamentMatch[]> = {};
-  const allGroupMatches: TournamentMatch[] = [];
-  const swissRounds: any[] = [];
+  const _allGroupMatches: TournamentMatch[] = [];
+  const swissRounds: Array<{
+    roundNumber: number;
+    matches: TournamentMatch[];
+  }> = [];
 
   // Render logic by format
-  switch (tournament.format) {
+  switch (tournament.format as any) {
     case 'double_elimination':
       return (
         <Box>
@@ -109,20 +114,22 @@ const TournamentBracket = (props: TournamentBracketProps) => {
               <Typography variant="subtitle1" align="center">
                 Winners Bracket
               </Typography>
-              {Object.entries(matchesByRound).map(([roundNumber, matches]) => (
-                <Box key={roundNumber} sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2">
-                    Round {roundNumber}
-                  </Typography>
-                  {matches.map((match) => (
-                    <MatchBox
-                      key={match.id}
-                      match={match}
-                      players={playerLookup}
-                    />
-                  ))}
-                </Box>
-              ))}
+              {Object.entries(matchesByRound).map(
+                ([roundNumber, matches], _key) => (
+                  <Box key={roundNumber} sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2">
+                      Round {roundNumber}
+                    </Typography>
+                    {matches.map((match) => (
+                      <MatchBox
+                        key={match.id}
+                        match={match}
+                        players={playerLookup}
+                      />
+                    ))}
+                  </Box>
+                )
+              )}
             </Box>
             {/* Loser Bracket */}
             <Box>
@@ -156,7 +163,7 @@ const TournamentBracket = (props: TournamentBracketProps) => {
             Round Robin Standings
           </Typography>
           <Paper sx={{ overflowX: 'auto', p: 2 }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table className="bracket-table">
               <thead>
                 <tr>
                   <th>Player</th>
@@ -206,40 +213,42 @@ const TournamentBracket = (props: TournamentBracketProps) => {
               p: 2,
             }}
           >
-            {Object.entries(matchesByRound).map(([roundNumber, matches]) => (
-              <Box
-                key={roundNumber}
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 2,
-                }}
-              >
-                <Typography variant="subtitle1" align="center">
-                  Round {roundNumber}
-                </Typography>
-                {matches.map((match) => (
-                  <Box
-                    key={match.id}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <MatchBox match={match} players={playerLookup} />
-                    {match.status !== 'completed' && (
-                      <Box
-                        sx={{
-                          width: 20,
-                          height: 2,
-                          backgroundColor: 'divider',
-                        }}
-                      />
-                    )}
-                  </Box>
-                ))}
-              </Box>
-            ))}
+            {Object.entries(matchesByRound).map(
+              ([roundNumber, matches], _key) => (
+                <Box
+                  key={roundNumber}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                  }}
+                >
+                  <Typography variant="subtitle1" align="center">
+                    Round {roundNumber}
+                  </Typography>
+                  {matches.map((match) => (
+                    <Box
+                      key={match.id}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <MatchBox match={match} players={playerLookup} />
+                      {match.status !== 'completed' && (
+                        <Box
+                          sx={{
+                            width: 20,
+                            height: 2,
+                            backgroundColor: 'divider',
+                          }}
+                        />
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+              )
+            )}
           </Box>
         </Box>
       );

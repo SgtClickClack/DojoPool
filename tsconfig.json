@@ -25,32 +25,33 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*"
+        "src/*",
+        "src/frontend/*",
+        "src/dojopool/frontend/*"
       ],
-      "@/components/*": [
-        "src/frontend/components/*",
-        "src/dojopool/frontend/components/*"
+      "@/frontend/*": [
+        "src/frontend/*"
       ],
       "@/contexts/*": [
-        "src/dojopool/frontend/contexts/*"
+        "src/contexts/*"
       ],
-      "@/hooks/*": [
-        "src/dojopool/frontend/hooks/*"
+      "@/components/*": [
+        "src/components/*"
       ],
       "@/services/*": [
-        "src/dojopool/frontend/services/*"
-      ],
-      "@/types/*": [
-        "src/dojopool/frontend/types/*"
+        "src/services/*"
       ],
       "@/utils/*": [
-        "src/dojopool/frontend/utils/*"
+        "src/utils/*"
+      ],
+      "@/types/*": [
+        "src/types/*"
       ],
       "@/styles/*": [
-        "src/dojopool/frontend/styles/*"
+        "src/styles/*"
       ],
       "@/constants/*": [
-        "src/dojopool/frontend/constants/*"
+        "src/constants/*"
       ]
     },
     "incremental": true,
@@ -61,15 +62,15 @@
   },
   "include": [
     "next-env.d.ts",
-    "src/dojopool/frontend/**/*.ts",
-    "src/dojopool/frontend/**/*.tsx",
-    "src/dojopool/frontend/**/*.d.ts"
+    "apps/web/src/**/*.ts",
+    "apps/web/src/**/*.tsx",
+    "apps/web/src/**/*.d.ts",
+    "services/api/src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "build",
-    "vite.config.ts",
     ".next",
     ".turbo",
     ".cache",
@@ -80,7 +81,6 @@
     "**/lcov-report/**/*",
     "reports",
     "cypress",
-    "apps/web/**/*",
     "apps/**/*",
     "packages/**/*",
     "DojoPool*/**/*",
@@ -99,6 +99,11 @@
     "static/**/*",
     "templates/**/*",
     "tests/**/*",
+    "**/__tests__/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
     "utils/**/*",
     "venv/**/*",
     "src/pages-backup/**/*",
@@ -115,7 +120,15 @@
     "src/tournament/**/*",
     "src/performance/**/*",
     "src/frame-processor/**/*",
-    "src/screens/**/*"
+    "src/screens/**/*",
+    "src/components/Tournament/**/*",
+    "src/dojopool/frontend/src/**/*",
+    "src/dojopool/frontend/components/Monitoring/**/*",
+    "src/dojopool/frontend/components/Pages/**/*",
+    "src/dojopool/frontend/components/tournaments/**/*",
+    "src/dojopool/frontend/cypress/**/*",
+    "src/dojopool/frontend/components/Venue/**/*",
+    "src/dojopool/frontend/pages/**/*"
   ],
   "references": [
     {
