@@ -10,6 +10,12 @@ import globals from 'globals';
 export default [
   {
     ignores: [
+      // Migrated from .eslintignore
+      'node_modules/',
+      'venv/',
+      'dist/',
+      'build/',
+      // Existing broader repo ignores
       '**/node_modules/**',
       '**/dist/**',
       '**/build/**',
