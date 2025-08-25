@@ -1,8 +1,7 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Typography,
+  Button,
+  Chip,
   Paper,
   Table,
   TableBody,
@@ -10,11 +9,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button,
-  Chip,
+  Typography,
 } from '@mui/material';
-import { type Tournament, TournamentStatus } from '../../types/tournament';
 import { format } from 'date-fns';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { type Tournament } from '../../types/tournament';
 
 interface TournamentListProps {
   tournaments: Tournament[];
@@ -23,15 +23,15 @@ interface TournamentListProps {
 const TournamentList: React.FC<TournamentListProps> = ({ tournaments }) => {
   const navigate = useNavigate();
 
-  const getStatusColor = (status: TournamentStatus) => {
+  const getStatusColor = (status: any) => {
     switch (status) {
-      case TournamentStatus.REGISTRATION:
+      case 'REGISTRATION':
         return 'primary';
-      case TournamentStatus.IN_PROGRESS:
+      case 'IN_PROGRESS':
         return 'success';
-      case TournamentStatus.COMPLETED:
+      case 'COMPLETED':
         return 'default';
-      case TournamentStatus.CANCELLED:
+      case 'CANCELLED':
         return 'error';
       default:
         return 'default';
@@ -73,16 +73,32 @@ const TournamentList: React.FC<TournamentListProps> = ({ tournaments }) => {
                 <TableCell>{tournament.venue.name}</TableCell>
                 <TableCell>
                   <Typography variant="body2">
-                    {format(new Date(tournament.startDate), 'MMM d, yyyy')}
+                    {format(
+                      new Date(
+                        (tournament as any).startDate ||
+                          (tournament as any).start_date
+                      ),
+                      'MMM d, yyyy'
+                    )}
                   </Typography>
-                  {tournament.endDate && (
+                  {(tournament as any).endDate ||
+                  (tournament as any).end_date ? (
                     <Typography variant="body2" color="text.secondary">
-                      to {format(new Date(tournament.endDate), 'MMM d, yyyy')}
+                      to{' '}
+                      {format(
+                        new Date(
+                          (tournament as any).endDate ||
+                            (tournament as any).end_date
+                        ),
+                        'MMM d, yyyy'
+                      )}
                     </Typography>
-                  )}
+                  ) : null}
                 </TableCell>
                 <TableCell>
-                  {tournament.players.length} / {tournament.maxPlayers}
+                  {((tournament as any).players || []).length} /{' '}
+                  {(tournament as any).maxPlayers ||
+                    (tournament as any).max_participants}
                 </TableCell>
                 <TableCell>
                   <Chip

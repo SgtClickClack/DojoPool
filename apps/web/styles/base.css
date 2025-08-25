@@ -38,6 +38,7 @@
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
   --shadow-neon: 0 0 10px rgba(0, 255, 157, 0.5);
+  color-scheme: dark;
 }
 
 /* ==========================================================================
@@ -62,8 +63,14 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Improve default focus outlines */
+:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
 }
 
 /* ==========================================================================
@@ -126,7 +133,8 @@ a:hover {
   width: 100%;
   height: 100%;
   background-color: var(--background-color);
-  background-image: url('../images/hero-vs.webp');
+  /* Background image disabled to avoid missing asset build errors */
+  /* background-image: url('../images/hero-vs.webp'); */
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -259,7 +267,8 @@ a:hover {
   color: var(--background-color);
   border: none;
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-  transition: all var(--transition-normal);
+  transition: transform var(--transition-normal),
+    box-shadow var(--transition-normal), background var(--transition-normal);
   cursor: pointer;
 }
 
@@ -309,7 +318,8 @@ a:hover {
 .glow-button {
   position: relative;
   overflow: hidden;
-  transition: all var(--transition-normal);
+  transition: transform var(--transition-normal),
+    opacity var(--transition-normal);
 }
 
 .glow-button::after {
@@ -352,7 +362,8 @@ a:hover {
    ========================================================================== */
 
 .MuiCard-root {
-  transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
@@ -412,6 +423,12 @@ a:hover {
     var(--success-color),
     var(--primary-color)
   );
+}
+
+/* Provide Firefox scrollbar styling */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) #1e1e1e;
 }
 
 /* ==========================================================================
@@ -499,5 +516,18 @@ a:hover {
 
   .nav-link {
     margin: 0 var(--spacing-sm);
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

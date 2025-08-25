@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tournament } from '../../types/tournament';
+import styles from './TournamentCard.module.css';
 
 interface TournamentCardProps {
   tournament: Tournament;
@@ -59,8 +60,8 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
       <div className="tournament-header">
         <h3 className="tournament-name">{tournament.name}</h3>
         <div
-          className="status-indicator"
-          style={{ backgroundColor: getStatusColor(tournament.status) }}
+          className={`status-indicator ${styles.statusIndicator}`}
+          data-status={tournament.status}
         >
           {getStatusText(tournament.status)}
         </div>

@@ -27,6 +27,48 @@ const nextConfig = {
     // scrollRestoration: true,
     // workerThreads: true,
   },
+
+  // Webpack optimizations for Windows file handling
+  webpack: (config, { dev, isServer }) => {
+    // Increase file watching limits for Windows
+    config.watchOptions = {
+      poll: 1000,
+      aggregateTimeout: 300,
+      ignored: ['**/node_modules', '**/.next', '**/dist'],
+    };
+
+    // Optimize file processing
+    config.optimization = {
+      ...config.optimization,
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10,
+          },
+          mui: {
+            test: /[\\/]node_modules[\\/]@mui[\\/]/,
+            name: 'mui',
+            chunks: 'all',
+            priority: 20,
+          },
+        },
+      },
+    };
+
+    // Increase memory limits
+    config.performance = {
+      ...config.performance,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000,
+    };
+
+    return config;
+  },
+
   // Add rewrites to proxy API requests to the backend and route SPA paths for investor portal
 
   // Add rewrites to proxy API requests to the backend and migrate Vercel rewrites

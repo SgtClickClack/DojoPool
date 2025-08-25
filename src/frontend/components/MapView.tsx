@@ -7,6 +7,7 @@ import {
   type DojoData,
   type PlayerData,
 } from '../../apps/web/src/services/LivingWorldHubService';
+import styles from './MapView.module.css';
 
 // Dark theme map styles
 const mapStyles = [
@@ -84,7 +85,7 @@ function MapView() {
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: process.env.VITE_GOOGLE_MAPS_API_KEY || '',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
   });
 
   // Fetch player data and dojos on component mount
@@ -126,24 +127,10 @@ function MapView() {
 
   if (loadError) {
     return (
-      <div
-        style={{
-          width: '100vw',
-          height: '100vh',
-          background: '#111',
-          color: '#fff',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '1.2rem',
-        }}
-      >
-        <h2 style={{ color: '#ff6b6b', marginBottom: 16 }}>
-          Error loading map
-        </h2>
+      <div className={styles.errorContainer}>
+        <h2 className={styles.errorTitle}>Error loading map</h2>
         <p>{loadError.message}</p>
-        <p style={{ marginTop: 16, color: '#aaa' }}>
+        <p className={styles.errorMessage}>
           Please check your Google Maps API key configuration.
         </p>
       </div>
@@ -152,50 +139,15 @@ function MapView() {
 
   if (!isLoaded) {
     return (
-      <div
-        style={{
-          width: '100vw',
-          height: '100vh',
-          background: '#111',
-          color: '#fff',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '1.2rem',
-        }}
-      >
-        <div style={{ marginBottom: 16 }}>Loading Map...</div>
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            border: '4px solid #00fff7',
-            borderTop: '4px solid transparent',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-          }}
-        ></div>
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingText}>Loading Map...</div>
+        <div className={styles.spinner}></div>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-      }}
-    >
+    <div className={styles.mapContainer}>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
@@ -225,20 +177,7 @@ function MapView() {
 
       {/* Loading indicator for dojos */}
       {isLoadingDojos && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            background: 'rgba(0, 0, 0, 0.8)',
-            color: '#fff',
-            padding: '10px 20px',
-            borderRadius: '5px',
-            fontSize: '14px',
-          }}
-        >
-          Loading Dojos...
-        </div>
+        <div className={styles.loadingIndicator}>Loading Dojos...</div>
       )}
 
       {/* Dojo Profile Panel */}

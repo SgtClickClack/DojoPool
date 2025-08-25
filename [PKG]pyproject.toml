@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "dojopool"
 description = "A modern pool management system"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.12"
 license = {file = "LICENSE"}
 dynamic = ["version"]
 dependencies = []  # Dependencies are managed in requirements.txt

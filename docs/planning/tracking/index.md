@@ -8,7 +8,7 @@ This index lists all development tracking files in order. Use the navigation lin
 
 **Original file:** DEVELOPMENT_TRACKING_CONSOLIDATED.md (now superseded by these parts)
 
-### 2024-07-16: Standardized Python Environment with uv in README
+## 2024-07-16: Standardized Python Environment with uv in README
 
 Updated the `README.md` to standardize Python development environment setup using `uv` (a fast Python package installer and resolver). Instructions now specify Python 3.13, use of `.venv` for the virtual environment name, and commands for installing `uv`, creating the environment, activating it, and installing dependencies with `uv pip install`. This aims to resolve environment inconsistencies and errors like 'No pyvenv.cfg file'.
 
@@ -25,7 +25,7 @@ Address file/directory naming and placement inconsistencies within the `src/` di
 
 Expected completion time: 1.5 hours
 
-### 2024-07-16: Codebase Review for Best Practices Application
+## 2024-07-16: Codebase Review for Best Practices Application
 
 Reviewed the codebase structure, naming conventions, and Python environment setup against established best practices and project-specific rules. Identified several areas for improvement, including standardization of Python virtual environment setup, consistent file/directory naming and placement in `src/`, `src/services/`, `src/components/`, and `src/utils/`, refactoring large components, and consolidating logging mechanisms.
 
@@ -54,7 +54,7 @@ Standardize Python virtual environment (likely using `uv` as per user's latest a
 
 Expected completion time: 2 hours
 
-### 2024-07-16: Reorganized Prefixed Files in `src` Directory
+## 2024-07-16: Reorganized Prefixed Files in `src` Directory
 
 Moved and renamed files with `[SRV]`, `[UI]`, and `[FB]` prefixes from the root of the `src/` directory to their appropriate subdirectories (`src/backend/`, `src/frontend/`, `src/firebase/`) and removed the prefixes. This improves adherence to project structure and naming conventions.
 
@@ -84,7 +84,7 @@ Address file/directory naming and placement inconsistencies within the `src/util
 
 Expected completion time: 1 hour
 
-### 2024-07-16: Converted JS Utils to TypeScript in `src/utils`
+## 2024-07-16: Converted JS Utils to TypeScript in `src/utils`
 
 Converted JavaScript utility files in `src/utils/` to TypeScript and updated their naming. Specifically, `[API]api.js` was converted to `src/utils/apiUtils.ts` and `[ANALYTICS]analytics.js` to `src/utils/analyticsUtils.ts`. This also involved addressing type dependency issues by removing outdated `@types/axios` and `@types/firebase` from `package.json`, and converting `src/firebase/firebase.js` to `src/firebase/firebase.ts`. Linter errors related to Firebase module resolution are pending confirmation of `npm install` and potential `tsconfig.json` review.
 
@@ -110,7 +110,7 @@ Confirm `npm install` (or equivalent) has been run. If Firebase/Axios type resol
 
 Expected completion time: 1-2 hours (depending on tsconfig complexity)
 
-### 2024-05-05: Agentic Coding Folder Structure Implementation
+## 2024-05-05: Agentic Coding Folder Structure Implementation
 
 Implemented the agentic coding pattern by creating and populating the `ai-docs`, `specs`, and `.claude` folders. Migrated and summarized existing AI documentation, feature specs, and prompt templates to these locations for improved AI assistant workflows and project context management.
 
@@ -131,7 +131,7 @@ Expand and maintain prompt templates and feature specs as new features are devel
 
 Expected completion time: 1 day
 
-### 2024-05-05: AI Referee (Sky-T1) Integration
+## 2024-05-05: AI Referee (Sky-T1) Integration
 
 Integrated the Sky-T1 AI Referee system for automated rule interpretation, foul detection, and decision explanation. Added feature spec, prompt templates, and integration documentation to agentic coding folders.
 
@@ -154,7 +154,7 @@ Continue feature development and testing on the Dashboard and related profile co
 
 Expected completion time: 2 days
 
-### 2024-05-05: Dashboard, Profile, and Notifications Feature Spec Updates
+## 2024-05-05: Dashboard, Profile, and Notifications Feature Spec Updates
 
 Reviewed and updated feature specs for the Dashboard, Profile, and Notifications components. Ensured requirements, integration points, and prompt examples are documented for agentic coding workflows.
 
@@ -175,7 +175,7 @@ Implement network transport layer error recovery and resilience mechanisms. Writ
 
 Expected completion time: 2 days
 
-### 2024-05-05: Network Transport Error Recovery & Resilience Spec
+## 2024-05-05: Network Transport Error Recovery & Resilience Spec
 
 Created a comprehensive feature spec for the network transport layer's error recovery and resilience mechanisms, including requirements for circuit breaker, exponential backoff, connection health monitoring, and integration with monitoring/alerting systems.
 
@@ -192,7 +192,7 @@ Write and run integration tests for network error recovery and resilience featur
 
 Expected completion time: 1 day
 
-### 2024-05-05: Network Error Recovery & Resilience Integration Testing
+## 2024-05-05: Network Error Recovery & Resilience Integration Testing
 
 Documented and validated integration tests for network transport error recovery and resilience. Tests cover circuit breaker, backoff, retries, queue limits, reconnection, and recovery scenarios. Results and coverage are summarized in ai-docs/network_error_recovery_testing.md.
 
@@ -209,7 +209,7 @@ Continue with the next outstanding user journey or technical feature (e.g., tour
 
 Expected completion time: 2 days
 
-### 2024-05-05: Tournament Registration & Discovery UI Feature Spec
+## 2024-05-05: Tournament Registration & Discovery UI Feature Spec
 
 Created a feature spec for the tournament registration and discovery UI, including requirements for listing, searching, filtering, registration workflow, real-time updates, and admin/organizer management.
 
@@ -226,7 +226,7 @@ Continue with the next outstanding user journey or technical feature (e.g., QR c
 
 Expected completion time: 2 days
 
-### 2024-05-05: QR Code & Geolocation Venue Check-In Feature Spec
+## 2024-05-05: QR Code & Geolocation Venue Check-In Feature Spec
 
 Created a feature spec for QR code and geolocation-based venue check-in, including requirements for QR code generation, geolocation verification, user profile linkage, venue-specific features, and admin tools.
 
@@ -243,7 +243,7 @@ Continue with the next outstanding user journey or technical feature (e.g., real
 
 Expected completion time: 2 days
 
-### 2024-05-05: Real-Time Tracking UI Feature Spec
+## 2024-05-05: Real-Time Tracking UI Feature Spec
 
 Created a feature spec for the real-time tracking UI, including requirements for live shot tracking, scores, fouls, rule enforcement, AI referee integration, instant feedback, and admin views.
 
@@ -260,7 +260,7 @@ Continue with the next outstanding user journey or technical feature (e.g., AI c
 
 Expected completion time: 2 days
 
-### 2024-05-05: AI Commentary & Audio Feature Spec
+## 2024-05-05: AI Commentary & Audio Feature Spec
 
 Created a feature spec for AI commentary and audio, including requirements for real-time match commentary, dynamic soundscapes, player insights, venue customization, and admin controls.
 
@@ -277,7 +277,7 @@ Continue with the next outstanding user journey or technical feature (e.g., post
 
 Expected completion time: 2 days
 
-### 2024-05-05: Post-Game Analytics Feature Spec
+## 2024-05-05: Post-Game Analytics Feature Spec
 
 Created a feature spec for post-game analytics, including requirements for detailed match reports, player feedback, highlights, performance trends, sharing, and admin access.
 
@@ -294,7 +294,7 @@ Continue with the next outstanding user journey or technical feature (e.g., rewa
 
 Expected completion time: 2 days
 
-### 2024-05-05: Rewards Processing Feature Spec
+## 2024-05-05: Rewards Processing Feature Spec
 
 Created a feature spec for rewards processing, including requirements for Dojo Coins, NFT trophies, special items, blockchain integration, notifications, admin tools, and secure delivery.
 
@@ -311,7 +311,7 @@ Review for any remaining outstanding features or begin implementation of the hig
 
 Expected completion time: 2 days
 
-### 2024-07-01: Dedicated Unit Tests for NetworkErrorRecovery
+## 2024-07-01: Dedicated Unit Tests for NetworkErrorRecovery
 
 Added a comprehensive unit test file for the NetworkErrorRecovery class, providing isolated coverage for circuit breaker transitions, exponential backoff, queue limits, and event emission. This ensures all error recovery and resilience mechanisms are robustly validated at the unit level, complementing existing integration and benchmark tests.
 
@@ -329,7 +329,7 @@ Run the full test suite and restart the development server to validate all recen
 
 Expected completion time: 30 minutes
 
-### 2024-07-01: Tournament Registration/Discovery UI Integration
+## 2024-07-01: Tournament Registration/Discovery UI Integration
 
 Implemented and robustly tested the Tournament registration/discovery UI. The TournamentDetail component now fetches and displays venue details, and all related tests pass. This completes the core user journey for tournament discovery and registration.
 
@@ -350,7 +350,7 @@ Continue with the next outstanding user journey or technical feature (e.g., QR c
 
 Expected completion time: 2 days
 
-### 2024-07-01: QR Code/Geolocation Venue Check-In UI Integration
+## 2024-07-01: QR Code/Geolocation Venue Check-In UI Integration
 
 Added a QR code and geolocation-based check-in flow to the venue check-in system. Users can now check in at venues by scanning a QR code and verifying their location. The UI is integrated and tested, but backend API validation for QR/geolocation should be reviewed for completeness.
 
@@ -370,15 +370,13 @@ Continue with the next outstanding user journey or technical feature (e.g., real
 
 Expected completion time: 1 day
 
-### 2024-07-01: Real-Time Tracking UI – RealTimeGameView Component
+## 2024-07-01: Real-Time Tracking UI – RealTimeGameView Component
 
 Created the RealTimeGameView component, which integrates GameTracker and ShotTracker to provide a unified real-time tracking UI. The component subscribes to live game state via WebSocket, visualizes scores, fouls, current player, shot clock, and live shot tracking. This forms the foundation for the real-time game experience and is ready for further AI referee and admin view integration.
 
 **Core Components Implemented:**
 
-- RealTimeGameView (unified real-time tracking UI)
-- GameTracker (WebSocket subscription)
-- ShotTracker (live shot visualization)
+- Real-time tracking UI feature spec (`specs/feature_real_time_tracking_ui.md`)
 
 **File Paths:**
 
@@ -391,7 +389,7 @@ Continue with the next outstanding user journey or technical feature (e.g., AI c
 
 Expected completion time: 1 day
 
-### 2024-07-01: AI Commentary & Audio – LiveCommentary Component
+## 2024-07-01: AI Commentary & Audio – LiveCommentary Component
 
 Created and integrated the LiveCommentary component, which subscribes to live AI commentary and audio events via WebSocket. The component displays real-time commentary and plays audio clips, enhancing the real-time game experience. Integrated into RealTimeGameView alongside the game tracker UI.
 
@@ -410,7 +408,7 @@ Continue with the next outstanding user journey or technical feature (e.g., post
 
 Expected completion time: 1 day
 
-### 2024-07-01: Post-Game Analytics – PostGameAnalytics Component
+## 2024-07-01: Post-Game Analytics – PostGameAnalytics Component
 
 Created the PostGameAnalytics component, which fetches and displays post-game analytics for a completed game. The component shows a match report, highlights, and player stats, providing actionable feedback and performance trends. Ready for further integration and future trend visualizations.
 
@@ -427,7 +425,7 @@ Continue with the next outstanding user journey or technical feature (e.g., rewa
 
 Expected completion time: 1 day
 
-### 2024-07-01: Rewards Processing – RewardsDashboard Component
+## 2024-07-01: Rewards Processing – RewardsDashboard Component
 
 Created the RewardsDashboard component, which fetches and displays available rewards, wallet balance, and transaction history. The component allows users to claim rewards and updates the UI accordingly. Ready for integration into the user dashboard or profile.
 
@@ -444,7 +442,7 @@ Review for any remaining outstanding features or begin implementation of the nex
 
 Expected completion time: 1 day
 
-### 2024-07-01: Advanced Tournament Formats – TournamentBracket Extension
+## 2024-07-01: Advanced Tournament Formats – TournamentBracket Extension
 
 Extended the TournamentBracket component to support double elimination, round robin, and Swiss formats. The component now renders the correct bracket or table for each format and is ready for integration into the tournament detail view. This unlocks advanced tournament user journeys and real-time bracket visualization.
 
@@ -461,7 +459,7 @@ Review for any remaining outstanding features or begin stabilization/QA sprint.
 
 Expected completion time: 1 day
 
-### 2024-06-09: AchievementService Unit Test Coverage
+## 2024-06-09: AchievementService Unit Test Coverage
 
 Comprehensive unit tests were added for the AchievementService, ensuring all major service methods are covered and linter-clean. This improves reliability and maintainability of the achievement logic.
 
@@ -490,7 +488,7 @@ Review and expand integration tests for achievement endpoints in the API layer i
 
 Expected completion time: 1 day
 
-### 2024-07-17: Deep Dive into Python MCP Server Startup (`mcp-server-pocket-pick`)
+## 2024-07-17: Deep Dive into Python MCP Server Startup (`mcp-server-pocket-pick`)
 
 Conducted an extensive debugging session for the `mcp-server-pocket-pick` Python application. The goal was to make the server start correctly via `uv run` or direct Python module execution.
 
@@ -504,6 +502,7 @@ Conducted an extensive debugging session for the `mcp-server-pocket-pick` Python
 - No Python exceptions are raised before the hang that are caught by the `try...except` block in `__init__.py`.
 
 **Conclusion:**
+
 The `mcp-server-pocket-pick` starts and seems to initialize correctly up to the point where it awaits communication from the MCP client (e.g., VS Code extension) via its `stdio` streams. The hang suggests it's waiting for an initial message (like an 'initialize' request) from the client that is either not being sent, not being received, or not being processed correctly by `mcp.server.Server.run()`.
 
 **File Paths Investigated/Modified:**
@@ -516,7 +515,7 @@ The `mcp-server-pocket-pick` starts and seems to initialize correctly up to the 
 **Next Priority Task:**
 Investigate the client-side (VS Code MCP Extension) interaction with the `mcp-server-pocket-pick` server. Determine if the client attempts to send an 'initialize' message and if there are any logs or errors on the client side. Further debugging might require looking into the `mcp-server-cs==1.3.0` library's `server.run()` internals or creating a minimal test case for `stdio` communication with this library.
 
-### 2024-07-17: Successfully Configured PocketPick MCP Server in `.cursor/mcp.json`
+## 2024-07-17: Successfully Configured PocketPick MCP Server in `.cursor/mcp.json`
 
 Iteratively refined the `.cursor/mcp.json` file to correctly define the `PocketPick` MCP server for Cursor. After several attempts adjusting the schema (nesting under `mcpServers`, using server name as key, ensuring `name` field was present, and finally changing `command` from an array to a single string), Cursor now successfully recognizes the server configuration without errors. The server appears in Cursor's MCP settings as 'Project Managed'.
 
@@ -531,7 +530,7 @@ Iteratively refined the `.cursor/mcp.json` file to correctly define the `PocketP
 **Next Priority Task:**
 Verify if the PocketPick server process starts successfully when managed by Cursor and investigate why it currently shows "No tools available" (check server logs via Cursor's output panel, then debug server's MCP tool advertisement if necessary).
 
-### 2024-07-17: PocketPick MCP Server Successfully Advertising Tools to Cursor
+## 2024-07-17: PocketPick MCP Server Successfully Advertising Tools to Cursor
 
 After successfully configuring the `.cursor/mcp.json` file, further investigation of Cursor's MCP logs (from the "anysphere.cursor-always-local.Cursor MCP" output channel) confirmed that Cursor is now:
 
@@ -554,7 +553,7 @@ This indicates that the server-side Python script is correctly initializing, run
 **Next Priority Task:**
 Test the end-to-end functionality by attempting to use one of the 9 advertised `PocketPick` tools via a chat command with the Cursor AI assistant. This will confirm that tool execution requests are correctly routed to and processed by the Python MCP server.
 
-### 2024-07-17: End-to-End Test of PocketPick MCP Server Successful
+## 2024-07-17: End-to-End Test of PocketPick MCP Server Successful
 
 Successfully tested the `PocketPick` MCP server integration end-to-end. After configuring the server in `.cursor/mcp.json` and verifying it advertised 9 tools to Cursor, a chat command (`@PocketPick pocket_list_tags limit=10`) was used to invoke the `pocket_list_tags` tool.
 
@@ -575,7 +574,7 @@ The tool call was successfully routed to the Python server, which executed the c
 **Next Priority Task:**
 Decide on next steps: either further test PocketPick tools (e.g., adding data), continue codebase review, or address other pending tasks.
 
-### 2024-07-18: Logging Consolidation Complete
+## 2024-07-18: Logging Consolidation Complete
 
 Consolidated all error and audit logging to use the canonical `ErrorLoggingService` in `src/services/`. The service uses the Winston-based logger utility (`src/utils/logger.ts`) and integrates with analytics via `logErrorToAnalytics` from `src/utils/analyticsUtils.ts`. The legacy `auditLogger` in `src/dojopool/frontend/utils/[LOG]auditLogger.ts` was removed to avoid confusion and duplication. All error logging in the codebase now uses the exported `logError` function from `ErrorLoggingService`.
 
@@ -609,7 +608,7 @@ Address remaining legacy/prefixed files in `src/dojopool/frontend/components/` a
 
 Expected completion time: 1-2 hours
 
-### 2024-07-18: Resolved NPM Audit Vulnerabilities
+## 2024-07-18: Resolved NPM Audit Vulnerabilities
 
 Addressed npm audit vulnerabilities reported after dependency updates. Key actions taken:
 
@@ -634,7 +633,7 @@ With the codebase dependencies cleaned and vulnerabilities addressed, the next l
 
 Expected completion time: 30 minutes (for server start and quick verification)
 
-### 2024-07-18: PocketPick MCP Server Re-verification and Basic Data Tests
+## 2024-07-18: PocketPick MCP Server Re-verification and Basic Data Tests
 
 Following the resolution of npm vulnerabilities and main dependency updates, the PocketPick MCP server functionality was re-verified:
 
@@ -658,21 +657,21 @@ Consider further, more comprehensive testing of PocketPick tools (e.g., `pocket_
 
 Expected completion time: 1-2 hours (for more comprehensive PocketPick testing)
 
-### 2024-07-18: Extended PocketPick MCP Server Tool Testing
+## 2024-07-18: Extended PocketPick MCP Server Tool Testing
 
 Conducted more comprehensive testing of the PocketPick MCP server tools to ensure full functionality after recent dependency updates and to cover more of its API surface.
 
-1.  Successfully added a test item ("test-id-1") using `pocket_add`.
-2.  Successfully retrieved the item using `pocket_find` by its text content.
-3.  Successfully retrieved the item using `pocket_get` by its ID ("test-id-1").
-4.  Successfully removed the item using `pocket_remove`.
-5.  Verified removal using `pocket_list` (showed no items) and `pocket_list_tags` (showed no tags).
-6.  Attempted to add an item from a file using `pocket_add_file`:
-    - Created a temporary file `temp_pocket_item.txt` with test content.
-    - Called `pocket_add_file` with ID "file-item-1". The tool reported success.
-    - However, subsequent calls to `pocket_get` (for "file-item-1") and `pocket_list` both indicated the item was **not** actually added to the database.
-    - The temporary file `temp_pocket_item.txt` was deleted.
-7.  This indicates a potential bug in the `pocket_add_file` tool or its interaction with the underlying database/storage mechanism.
+1. Successfully added a test item ("test-id-1") using `pocket_add`.
+2. Successfully retrieved the item using `pocket_find` by its text content.
+3. Successfully retrieved the item using `pocket_get` by its ID ("test-id-1").
+4. Successfully removed the item using `pocket_remove`.
+5. Verified removal using `pocket_list` (showed no items) and `pocket_list_tags` (showed no tags).
+6. Attempted to add an item from a file using `pocket_add_file`:
+   - Created a temporary file `temp_pocket_item.txt` with test content.
+   - Called `pocket_add_file` with ID "file-item-1". The tool reported success.
+   - However, subsequent calls to `pocket_get` (for "file-item-1") and `pocket_list` both indicated the item was not actually added to the database.
+   - The temporary file `temp_pocket_item.txt` was deleted.
+7. This indicates a potential bug in the `pocket_add_file` tool or its interaction with the underlying database/storage mechanism.
 
 **Core Components Tested:**
 
@@ -681,7 +680,7 @@ Conducted more comprehensive testing of the PocketPick MCP server tools to ensur
 - `pocket_remove` (success)
 - `pocket_list` (success, used for verification)
 - `pocket_list_tags` (success, used for verification)
-- `pocket_add_file` (FAILURE - item not added despite success report)
+- `pocket_add_file` (failure - item not added despite success report)
 
 **File Paths:**
 
@@ -693,16 +692,16 @@ Investigate and debug the failure of the `mcp_PocketPick_pocket_add_file` tool. 
 
 Expected completion time: 1-3 hours (for `pocket_add_file` debugging)
 
-### 2024-07-18: Resolved `pocket_add_file` Tool Issue
+## 2024-07-18: Resolved `pocket_add_file` Tool Issue
 
 Investigated the failure of the `mcp_PocketPick_pocket_add_file` tool.
 **Findings:**
 
-1.  The PocketPick server uses a default SQLite database at `Path.home() / ".pocket_pick.db"` if no `db` parameter is specified for a tool, ensuring consistent database usage across tools.
-2.  The initial failures of `pocket_add_file` were due to how file paths were handled:
-    - When a relative `file_path` (e.g., "temp_pocket_item.txt") was provided, the PocketPick server (running with CWD `pocket-pick/`) interpreted it relative to its own CWD, not the workspace root where the file was created. This led to the file not being found.
-    - The server's error reporting for this scenario was initially unclear (it seemed to report success), but later tests showed it correctly propagated a `FileNotFoundError` when an invalid path like `/c:/...` was used on Windows.
-3.  The `pocket_add_file` tool functions correctly when provided with a **valid, OS-specific absolute path** for the `file_path` argument (e.g., `C:\dev\DojoPoolONE\temp_pocket_item.txt` on Windows).
+1. The PocketPick server uses a default SQLite database at `Path.home() / ".pocket_pick.db"` if no `db` parameter is specified for a tool, ensuring consistent database usage across tools.
+2. The initial failures of `pocket_add_file` were due to how file paths were handled:
+   - When a relative `file_path` (e.g., "temp_pocket_item.txt") was provided, the PocketPick server (running with CWD `pocket-pick/`) interpreted it relative to its own CWD, not the workspace root where the file was created. This led to the file not being found.
+   - The server's error reporting for this scenario was initially unclear (it seemed to report success), but later tests showed it correctly propagated a `FileNotFoundError` when an invalid path like `/c:/...` was used on Windows.
+3. The `pocket_add_file` tool functions correctly when provided with a **valid, OS-specific absolute path** for the `file_path` argument (e.g., `C:\dev\DojoPoolONE\temp_pocket_item.txt` on Windows).
 
 **Resolution:**
 
@@ -732,12 +731,12 @@ With the PocketPick tools now appearing to be fully functional (pending any furt
 
 Expected completion time: 30 minutes (to decide next steps and potentially test remaining PocketPick tools)
 
-### 2024-07-18: Finalized PocketPick MCP Tool Testing (Backup & ToFile)
+## 2024-07-18: Finalized PocketPick MCP Tool Testing (Backup & ToFile)
 
 Completed testing of the remaining PocketPick MCP server tools:
 
-1.  **`mcp_PocketPick_pocket_backup`**: Successfully backed up the default database to a specified absolute file path (`C:\dev\DojoPoolONE\pocket_pick_backup.db`). This confirms the tool works correctly when provided with a valid absolute path for `backup_path`.
-2.  **`mcp_PocketPick_pocket_to_file_by_id`**: Successfully wrote the content of a test item to a specified absolute output file path (`C:\dev\DojoPoolONE\item_content.txt`). The content was verified by reading the output file. This confirms the tool works correctly with absolute paths for `output_file_path_abs`.
+1. **`mcp_PocketPick_pocket_backup`**: Successfully backed up the default database to a specified absolute file path (`C:\dev\DojoPoolONE\pocket_pick_backup.db`). This confirms the tool works correctly when provided with a valid absolute path for `backup_path`.
+2. **`mcp_PocketPick_pocket_to_file_by_id`**: Successfully wrote the content of a test item to a specified absolute output file path (`C:\dev\DojoPoolONE\item_content.txt`). The content was verified by reading the output file. This confirms the tool works correctly with absolute paths for `output_file_path_abs`.
 
 **Key Conclusion for Path-Based Tools:**
 All PocketPick tools that interact with the file system (`pocket_add_file`, `pocket_backup`, `pocket_to_file_by_id`) require their respective path arguments (`file_path`, `backup_path`, `output_file_path_abs`) to be **valid, OS-specific absolute paths**.
@@ -754,7 +753,7 @@ All PocketPick MCP tools are verified. Review the project roadmap and developmen
 
 Expected completion time: 15 minutes (for roadmap review and next task identification)
 
-### 2024-07-18: Resolved NPM Audit Vulnerabilities (Revisited & Confirmed)
+## 2024-07-18: Resolved NPM Audit Vulnerabilities (Revisited & Confirmed)
 
 Following earlier attempts and dependency updates (especially `vite`), `npm audit` was run again and confirmed to report 0 vulnerabilities. The previous updates, including the upgrade of `vite` (which pulled in a newer `rollup`), appear to have resolved the transitive dependency issues with `rollup` that were flagged via `@ant-design/charts`. The `overrides` section for `fmin` added in a previous session may or may not be strictly necessary now but is kept for safety unless proven otherwise.
 
@@ -771,21 +770,21 @@ With dependencies clean and vulnerabilities addressed, start the development ser
 
 Expected completion time: 30 minutes (for server start and quick verification)
 
-### 2024-07-18: Implemented Achievement API Endpoints and Integration Tests
+## 2024-07-18: Implemented Achievement API Endpoints and Integration Tests
 
 Expanded the Achievements API and its integration test coverage:
 
-1.  Identified that the existing API in `src/dojopool/routes/api/achievements.py` was minimal and lacked leaderboard and admin CRUD functionalities, despite the `AchievementService` having corresponding methods.
-2.  Added the `GET /achievements/leaderboard` API endpoint, calling `service.get_achievement_leaderboard()`.
-3.  Added Admin CRUD API endpoints:
-    - `POST /admin` (create achievement), calling `service.create_achievement()`.
-    - `GET /admin/<achievement_id>` (get achievement details), calling `service.get_achievement_details()`.
-    - `PUT /admin/<achievement_id>` (update achievement), calling `service.update_achievement()`.
-    - `DELETE /admin/<achievement_id>` (delete achievement), calling `service.delete_achievement()`.
-    - Marked these admin routes with `@login_required` and added a TODO to implement proper admin role checking/decorator, as no existing `@admin_required` decorator was readily found.
-4.  Added corresponding integration tests for all new endpoints in `src/dojopool/tests/integration/test_achievements_api.py`.
-    - Modified the `test_client` fixture to provide necessary `category_id` and `achievement_id` for tests.
-    - Ensured tests cover successful cases and basic error handling (e.g., not found, bad input).
+1. Identified that the existing API in `src/dojopool/routes/api/achievements.py` was minimal and lacked leaderboard and admin CRUD functionalities, despite the `AchievementService` having corresponding methods.
+2. Added the `GET /achievements/leaderboard` API endpoint, calling `service.get_achievement_leaderboard()`.
+3. Added Admin CRUD API endpoints:
+   - `POST /admin` (create achievement), calling `service.create_achievement()`.
+   - `GET /admin/<achievement_id>` (get achievement details), calling `service.get_achievement_details()`.
+   - `PUT /admin/<achievement_id>` (update achievement), calling `service.update_achievement()`.
+   - `DELETE /admin/<achievement_id>` (delete achievement), calling `service.delete_achievement()`.
+   - Marked these admin routes with `@login_required` and added a TODO to implement proper admin role checking/decorator, as no existing `@admin_required` decorator was readily found.
+4. Added corresponding integration tests for all new endpoints in `src/dojopool/tests/integration/test_achievements_api.py`.
+   - Modified the `test_client` fixture to provide necessary `category_id` and `achievement_id` for tests.
+   - Ensured tests cover successful cases and basic error handling (e.g., not found, bad input).
 
 This significantly improves the completeness of the Achievements API and ensures new functionalities are covered by integration tests.
 
@@ -804,14 +803,14 @@ Implement proper admin authorization for the newly added admin achievement API e
 
 Expected completion time: 1-2 hours (depending on complexity of auth system integration)
 
-### 2024-07-18: Applied Admin Authorization to Achievement API Endpoints
+## 2024-07-18: Applied Admin Authorization to Achievement API Endpoints
 
 Secured the admin-level achievement API endpoints using the existing `@admin_required` decorator from `dojopool.auth.decorators`.
 
-1.  Identified the appropriate `@admin_required` decorator located in `src/dojopool/auth/decorators.py`, which checks for `current_user.has_role("admin")`.
-2.  Imported this decorator into `src/dojopool/routes/api/achievements.py`.
-3.  Replaced the temporary `@login_required` decorators and associated TODO comments on the admin CRUD routes (`POST /admin`, `GET /admin/<id>`, `PUT /admin/<id>`, `DELETE /admin/<id>`) with the `@admin_required` decorator.
-4.  Removed redundant placeholder comments for admin checks from within the function bodies of these routes.
+1. Identified the appropriate `@admin_required` decorator located in `src/dojopool/auth/decorators.py`, which checks for `current_user.has_role("admin")`.
+2. Imported this decorator into `src/dojopool/routes/api/achievements.py`.
+3. Replaced the temporary `@login_required` decorators and associated TODO comments on the admin CRUD routes (`POST /admin`, `GET /admin/<id>`, `PUT /admin/<id>`, `DELETE /admin/<id>`) with the `@admin_required` decorator.
+4. Removed redundant placeholder comments for admin checks from within the function bodies of these routes.
 
 This ensures that these sensitive endpoints are now properly protected and can only be accessed by users with the "admin" role, aligning with standard security practices.
 
@@ -828,29 +827,29 @@ With the Achievements API now more complete and secured, the next step is to run
 
 Expected completion time: 30-45 minutes (for running tests and reviewing results)
 
-### 2024-07-18: Review of `src/` Naming Conventions and Dashboard Component Fix
+## 2024-07-18: Review of `src/` Naming Conventions and Dashboard Component Fix
 
 Conducted a review of `src/` subdirectories for file/directory naming and placement inconsistencies, focusing on adherence to project rules (PascalCase for components/classes, camelCase for utils/functions).
 
 **Key Actions & Findings:**
 
-1.  **`src/components/` Review:**
-    - Identified `src/components/[UI]Dashboard.js` as a React component violating naming conventions (prefix, `.js` extension for a JSX file).
-    - Renamed this file to `src/components/Dashboard.tsx`.
-    - Updated its content to basic TypeScript (e.g., adding `React.FC`, typing state hooks) while preserving original functionality.
-    - Deleted the old `src/components/[UI]Dashboard.js`.
-    - Updated import paths for this component in `pages/dashboard.js`, `DojoPool/pages/dashboard.js`, `src/dojopool/frontend/[ROUTE]Router.tsx`, and its duplicate.
-    - Other component files in `src/components/` largely adhere to PascalCase.tsx format.
-2.  **`src/services/` Review:**
-    - Files like `api.ts` (exporting an axios instance) and `analytics.ts` (exporting an instance of a simple `AnalyticsService` class) use lowercase/camelCase names, which is acceptable for utility modules or modules primarily exporting instances/functions rather than a class of the same name.
-    - Files like `WebSocketService.ts`, `PerformanceMonitor.ts`, etc., correctly use PascalCase for filenames matching their primary exported classes.
-    - Noted two services related to analytics: `src/services/analytics.ts` (simple event logger) and `src/services/AnalyticsService.ts` (complex client-side analytics state manager). While names are very similar, their distinct purposes and export patterns make immediate renaming a lower priority, though potential for confusion exists.
-3.  **`src/utils/` Review:**
-    - Files generally follow lowercase or camelCase (e.g., `analyticsUtils.ts`, `validation.ts`), which is appropriate for utility modules.
-4.  **`src/core/` and `src/features/` Review:**
-    - These directories primarily contain subdirectories for modular organization. A deeper review of all nested files was deferred due to time and the iterative nature of the review task.
-5.  **`src/` Root Files:**
-    - Observed files like `test_sqlite.py`, `convert_images.py`, and `README.md` at the root of `src/`. These might be better placed outside `src/` (e.g., in a project-level `scripts/` or `docs/` directory) if `src/` is intended purely for application source code. This is a minor structural observation for future consideration.
+1. **`src/components/` Review:**
+   - Identified `src/components/[UI]Dashboard.js` as a React component violating naming conventions (prefix, `.js` extension for a JSX file).
+   - Renamed this file to `src/components/Dashboard.tsx`.
+   - Updated its content to basic TypeScript (e.g., adding `React.FC`, typing state hooks) while preserving original functionality.
+   - Deleted the old `src/components/[UI]Dashboard.js`.
+   - Updated import paths for this component in `pages/dashboard.js`, `DojoPool/pages/dashboard.js`, `src/dojopool/frontend/[ROUTE]Router.tsx`, and its duplicate.
+   - Other component files in `src/components/` largely adhere to PascalCase.tsx format.
+2. **`src/services/` Review:**
+   - Files like `api.ts` (exporting an axios instance) and `analytics.ts` (exporting an instance of a simple `AnalyticsService` class) use lowercase/camelCase names, which is acceptable for utility modules or modules primarily exporting instances/functions rather than a class of the same name.
+   - Files like `WebSocketService.ts`, `PerformanceMonitor.ts`, etc., correctly use PascalCase for filenames matching their primary exported classes.
+   - Noted two services related to analytics: `src/services/analytics.ts` (simple event logger) and `src/services/AnalyticsService.ts` (complex client-side analytics state manager). While names are very similar, their distinct purposes and export patterns make immediate renaming a lower priority, though potential for confusion exists.
+3. **`src/utils/` Review:**
+   - Files generally follow lowercase or camelCase (e.g., `analyticsUtils.ts`, `validation.ts`), which is appropriate for utility modules.
+4. **`src/core/` and `src/features/` Review:**
+   - These directories primarily contain subdirectories for modular organization. A deeper review of all nested files was deferred due to time and the iterative nature of the review task.
+5. **`src/` Root Files:**
+   - Observed files like `test_sqlite.py`, `convert_images.py`, and `README.md` at the root of `src/`. These might be better placed outside `src/` (e.g., in a project-level `scripts/` or `docs/` directory) if `src/` is intended purely for application source code. This is a minor structural observation for future consideration.
 
 **Outcome:**
 The most significant naming convention violation (`[UI]Dashboard.js`) was corrected. Other areas reviewed are largely compliant or have minor points for future consideration.
@@ -873,7 +872,7 @@ Given the persistent issues with the Python virtual environment (`my_custom_venv
 
 Expected completion time: 45-60 minutes (for venv recreation and dependency installation)
 
-### 2024-07-19: Video Highlight Generation Feature Audit
+## 2024-07-19: Video Highlight Generation Feature Audit
 
 Completed an audit of the video highlight generation feature (Wan 2.1 integration). The frontend (UI, hooks, and user flows) is fully implemented, supporting highlight generation, sharing, downloading, and display. However, the backend/API endpoints (`/api/highlights/generate`, `/api/highlights/tournament/:id`, `/api/highlights/:id/share`, `/api/highlights/:id/download`), database models, and integration with the Wan 2.1 AI service are missing and must be implemented to complete the feature.
 
@@ -906,9 +905,9 @@ Implement backend highlights API endpoints, database models, and integrate with 
 
 Expected completion time: 1-2 days
 
-### 2024-05-21: Firebase Config Validation Script – Interactive Prompts & Error Reporting (see DEVELOPMENT_TRACKING_PART_03.md)
+## 2024-05-21: Firebase Config Validation Script – Interactive Prompts & Error Reporting (see DEVELOPMENT_TRACKING_PART_03.md)
 
-### 2025-01-17: Game Flow & CSS Implementation Plan (MVP Deployment)
+## 2025-01-17: Game Flow & CSS Implementation Plan (MVP Deployment)
 
 Created comprehensive implementation plan for game flow and CSS styling to complete MVP deployment. The plan includes 7 phases with realistic timelines and clear deliverables for implementing the complete user journey from tournament discovery to post-game social sharing.
 
@@ -951,7 +950,7 @@ Begin Phase 1 implementation: Tournament System Completion with tournament regis
 
 Expected completion time: 3-5 days
 
-### 2025-01-17: Merge Conflict Resolution & Jest Shim Fix
+## 2025-01-17: Merge Conflict Resolution & Jest Shim Fix
 
 Successfully resolved all merge conflicts after pulling latest changes from GitHub. Fixed Jest shim compatibility issues and updated dependencies to latest versions. All conflicts in package.json, package-lock.json, and src/tests/setup.ts have been resolved and pushed to remote.
 
@@ -989,7 +988,7 @@ Continue with game flow and CSS implementation plan, starting with Phase 1: Tour
 
 Expected completion time: 3-5 days
 
-### 2025-01-21: Wallet Management Consolidation & Ledger Page Implementation
+## 2025-01-21: Wallet Management Consolidation & Ledger Page Implementation
 
 Successfully consolidated all wallet-related features into a centralized Ledger page and integrated it with the dashboard navigation. Fixed provider hierarchy issues and ensured proper authentication flow throughout the application.
 
@@ -1036,3 +1035,156 @@ Successfully consolidated all wallet-related features into a centralized Ledger 
 Update roadmap and development tracking files with current progress, then commit changes to GitHub repository.
 
 Expected completion time: 30 minutes
+
+## 2025-08-21: API Auth Hardening & WS URL Fix
+
+Hardened NestJS API authentication and improved realtime client configuration. The API now requires `JWT_SECRET` via `ConfigModule` and uses `registerAsync` for `JwtModule`. Replaced `console.log` with Nest `Logger` in bootstrap. The realtime UI now derives a proper `ws://` or `wss://` URL from environment variables instead of hardcoded `http://`.
+
+**Core Components Implemented:**
+
+- Enforced `JWT_SECRET` via `ConfigService` in `services/api`
+- `JwtModule.registerAsync` with env-based `expiresIn`
+- Bootstrap logging with Nest `Logger`
+- WebSocket URL normalization in `RealTimeGameView`
+
+**File Paths:**
+
+- `services/api/src/auth/auth.module.ts`
+- `services/api/src/auth/jwt.strategy.ts`
+- `services/api/src/main.ts`
+- `src/features/game/RealTimeGameView.tsx`
+
+**Next Priority Task:**
+Centralize backend CORS allowed origins and socket namespaces; enforce strict env validation in CI using `npm run env:check:strict`.
+
+Expected completion time: 1-2 hours
+
+## 2025-08-21: Centralized URL Config and Firebase Key Sanitization
+
+Implemented centralized frontend URL utilities for API and realtime sockets, and removed Firebase credential echoing in client logs.
+
+**Core Components Implemented:**
+
+- Central URL helpers `getApiBaseUrl`, `getWebSocketBaseUrl`, `getSocketIOUrl`
+- Updated WebSocket creation in `RealTimeGameView`
+- Updated Socket.IO clients (`SocketIOClient`, `useWebSocket`, `TournamentRealTimeService`) to use centralized config
+- Removed Firebase config key logging and dev defaults
+
+**Integration Points:**
+
+- Frontend realtime features now derive URLs consistently based on env or window location
+- Compatible with Vite proxy and Next rewrites
+
+**File Paths:**
+
+- `src/config/urls.ts` (new)
+- `src/dojopool/frontend/config/urls.ts` (new)
+- `src/features/game/RealTimeGameView.tsx` (edited)
+- `src/frontend/services/services/network/SocketIOClient.ts` (edited)
+- `src/frontend/hooks/hooks/useWebSocket.ts` (edited)
+- `src/dojopool/frontend/hooks/useWebSocket.ts` (edited)
+- `src/frontend/services/TournamentRealTimeService.ts` (edited)
+- `src/firebase/config.ts` (edited)
+
+**Next Priority Task:**
+
+Audit for any remaining hardcoded URLs and add server-side CORS origin centralization; wire env validation into CI with `npm run env:check:strict`.
+
+Expected completion time: 1-2 hours
+
+## 2025-08-21: Backend CORS Centralization, Env Validation, and CI Workflow
+
+Centralized backend CORS configuration and Socket.IO namespaces, added strict environment validation, and created a CI workflow to validate env, type-check, and run tests on pushes and PRs to `main`.
+
+**Core Components Implemented:**
+
+- Central CORS options (`allowedOrigins`, `corsOptions`)
+- Central Socket.IO namespaces constants
+- Strict env validation (requires `JWT_SECRET` etc.)
+- GitHub Actions CI workflow (`ci.yml`)
+
+**Integration Points:**
+
+- All gateways use centralized namespaces and allowed origins
+- API bootstraps CORS via shared options and validates env on startup
+- CI runs `env:check:strict`, type-checks, and tests
+
+**File Paths:**
+
+- `services/api/src/config/cors.config.ts` (new)
+- `services/api/src/config/sockets.config.ts` (new)
+- `services/api/src/config/env.validation.ts` (new)
+- `services/api/src/main.ts` (edited)
+- `services/api/src/app.module.ts` (edited)
+- `services/api/src/world-map/world-map.gateway.ts` (edited)
+- `services/api/src/activity-events/activity-events.gateway.ts` (edited)
+- `services/api/src/tournaments/tournaments.gateway.ts` (edited)
+- `.github/workflows/ci.yml` (new)
+
+**Next Priority Task:**
+
+Ensure frontend Socket.IO clients target the correct namespaces as features expand; add production domain(s) to `ALLOWED_ORIGINS` and document env var expectations in README.
+
+Expected completion time: 1 hour
+
+## 2025-08-21: CSS Accessibility & Performance Improvements (Global + World Map)
+
+Enhanced global and page-specific CSS for accessibility, performance, and maintainability. Standardized focus-visible outlines, added prefers-reduced-motion safeguards, refined transitions to avoid layout jank, removed invalid SCSS imports from the web app style entry, and ensured consolidated styles load in the Next.js app.
+
+**Core Components Implemented:**
+
+- Global `:focus-visible` outlines and `prefers-reduced-motion` handling
+- Firefox scrollbar colors and stable scrollbar gutter
+- Removed invalid SCSS imports from `apps/web/styles/index.css`
+- World map CSS modules: added focus outlines, refined transitions, deduplicated rules
+- Consolidated styles loaded via `apps/web/src/pages/_app.tsx` (`index.css`)
+
+**Integration Points:**
+
+- Next.js global CSS pipeline (`apps/web/index.css`, `apps/web/styles/*`)
+- Material-UI Card hover transitions preserved and refined
+- Works with existing map components and page modules via CSS Modules
+
+**File Paths:**
+
+- `styles/globals.css`
+- `apps/web/styles/base.css`
+- `apps/web/styles/utilities.css`
+- `apps/web/styles/index.css`
+- `apps/web/index.css`
+- `apps/web/src/pages/_app.tsx`
+- `apps/web/src/pages/index.module.css`
+- `apps/web/src/pages/404.module.css`
+- `apps/web/src/pages/profile.module.css`
+- `apps/web/src/pages/clan-wars.module.css`
+- `apps/web/src/components/world/WorldHubMap.module.css`
+- `apps/web/src/components/world/MapboxWorldHubMap.module.css`
+- `apps/web/src/components/world/WorldHubMapWrapper.module.css`
+- `apps/web/src/components/world/SimpleWorldHub.module.css`
+- `apps/web/src/components/world/EnhancedWorldHubMap.module.css`
+
+**Next Priority Task:**
+Audit for unused selectors and consolidate repeated color values into shared CSS variables for world modules; replace remaining `transition: all` instances in legacy CSS/SCSS where still referenced.
+
+Expected completion time: 1-2 hours
+
+## 2025-08-21: CSS Compatibility Fixes in utilities.css
+
+Addressed browser compatibility warnings reported by Edge Tools for `apps/web/styles/utilities.css`. Removed unsupported properties, added safer fallbacks, and ensured behavior remains consistent across major browsers.
+
+**Core Components Implemented:**
+
+- Replaced `image-rendering: -moz-crisp-edges` with `image-rendering: pixelated`; kept `-webkit-optimize-contrast`
+- Removed unsupported `-webkit-overflow-scrolling` usage and deleted the now-empty `.touch-scroll` ruleset
+- Kept `-webkit-tap-highlight-color`; removed unprefixed `tap-highlight-color`
+- Kept `-webkit-text-fill-color`; removed unprefixed `text-fill-color`
+- Left Firefox-only `scrollbar-width`/`scrollbar-color` with WebKit scrollbar fallbacks
+
+**File Paths:**
+
+- apps/web/styles/utilities.css
+
+**Next Priority Task:**
+Audit remaining CSS under `apps/web/styles/` for unsupported or deprecated properties and ensure standards-based fallbacks exist; replace any remaining `transition: all` in legacy styles.
+
+Expected completion time: 45 minutes

@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
+import { PlusOutlined } from '@ant-design/icons';
 import {
-  List,
-  Card,
   Button,
-  Tag,
-  Modal,
+  Card,
+  DatePicker,
   Form,
   Input,
-  DatePicker,
   InputNumber,
-  message,
+  List,
+  Modal,
   Spin,
+  Tag,
+  message,
 } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
-import { useMutation, useQueryClient } from 'react-query';
 import moment from 'moment';
+import React, { useState } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
 
 import { createEvent, registerForEvent } from '../../api/venues';
-import { type VenueEvent } from '../../types/venue';
 import { useAuth } from '../../hooks/useAuth';
+import { type VenueEvent } from '../../types/venue';
 
 interface EventListProps {
   events?: VenueEvent[];
@@ -109,7 +109,7 @@ const EventList: React.FC<EventListProps> = ({
 
   return (
     <div className="event-list">
-      {user?.is_verified && (
+      {(user as any)?.is_verified && (
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -141,45 +141,63 @@ const EventList: React.FC<EventListProps> = ({
             >
               <p>{event.description}</p>
               <p>
-                <strong>Type:</strong> {event.event_type}
+                <strong>Type:</strong>{' '}
+                {(event as any).event_type ?? event.eventType}
               </p>
               <p>
                 <strong>Date:</strong>{' '}
-                {moment(event.start_time).format('MMM D, YYYY')}
+                {moment(
+                  ((event as any).start_time ?? event.startTime) as string
+                ).format('MMM D, YYYY')}
               </p>
               <p>
                 <strong>Time:</strong>{' '}
-                {moment(event.start_time).format('h:mm A')} -{' '}
-                {moment(event.end_time).format('h:mm A')}
+                {moment(
+                  ((event as any).start_time ?? event.startTime) as string
+                ).format('h:mm A')}{' '}
+                -{' '}
+                {moment(
+                  ((event as any).end_time ?? event.endTime) as string
+                ).format('h:mm A')}
               </p>
-              {event.entry_fee > 0 && (
+              {(((event as any).entry_fee ?? event.entryFee) as number) > 0 && (
                 <p>
-                  <strong>Entry Fee:</strong> ${event.entry_fee}
+                  <strong>Entry Fee:</strong> $
+                  {((event as any).entry_fee ?? event.entryFee) as number}
                 </p>
               )}
-              {event.prize_pool > 0 && (
+              {(((event as any).prize_pool ?? event.prizePool) as number) >
+                0 && (
                 <p>
-                  <strong>Prize Pool:</strong> ${event.prize_pool}
+                  <strong>Prize Pool:</strong> $
+                  {((event as any).prize_pool ?? event.prizePool) as number}
                 </p>
               )}
-              {event.max_participants && (
+              {((event as any).max_participants ?? event.maxParticipants) && (
                 <p>
                   <strong>Spots:</strong> {event.participants?.length || 0}/
-                  {event.max_participants}
+                  {
+                    ((event as any).max_participants ??
+                      event.maxParticipants) as number
+                  }
                 </p>
               )}
               {event.status === 'upcoming' && (
                 <Button
                   type="primary"
                   block
-                  onClick={() => handleRegister(event.id)}
+                  onClick={() => handleRegister(parseInt(String(event.id)))}
                   loading={registerMutation.isLoading}
                   disabled={
                     !user ||
-                    event.participants?.some((p) => p.user_id === user.id)
+                    event.participants?.some(
+                      (p: any) => (p.user_id ?? p.id) === user.id
+                    )
                   }
                 >
-                  {event.participants?.some((p) => p.user_id === user?.id)
+                  {event.participants?.some(
+                    (p: any) => (p.user_id ?? p.id) === user?.id
+                  )
                     ? 'Registered'
                     : 'Register'}
                 </Button>
@@ -251,24 +269,10 @@ const EventList: React.FC<EventListProps> = ({
             <InputNumber min={1} />
           </Form.Item>
           <Form.Item name="entry_fee" label="Entry Fee">
-            <InputNumber
-              min={0}
-              precision={2}
-              formatter={(value) =>
-                `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-              }
-              parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
-            />
+            <InputNumber min={0} precision={2} />
           </Form.Item>
           <Form.Item name="prize_pool" label="Prize Pool">
-            <InputNumber
-              min={0}
-              precision={2}
-              formatter={(value) =>
-                `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-              }
-              parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
-            />
+            <InputNumber min={0} precision={2} />
           </Form.Item>
           <Form.Item>
             <Button

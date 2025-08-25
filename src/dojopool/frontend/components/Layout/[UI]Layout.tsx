@@ -1,31 +1,32 @@
-import React from 'react';
 import {
-  Box,
+  Dashboard,
+  ExitToApp,
+  LocationOn,
+  Menu as MenuIcon,
+  Person,
+  Settings,
+  SportsCricket,
+} from '@mui/icons-material';
+import {
   AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
+  Box,
   Button,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  useTheme,
+  Toolbar,
+  Typography,
   useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Dashboard,
-  Person,
-  Settings,
-  SportsCricket,
-  LocationOn,
-  ExitToApp,
-} from '@mui/icons-material';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import DojoPoolAppBar from '../AppBar';
+// Fallback to MUI AppBar if custom AppBar is not a module
+const DojoPoolAppBar: any = AppBar;
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -76,7 +77,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     <Box sx={{ display: 'flex' }}>
       <DojoPoolAppBar
         position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{ zIndex: (theme: any) => theme.zIndex.drawer + 1 }}
       >
         <Toolbar>
           <IconButton

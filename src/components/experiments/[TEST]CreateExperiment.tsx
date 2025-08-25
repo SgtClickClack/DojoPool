@@ -12,9 +12,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const DatePicker: any =
+  require('@mui/x-date-pickers').DatePicker ?? require('@mui/x-date-pickers');
 
 interface CreateExperimentProps {
   onExperimentCreated?: () => void;
@@ -202,7 +204,7 @@ const CreateExperiment: React.FC<CreateExperimentProps> = ({
                 <DatePicker
                   label="Start Date"
                   value={startDate}
-                  onChange={(date) => setStartDate(date)}
+                  onChange={(date: any) => setStartDate(date)}
                   slotProps={{
                     textField: { required: true, fullWidth: true },
                   }}
@@ -211,7 +213,7 @@ const CreateExperiment: React.FC<CreateExperimentProps> = ({
                 <DatePicker
                   label="End Date (Optional)"
                   value={endDate}
-                  onChange={(date) => setEndDate(date)}
+                  onChange={(date: any) => setEndDate(date)}
                   slotProps={{
                     textField: { fullWidth: true },
                   }}

@@ -9,14 +9,19 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { SOCKET_NAMESPACES } from '../config/sockets.config';
 import { TournamentsService } from './tournaments.service';
 
 @WebSocketGateway({
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin:
+      (process.env.ALLOWED_ORIGINS &&
+        process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim())) ||
+      process.env.FRONTEND_URL ||
+      'http://localhost:3000',
     credentials: true,
   },
-  namespace: '/tournaments',
+  namespace: SOCKET_NAMESPACES.TOURNAMENTS,
 })
 export class TournamentsGateway
   implements OnGatewayConnection, OnGatewayDisconnect

@@ -1,0 +1,19 @@
+.statusBadge {
+  /* Base styles will be handled by existing CSS */
+}
+
+.statusBadge[data-status='upcoming'] {
+  background-color: #3498db;
+}
+
+.statusBadge[data-status='registration'] {
+  background-color: #f39c12;
+}
+
+.statusBadge[data-status='active'] {
+  background-color: #27ae60;
+}
+
+.statusBadge[data-status='completed'] {
+  background-color: #95a5a6;
+}

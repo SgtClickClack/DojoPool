@@ -1,0 +1,68 @@
+const { createServer } = require('http');
+const { parse } = require('url');
+const next = require('next');
+
+const dev = process.env.NODE_ENV !== 'production';
+const hostname = 'localhost';
+const port = 3000;
+
+// when using middleware `hostname` and `port` must be provided below
+const app = next({ dev, hostname, port });
+const handle = app.getRequestHandler();
+
+app.prepare().then(() => {
+  createServer(async (req, res) => {
+    try {
+      // Parse the URL
+      const parsedUrl = parse(req.url, true);
+
+      // Create a custom response object that captures headers
+      const originalSetHeader = res.setHeader;
+      const originalWriteHead = res.writeHead;
+
+      // Override setHeader to capture what Next.js sets
+      res.setHeader = function (name, value) {
+        originalSetHeader.call(this, name, value);
+        console.log(`Header set by Next.js: ${name} = ${value}`);
+      };
+
+      // Override writeHead to capture final headers
+      res.writeHead = function (statusCode, statusMessage, headers) {
+        console.log('Final headers before sending:', headers);
+        return originalWriteHead.call(this, statusCode, statusMessage, headers);
+      };
+
+      // Handle the request with Next.js
+      await handle(req, res, parsedUrl);
+
+      // Set security headers AFTER Next.js processing
+      console.log('Setting security headers...');
+      res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.vercel-insights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mapbox.com https://events.mapbox.com"
+      );
+      res.setHeader('X-DNS-Prefetch-Control', 'on');
+      res.setHeader(
+        'Strict-Transport-Security',
+        'max-age=63072000; includeSubDomains; preload'
+      );
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+      res.setHeader('X-XSS-Protection', '1; mode=block');
+      res.setHeader('Referrer-Policy', 'same-origin');
+
+      console.log('Security headers set successfully');
+    } catch (err) {
+      console.error('Error occurred handling', req.url, err);
+      res.statusCode = 500;
+      res.end('internal server error');
+    }
+  })
+    .once('error', (err) => {
+      console.error(err);
+      process.exit(1);
+    })
+    .listen(port, () => {
+      console.log(`> Ready on http://${hostname}:${port}`);
+    });
+});

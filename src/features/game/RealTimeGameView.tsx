@@ -1,21 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import { getWebSocketBaseUrl } from '@/config/urls';
+import { useLiveCommentary } from '@/hooks/useLiveCommentary';
+import { Add, Close, SportsScore, Warning } from '@mui/icons-material';
 import {
-  Box,
-  Typography,
-  Paper,
-  CircularProgress,
   Alert,
-  Grid,
+  Box,
+  Button,
   Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  Grid,
+  InputLabel,
   List,
   ListItem,
   ListItemText,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Typography,
 } from '@mui/material';
-// import GameTracker from "./GameTracker"; // Keep if needed for other purposes, but RealTimeGameView handles real-time display
-// import { ShotTracker } from "../../components/shot-analysis/ShotTracker";
+import React, { useEffect, useState } from 'react';
 import LiveCommentary from './LiveCommentary';
-// Import types if available
-// import { GameState, Shot } from "../../types/game";
 
 // Define a basic GameState interface based on accessed properties
 interface GameState {
@@ -35,12 +44,33 @@ interface GameState {
 
 interface RealTimeGameViewProps {
   gameId: string;
+  playerId?: string; // Add playerId prop for shot reporting
 }
 
-const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
+const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({
+  gameId,
+  playerId,
+}) => {
   const [gameState, setGameState] = useState<GameState | null>(null); // Use GameState interface
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [shotReportDialog, setShotReportDialog] = useState(false);
+  const [shotReportData, setShotReportData] = useState({
+    shotType: 'successful_pot' as
+      | 'successful_pot'
+      | 'missed_shot'
+      | 'foul'
+      | 'scratch',
+    ballSunk: false,
+    wasFoul: false,
+    notes: '',
+  });
+
+  // Use the live commentary hook
+  const { emitShotTaken, isConnected: commentaryConnected } = useLiveCommentary(
+    gameId,
+    playerId
+  );
 
   // Subscribe to real-time game state
   useEffect(() => {
@@ -49,9 +79,9 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
     setError(null);
     setGameState(null);
     try {
-      // Use the correct WebSocket URL for real-time game state
-      // This might need to be a dynamic URL based on environment or configuration
-      ws = new WebSocket(`http://localhost:3100/api/games/${gameId}/live`); // Example WebSocket URL, verify actual endpoint
+      // Derive WS base from centralized config
+      const normalized = getWebSocketBaseUrl();
+      ws = new WebSocket(`${normalized}/api/games/${gameId}/live`);
 
       ws.onopen = () => {
         console.log('WebSocket connection opened');
@@ -91,6 +121,43 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
       }
     };
   }, [gameId]);
+
+  // Handle shot reporting
+  const handleShotReport = () => {
+    setShotReportDialog(true);
+  };
+
+  const handleShotReportSubmit = () => {
+    if (playerId) {
+      // Emit shot taken event for live commentary
+      emitShotTaken({
+        ballSunk: shotReportData.ballSunk,
+        wasFoul: shotReportData.wasFoul,
+        shotType: shotReportData.shotType,
+      });
+
+      // Reset form
+      setShotReportData({
+        shotType: 'successful_pot',
+        ballSunk: false,
+        wasFoul: false,
+        notes: '',
+      });
+      setShotReportDialog(false);
+    } else {
+      console.warn('Player ID not available for shot reporting');
+    }
+  };
+
+  const handleShotReportCancel = () => {
+    setShotReportDialog(false);
+    setShotReportData({
+      shotType: 'successful_pot',
+      ballSunk: false,
+      wasFoul: false,
+      notes: '',
+    });
+  };
 
   if (loading) {
     return (
@@ -134,7 +201,80 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
 
   return (
     <>
-      <LiveCommentary gameId={gameId} />
+      <LiveCommentary gameId={gameId} playerId={playerId} />
+
+      {/* Shot Reporting Section */}
+      {playerId && (
+        <Paper sx={{ p: 3, m: 2, mb: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            🎯 Shot Reporting
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Report the outcome of your shot for AI commentary and game tracking
+          </Typography>
+
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<Add />}
+              onClick={handleShotReport}
+              disabled={!commentaryConnected}
+            >
+              Report Shot
+            </Button>
+
+            <Button
+              variant="outlined"
+              color="info"
+              startIcon={<SportsScore />}
+              onClick={() => {
+                setShotReportData((prev) => ({
+                  ...prev,
+                  shotType: 'successful_pot',
+                  ballSunk: true,
+                  wasFoul: false,
+                }));
+                handleShotReportSubmit();
+              }}
+              disabled={!commentaryConnected}
+            >
+              Successful Pot
+            </Button>
+
+            <Button
+              variant="outlined"
+              color="warning"
+              startIcon={<Warning />}
+              onClick={() => {
+                setShotReportData((prev) => ({
+                  ...prev,
+                  shotType: 'foul',
+                  ballSunk: false,
+                  wasFoul: true,
+                }));
+                handleShotReportSubmit();
+              }}
+              disabled={!commentaryConnected}
+            >
+              Report Foul
+            </Button>
+          </Box>
+
+          <Box sx={{ mt: 2 }}>
+            <Chip
+              label={
+                commentaryConnected
+                  ? 'Connected to AI Commentary'
+                  : 'Disconnected'
+              }
+              color={commentaryConnected ? 'success' : 'error'}
+              size="small"
+            />
+          </Box>
+        </Paper>
+      )}
+
       {showRefereeDecision && (
         <Box sx={{ mb: 2 }}>
           <Alert severity={foul ? 'error' : 'info'} variant="filled">
@@ -166,6 +306,7 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
           </Alert>
         </Box>
       )}
+
       <Paper sx={{ p: 3, m: 2 }}>
         <Typography variant="h5" gutterBottom>
           Live Game Tracker
@@ -239,10 +380,93 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
           <Typography variant="body2">Rules display coming soon...</Typography>
           {/* Implement display of current game rules or rule violations here */}
         </Box>
-
-        {/* Shot Tracker - integrate if needed */}
-        {/* <ShotTracker onShotComplete={() => {}} /> */}
       </Paper>
+
+      {/* Shot Report Dialog */}
+      <Dialog
+        open={shotReportDialog}
+        onClose={handleShotReportCancel}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Report Shot Outcome</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Shot Type</InputLabel>
+              <Select
+                value={shotReportData.shotType}
+                label="Shot Type"
+                onChange={(e) =>
+                  setShotReportData((prev) => ({
+                    ...prev,
+                    shotType: e.target.value as any,
+                  }))
+                }
+              >
+                <MenuItem value="successful_pot">Successful Pot</MenuItem>
+                <MenuItem value="missed_shot">Missed Shot</MenuItem>
+                <MenuItem value="foul">Foul</MenuItem>
+                <MenuItem value="scratch">Scratch</MenuItem>
+              </Select>
+            </FormControl>
+
+            <Box sx={{ mb: 2 }}>
+              <Button
+                variant={shotReportData.ballSunk ? 'contained' : 'outlined'}
+                color="success"
+                onClick={() =>
+                  setShotReportData((prev) => ({
+                    ...prev,
+                    ballSunk: !prev.ballSunk,
+                  }))
+                }
+                sx={{ mr: 1 }}
+              >
+                {shotReportData.ballSunk ? '✅ Ball Sunk' : 'Ball Sunk'}
+              </Button>
+              <Button
+                variant={shotReportData.wasFoul ? 'contained' : 'outlined'}
+                color="warning"
+                onClick={() =>
+                  setShotReportData((prev) => ({
+                    ...prev,
+                    wasFoul: !prev.wasFoul,
+                  }))
+                }
+              >
+                {shotReportData.wasFoul ? '🚨 Foul' : 'Foul'}
+              </Button>
+            </Box>
+
+            <TextField
+              fullWidth
+              label="Additional Notes (Optional)"
+              multiline
+              rows={3}
+              value={shotReportData.notes}
+              onChange={(e) =>
+                setShotReportData((prev) => ({
+                  ...prev,
+                  notes: e.target.value,
+                }))
+              }
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleShotReportCancel} startIcon={<Close />}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleShotReportSubmit}
+            variant="contained"
+            color="primary"
+          >
+            Submit Report
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

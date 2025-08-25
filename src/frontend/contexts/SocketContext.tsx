@@ -6,7 +6,7 @@ import React, {
   useState,
   type ReactNode,
 } from 'react';
-import { SocketIOService } from '../../services/network/WebSocketService';
+import { SocketIOService } from '@/frontend/services/services/network/SocketIOClient';
 // Define a local lightweight type to avoid importing from core
 // Adjust fields as needed by frontend usage
 export interface GameTable {

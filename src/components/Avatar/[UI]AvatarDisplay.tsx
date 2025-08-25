@@ -2,6 +2,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { Badge, IconButton, Avatar as MuiAvatar, Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import React from 'react';
+import styles from './AvatarDisplay.module.css';
 
 export interface AvatarDisplayProps {
   avatarUrl?: string | null;
@@ -124,7 +125,7 @@ const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   );
 
   return (
-    <div className={className} style={{ display: 'inline-block' }}>
+    <div className={`${className} ${styles.avatarContainer}`}>
       {editableAvatar}
     </div>
   );

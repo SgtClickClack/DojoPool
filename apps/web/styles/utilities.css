@@ -34,6 +34,12 @@
   );
 }
 
+/* Firefox scrollbar colors */
+body {
+  image.png: thin;
+  scrollbar-color: var(--primary-color) #1e1e1e;
+}
+
 /* Specific scrollbar styles for components */
 .history-list::-webkit-scrollbar,
 .debug-content::-webkit-scrollbar,
@@ -88,16 +94,21 @@
   min-height: 100vh;
 }
 
-/* Touch scrolling optimization */
-.touch-scroll {
-  -webkit-overflow-scrolling: touch;
-  overflow-scrolling: touch;
-}
+/* Touch scrolling optimization (removed unsupported property) */
 
 /* Tap highlight removal */
 .no-tap-highlight {
   -webkit-tap-highlight-color: transparent;
-  tap-highlight-color: transparent;
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ==========================================================================
@@ -107,7 +118,7 @@
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .high-dpi-image {
     image-rendering: -webkit-optimize-contrast;
-    image-rendering: -moz-crisp-edges;
+    image-rendering: pixelated;
   }
 }
 
@@ -127,7 +138,6 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-fill-color: transparent;
 }
 
 /* ==========================================================================

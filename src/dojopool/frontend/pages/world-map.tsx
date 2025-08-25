@@ -10,7 +10,7 @@ import {
 import React, { useState } from 'react';
 import WorldHub from '../../../apps/web/src/components/world/WorldHub';
 import PageBackground from '../src/components/common/PageBackground';
-import Layout from '../src/components/layout/Layout';
+import Layout from '@/components/Layout';
 
 const WorldMapPage: React.FC = () => {
   const [playerStats] = useState({

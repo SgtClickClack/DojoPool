@@ -11,6 +11,7 @@
   font-family: 'Courier New', monospace;
   box-shadow: 0 0 20px rgba(0, 255, 159, 0.2);
   z-index: 1000;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 

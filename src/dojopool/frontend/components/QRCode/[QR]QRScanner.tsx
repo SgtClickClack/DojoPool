@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
 import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import QrScanner from 'qr-scanner';
+import React, { useEffect, useRef, useState } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const QrScanner: any = require('qr-scanner');
 
 interface QRScannerProps {
   onScan: (data: string) => void;
@@ -39,7 +40,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onError, onClose }) => {
   const [hasPermission, setHasPermission] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const scannerRef = useRef<QrScanner | null>(null);
+  const scannerRef = useRef<any | null>(null);
 
   useEffect(() => {
     const initializeScanner = async () => {
@@ -58,7 +59,7 @@ const QRScanner: React.FC<QRScannerProps> = ({ onScan, onError, onClose }) => {
         // Initialize scanner
         const qrScanner = new QrScanner(
           videoRef.current,
-          (result) => {
+          (result: any) => {
             onScan(result.data);
           },
           {

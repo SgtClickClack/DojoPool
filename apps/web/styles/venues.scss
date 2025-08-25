@@ -131,7 +131,7 @@
       padding: 16px;
       border-radius: 4px;
       text-align: center;
-      transition: all 0.3s;
+      transition: box-shadow 0.3s;
 
       &:hover {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -162,7 +162,7 @@
 
     .ant-table-row {
       cursor: pointer;
-      transition: all 0.3s;
+      transition: background-color 0.3s;
 
       &:hover {
         background-color: #f5f5f5;
@@ -195,6 +195,26 @@
         }
       }
     }
+
+    .ant-list {
+      .ant-list-item {
+        padding: 16px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+
+        &:hover {
+          background-color: #f5f5f5;
+        }
+
+        .ant-list-item-meta {
+          align-items: center;
+
+          .ant-list-item-meta-title {
+            margin-bottom: 4px;
+          }
+        }
+      }
+    }
   }
 
   .ant-chart-line {
@@ -214,7 +234,7 @@
       padding: 16px;
       border-radius: 4px;
       text-align: center;
-      transition: all 0.3s;
+      transition: box-shadow 0.3s;
 
       &:hover {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -230,7 +250,7 @@
         font-weight: 500;
 
         &-value {
-          transition: all 0.3s;
+          transition: color 0.3s;
         }
       }
     }
@@ -259,7 +279,7 @@
       }
 
       .ant-table-row {
-        transition: all 0.3s;
+        transition: background-color 0.3s;
 
         &:hover {
           background-color: #f5f5f5;
@@ -319,7 +339,7 @@
 
       .ant-table-row {
         cursor: pointer;
-        transition: all 0.3s;
+        transition: background-color 0.3s;
 
         &:hover {
           background-color: #f5f5f5;
@@ -348,7 +368,7 @@
       .ant-list-item {
         padding: 16px;
         border-radius: 4px;
-        transition: all 0.3s;
+        transition: background-color 0.3s;
 
         &:hover {
           background-color: #f5f5f5;
@@ -369,7 +389,7 @@
     margin-bottom: 16px;
     border-radius: 8px;
     overflow: hidden;
-    transition: all 0.3s;
+    transition: box-shadow 0.3s;
 
     &:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -418,7 +438,7 @@
       padding: 16px;
       border-radius: 4px;
       text-align: center;
-      transition: all 0.3s;
+      transition: box-shadow 0.3s;
 
       &:hover {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -435,5 +455,15 @@
         color: #1890ff;
       }
     }
+  }
+}
+
+/* Reduced motion safeguard */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
   }
 }

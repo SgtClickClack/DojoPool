@@ -1,5 +1,5 @@
-import axiosInstance from './axiosInstance';
 import { type Tournament } from '../types/tournament';
+import axiosInstance from './axiosInstance';
 
 export const getTournaments = async (): Promise<Tournament[]> => {
   const response = await axiosInstance.get('/v1/tournaments');
@@ -11,33 +11,57 @@ export const getTournament = async (id: string): Promise<Tournament> => {
   return response.data as Tournament;
 };
 
-export const getTournamentMatches = async (tournamentId: string): Promise<any[]> => {
-  const response = await axiosInstance.get(`/v1/tournaments/${tournamentId}/matches`);
+export const getTournamentMatches = async (
+  tournamentId: string
+): Promise<any[]> => {
+  const response = await axiosInstance.get(
+    `/v1/tournaments/${tournamentId}/matches`
+  );
   return response.data;
 };
 
-export const createTournament = async (data: Partial<Tournament>): Promise<Tournament> => {
+export const createTournament = async (
+  data: Partial<Tournament>
+): Promise<Tournament> => {
   const response = await axiosInstance.post('/v1/tournaments', data);
   return response.data as Tournament;
 };
 
-export const updateTournament = async (id: string, data: Partial<Tournament>): Promise<Tournament> => {
+export const updateTournament = async (
+  id: string,
+  data: Partial<Tournament>
+): Promise<Tournament> => {
   const response = await axiosInstance.put(`/v1/tournaments/${id}`, data);
   return response.data as Tournament;
 };
 
-export const registerPlayer = async (tournamentId: string, playerId: string): Promise<Tournament> => {
-  const response = await axiosInstance.post(`/v1/tournaments/${tournamentId}/players`, { playerId });
+export const registerPlayer = async (
+  tournamentId: string,
+  playerId: string
+): Promise<Tournament> => {
+  const response = await axiosInstance.post(
+    `/v1/tournaments/${tournamentId}/players`,
+    { playerId }
+  );
   return response.data as Tournament;
 };
 
-export const unregisterPlayer = async (tournamentId: string, playerId: string): Promise<Tournament> => {
-  const response = await axiosInstance.delete(`/v1/tournaments/${tournamentId}/players/${playerId}`);
+export const unregisterPlayer = async (
+  tournamentId: string,
+  playerId: string
+): Promise<Tournament> => {
+  const response = await axiosInstance.delete(
+    `/v1/tournaments/${tournamentId}/players/${playerId}`
+  );
   return response.data as Tournament;
 };
 
-export const startTournament = async (tournamentId: string): Promise<Tournament> => {
-  const response = await axiosInstance.post(`/v1/tournaments/${tournamentId}/start`);
+export const startTournament = async (
+  tournamentId: string
+): Promise<Tournament> => {
+  const response = await axiosInstance.post(
+    `/v1/tournaments/${tournamentId}/start`
+  );
   return response.data as Tournament;
 };
 

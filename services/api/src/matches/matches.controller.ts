@@ -1,13 +1,37 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 
-@Controller('v1/matches')
+interface FinalizeMatchDto {
+  winnerId: string;
+  scoreA: number;
+  scoreB: number;
+}
+
+@Controller('matches')
 export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.matchesService.getMatchById(id);
+  }
+
+  @Get(':id/analysis')
+  async getMatchWithAnalysis(@Param('id') id: string) {
+    return this.matchesService.getMatchWithAnalysis(id);
+  }
+
+  @Put(':id/finalize')
+  async finalizeMatch(
+    @Param('id') id: string,
+    @Body() finalizeData: FinalizeMatchDto
+  ) {
+    return this.matchesService.finalizeMatch(
+      id,
+      finalizeData.winnerId,
+      finalizeData.scoreA,
+      finalizeData.scoreB
+    );
   }
 
   // Minimal resume endpoint to support frontend useGameState resume call

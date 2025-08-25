@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
-import { MatchesController } from './matches.controller';
-import { MatchesService } from './matches.service';
-import { MatchesGateway } from './matches.gateway';
+import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
+import { AiAnalysisService } from './ai-analysis.service';
+import { MatchesController } from './matches.controller';
+import { MatchesGateway } from './matches.gateway';
+import { MatchesService } from './matches.service';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ConfigModule],
   controllers: [MatchesController],
-  providers: [MatchesService, MatchesGateway],
-  exports: [MatchesService],
+  providers: [MatchesService, AiAnalysisService, MatchesGateway],
+  exports: [MatchesService, AiAnalysisService, MatchesGateway],
 })
 export class MatchesModule {}

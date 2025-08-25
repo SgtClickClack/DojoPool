@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React, { useEffect, useState } from 'react';
-import { QrReader } from 'react-qr-reader';
+import QrReader from 'react-qr-reader';
 import { apiClient } from '../services/api';
 
 interface QRScannerProps {
@@ -151,7 +151,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
                 <img
                   src={`data:image/png;base64,${qrCode}`}
                   alt="Table QR Code"
-                  style={{ maxWidth: '100%', height: 'auto' }}
+                  className="qr-image-responsive"
                 />
               )}
             </Box>
@@ -216,14 +216,11 @@ export const QRScanner: React.FC<QRScannerProps> = ({
             )}
 
             <QrReader
-              constraints={{ facingMode: 'environment' }}
-              onResult={(result) => {
-                if (result) {
-                  handleScan(result.getText());
-                }
+              onScan={(data: string | null) => {
+                if (data) handleScan(data);
               }}
-              containerStyle={{ width: '100%' }}
-              videoStyle={{ width: '100%' }}
+              onError={(err: any) => handleError(err)}
+              className="qrreader-fullwidth"
             />
           </Box>
         </DialogContent>

@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Tab,
   Tabs,
-  Box,
 } from '@mui/material';
-import QRScanner from './QRScanner';
-import QRDisplay from './QRDisplay';
+import React, { useState } from 'react';
+import QRDisplay from './[QR]QRDisplay';
+import QRScanner from './[QR]QRScanner';
 
 interface QRDialogProps {
   open: boolean;

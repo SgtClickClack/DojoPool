@@ -1,29 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import { LiveCommentaryPanel } from '@/components/ai/LiveCommentaryPanel';
+import { websocketService } from '@/services/services/network/WebSocketService';
 import {
-  Box,
-  Grid,
-  Typography,
-  Paper,
-  CircularProgress,
+  Cancel,
+  CheckCircle,
+  CheckCircleOutline,
+  EmojiEvents,
+  Error,
+  Flag,
+  GolfCourse,
+  Remove,
+  SportsEsports,
+  SportsScore,
+} from '@mui/icons-material';
+import {
   Alert,
-  Chip,
+  Box,
   Button,
   Card,
   CardContent,
-  Divider,
-  IconButton,
-  Tooltip,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Typography,
 } from '@mui/material';
-import {
-  SportsEsports,
-  Timer,
-  EmojiEvents,
-  Warning,
-  CheckCircle,
-  Cancel,
-} from '@mui/icons-material';
-import { useGameSocket } from '../../hooks/useGameSocket';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { useGameSocket } from '../../hooks/useGameSocket';
 
 interface RealTimeGameViewProps {
   gameId: string;
@@ -47,12 +59,67 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
     direction: { x: 0, y: 0 },
   });
 
+  const [shotReportDialog, setShotReportDialog] = useState(false);
+  const [shotReportData, setShotReportData] = useState({
+    shotType: 'successful_pot' as
+      | 'successful_pot'
+      | 'missed_shot'
+      | 'foul'
+      | 'scratch',
+    ballId: '',
+    pocketId: '',
+    notes: '',
+  });
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       leaveGame();
+      websocketService.leaveGameRoom(gameId);
     };
-  }, [leaveGame]);
+  }, [leaveGame, gameId]);
+
+  // Join game room for commentary
+  useEffect(() => {
+    if (connected && gameId) {
+      websocketService.joinGameRoom(gameId);
+    }
+  }, [connected, gameId]);
+
+  const handleShotReport = () => {
+    setShotReportDialog(true);
+  };
+
+  const handleShotReportSubmit = () => {
+    if (user?.id) {
+      websocketService.emitShotEvent({
+        gameId,
+        playerId: user.id,
+        shotType: shotReportData.shotType,
+        ballId: shotReportData.ballId || undefined,
+        pocketId: shotReportData.pocketId || undefined,
+      });
+
+      // Reset form
+      setShotReportData({
+        shotType: 'successful_pot',
+        ballId: '',
+        pocketId: '',
+        notes: '',
+      });
+      setShotReportDialog(false);
+    }
+  };
+
+  const handleShotReportCancel = () => {
+    setShotReportDialog(false);
+    setShotReportData({
+      shotType: 'successful_pot',
+      ballId: '',
+      pocketId: '',
+      notes: '',
+    });
+  };
 
   if (loading) {
     return (
@@ -102,101 +169,31 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
 
   return (
     <Box sx={{ p: 2 }}>
-      {/* Connection Status */}
-      <Paper
-        sx={{
-          p: 2,
-          mb: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Box display="flex" alignItems="center">
-          <Chip
-            icon={connected ? <CheckCircle /> : <Cancel />}
-            label={connected ? 'Connected' : 'Disconnected'}
-            color={connected ? 'success' : 'error'}
-            sx={{ mr: 2 }}
-          />
-          <Typography variant="h6">Game #{gameId}</Typography>
-        </Box>
-        <Typography variant="body2" color="text.secondary">
-          Status: {gameState.status}
-        </Typography>
-      </Paper>
-
       <Grid container spacing={3}>
-        {/* Game Visualization */}
+        {/* Left Column - Game Status and Controls */}
         <Grid item xs={12} md={8}>
-          <Paper
-            sx={{ p: 3, height: 500, display: 'flex', flexDirection: 'column' }}
-          >
-            <Typography variant="h5" gutterBottom>
-              Pool Table
-            </Typography>
-
-            {/* Placeholder for actual table visualization */}
+          <Paper sx={{ p: 3, mb: 3 }}>
+            {/* Game Status Header */}
             <Box
-              sx={{
-                flex: 1,
-                bgcolor: 'green.700',
-                borderRadius: 2,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                border: '8px solid #654321',
-              }}
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              mb={3}
             >
-              <Typography variant="h6" color="white">
-                Table Visualization Coming Soon
+              <Typography variant="h4" sx={{ color: 'primary.main' }}>
+                Live Match
               </Typography>
-
-              {/* Ball positions overlay */}
-              {Object.entries(gameState.ballPositions).map(
-                ([ballId, position]) => (
-                  <Box
-                    key={ballId}
-                    sx={{
-                      position: 'absolute',
-                      left: `${(position.x / 100) * 100}%`,
-                      top: `${(position.y / 100) * 100}%`,
-                      width: 20,
-                      height: 20,
-                      borderRadius: '50%',
-                      bgcolor: ballId === '0' ? 'white' : 'red',
-                      border: '2px solid black',
-                      transform: 'translate(-50%, -50%)',
-                    }}
-                  />
-                )
-              )}
+              <Chip
+                label={connected ? 'Connected' : 'Disconnected'}
+                color={connected ? 'success' : 'error'}
+                icon={connected ? <CheckCircle /> : <Cancel />}
+              />
             </Box>
 
-            {/* Last shot indicator */}
-            {gameState.lastShot && (
-              <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-                <Typography variant="subtitle2">
-                  Last Shot: {gameState.lastShot.type} -{' '}
-                  {gameState.lastShot.success ? 'Success' : 'Miss'}
-                </Typography>
-              </Box>
-            )}
-          </Paper>
-        </Grid>
-
-        {/* Game Info Panel */}
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3, height: 'fit-content' }}>
-            <Typography variant="h5" gutterBottom>
-              Game Info
-            </Typography>
-
-            {/* Current Player */}
+            {/* Current Turn */}
             <Card sx={{ mb: 2 }}>
               <CardContent>
-                <Box display="flex" alignItems="center" mb={1}>
+                <Box display="flex" alignItems="center" gap={2}>
                   <SportsEsports sx={{ mr: 1 }} />
                   <Typography variant="h6">Current Turn</Typography>
                 </Box>
@@ -217,108 +214,254 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
             {/* Players and Scores */}
             <Card sx={{ mb: 2 }}>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Players & Scores
-                </Typography>
-                {gameState.players.map((player) => (
-                  <Box key={player.id} sx={{ mb: 1 }}>
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center"
-                    >
-                      <Typography variant="body1">{player.name}</Typography>
-                      <Typography variant="h6" color="primary">
-                        {player.score}
-                      </Typography>
-                    </Box>
-
-                    {/* Fouls */}
-                    {gameState.fouls[player.id]?.length > 0 && (
-                      <Box sx={{ mt: 0.5 }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Fouls: {gameState.fouls[player.id].length}
+                <Box display="flex" alignItems="center" gap={2} mb={2}>
+                  <SportsScore sx={{ mr: 1 }} />
+                  <Typography variant="h6">Score</Typography>
+                </Box>
+                <Grid container spacing={2}>
+                  {gameState.players.map((player) => (
+                    <Grid item xs={6} key={player.id}>
+                      <Box
+                        sx={{
+                          p: 2,
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          borderRadius: 1,
+                          textAlign: 'center',
+                          bgcolor:
+                            player.id === gameState.currentPlayer
+                              ? 'action.selected'
+                              : 'background.paper',
+                        }}
+                      >
+                        <Typography variant="h6" color="primary">
+                          {player.name}
+                        </Typography>
+                        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+                          {player.score}
                         </Typography>
                       </Box>
-                    )}
-                  </Box>
-                ))}
+                    </Grid>
+                  ))}
+                </Grid>
               </CardContent>
             </Card>
 
-            {/* Winner */}
-            {gameState.winner && (
-              <Card sx={{ mb: 2, bgcolor: 'success.light' }}>
-                <CardContent>
-                  <Box display="flex" alignItems="center">
-                    <EmojiEvents sx={{ mr: 1, color: 'gold' }} />
-                    <Typography variant="h6" color="white">
-                      Winner:{' '}
-                      {
-                        gameState.players.find((p) => p.id === gameState.winner)
-                          ?.name
-                      }
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            )}
+            {/* Shot Reporting Section */}
+            <Card sx={{ mb: 2 }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" gap={2} mb={2}>
+                  <GolfCourse sx={{ mr: 1 }} />
+                  <Typography variant="h6">Shot Reporting</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" mb={2}>
+                  Report your shot outcome to generate AI commentary
+                </Typography>
 
-            {/* Game Controls */}
-            {!gameState.winner && (
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Game Controls
-                  </Typography>
-
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" gutterBottom>
-                      Shot Velocity: {shotData.velocity}
-                    </Typography>
-                    <input
-                      type="range"
-                      min="0.1"
-                      max="2.0"
-                      step="0.1"
-                      value={shotData.velocity}
-                      onChange={(e) =>
-                        setShotData((prev) => ({
-                          ...prev,
-                          velocity: parseFloat(e.target.value),
-                        }))
-                      }
-                      style={{ width: '100%' }}
-                    />
-                  </Box>
-
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
                     <Button
                       variant="contained"
-                      color="primary"
-                      onClick={() => takeShot(shotData)}
-                      disabled={!isMyTurn || !connected}
+                      color="success"
                       fullWidth
+                      startIcon={<CheckCircleOutline />}
+                      onClick={() => {
+                        setShotReportData((prev) => ({
+                          ...prev,
+                          shotType: 'successful_pot',
+                        }));
+                        handleShotReport();
+                      }}
+                      sx={{ mb: 1 }}
                     >
-                      Take Shot
+                      Successful Pot
                     </Button>
-
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
                     <Button
                       variant="outlined"
                       color="warning"
-                      onClick={() => reportFoul({ type: 'scratch' })}
-                      disabled={!isMyTurn || !connected}
                       fullWidth
+                      startIcon={<Remove />}
+                      onClick={() => {
+                        setShotReportData((prev) => ({
+                          ...prev,
+                          shotType: 'missed_shot',
+                        }));
+                        handleShotReport();
+                      }}
+                      sx={{ mb: 1 }}
                     >
-                      Report Foul
+                      Missed Shot
                     </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            )}
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      fullWidth
+                      startIcon={<Error />}
+                      onClick={() => {
+                        setShotReportData((prev) => ({
+                          ...prev,
+                          shotType: 'foul',
+                        }));
+                        handleShotReport();
+                      }}
+                      sx={{ mb: 1 }}
+                    >
+                      Foul
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      fullWidth
+                      startIcon={<Flag />}
+                      onClick={() => {
+                        setShotReportData((prev) => ({
+                          ...prev,
+                          shotType: 'scratch',
+                        }));
+                        handleShotReport();
+                      }}
+                      sx={{ mb: 1 }}
+                    >
+                      Scratch
+                    </Button>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
+            {/* Game Actions */}
+            <Card>
+              <CardContent>
+                <Box display="flex" alignItems="center" gap={2} mb={2}>
+                  <EmojiEvents sx={{ mr: 1 }} />
+                  <Typography variant="h6">Game Actions</Typography>
+                </Box>
+                <Box display="flex" gap={2}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      // Handle game actions
+                    }}
+                  >
+                    Take Shot
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => {
+                      // Handle foul reporting
+                    }}
+                  >
+                    Report Foul
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => {
+                      // Handle game end
+                    }}
+                  >
+                    End Game
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
           </Paper>
         </Grid>
+
+        {/* Right Column - Live Commentary */}
+        <Grid item xs={12} md={4}>
+          <LiveCommentaryPanel gameId={gameId} isActive={connected} />
+        </Grid>
       </Grid>
+
+      {/* Shot Report Dialog */}
+      <Dialog
+        open={shotReportDialog}
+        onClose={handleShotReportCancel}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Report Shot Outcome</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Shot Type</InputLabel>
+              <Select
+                value={shotReportData.shotType}
+                label="Shot Type"
+                onChange={(e) =>
+                  setShotReportData((prev) => ({
+                    ...prev,
+                    shotType: e.target.value as any,
+                  }))
+                }
+              >
+                <MenuItem value="successful_pot">Successful Pot</MenuItem>
+                <MenuItem value="missed_shot">Missed Shot</MenuItem>
+                <MenuItem value="foul">Foul</MenuItem>
+                <MenuItem value="scratch">Scratch</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              fullWidth
+              label="Ball ID (optional)"
+              value={shotReportData.ballId}
+              onChange={(e) =>
+                setShotReportData((prev) => ({
+                  ...prev,
+                  ballId: e.target.value,
+                }))
+              }
+              sx={{ mb: 2 }}
+              placeholder="e.g., 8-ball, 9-ball"
+            />
+
+            <TextField
+              fullWidth
+              label="Pocket ID (optional)"
+              value={shotReportData.pocketId}
+              onChange={(e) =>
+                setShotReportData((prev) => ({
+                  ...prev,
+                  pocketId: e.target.value,
+                }))
+              }
+              sx={{ mb: 2 }}
+              placeholder="e.g., corner, side"
+            />
+
+            <TextField
+              fullWidth
+              label="Notes (optional)"
+              value={shotReportData.notes}
+              onChange={(e) =>
+                setShotReportData((prev) => ({
+                  ...prev,
+                  notes: e.target.value,
+                }))
+              }
+              multiline
+              rows={3}
+              placeholder="Additional details about the shot..."
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleShotReportCancel}>Cancel</Button>
+          <Button onClick={handleShotReportSubmit} variant="contained">
+            Submit Report
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

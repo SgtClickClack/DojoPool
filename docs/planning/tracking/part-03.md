@@ -1,3 +1,56 @@
+## 2025-08-24: World Hub Map Promoted to Home Page
+
+Replaced the web app home page with the existing World Hub Map page and removed the redundant `/world-map` route. Updated the main navigation to point to the root for the World Map entry.
+
+**Core Components Implemented:**
+
+- `apps/web/src/pages/index.tsx` now renders the World Hub Map page content
+- Deleted legacy `apps/web/src/pages/world-map.tsx`
+- Updated `apps/web/src/components/Layout/AppBar.tsx` World Map link to `/`
+
+**File Paths:**
+
+- apps/web/src/pages/index.tsx (edited)
+- apps/web/src/pages/world-map.tsx (deleted)
+- apps/web/src/components/Layout/AppBar.tsx (edited)
+
+**Next Priority Task:**
+Verify no remaining internal links reference `/world-map`; ensure end-to-end navigation tests pass and update any docs/screenshots referencing the old route.
+
+Expected completion time: 30 minutes
+
+## 2025-08-21: Web App Type Errors Resolved, ESLint Config Fixed, Next.js Build Stabilization
+
+Resolved critical TypeScript and configuration issues blocking iteration on the web app.
+
+**Core Components Implemented:**
+
+- Added `apps/web/src/services/api/apiClient.ts` (axios client)
+- Added local type declarations for `react-image-crop` to fix PixelCrop import
+- Fixed `EditProfileModal.tsx` typing and API usage via local declarations
+- Introduced `apps/web/.eslintrc.cjs` to avoid incompatible root ESLint config
+- Consolidated `apps/web/src/pages/_app.tsx` into a single export with providers and global CSS
+- Removed ESM `.eslintrc.js` conflict by switching to `.eslintrc.cjs`
+- Disabled missing image in `apps/web/styles/base.css` to prevent asset 404 during build
+- Unified `apps/web/next.config.js`, removed duplicate configs, reduced tracing pressure
+- Adjusted `profile.tsx` to avoid router usage during SSR
+
+**File Paths:**
+
+- `apps/web/src/services/api/apiClient.ts`
+- `apps/web/src/types/react-image-crop.d.ts`
+- `apps/web/src/components/EditProfileModal.tsx`
+- `apps/web/.eslintrc.cjs`
+- `apps/web/src/pages/_app.tsx`
+- `apps/web/styles/base.css`
+- `apps/web/next.config.js`
+- `apps/web/src/pages/profile.tsx`
+
+**Next Priority Task:**
+Mitigate Windows EMFILE during Next.js production build by limiting tracing on node_modules icons or vendor-splitting icons usage; proceed with dev server for functional validation in parallel.
+
+Expected completion time: 2 hours
+
 # DojoPool Development Tracking – Part 03
 
 Previous: c:/dev/DojoPoolONE/DojoPool/DEVELOPMENT_TRACKING_PART_02.md
@@ -3547,5 +3600,104 @@ Successfully implemented the User Profile Page feature, creating a dedicated spa
 Implement advanced player statistics and analytics, including performance trends over time, head-to-head records against specific opponents, and detailed tournament performance breakdowns with visual charts and graphs.
 
 Expected completion time: 3-4 days
+
+---
+
+### 2025-01-30: Marketplace System Implementation with User Currency and Inventory
+
+**Description:**
+Implemented a comprehensive marketplace system for DojoPool, including user currency display, marketplace page, inventory management, and purchase flow. The system provides a complete digital economy for players to buy, sell, and manage in-game items.
+
+**Core Components Implemented:**
+
+- `apps/web/src/services/marketplaceService.ts` - Complete marketplace API service with mock data
+- `apps/web/src/components/marketplace/MarketplaceGrid.tsx` - Enhanced marketplace grid with Material-UI cards
+- `apps/web/src/pages/marketplace.tsx` - Full marketplace page with user balance display
+- `apps/web/src/pages/profile/inventory.tsx` - User inventory page with item management
+- Updated `apps/web/src/components/Layout/AppBar.tsx` - Added marketplace navigation and currency display
+
+**Key Features:**
+
+- **Marketplace Service**: API functions for `getMarketplaceItems()`, `buyMarketplaceItem()`, `getUserInventory()`, and `getUserBalance()`
+- **Currency Display**: DojoCoin balance prominently displayed in AppBar and marketplace pages
+- **Marketplace Grid**: Responsive grid layout with item cards showing price, rarity, stock, and buy buttons
+- **Purchase Flow**: Complete buying process with balance validation, stock updates, and success/error notifications
+- **Inventory Management**: User inventory page with equipped items, rarity badges, and item statistics
+- **Item Categories**: Support for avatars, cues, tables, emotes, and titles with rarity levels
+- **Mock Data**: Comprehensive mock marketplace items and inventory for development and testing
+- **Responsive Design**: Mobile-friendly interface with Material-UI components and proper spacing
+
+**Integration Points:**
+
+- Integrates with existing authentication system for user-specific data
+- Connects with AppBar navigation for consistent user experience
+- Uses existing Material-UI theme and styling patterns
+- Compatible with existing API client infrastructure
+- Supports future backend integration for real marketplace data
+- Integrates with user profile system for inventory management
+- Connects with notification system for purchase confirmations
+
+**File Paths:**
+
+- `apps/web/src/services/marketplaceService.ts` (new)
+- `apps/web/src/components/marketplace/MarketplaceGrid.tsx` (updated)
+- `apps/web/src/pages/marketplace.tsx` (updated)
+- `apps/web/src/pages/profile/inventory.tsx` (new)
+- `apps/web/src/components/Layout/AppBar.tsx` (updated)
+
+**Next Priority Task:**
+Implement backend marketplace endpoints (`/api/v1/marketplace/items`, `/api/v1/marketplace/items/:id/buy`, `/api/v1/user/inventory`, `/api/v1/user/balance`) to replace mock data with real database integration.
+
+Expected completion time: 4-6 hours
+
+---
+
+### 2025-01-30: Player Challenge Wager System Implementation
+
+**Description:**
+Implemented a comprehensive wager system for player challenges in DojoPool, allowing players to propose and accept challenges with optional DojoCoin bets. The system includes challenge creation, notification display, and wager confirmation workflows.
+
+**Core Components Implemented:**
+
+- `apps/web/src/services/challengeService.ts` - Complete challenge service with wager support
+- `apps/web/src/components/challenge/ChallengeModal.tsx` - Challenge creation modal with wager input
+- `apps/web/src/components/challenge/ChallengeNotification.tsx` - Challenge notification display with wager confirmation
+- Updated `apps/web/src/pages/players/[id].tsx` - Added challenge button and modal integration
+- `apps/web/src/pages/challenge-demo.tsx` - Demo page showcasing the wager system
+
+**Key Features:**
+
+- **Wager Input**: Players can specify DojoCoin amounts when challenging others
+- **Balance Validation**: Prevents wagering more than available DojoCoins
+- **Challenge Modal**: User-friendly interface for creating challenges with wagers
+- **Notification System**: Displays incoming challenges with wager amounts prominently
+- **Wager Confirmation**: Special confirmation dialog for challenges involving money
+- **Friendly Matches**: Support for non-wager challenges (0 DojoCoins)
+- **Real-time Updates**: Challenge status tracking and response handling
+- **Mock Backend**: Development-ready with mock challenge service
+- **Demo Interface**: Interactive demo page for testing wager functionality
+
+**Integration Points:**
+
+- Integrates with existing marketplace service for user balance validation
+- Connects with authentication system for user identification
+- Uses existing Material-UI components and styling patterns
+- Compatible with existing API client infrastructure
+- Supports future backend integration for real challenge system
+- Integrates with player profile system for challenge initiation
+- Connects with notification system for challenge responses
+
+**File Paths:**
+
+- `apps/web/src/services/challengeService.ts` (new)
+- `apps/web/src/components/challenge/ChallengeModal.tsx` (new)
+- `apps/web/src/components/challenge/ChallengeNotification.tsx` (new)
+- `apps/web/src/pages/players/[id].tsx` (updated)
+- `apps/web/src/pages/challenge-demo.tsx` (new)
+
+**Next Priority Task:**
+Implement backend challenge endpoints (`/api/v1/challenges/send`, `/api/v1/challenges/:id/accept`, `/api/v1/challenges/:id/decline`, `/api/v1/challenges/pending`, `/api/v1/challenges/history`) to replace mock service with real database integration and WebSocket notifications.
+
+Expected completion time: 6-8 hours
 
 ---

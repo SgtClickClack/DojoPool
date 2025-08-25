@@ -201,8 +201,8 @@ const CreateExperiment: React.FC<CreateExperimentProps> = ({
 
                 <DatePicker
                   label="Start Date"
-                  value={startDate}
-                  onChange={(date) => setStartDate(date)}
+                  value={startDate as any}
+                  onChange={(date: any) => setStartDate(date as any)}
                   slotProps={{
                     textField: { required: true, fullWidth: true },
                   }}
@@ -210,8 +210,8 @@ const CreateExperiment: React.FC<CreateExperimentProps> = ({
 
                 <DatePicker
                   label="End Date (Optional)"
-                  value={endDate}
-                  onChange={(date) => setEndDate(date)}
+                  value={endDate as any}
+                  onChange={(date: any) => setEndDate(date as any)}
                   slotProps={{
                     textField: { fullWidth: true },
                   }}

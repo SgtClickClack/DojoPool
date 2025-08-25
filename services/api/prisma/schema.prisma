@@ -3,8 +3,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model User {
@@ -12,7 +17,9 @@ model User {
   email         String                 @unique
   username      String                 @unique
   passwordHash  String
-  role          UserRole               @default(USER)
+  role          Role                   @default(USER)
+  isBanned      Boolean                @default(false)
+  dojoCoinBalance Int                  @default(0)
   profile       Profile?
   settings      UserSettings?
   wallets       Wallet[]
@@ -21,6 +28,7 @@ model User {
   memberships   ClanMember[]
   territories   Territory[]            @relation("TerritoryOwner")
   checkIns      CheckIn[]
+  dojoCheckIns DojoCheckIn[]
   challengesAsChallenger Challenge[]   @relation("ChallengeChallenger")
   challengesAsDefender   Challenge[]   @relation("ChallengeDefender")
   ledClans      Clan[]                 @relation("ClanLeader")
@@ -35,15 +43,15 @@ model User {
   venues        Venue[]
   friendshipsAsRequester Friendship[]  @relation("FriendRequester")
   friendshipsAsAddressee Friendship[]  @relation("FriendAddressee")
+  activityEvents ActivityEvent[]       @relation("UserActivityEvents")
+  inventoryItems UserInventoryItem[]
+  sentMessages   DirectMessage[]        @relation("DM_Sender")
+  receivedMessages DirectMessage[]      @relation("DM_Receiver")
   createdAt     DateTime               @default(now())
   updatedAt     DateTime               @updatedAt
 }
 
-enum UserRole {
-  USER
-  VENUE_ADMIN
-  ADMIN
-}
+
 
 model Profile {
   id          String   @id @default(uuid())
@@ -68,29 +76,35 @@ model UserSettings {
   darkMode           Boolean  @default(false)
   language           String   @default("en")
   timezone           String   @default("UTC")
-  privacySettings    Json     @default("{}")
+  privacySettings    String   @default("{}")
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }
 
 model Venue {
-  id          String        @id @default(uuid())
-  name        String
-  description String?
-  lat         Float
-  lng         Float
-  address     String?
-  ownerId     String?
-  owner       User?         @relation(fields: [ownerId], references: [id])
-  tables      Table[]
-  tournaments Tournament[]
-  territories Territory[]
-  checkIns    CheckIn[]
-  challenges  Challenge[]
-  matches     Match[]
-  gameSessions GameSession[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id                String        @id @default(uuid())
+  name              String
+  description       String?
+  lat               Float
+  lng               Float
+  address           String?
+  ownerId           String?
+  owner             User?         @relation(fields: [ownerId], references: [id])
+  tables            Table[]
+  tournaments       Tournament[]
+  territories       Territory[]
+  checkIns          CheckIn[]
+  dojoCheckIns      DojoCheckIn[]
+  challenges        Challenge[]
+  matches           Match[]
+  gameSessions      GameSession[]
+  controllingClanId String?
+  controllingClan   Clan?         @relation("ClanControlsVenues", fields: [controllingClanId], references: [id])
+  activityEvents    ActivityEvent[] @relation("VenueActivityEvents")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([controllingClanId])
 }
 
 model Table {
@@ -98,18 +112,13 @@ model Table {
   venueId   String
   venue     Venue       @relation(fields: [venueId], references: [id], onDelete: Cascade)
   name      String
-  status    TableStatus @default(AVAILABLE)
+  status    String      @default("AVAILABLE")
   matches   Match[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 }
 
-enum TableStatus {
-  AVAILABLE
-  IN_USE
-  MAINTENANCE
-  RESERVED
-}
+
 
 model Tournament {
   id          String                 @id @default(uuid())
@@ -121,20 +130,16 @@ model Tournament {
   venue       Venue                  @relation(fields: [venueId], references: [id])
   participants TournamentParticipant[]
   matches     Match[]
-  status      TournamentStatus       @default(REGISTRATION)
+  status      String                 @default("REGISTRATION")
   maxPlayers  Int?
   entryFee    Int?
   prizePool   Int?
+  activityEvents ActivityEvent[]     @relation("TournamentActivityEvents")
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
 }
 
-enum TournamentStatus {
-  REGISTRATION
-  ACTIVE
-  COMPLETED
-  CANCELLED
-}
+
 
 model TournamentParticipant {
   id           String     @id @default(uuid())
@@ -167,21 +172,19 @@ model Match {
   scoreA       Int?
   scoreB       Int?
   round        Int
-  status       MatchStatus   @default(PENDING)
+  wager        Int?          @default(0)
+  status       String        @default("PENDING")
   startedAt    DateTime?
   endedAt      DateTime?
   tableId      String?
   table        Table?        @relation(fields: [tableId], references: [id])
+  aiAnalysisJson String?
+  activityEvents ActivityEvent[] @relation("MatchActivityEvents")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
 
-enum MatchStatus {
-  PENDING
-  ACTIVE
-  COMPLETED
-  CANCELLED
-}
+
 
 model Territory {
   id        String   @id @default(uuid())
@@ -190,6 +193,8 @@ model Territory {
   venue     Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
   ownerId   String
   owner     User     @relation("TerritoryOwner", fields: [ownerId], references: [id])
+  clanId    String?
+  clan      Clan?    @relation(fields: [clanId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -202,17 +207,13 @@ model Challenge {
   defender    User          @relation("ChallengeDefender", fields: [defenderId], references: [id])
   venueId     String
   venue       Venue         @relation(fields: [venueId], references: [id])
-  status      ChallengeStatus @default(PENDING)
+  status      String          @default("PENDING")
+  expiresAt   DateTime?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
 
-enum ChallengeStatus {
-  PENDING
-  ACCEPTED
-  DECLINED
-  EXPIRED
-}
+
 
 model CheckIn {
   id        String   @id @default(uuid())
@@ -223,16 +224,33 @@ model CheckIn {
   createdAt DateTime @default(now())
 }
 
-model Clan {
-  id          String        @id @default(uuid())
-  name        String
-  description String?
-  leaderId    String
-  leader      User          @relation("ClanLeader", fields: [leaderId], references: [id])
-  members     ClanMember[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+model DojoCheckIn {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  venueId   String
+  venue     Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([venueId])
 }
+
+model Clan {
+  id                String        @id @default(uuid())
+  name              String        @unique
+  description       String?
+  leaderId          String
+  leader            User          @relation("ClanLeader", fields: [leaderId], references: [id])
+  members           ClanMember[]
+  territories       Territory[]
+  venues            Venue[]       @relation("ClanControlsVenues")
+  activityEvents    ActivityEvent[] @relation("ClanActivityEvents")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+
 
 model ClanMember {
   id        String   @id @default(uuid())
@@ -265,17 +283,9 @@ model Transaction {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   amount    Int
   currency  String   @default("DOJO")
-  type      TxType
-  metadata  Json
+  type      String
+  metadata  String
   createdAt DateTime @default(now())
-}
-
-enum TxType {
-  CREDIT
-  DEBIT
-  PRIZE
-  FEE
-  PURCHASE
 }
 
 model NFT {
@@ -283,7 +293,7 @@ model NFT {
   contract  String
   tokenId   String
   chain     String
-  metadata  Json
+  metadata  String
   users     UserNFT[]
   createdAt DateTime  @default(now())
 
@@ -308,7 +318,7 @@ model Achievement {
   desc        String?
   description String?
   icon        String?
-  criteria    Json?
+  criteria    String?
   points      Int               @default(0)
   users       UserAchievement[]
   createdAt   DateTime          @default(now())
@@ -325,14 +335,31 @@ model UserAchievement {
   @@unique([userId, achievementId])
 }
 
+enum NotificationType {
+  FRIEND_REQUEST
+  CHALLENGE_RECEIVED
+  TERRITORY_CHANGED
+  SYSTEM
+  TOURNAMENT_INVITE
+  CLAN_INVITE
+  ACHIEVEMENT_UNLOCKED
+  MATCH_RESULT
+  VENUE_CHECKIN
+  CLAN_WAR_UPDATE
+}
+
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      String
-  payload   Json
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id           String            @id @default(uuid())
+  recipientId  String
+  recipient    User              @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  type         NotificationType
+  message      String
+  isRead       Boolean           @default(false)
+  payload      String?
+  createdAt    DateTime          @default(now())
+
+  @@index([recipientId, isRead])
+  @@index([recipientId, createdAt])
 }
 
 model AuditLog {
@@ -341,54 +368,34 @@ model AuditLog {
   actor     User?    @relation(fields: [actorId], references: [id])
   action    String
   target    String?
-  metadata  Json
+  metadata  String
   ts        DateTime @default(now())
 }
 
-enum FriendshipStatus {
-  PENDING
-  ACCEPTED
-  DECLINED
-  BLOCKED
-}
 
-enum GameSessionStatus {
-  ACTIVE
-  PAUSED
-  COMPLETED
-  CANCELLED
-}
-
-enum GameType {
-  EIGHT_BALL
-  NINE_BALL
-  STRAIGHT_POOL
-  BANK_POOL
-  ONE_POCKET
-}
 
 model GameSession {
   id              String            @id @default(uuid())
   gameId          String
   venueId         String?
   venue           Venue?            @relation(fields: [venueId], references: [id])
-  status          GameSessionStatus @default(ACTIVE)
-  gameType        GameType
-  rules           Json              @default("{}")
+  status          String            @default("ACTIVE")
+  gameType        String
+  rules           String            @default("{}")
   startTime       DateTime          @default(now())
   endTime         DateTime?
   duration        Int?              // Duration in seconds
   lastUpdated     DateTime          @updatedAt
 
   // Player management
-  playerIds       String[]
+  playerIds       String
   currentPlayerId String?
 
   // Game state
-  ballStates      Json              @default("{}") // Record of ball positions/status
-  fouls           Json              @default("{}") // Player foul counts
-  score           Json              @default("{}") // Player scores
-  events          Json              @default("[]") // Game events (shots, fouls, etc.)
+  ballStates      String            @default("{}") // Record of ball positions/status
+  fouls           String            @default("{}") // Player foul counts
+  score           String            @default("{}") // Player scores
+  events          String            @default("[]") // Game events (shots, fouls, etc.)
 
   // Analytics
   totalShots      Int               @default(0)
@@ -402,7 +409,7 @@ model GameSession {
 
   // Network metrics
   connectionQuality Float?          // 0-1 scale
-  latencyStats     Json             @default("{}")
+  latencyStats     String             @default("{}")
   droppedFrames    Int              @default(0)
 
   // Winner tracking
@@ -420,11 +427,67 @@ model Friendship {
   addresseeId  String
   requester    User              @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
   addressee    User              @relation("FriendAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
-  status       FriendshipStatus  @default(PENDING)
+  status       String            @default("PENDING")
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
 
   @@unique([requesterId, addresseeId])
   @@index([addresseeId, status])
   @@index([requesterId, status])
+}
+
+model ActivityEvent {
+  id          String   @id @default(uuid())
+  type        String
+  message     String
+  userId      String?
+  user        User?    @relation("UserActivityEvents", fields: [userId], references: [id])
+  venueId     String?
+  venue       Venue?   @relation("VenueActivityEvents", fields: [venueId], references: [id])
+  tournamentId String?
+  tournament  Tournament? @relation("TournamentActivityEvents", fields: [tournamentId], references: [id])
+  matchId     String?
+  match       Match?   @relation("MatchActivityEvents", fields: [matchId], references: [id])
+  clanId      String?
+  clan        Clan?    @relation("ClanActivityEvents", fields: [clanId], references: [id])
+  metadata    String   @default("{}") // JSON string for additional data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DirectMessage {
+  id          String   @id @default(uuid())
+  content     String
+  timestamp   DateTime @default(now())
+  isRead      Boolean  @default(false)
+  senderId    String
+  receiverId  String
+  sender      User     @relation("DM_Sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User     @relation("DM_Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId, timestamp])
+}
+
+model MarketplaceItem {
+  id          String              @id @default(uuid())
+  name        String
+  description String?
+  price       Int
+  imageUrl    String?
+  inventory   UserInventoryItem[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+model UserInventoryItem {
+  id        String           @id @default(uuid())
+  userId    String
+  itemId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item      MarketplaceItem  @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+
+  @@unique([userId, itemId])
+  @@index([userId])
+  @@index([itemId])
 }

@@ -4,7 +4,7 @@ This document outlines the organization and structure of the DojoPool project af
 
 ## Directory Structure
 
-```
+```text
 dojopool/
 ├── src/                    # Source code
 │   ├── api/               # API endpoints and handlers
@@ -141,21 +141,25 @@ dojopool/
 ## Development Guidelines
 
 1. **Code Organization**
+
    - Keep related functionality together in appropriate modules
    - Use clear, descriptive names for files and directories
    - Follow Python package structure conventions
 
 2. **Configuration Management**
+
    - Store sensitive information in environment variables
    - Use appropriate configuration files for different environments
    - Keep configuration separate from code
 
 3. **Testing**
+
    - Write tests for new functionality
    - Maintain test coverage
    - Organize tests to mirror source code structure
 
 4. **Documentation**
+
    - Keep documentation up to date
    - Document new features and changes
    - Follow documentation standards

@@ -1,6 +1,6 @@
-export { default as QRScanner } from './QRScanner';
-export { default as QRDisplay } from './QRDisplay';
-export { default as QRDialog } from './QRDialog';
+export { default as QRDialog } from './[QR]QRDialog';
+export { default as QRDisplay } from './[QR]QRDisplay';
+export { default as QRScanner } from './[QR]QRScanner';
 
 // Types
 export interface QRScannerProps {

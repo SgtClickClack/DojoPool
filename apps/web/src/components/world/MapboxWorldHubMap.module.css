@@ -1,0 +1,316 @@
+.loadingContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(30, 30, 30, 0.95);
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.loadingContainer.h100 {
+  height: 100%;
+}
+.loadingContainer.h200 {
+  height: 200px;
+}
+.loadingContainer.h300 {
+  height: 300px;
+}
+.loadingContainer.h400 {
+  height: 400px;
+}
+.loadingContainer.h500 {
+  height: 500px;
+}
+.loadingContainer.h600 {
+  height: 600px;
+}
+.loadingContainer.h700 {
+  height: 700px;
+}
+.loadingContainer.h800 {
+  height: 800px;
+}
+.loadingContainer.h900 {
+  height: 900px;
+}
+.loadingContainer.h100vh {
+  height: 100vh;
+}
+
+.errorContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(30, 30, 30, 0.95);
+  color: #ff4444;
+  border-radius: 8px;
+}
+
+.errorContainer.h100 {
+  height: 100%;
+}
+.errorContainer.h200 {
+  height: 200px;
+}
+.errorContainer.h300 {
+  height: 300px;
+}
+.errorContainer.h400 {
+  height: 400px;
+}
+.errorContainer.h500 {
+  height: 500px;
+}
+.errorContainer.h600 {
+  height: 600px;
+}
+.errorContainer.h700 {
+  height: 700px;
+}
+.errorContainer.h800 {
+  height: 800px;
+}
+.errorContainer.h900 {
+  height: 900px;
+}
+.errorContainer.h100vh {
+  height: 100vh;
+}
+
+.centerContent {
+  text-align: center;
+}
+
+.icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  margin-top: 1rem;
+  padding: 8px 16px;
+  background-color: #ff4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.retryButton:hover {
+  background-color: #d63b3b;
+}
+
+.mapContainer {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.mapContainer.h100 {
+  height: 100%;
+}
+.mapContainer.h200 {
+  height: 200px;
+}
+.mapContainer.h300 {
+  height: 300px;
+}
+.mapContainer.h400 {
+  height: 400px;
+}
+.mapContainer.h500 {
+  height: 500px;
+}
+.mapContainer.h600 {
+  height: 600px;
+}
+.mapContainer.h700 {
+  height: 700px;
+}
+.mapContainer.h800 {
+  height: 800px;
+}
+.mapContainer.h900 {
+  height: 900px;
+}
+.mapContainer.h100vh {
+  height: 100vh;
+}
+
+.themeSelector {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.themeSelect {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.mapElement {
+  height: 100%;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dojoListOverlay {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.9);
+  border-radius: 8px;
+  padding: 16px;
+  max-height: 200px;
+  overflow: auto;
+}
+
+.dojoListTitle {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+}
+
+.dojoGrid {
+  display: grid;
+  gap: 8px;
+}
+
+.dojoItem {
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+}
+
+.dojoItem.selected {
+  border: 2px solid #4ecdc4;
+}
+
+.dojoItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dojoName {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.dojoDistance {
+  font-size: 12px;
+  color: #cccccc;
+}
+
+.dojoController {
+  font-size: 12px;
+  color: #4ecdc4;
+}
+
+.dojoLocked {
+  font-size: 12px;
+  color: #e74c3c;
+}
+
+.infoWindow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.95);
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 300px;
+  z-index: 1001;
+  border: 2px solid #4ecdc4;
+}
+
+.infoWindowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.infoWindowTitle {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 12px;
+}
+
+.infoWindowContent {
+  margin-bottom: 12px;
+}
+
+.infoWindowText {
+  margin: 0 0 8px 0;
+  color: #cccccc;
+}
+
+.infoWindowController {
+  margin: 0 0 8px 0;
+  color: #4ecdc4;
+}
+
+.infoWindowLocked {
+  margin: 0 0 8px 0;
+  color: #e74c3c;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 8px;
+}
+
+.challengeButton {
+  flex: 1;
+  padding: 8px 16px;
+  background-color: #4ecdc4;
+  color: #000000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.navigateButton {
+  flex: 1;
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Focus outlines for interactive elements */
+.retryButton:focus-visible,
+.dojoItem:focus-visible,
+.challengeButton:focus-visible,
+.navigateButton:focus-visible,
+.closeButton:focus-visible {
+  outline: 2px solid #4ecdc4;
+  outline-offset: 2px;
+}

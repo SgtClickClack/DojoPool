@@ -4,19 +4,19 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { GameSession, GameSessionStatus, GameType } from '@prisma/client';
+import { GameSession } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface CreateGameSessionDto {
   gameId: string;
   venueId?: string;
   playerIds: string[];
-  gameType: GameType;
+  gameType: string;
   rules: Record<string, any>;
 }
 
 export interface GameSessionUpdateDto {
-  status?: GameSessionStatus;
+  status?: string;
   currentPlayerId?: string;
   ballStates?: Record<string, string>;
   fouls?: Record<string, number>;
@@ -46,22 +46,20 @@ export class GameSessionsService {
         data: {
           gameId: createDto.gameId,
           venueId: createDto.venueId,
-          status: GameSessionStatus.ACTIVE,
+          status: 'ACTIVE',
           gameType: createDto.gameType,
-          rules: createDto.rules,
+          rules: JSON.stringify(createDto.rules),
           startTime: new Date(),
-          playerIds: createDto.playerIds,
+          playerIds: JSON.stringify(createDto.playerIds),
           currentPlayerId: createDto.playerIds[0], // First player starts
-          ballStates: this.initializeBallStates(),
-          fouls: createDto.playerIds.reduce(
-            (acc, id) => ({ ...acc, [id]: 0 }),
-            {}
+          ballStates: JSON.stringify(this.initializeBallStates()),
+          fouls: JSON.stringify(
+            createDto.playerIds.reduce((acc, id) => ({ ...acc, [id]: 0 }), {})
           ),
-          score: createDto.playerIds.reduce(
-            (acc, id) => ({ ...acc, [id]: 0 }),
-            {}
+          score: JSON.stringify(
+            createDto.playerIds.reduce((acc, id) => ({ ...acc, [id]: 0 }), {})
           ),
-          events: [],
+          events: JSON.stringify([]),
           totalShots: 0,
           totalFouls: 0,
           totalFrames: 0,
@@ -96,7 +94,7 @@ export class GameSessionsService {
     return this.prisma.gameSession.findFirst({
       where: {
         gameId,
-        status: GameSessionStatus.ACTIVE,
+        status: 'ACTIVE',
       },
     });
   }
@@ -106,10 +104,28 @@ export class GameSessionsService {
     updateDto: GameSessionUpdateDto
   ): Promise<GameSession> {
     try {
+      // Convert any object/array fields to strings for SQLite compatibility
+      const processedData: any = { ...updateDto };
+      if (
+        processedData.ballStates &&
+        typeof processedData.ballStates === 'object'
+      ) {
+        processedData.ballStates = JSON.stringify(processedData.ballStates);
+      }
+      if (processedData.fouls && typeof processedData.fouls === 'object') {
+        processedData.fouls = JSON.stringify(processedData.fouls);
+      }
+      if (processedData.score && typeof processedData.score === 'object') {
+        processedData.score = JSON.stringify(processedData.score);
+      }
+      if (processedData.events && Array.isArray(processedData.events)) {
+        processedData.events = JSON.stringify(processedData.events);
+      }
+
       const updatedSession = await this.prisma.gameSession.update({
         where: { id: sessionId },
         data: {
-          ...updateDto,
+          ...processedData,
           lastUpdated: new Date(),
         },
       });
@@ -147,7 +163,7 @@ export class GameSessionsService {
       where: { id: sessionId },
       data: {
         totalShots: session.totalShots + 1,
-        events: updatedEvents,
+        events: JSON.stringify(updatedEvents),
         lastUpdated: new Date(),
       },
     });
@@ -188,9 +204,9 @@ export class GameSessionsService {
     const updatedSession = await this.prisma.gameSession.update({
       where: { id: sessionId },
       data: {
-        fouls: updatedFouls,
+        fouls: JSON.stringify(updatedFouls),
         totalFouls: session.totalFouls + 1,
-        events: updatedEvents,
+        events: JSON.stringify(updatedEvents),
         lastUpdated: new Date(),
       },
     });
@@ -214,7 +230,7 @@ export class GameSessionsService {
     const updatedSession = await this.prisma.gameSession.update({
       where: { id: sessionId },
       data: {
-        status: GameSessionStatus.COMPLETED,
+        status: 'COMPLETED',
         endTime,
         duration,
         winnerId,

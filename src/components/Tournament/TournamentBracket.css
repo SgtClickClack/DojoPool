@@ -84,7 +84,7 @@
   border-radius: 12px;
   padding: 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   position: relative;
   overflow: hidden;
 }
@@ -101,12 +101,8 @@
 }
 
 @keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .bracket-match:hover {
@@ -115,18 +111,18 @@
   border-color: #ff0080;
 }
 
+.bracket-match:focus-visible {
+  outline: 2px solid #00d4ff;
+  outline-offset: 2px;
+}
+
 .bracket-match.selected {
   border-color: #00ff88;
   box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
 }
 
-.bracket-match.first-round {
-  border-color: #ff0080;
-}
-
-.bracket-match.first-round::before {
-  background: linear-gradient(90deg, #ff0080, #00ff88, #ff0080);
-}
+.bracket-match.first-round { border-color: #ff0080; }
+.bracket-match.first-round::before { background: linear-gradient(90deg, #ff0080, #00ff88, #ff0080); }
 
 /* Match Header */
 .match-header {
@@ -156,11 +152,7 @@
 }
 
 /* Match Players */
-.match-players {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.match-players { display: flex; flex-direction: column; gap: 12px; }
 
 .player {
   display: flex;
@@ -170,7 +162,7 @@
   background: rgba(0, 212, 255, 0.05);
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .player.winner {
@@ -179,19 +171,8 @@
   box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
 }
 
-.player-name {
-  color: #ffffff;
-  font-weight: 500;
-  font-size: 1rem;
-}
-
-.player-score {
-  color: #00d4ff;
-  font-weight: 700;
-  font-size: 1.2rem;
-  min-width: 30px;
-  text-align: center;
-}
+.player-name { color: #ffffff; font-weight: 500; font-size: 1rem; }
+.player-score { color: #00d4ff; font-weight: 700; font-size: 1.2rem; min-width: 30px; text-align: center; }
 
 .match-vs {
   color: #b8b8b8;
@@ -213,20 +194,8 @@
   text-align: center;
 }
 
-.winner-label {
-  color: #00ff88;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-right: 8px;
-}
-
-.winner-name {
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
+.winner-label { color: #00ff88; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px; }
+.winner-name { color: #ffffff; font-weight: 700; font-size: 1.1rem; }
 
 /* Match Details Modal */
 .match-details-modal {
@@ -264,12 +233,7 @@
   border-bottom: 1px solid rgba(0, 212, 255, 0.3);
 }
 
-.modal-header h3 {
-  color: #ffffff;
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
-}
+.modal-header h3 { color: #ffffff; font-size: 1.5rem; font-weight: 700; margin: 0; }
 
 .close-btn {
   background: none;
@@ -284,7 +248,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: all 0.3s ease;
+  transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .close-btn:hover {
@@ -292,126 +256,52 @@
   background: rgba(255, 68, 68, 0.1);
 }
 
-.match-details {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.close-btn:focus-visible {
+  outline: 2px solid #ff4444;
+  outline-offset: 2px;
 }
 
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.2);
-}
+.match-details { display: flex; flex-direction: column; gap: 16px; }
 
-.detail-row:last-child {
-  border-bottom: none;
-}
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(0, 212, 255, 0.2); }
+.detail-row:last-child { border-bottom: none; }
 
-.detail-label {
-  color: #00d4ff;
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.detail-value {
-  color: #ffffff;
-  font-weight: 500;
-}
-
-.detail-value.winner {
-  color: #00ff88;
-  font-weight: 700;
-}
+.detail-label { color: #00d4ff; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.detail-value { color: #ffffff; font-weight: 500; }
+.detail-value.winner { color: #00ff88; font-weight: 700; }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-  .bracket-container {
-    gap: 32px;
-  }
-
-  .bracket-round {
-    min-width: 260px;
-  }
+  .bracket-container { gap: 32px; }
+  .bracket-round { min-width: 260px; }
 }
 
 @media (max-width: 768px) {
-  .tournament-bracket {
-    padding: 16px;
-  }
-
-  .bracket-header h2 {
-    font-size: 2rem;
-  }
-
-  .bracket-info {
-    gap: 16px;
-  }
-
-  .info-item {
-    font-size: 0.9rem;
-    padding: 6px 12px;
-  }
-
-  .bracket-container {
-    gap: 24px;
-    padding: 16px 0;
-  }
-
-  .bracket-round {
-    min-width: 240px;
-  }
-
-  .round-title {
-    font-size: 1.1rem;
-    padding: 8px;
-  }
-
-  .bracket-match {
-    padding: 16px;
-  }
-
-  .modal-content {
-    padding: 24px;
-    margin: 16px;
-  }
+  .tournament-bracket { padding: 16px; }
+  .bracket-header h2 { font-size: 2rem; }
+  .bracket-info { gap: 16px; }
+  .info-item { font-size: 0.9rem; padding: 6px 12px; }
+  .bracket-container { gap: 24px; padding: 16px 0; }
+  .bracket-round { min-width: 240px; }
+  .round-title { font-size: 1.1rem; padding: 8px; }
+  .bracket-match { padding: 16px; }
+  .modal-content { padding: 24px; margin: 16px; }
 }
 
 @media (max-width: 480px) {
-  .bracket-header h2 {
-    font-size: 1.8rem;
-  }
+  .bracket-header h2 { font-size: 1.8rem; }
+  .bracket-info { flex-direction: column; gap: 12px; }
+  .bracket-container { gap: 16px; }
+  .bracket-round { min-width: 220px; }
+  .bracket-match { padding: 12px; }
+  .player { padding: 8px; }
+  .player-name { font-size: 0.9rem; }
+  .player-score { font-size: 1rem; }
+}
 
-  .bracket-info {
-    flex-direction: column;
-    gap: 12px;
-  }
+.bracket-table { width: 100%; border-collapse: collapse; }
 
-  .bracket-container {
-    gap: 16px;
-  }
-
-  .bracket-round {
-    min-width: 220px;
-  }
-
-  .bracket-match {
-    padding: 12px;
-  }
-
-  .player {
-    padding: 8px;
-  }
-
-  .player-name {
-    font-size: 0.9rem;
-  }
-
-  .player-score {
-    font-size: 1rem;
-  }
+/* Reduced motion safeguard */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
 }

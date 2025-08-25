@@ -15,7 +15,7 @@ export const CartView: React.FC<CartViewProps> = ({ onCartUpdate }) => {
   const cartTotal = marketplaceService.getCartTotal();
 
   const handleQuantityChange = (itemId: string, quantity: number) => {
-    const item = cartItems.find((item) => item.id === itemId);
+    const item = cartItems.find((item: any) => item.id === itemId);
     if (item) {
       try {
         marketplaceService.addToCart(item, quantity - item.quantity);
@@ -28,7 +28,7 @@ export const CartView: React.FC<CartViewProps> = ({ onCartUpdate }) => {
 
   const handleRemoveItem = (itemId: string) => {
     try {
-      const item = cartItems.find((item) => item.id === itemId);
+      const item = cartItems.find((item: any) => item.id === itemId);
       if (item) {
         marketplaceService.addToCart(item, -item.quantity);
         onCartUpdate();

@@ -63,7 +63,8 @@ code {
 
 /* Card hover effects */
 .MuiCard-root {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
@@ -134,7 +135,7 @@ code {
 .glow-button {
   position: relative;
   overflow: hidden;
-  transition: all 0.3s;
+  transition: opacity 0.3s, transform 0.3s;
 }
 
 .glow-button::after {
@@ -181,5 +182,15 @@ code {
   to {
     transform: scale(1.2);
     opacity: 0.8;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

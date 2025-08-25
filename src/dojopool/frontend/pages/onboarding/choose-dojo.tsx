@@ -282,7 +282,7 @@ const ChooseDojoScreen: React.FC = () => {
       <Head>
         <title>Choose Your Home Dojo - DojoPool</title>
         <script
-          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+          src={`https://maps.googleapis.com/maps/api/js?key=${getGoogleMapsApiKey()}&libraries=places`}
           async
           defer
         />

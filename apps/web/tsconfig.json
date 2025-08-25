@@ -1,26 +1,12 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "incremental": true,
-    "module": "esnext",
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
     "jsx": "preserve",
+    "noEmit": true,
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./*"
+        "src/*"
       ],
       "@/components/*": [
         "src/components/*"
@@ -47,12 +33,13 @@
         "src/constants/*"
       ]
     },
-    "target": "ES2017"
+    "allowJs": true,
+    "incremental": true
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
@@ -64,6 +51,7 @@
     "**/coverage/**/*",
     "lcov-report",
     "**/lcov-report/**/*",
-    "cypress"
+    "cypress",
+    "../../src/**/*"
   ]
 }

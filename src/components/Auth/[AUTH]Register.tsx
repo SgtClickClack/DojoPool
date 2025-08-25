@@ -1,14 +1,32 @@
-import { Box, Button, Link, Paper, TextField, Typography } from '@mui/material';
-import React, { useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@/frontend/contexts/AuthContext';
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Link,
+  Paper,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
 
 export const Register: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { register, error } = useAuth();
+  const { register, error, loading, clearError } = useAuth();
   const [passwordError, setPasswordError] = useState('');
+  const router = useRouter();
+
+  // Clear error when component mounts or when error changes
+  useEffect(() => {
+    if (error) {
+      clearError();
+    }
+  }, [error, clearError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,8 +34,20 @@ export const Register: React.FC = () => {
       setPasswordError('Passwords do not match');
       return;
     }
+    if (password.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      return;
+    }
     setPasswordError('');
-    await register(email, password, name);
+
+    try {
+      await register(email, password, name);
+      // Redirect to dashboard on successful registration
+      router.push('/dashboard');
+    } catch (err) {
+      // Error is already handled by the context
+      console.error('Registration error:', err);
+    }
   };
 
   return (
@@ -41,6 +71,7 @@ export const Register: React.FC = () => {
             onChange={(e) => setName(e.target.value)}
             margin="normal"
             required
+            disabled={loading}
           />
           <TextField
             fullWidth
@@ -50,6 +81,7 @@ export const Register: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             margin="normal"
             required
+            disabled={loading}
           />
           <TextField
             fullWidth
@@ -59,6 +91,7 @@ export const Register: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             margin="normal"
             required
+            disabled={loading}
           />
           <TextField
             fullWidth
@@ -70,14 +103,21 @@ export const Register: React.FC = () => {
             required
             error={!!passwordError}
             helperText={passwordError}
+            disabled={loading}
           />
           {error && (
-            <Typography color="error" sx={{ mt: 2 }}>
+            <Alert severity="error" sx={{ mt: 2 }}>
               {error}
-            </Typography>
+            </Alert>
           )}
-          <Button fullWidth type="submit" variant="contained" sx={{ mt: 3 }}>
-            Sign Up
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            sx={{ mt: 3 }}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} /> : 'Sign Up'}
           </Button>
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Typography variant="body2">

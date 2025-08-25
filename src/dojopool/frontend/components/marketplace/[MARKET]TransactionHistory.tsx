@@ -48,7 +48,7 @@ export const TransactionHistory: React.FC = () => {
               </span>
             </div>
             <div className="transaction-items">
-              {transaction.items.map((item, index) => (
+              {transaction.items.map((item: any, index: number) => (
                 <div
                   key={`${transaction.id}-${index}`}
                   className="transaction-item"
