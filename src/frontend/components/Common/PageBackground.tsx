@@ -6,7 +6,11 @@ interface PageBackgroundProps {
   style?: React.CSSProperties;
 }
 
-const PageBackground: React.FC<PageBackgroundProps> = ({ children, variant, style }) => {
+const PageBackground: React.FC<PageBackgroundProps> = ({
+  children,
+  variant,
+  style,
+}) => {
   const backgroundColor = '#f5f5f5';
   return (
     <div style={{ minHeight: '100vh', background: backgroundColor, ...style }}>

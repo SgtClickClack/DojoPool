@@ -1,5 +1,11 @@
 import React from 'react';
-import { Box, Container, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import {
+  Box,
+  Container,
+  CssBaseline,
+  ThemeProvider,
+  createTheme,
+} from '@mui/material';
 
 const theme = createTheme({
   palette: {
@@ -20,7 +26,9 @@ const SimpleLayout: React.FC<SimpleLayoutProps> = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Box
+        sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
+      >
         <Container component="main" sx={{ flexGrow: 1, py: 3 }}>
           {children}
         </Container>

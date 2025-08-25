@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import 'reflect-metadata';
 import { AppModule } from './app.module';
 import { corsOptions } from './config/cors.config';
+import { WorldMapGateway } from './world-map/world-map.gateway';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -56,14 +57,20 @@ async function bootstrap() {
 
   // Start simulation for testing (remove in production)
   if (process.env.NODE_ENV === 'development') {
-    logger.log('Starting world map simulation for development...');
-    // Get the WorldMapGateway instance and start simulation
-    const worldMapGateway = app.get('WorldMapGateway');
-    if (
-      worldMapGateway &&
-      typeof worldMapGateway.startSimulation === 'function'
-    ) {
-      worldMapGateway.startSimulation();
+    try {
+      logger.log('Starting world map simulation for development...');
+      // Resolve by class token only if registered in the module graph
+      const worldMapGateway = app.get(WorldMapGateway, { strict: false });
+      if (
+        worldMapGateway &&
+        typeof (worldMapGateway as any).startSimulation === 'function'
+      ) {
+        (worldMapGateway as any).startSimulation();
+      } else {
+        logger.warn('WorldMapGateway not available; skipping simulation');
+      }
+    } catch (err) {
+      logger.warn('WorldMapGateway not found; skipping simulation');
     }
   }
 }

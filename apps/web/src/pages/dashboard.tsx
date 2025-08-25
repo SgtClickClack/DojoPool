@@ -13,8 +13,8 @@ import {
   Grid,
   Paper,
   Typography,
+  useTheme,
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import React, { useEffect, useState } from 'react';
 import ProtectedRoute from '../components/Common/ProtectedRoute';
 import ActivityCard from '../components/Dashboard/ActivityCard';

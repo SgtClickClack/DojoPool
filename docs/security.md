@@ -1,11 +1,13 @@
 # DojoPool Security Documentation
 
 ## Overview
+
 This document outlines the security measures and best practices implemented in the DojoPool application.
 
 ## Security Features
 
 ### Authentication & Authorization
+
 - Password hashing using Werkzeug's secure hash functions
 - Password requirements:
   - Minimum 8 characters
@@ -18,6 +20,7 @@ This document outlines the security measures and best practices implemented in t
 - Session management with secure cookie settings
 
 ### Data Protection
+
 - HTTPS/SSL encryption for all traffic
 - Secure headers:
   - HTTP Strict Transport Security (HSTS)
@@ -32,6 +35,7 @@ This document outlines the security measures and best practices implemented in t
 - XSS prevention
 
 ### Infrastructure Security
+
 - Modern SSL configuration with TLS 1.2/1.3
 - Strong cipher suite configuration
 - Regular security updates and patches
@@ -42,6 +46,7 @@ This document outlines the security measures and best practices implemented in t
 ## Security Procedures
 
 ### Incident Response
+
 1. Immediate assessment of the security incident
 2. Containment of the affected systems
 3. Evidence collection and analysis
@@ -49,12 +54,14 @@ This document outlines the security measures and best practices implemented in t
 5. Post-incident review and improvements
 
 ### Certificate Management
+
 - SSL certificates managed through Let's Encrypt
 - Automatic certificate renewal
 - Certificate expiration monitoring
 - Backup certificate procedures
 
 ### Secret Management
+
 - Environment-based secret configuration
 - Regular secret rotation
 - Secure secret storage
@@ -63,6 +70,7 @@ This document outlines the security measures and best practices implemented in t
 ## Best Practices
 
 ### Code Security
+
 - Regular dependency updates
 - Code review process
 - Static code analysis
@@ -72,6 +80,7 @@ This document outlines the security measures and best practices implemented in t
 - Error handling
 
 ### Infrastructure Security
+
 - Regular security audits
 - System hardening
 - Access control
@@ -80,12 +89,14 @@ This document outlines the security measures and best practices implemented in t
 - Monitoring and logging
 
 ## Training Requirements
+
 - Security awareness training
 - Code security training
 - Incident response training
 - Regular security updates
 
 ## Maintenance
+
 - Regular security assessments
 - Vulnerability scanning
 - Penetration testing
@@ -93,11 +104,14 @@ This document outlines the security measures and best practices implemented in t
 - Configuration review
 
 ## Contact
+
 For security-related issues or concerns, contact:
+
 - Security Team: security@dojopool.com.au
 - Emergency Contact: +61 XXX XXX XXX
 
 ## Automated Security Tools
+
 1. Security Checker
    - Location: `docs/cleanup/scripts/automated_security_check.py`
    - Features:
@@ -119,4 +133,4 @@ For security-related issues or concerns, contact:
      - Environment file security updates
      - Nginx security configuration
      - Secret key generation
-     - Security header management 
+     - Security header management

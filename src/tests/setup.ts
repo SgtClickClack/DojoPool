@@ -18,7 +18,8 @@ if (!(globalThis as any).requestAnimationFrame) {
     setTimeout(() => cb(Date.now()), 16) as unknown as number;
 }
 if (!(globalThis as any).cancelAnimationFrame) {
-  (globalThis as any).cancelAnimationFrame = (id: number) => clearTimeout(id as unknown as NodeJS.Timeout);
+  (globalThis as any).cancelAnimationFrame = (id: number) =>
+    clearTimeout(id as unknown as NodeJS.Timeout);
 }
 
 // matchMedia mock
@@ -45,13 +46,17 @@ if (typeof (globalThis as any).IntersectionObserver === 'undefined') {
     readonly rootMargin = '0px';
     readonly thresholds: ReadonlyArray<number> = [];
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {}
+    constructor(
+      callback: IntersectionObserverCallback,
+      options?: IntersectionObserverInit
+    ) {}
     observe = vi.fn();
     unobserve = vi.fn();
     disconnect = vi.fn();
     takeRecords = vi.fn(() => [] as IntersectionObserverEntry[]);
   }
-  (globalThis as any).IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
+  (globalThis as any).IntersectionObserver =
+    MockIntersectionObserver as unknown as typeof IntersectionObserver;
 }
 
 // ResizeObserver mock
@@ -61,7 +66,8 @@ if (typeof (globalThis as any).ResizeObserver === 'undefined') {
     unobserve = vi.fn();
     disconnect = vi.fn();
   }
-  ;(globalThis as any).ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
+  (globalThis as any).ResizeObserver =
+    MockResizeObserver as unknown as typeof ResizeObserver;
 }
 
 // localStorage/sessionStorage mocks

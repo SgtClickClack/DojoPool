@@ -177,7 +177,7 @@ const WebSocketMonitor: React.FC = () => {
           <StatCard
             title="Error Rate"
             value={`${errorRate}%`}
-                            icon={<Error />}
+            icon={<Error />}
             color={Number(errorRate) > 5 ? '#f44336' : '#4caf50'}
           />
         </Grid>

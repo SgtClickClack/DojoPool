@@ -2632,7 +2632,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                     {causeEffectAnalysis.sequences.map((sequence, index) => (
                       <Paper key={index} variant="outlined" sx={{ p: 1.5 }}>
                         <Typography variant="subtitle1">
-                          Sequence {index + 1} (Confidence: {(sequence.confidence * 100).toFixed(1)}%)
+                          Sequence {index + 1} (Confidence:{' '}
+                          {(sequence.confidence * 100).toFixed(1)}%)
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           Lag time: {sequence.lagTime}ms
@@ -2642,7 +2643,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                             <Chip
                               key={eventIndex}
                               label={`${metricConfig.find((m) => m.id === event.metricId)?.name} (${event.type})`}
-                              color={event.type === 'cause' ? 'primary' : 'secondary'}
+                              color={
+                                event.type === 'cause' ? 'primary' : 'secondary'
+                              }
                               size="small"
                               sx={{ mr: 1, mb: 1 }}
                             />

@@ -1,5 +1,5 @@
 import { MarketplaceItem } from '@/services/marketplaceService';
-import { CoinIcon } from '@mui/icons-material/AttachMoney';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney.js';
 import {
   Box,
   Button,
@@ -115,7 +115,7 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
               </Typography>
 
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <CoinIcon sx={{ color: '#ffd700', mr: 1 }} />
+                <AttachMoneyIcon sx={{ color: '#ffd700', mr: 1 }} />
                 <Typography
                   variant="h6"
                   color="primary"
@@ -164,8 +164,8 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
                 {!canAfford(item.price)
                   ? 'Not Enough Coins'
                   : item.stock === 0
-                  ? 'Out of Stock'
-                  : 'Buy Now'}
+                    ? 'Out of Stock'
+                    : 'Buy Now'}
               </Button>
             </CardContent>
           </Card>

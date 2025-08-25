@@ -32,7 +32,12 @@ function parseTasksMarkdown(md) {
     const sh = line.match(sectionHeaderRe);
     if (sh) {
       // push previous section if it has any meaningful content
-      if (current && (current.index !== null || current.tasks.length > 0 || current.title !== 'Uncategorized')) {
+      if (
+        current &&
+        (current.index !== null ||
+          current.tasks.length > 0 ||
+          current.title !== 'Uncategorized')
+      ) {
         sections.push(current);
       }
       const title = normalizeTitle(sh[0]).replace(/^##\s+/, '');
@@ -51,7 +56,13 @@ function parseTasksMarkdown(md) {
         duplicates.add(id);
       }
       seenIds.add(id);
-      current.tasks.push({ id, text, checked, status: checked ? 'done' : 'open', line: i + 1 });
+      current.tasks.push({
+        id,
+        text,
+        checked,
+        status: checked ? 'done' : 'open',
+        line: i + 1,
+      });
       continue;
     }
 
@@ -62,7 +73,12 @@ function parseTasksMarkdown(md) {
   }
 
   // push last section
-  if (current && (current.index !== null || current.tasks.length > 0 || current.title !== 'Uncategorized')) {
+  if (
+    current &&
+    (current.index !== null ||
+      current.tasks.length > 0 ||
+      current.title !== 'Uncategorized')
+  ) {
     sections.push(current);
   }
 
@@ -78,7 +94,11 @@ function parseTasksMarkdown(md) {
   );
 
   if (duplicates.size > 0) {
-    warnings.push(`Duplicate task IDs detected: ${Array.from(duplicates).sort((a,b)=>a-b).join(', ')}`);
+    warnings.push(
+      `Duplicate task IDs detected: ${Array.from(duplicates)
+        .sort((a, b) => a - b)
+        .join(', ')}`
+    );
   }
 
   return { sections, totals, warnings };
@@ -95,8 +115,8 @@ function buildGroupedMarkdown(parsed) {
   lines.push('');
 
   for (const s of parsed.sections) {
-    const open = s.tasks.filter(t => !t.checked).length;
-    const done = s.tasks.filter(t => t.checked).length;
+    const open = s.tasks.filter((t) => !t.checked).length;
+    const done = s.tasks.filter((t) => t.checked).length;
     const title = s.title || 'Untitled Section';
     lines.push(`## ${title} (Open ${open} / Done ${done})`);
     for (const t of s.tasks) {
@@ -120,21 +140,30 @@ async function main() {
     const parsed = parseTasksMarkdown(md);
     const payload = {
       generatedAt: new Date().toISOString(),
-      sections: parsed.sections.map(s => ({
+      sections: parsed.sections.map((s) => ({
         title: s.title,
         index: s.index,
-        tasks: s.tasks.map(({ id, text, checked, status }) => ({ id, text, checked, status }))
+        tasks: s.tasks.map(({ id, text, checked, status }) => ({
+          id,
+          text,
+          checked,
+          status,
+        })),
       })),
       totals: parsed.totals,
       warnings: parsed.warnings,
-      source: path.relative(ROOT, TASKS_MD)
+      source: path.relative(ROOT, TASKS_MD),
     };
 
     // Ensure docs directory exists
     await fs.mkdir(DOCS_DIR, { recursive: true });
 
     await fs.writeFile(TASKS_JSON, JSON.stringify(payload, null, 2), 'utf8');
-    await fs.writeFile(TASKS_BY_SECTION_MD, buildGroupedMarkdown(parsed), 'utf8');
+    await fs.writeFile(
+      TASKS_BY_SECTION_MD,
+      buildGroupedMarkdown(parsed),
+      'utf8'
+    );
 
     // Console summary
     const summary = `Tasks sync complete. Open: ${payload.totals.open}, Done: ${payload.totals.done}`;

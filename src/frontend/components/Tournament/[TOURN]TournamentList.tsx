@@ -82,7 +82,8 @@ const TournamentList: React.FC<TournamentListProps> = ({ tournaments }) => {
                   )}
                 </TableCell>
                 <TableCell>
-                  {tournament.currentParticipants} / {tournament.maxParticipants}
+                  {tournament.currentParticipants} /{' '}
+                  {tournament.maxParticipants}
                 </TableCell>
                 <TableCell>
                   <Chip

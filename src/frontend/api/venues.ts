@@ -109,12 +109,19 @@ export const registerForEvent = async (eventId: number): Promise<void> => {
 };
 
 export const getEventParticipants = async (eventId: number) => {
-  const response = await axios.get(`${BASE_URL}/events/${eventId}/participants`);
+  const response = await axios.get(
+    `${BASE_URL}/events/${eventId}/participants`
+  );
   return response.data;
 };
 
-export const checkInParticipant = async (eventId: number, participantId: number) => {
-  const response = await axios.post(`${BASE_URL}/events/${eventId}/participants/${participantId}/check-in`);
+export const checkInParticipant = async (
+  eventId: number,
+  participantId: number
+) => {
+  const response = await axios.post(
+    `${BASE_URL}/events/${eventId}/participants/${participantId}/check-in`
+  );
   return response.data;
 };
 

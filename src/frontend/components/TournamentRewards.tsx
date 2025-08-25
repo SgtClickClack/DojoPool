@@ -213,8 +213,8 @@ const TournamentRewards: React.FC<TournamentRewardsProps> = ({
                           reward.rarity === 'legendary'
                             ? 'error'
                             : reward.rarity === 'epic'
-                            ? 'warning'
-                            : 'primary'
+                              ? 'warning'
+                              : 'primary'
                         }
                       >
                         {reward.rarity}
@@ -282,8 +282,8 @@ const TournamentRewards: React.FC<TournamentRewardsProps> = ({
                           reward.rarity === 'legendary'
                             ? 'error'
                             : reward.rarity === 'epic'
-                            ? 'warning'
-                            : 'primary'
+                              ? 'warning'
+                              : 'primary'
                         }
                       >
                         {reward.rarity}
@@ -343,8 +343,8 @@ const TournamentRewards: React.FC<TournamentRewardsProps> = ({
                           index === 0
                             ? 'error'
                             : index === 1
-                            ? 'warning'
-                            : 'primary'
+                              ? 'warning'
+                              : 'primary'
                         }
                       >
                         #{index + 1}

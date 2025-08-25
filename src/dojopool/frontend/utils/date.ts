@@ -5,5 +5,3 @@ export function formatTimestamp(ts: number): string {
     return '';
   }
 }
-
-

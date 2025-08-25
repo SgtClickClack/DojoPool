@@ -11,7 +11,10 @@ export class MatchUtils {
    * @param matchId - The match ID to fetch
    * @returns Promise<any> - The match with all related data
    */
-  static async getMatchById(prisma: PrismaService, matchId: string): Promise<any> {
+  static async getMatchById(
+    prisma: PrismaService,
+    matchId: string
+  ): Promise<any> {
     try {
       const match = await prisma.match.findUnique({
         where: { id: matchId },

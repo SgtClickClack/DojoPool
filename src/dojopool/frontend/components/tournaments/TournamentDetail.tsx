@@ -160,12 +160,12 @@ const TournamentDetail: React.FC = () => {
             status === 'completed' || status === 'COMPLETED'
               ? 'success'
               : status === 'in_progress' || status === 'IN_PROGRESS'
-              ? 'processing'
-              : status === 'walkover'
-              ? 'warning'
-              : status === 'cancelled' || status === 'CANCELLED'
-              ? 'error'
-              : 'default'
+                ? 'processing'
+                : status === 'walkover'
+                  ? 'warning'
+                  : status === 'cancelled' || status === 'CANCELLED'
+                    ? 'error'
+                    : 'default'
           }
         >
           {String(status).toUpperCase()}
@@ -214,15 +214,15 @@ const TournamentDetail: React.FC = () => {
                   (tournament as any).status === 'COMPLETED'
                     ? 'success'
                     : (tournament as any).status === 'in_progress' ||
-                      (tournament as any).status === 'IN_PROGRESS'
-                    ? 'processing'
-                    : (tournament as any).status === 'registration' ||
-                      (tournament as any).status === 'REGISTRATION'
-                    ? 'warning'
-                    : (tournament as any).status === 'cancelled' ||
-                      (tournament as any).status === 'CANCELLED'
-                    ? 'error'
-                    : 'default'
+                        (tournament as any).status === 'IN_PROGRESS'
+                      ? 'processing'
+                      : (tournament as any).status === 'registration' ||
+                          (tournament as any).status === 'REGISTRATION'
+                        ? 'warning'
+                        : (tournament as any).status === 'cancelled' ||
+                            (tournament as any).status === 'CANCELLED'
+                          ? 'error'
+                          : 'default'
                 }
               >
                 {String((tournament as any).status).toUpperCase()}

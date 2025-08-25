@@ -24,41 +24,18 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*",
-        "src/frontend/*",
-        "src/dojopool/frontend/*"
-      ],
-      "@/frontend/*": [
-        "src/frontend/*"
-      ],
-      "@/contexts/*": [
-        "src/contexts/*"
-      ],
-      "@/components/*": [
-        "src/components/*"
-      ],
-      "@/services/*": [
-        "src/services/*"
-      ],
-      "@/utils/*": [
-        "src/utils/*"
-      ],
-      "@/types/*": [
-        "src/types/*"
-      ],
-      "@/styles/*": [
-        "src/styles/*"
-      ],
-      "@/constants/*": [
-        "src/constants/*"
-      ]
+      "@/*": ["src/*", "src/frontend/*", "src/dojopool/frontend/*"],
+      "@/frontend/*": ["src/frontend/*"],
+      "@/contexts/*": ["src/contexts/*"],
+      "@/components/*": ["src/components/*"],
+      "@/services/*": ["src/services/*"],
+      "@/utils/*": ["src/utils/*"],
+      "@/types/*": ["src/types/*"],
+      "@/styles/*": ["src/styles/*"],
+      "@/constants/*": ["src/constants/*"]
     },
     "incremental": true,
-    "types": [
-      "react",
-      "react-dom"
-    ]
+    "types": ["react", "react-dom"]
   },
   "include": [
     "next-env.d.ts",

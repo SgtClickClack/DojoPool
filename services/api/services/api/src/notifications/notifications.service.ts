@@ -52,9 +52,13 @@ export class NotificationsService {
     });
     if (result.count === 0) {
       // Either not found or not authorized
-      const exists = await this.prisma.notification.findUnique({ where: { id } });
+      const exists = await this.prisma.notification.findUnique({
+        where: { id },
+      });
       if (exists && exists.recipientId !== userId) {
-        throw new ForbiddenException('Not authorized to modify this notification');
+        throw new ForbiddenException(
+          'Not authorized to modify this notification'
+        );
       }
       return { updated: false };
     }

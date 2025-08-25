@@ -74,7 +74,9 @@ describe('Clan Management', () => {
       // Step 3: Fill out the Create Clan form
       cy.findByLabelText(/clan name/i).type('Test Clan');
       cy.findByLabelText(/clan tag/i).type('TEST');
-      cy.findByLabelText(/description/i).type('A test clan for E2E testing purposes');
+      cy.findByLabelText(/description/i).type(
+        'A test clan for E2E testing purposes'
+      );
 
       // Toggle public/private setting
       cy.findByLabelText(/public clan/i).should('be.checked');
@@ -136,15 +138,21 @@ describe('Clan Management', () => {
       cy.findByText(/clan tag must be between 2-5 characters/i).should('exist');
 
       // Test tag too long
-      cy.findByLabelText(/clan tag/i).clear().type('TOOLONG');
+      cy.findByLabelText(/clan tag/i)
+        .clear()
+        .type('TOOLONG');
       cy.findByRole('button', { name: /create clan/i }).click();
       cy.findByText(/clan tag must be between 2-5 characters/i).should('exist');
 
       // Test valid tag
-      cy.findByLabelText(/clan tag/i).clear().type('TEST');
+      cy.findByLabelText(/clan tag/i)
+        .clear()
+        .type('TEST');
       cy.findByRole('button', { name: /create clan/i }).click();
       // Should not show tag length error
-      cy.findByText(/clan tag must be between 2-5 characters/i).should('not.exist');
+      cy.findByText(/clan tag must be between 2-5 characters/i).should(
+        'not.exist'
+      );
     });
   });
 

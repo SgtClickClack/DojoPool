@@ -1,4 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface DirectMessagePayload {
@@ -26,14 +32,23 @@ export class ChatService {
       },
     });
     if (!f) {
-      throw new ForbiddenException('Direct messages are restricted to friends only');
+      throw new ForbiddenException(
+        'Direct messages are restricted to friends only'
+      );
     }
   }
 
-  async sendDirectMessage(senderId: string, receiverId: string, content: string): Promise<DirectMessagePayload> {
-    if (!senderId || !receiverId) throw new BadRequestException('senderId and receiverId are required');
-    if (senderId === receiverId) throw new BadRequestException('Cannot send a message to yourself');
-    if (!content || content.trim().length === 0) throw new BadRequestException('Message content cannot be empty');
+  async sendDirectMessage(
+    senderId: string,
+    receiverId: string,
+    content: string
+  ): Promise<DirectMessagePayload> {
+    if (!senderId || !receiverId)
+      throw new BadRequestException('senderId and receiverId are required');
+    if (senderId === receiverId)
+      throw new BadRequestException('Cannot send a message to yourself');
+    if (!content || content.trim().length === 0)
+      throw new BadRequestException('Message content cannot be empty');
 
     await this.verifyFriendship(senderId, receiverId);
 
@@ -48,7 +63,12 @@ export class ChatService {
     return dm as unknown as DirectMessagePayload;
   }
 
-  async getHistory(userId: string, friendId: string, page = 1, limit = 20): Promise<DirectMessagePayload[]> {
+  async getHistory(
+    userId: string,
+    friendId: string,
+    page = 1,
+    limit = 20
+  ): Promise<DirectMessagePayload[]> {
     if (page < 1) page = 1;
     if (limit < 1) limit = 20;
     const skip = (page - 1) * limit;

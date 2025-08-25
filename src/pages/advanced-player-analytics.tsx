@@ -33,7 +33,8 @@ const AdvancedPlayerAnalyticsPage: NextPage = () => {
               Player Analytics Dashboard
             </h2>
             <p className="text-gray-600">
-              Advanced player analytics dashboard temporarily unavailable. This component will be implemented in a future update.
+              Advanced player analytics dashboard temporarily unavailable. This
+              component will be implemented in a future update.
             </p>
           </div>
         </div>

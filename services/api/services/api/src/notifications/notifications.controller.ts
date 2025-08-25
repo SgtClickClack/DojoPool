@@ -9,10 +9,12 @@ export class NotificationsController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getMyNotifications(@Req() req: ExpressRequest & { user: { userId: string } }) {
+  async getMyNotifications(
+    @Req() req: ExpressRequest & { user: { userId: string } }
+  ) {
     const userId = req.user.userId;
     return this.notificationsService.findAllForUser(userId);
-    }
+  }
 
   @Patch(':id/read')
   @UseGuards(JwtAuthGuard)

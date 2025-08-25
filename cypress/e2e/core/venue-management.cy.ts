@@ -14,7 +14,7 @@ describe('Venue Management', () => {
     }).as('login');
 
     // Mock venue data
-    cy.intercept('GET', '/api/venues', {
+    cy.intercept('GET', '/api/v1/venues', {
       statusCode: 200,
       body: [
         {
@@ -40,7 +40,7 @@ describe('Venue Management', () => {
   });
 
   it('can add new venue', () => {
-    cy.intercept('POST', '/api/venues', {
+    cy.intercept('POST', '/api/v1/venues', {
       statusCode: 201,
       body: {
         id: '2',
@@ -70,7 +70,7 @@ describe('Venue Management', () => {
   });
 
   it('can edit venue', () => {
-    cy.intercept('PUT', '/api/venues/1', {
+    cy.intercept('PUT', '/api/v1/venues/1', {
       statusCode: 200,
       body: {
         id: '1',
@@ -100,7 +100,7 @@ describe('Venue Management', () => {
   });
 
   it('can delete venue', () => {
-    cy.intercept('DELETE', '/api/venues/1', {
+    cy.intercept('DELETE', '/api/v1/venues/1', {
       statusCode: 200,
     }).as('deleteVenue');
 
@@ -117,7 +117,7 @@ describe('Venue Management', () => {
   });
 
   it('shows error message on API failure', () => {
-    cy.intercept('POST', '/api/venues', {
+    cy.intercept('POST', '/api/v1/venues', {
       statusCode: 500,
       body: {
         error: 'Internal Server Error',

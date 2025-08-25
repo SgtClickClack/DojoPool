@@ -211,9 +211,16 @@ export class WebSocketService {
   // Leave match room
   leaveMatchRoom(matchId: string): void {
     if (this.socket && this.isConnected) {
-      this.socket.emit('leaveMatch', { matchId });
+      this.socket.emit('leave_match', { matchId });
       console.log(`Left match room: ${matchId}`);
     }
+  }
+
+  // Convenience: subscribe to match status updates
+  subscribeToMatchStatus(
+    callback: (payload: { matchId: string; status: string }) => void
+  ): () => void {
+    return this.subscribe('match_status_update', callback);
   }
 
   // Emit shot taken event for live commentary

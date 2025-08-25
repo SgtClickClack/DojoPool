@@ -32,7 +32,8 @@ const AdvancedAIRefereeRuleEnforcementPage: React.FC = () => {
               AI Referee Dashboard
             </h2>
             <p className="text-gray-600">
-              Advanced AI referee system temporarily unavailable. This component will be implemented in a future update.
+              Advanced AI referee system temporarily unavailable. This component
+              will be implemented in a future update.
             </p>
           </div>
         </div>

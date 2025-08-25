@@ -14,8 +14,9 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ClansService } from './clans.service';
 import { ClanResponseDto } from './dto/clan-response.dto';
 import { CreateClanDto } from './dto/create-clan.dto';
+import { UpgradeDojoDto } from './dto/upgrade-dojo.dto';
 
-@Controller('api/v1/clans')
+@Controller('clans')
 export class ClansController {
   constructor(private readonly clansService: ClansService) {}
 
@@ -59,5 +60,15 @@ export class ClansController {
     @Request() req: any
   ): Promise<any> {
     return this.clansService.leaveClan(clanId, req.user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me/dojos/:venueId/upgrade')
+  async upgradeDojo(
+    @Param('venueId') venueId: string,
+    @Request() req: any,
+    @Body() body: UpgradeDojoDto
+  ) {
+    return this.clansService.upgradeDojo(venueId, req.user.sub, body);
   }
 }

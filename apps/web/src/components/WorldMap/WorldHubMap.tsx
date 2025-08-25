@@ -16,14 +16,14 @@ import {
   Snackbar,
   Typography,
 } from '@mui/material';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import React, { useCallback, useEffect, useState } from 'react';
 import Map, {
   GeolocateControl,
   Marker,
   NavigationControl,
   Popup,
-} from 'react-map-gl';
+} from 'react-map-gl/maplibre';
 
 interface DojoLocation {
   id: string;
@@ -408,10 +408,10 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({
                       selectedDojo.difficulty === 'expert'
                         ? 'error'
                         : selectedDojo.difficulty === 'advanced'
-                        ? 'warning'
-                        : selectedDojo.difficulty === 'intermediate'
-                        ? 'info'
-                        : 'success'
+                          ? 'warning'
+                          : selectedDojo.difficulty === 'intermediate'
+                            ? 'info'
+                            : 'success'
                     }
                   />
                 </Typography>
@@ -426,10 +426,10 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({
                       selectedDojo.status === 'occupied'
                         ? 'error'
                         : selectedDojo.status === 'at-war'
-                        ? 'warning'
-                        : selectedDojo.status === 'maintenance'
-                        ? 'default'
-                        : 'success'
+                          ? 'warning'
+                          : selectedDojo.status === 'maintenance'
+                            ? 'default'
+                            : 'success'
                     }
                   />
                 </Typography>
@@ -496,10 +496,10 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({
                   {checkedInDojoId === selectedDojo.id
                     ? 'Checked In ✔'
                     : isCheckingIn
-                    ? 'Checking In...'
-                    : canCheckIn(selectedDojo)
-                    ? 'Check-In'
-                    : 'Too Far'}
+                      ? 'Checking In...'
+                      : canCheckIn(selectedDojo)
+                        ? 'Check-In'
+                        : 'Too Far'}
                 </Button>
               </Box>
             </Paper>

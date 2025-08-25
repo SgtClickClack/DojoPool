@@ -18,6 +18,11 @@ export class ChatController {
     const currentUserId = req.user.userId;
     const p = page ? parseInt(page, 10) : 1;
     const l = limit ? parseInt(limit, 10) : 20;
-    return this.chatService.getHistory(currentUserId, friendId, isNaN(p) ? 1 : p, isNaN(l) ? 20 : l);
+    return this.chatService.getHistory(
+      currentUserId,
+      friendId,
+      isNaN(p) ? 1 : p,
+      isNaN(l) ? 20 : l
+    );
   }
 }

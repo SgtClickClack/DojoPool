@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -445,10 +445,10 @@
                 <div class="commentary-text">${commentaryText}</div>
                 <div class="commentary-details">
                     ${data.playerName || 'Unknown'} • ${
-          data.shotType || 'shot'
-        } • ${data.ballSunk ? 'Ball sunk' : 'Miss'} • ${
-          data.wasFoul ? 'FOUL!' : 'Clean'
-        } • ${timestamp}
+                      data.shotType || 'shot'
+                    } • ${data.ballSunk ? 'Ball sunk' : 'Miss'} • ${
+                      data.wasFoul ? 'FOUL!' : 'Clean'
+                    } • ${timestamp}
                 </div>
             `;
 
@@ -480,8 +480,8 @@
 
         shotItem.innerHTML = `
                 <strong>${data.playerName || 'Unknown'}</strong> - ${
-          data.shotType || 'shot'
-        } • ${result} • ${foul} • ${timestamp}
+                  data.shotType || 'shot'
+                } • ${result} • ${foul} • ${timestamp}
             `;
 
         container.insertBefore(shotItem, container.firstChild);

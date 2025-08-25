@@ -7,6 +7,7 @@ import type {
   CreateClanRequest,
 } from '../types/clan';
 import type { Match, MatchWithAnalysis } from '../types/match';
+import type { Venue } from '../types/venue';
 
 // Create axios instance with default config
 const api: AxiosInstance = axios.create({
@@ -171,6 +172,26 @@ export const getActivityFeed = async (
   const response = await api.get('/v1/feed', {
     params: { filter, page, limit },
   });
+  return response.data;
+};
+
+// Venue API functions
+export const getVenues = async (params?: {
+  search?: string;
+  city?: string;
+  state?: string;
+  hasTournaments?: boolean;
+  hasFood?: boolean;
+  hasBar?: boolean;
+  page?: number;
+  limit?: number;
+}): Promise<{
+  venues: Venue[];
+  total: number;
+  page: number;
+  totalPages: number;
+}> => {
+  const response = await api.get('/v1/venues', { params });
   return response.data;
 };
 

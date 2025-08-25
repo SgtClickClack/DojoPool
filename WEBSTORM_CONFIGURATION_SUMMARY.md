@@ -107,6 +107,7 @@ Developers should:
 Some users reported that right-click paste was not working in certain IDE areas (including the Junie chat input). This behavior depends on WebStorm’s keymap. To ensure consistent right-click paste across all tool windows, map the standard right-click to the “Show Context Menu” action.
 
 ### Option A: Prompt for Junie (Automated attempt)
+
 You can ask Junie to try to configure this automatically. Copy and paste the following prompt:
 
 > Hello Junie. Please configure the IDE's keymap settings. I need you to ensure that the standard right-click mouse action is mapped to "Show Context Menu" across all tool windows, including your own chat input field. This will enable the right-click paste functionality.
@@ -114,6 +115,7 @@ You can ask Junie to try to configure this automatically. Copy and paste the fol
 Note: This relies on IDE-level capabilities and may or may not succeed in your environment.
 
 ### Option B: Manual Method (Recommended)
+
 This is the reliable approach and takes less than a minute:
 
 1. Open Settings
@@ -128,11 +130,13 @@ This is the reliable approach and takes less than a minute:
 If WebStorm warns that Button2 is already assigned to another action, you can safely remove the conflicting assignment. This mapping applies across the IDE, including tool windows and the AI/Junie chat input.
 
 ### Notes
+
 - This is an IDE preference and is not controlled by application code. We keep these instructions in the repository so every developer can quickly configure their environment.
 - If your OS or mouse software customizes right-click behavior globally, confirm that right-click is not being intercepted before it reaches WebStorm.
 - Keymaps can be exported/imported via File > Manage IDE Settings > Export/Import Settings if you want to share this configuration with teammates.
 
 ### Troubleshooting: Right‑click paste still not working
+
 If mapping Button2 to "Show Context Menu" didn’t help, try the following in order:
 
 1. Check for conflicting mouse shortcuts
@@ -193,6 +197,7 @@ After listing them, please provide the step-by-step instructions on how to disab
 ```
 
 Notes:
+
 - This prompt is designed to produce a two-part answer: 1) a list of items to disable (with rationale), and 2) precise menu paths and checkboxes to toggle.
 - Consider saving the resulting recommendations to a local checklist so your team can standardize their WebStorm performance settings.
 
@@ -200,19 +205,22 @@ Notes:
 
 Use the following steps to manually turn off non‑essential features. Only disable what you do not use in this project. You can re‑enable items later.
 
-1) Disable unnecessary plugins
+1. Disable unnecessary plugins
+
 - Path: File > Settings > Plugins
 - Actions:
   - Open the Installed tab, use the search box, and toggle Disable for plugins you don’t use. Common candidates:
     - CoffeeScript, Stylus, HAML, Jade/Pug, EJS/Handlebars, AngularJS (legacy), Cordova, PhoneGap, Mercury/Space/TeamCity integrations, Kubernetes, Subversion (SVN), Perforce, Mercurial, HTTP Client (if unused), Database Tools (if unused), Markdown (only if not editing markdown in IDE), AI Assistant alternatives you don’t use, Keymap/Language packs not needed.
   - Restart IDE when prompted.
 
-2) Minimize background indexing load
+2. Minimize background indexing load
+
 - Path: File > Settings > Directories (or Project Structure > Modules)
 - Actions:
   - Mark large non‑source folders as Excluded (e.g., node_modules copies, build, dist, coverage, .next, .turbo, .cache, .venv, logs, tmp). This reduces indexing.
 
-3) Reduce inspections and code analysis scope
+3. Reduce inspections and code analysis scope
+
 - Path: File > Settings > Editor > Inspections
 - Actions:
   - Uncheck inspections you don’t rely on (e.g., duplicates of ESLint rules).
@@ -221,12 +229,14 @@ Use the following steps to manually turn off non‑essential features. Only disa
 - Actions:
   - Disable Breadcrumbs, Method separators, and other visual helpers you don’t need.
 
-4) Prefer ESLint/Prettier over IDE analysis where possible
+4. Prefer ESLint/Prettier over IDE analysis where possible
+
 - Path: File > Settings > Languages & Frameworks > JavaScript > Code Quality Tools
 - Actions:
   - Ensure ESLint is enabled and “Run for files” covers JS/TS; disable overlapping IDE inspections that duplicate ESLint rules.
 
-5) Disable resource‑intensive UI effects
+5. Disable resource‑intensive UI effects
+
 - Path: File > Settings > Appearance & Behavior > Appearance
 - Actions:
   - Disable animations and unnecessary UI effects (e.g., enable Use compact mode, turn off window blur/transparency if present).
@@ -234,7 +244,8 @@ Use the following steps to manually turn off non‑essential features. Only disa
 - Actions:
   - Turn off parameter/name hints for languages you don’t need.
 
-6) Limit Version Control background activity
+6. Limit Version Control background activity
+
 - Path: File > Settings > Version Control
 - Actions:
   - Ensure only the actual project root is listed. Remove extra/mounted folders to avoid scanning.
@@ -242,12 +253,14 @@ Use the following steps to manually turn off non‑essential features. Only disa
 - Actions:
   - Reduce or disable background operations you don’t need (e.g., background commit checks) if they add latency.
 
-7) File Watchers and Tools
+7. File Watchers and Tools
+
 - Path: File > Settings > Tools > File Watchers
 - Actions:
   - Disable watchers you don’t use (e.g., Sass/Less/TS watchers if your build runs them). Rely on the project’s build (Vite/Next) where possible.
 
-8) Terminal and npm scripts indexing
+8. Terminal and npm scripts indexing
+
 - Path: File > Settings > Tools > Terminal
 - Actions:
   - Disable shell integration features you don’t use.
@@ -255,18 +268,22 @@ Use the following steps to manually turn off non‑essential features. Only disa
 - Actions:
   - Search for npm/yarn/pnpm script scanning and disable auto‑detection if it slows the IDE, relying on package.json/manual runs.
 
-9) Power Save Mode (temporary boost)
+9. Power Save Mode (temporary boost)
+
 - Toggle: File > Power Save Mode (or via Find Action: Ctrl+Shift+A then type "Power Save Mode")
 - Notes: Turns off code analysis and inspections temporarily for maximum responsiveness when editing huge files.
 
-10) Memory and process hygiene
+10. Memory and process hygiene
+
 - Help > Change Memory Settings: ensure the IDE heap is reasonable for your RAM (e.g., 2–4 GB).
 - Invalidate caches if index corruption is suspected: File > Invalidate Caches… > Invalidate and Restart.
 
 Verification checklist
+
 - Indexing completes faster after exclusions; typing latency reduced; CPU usage stable while editing.
 - Opening large TS/TSX files no longer stalls.
 - Running ESLint via the project toolchain still works; IDE duplicate inspections are reduced.
 
 Re‑enable as needed
+
 - If a feature you rely on stops working, re‑enable its plugin from File > Settings > Plugins and restart.

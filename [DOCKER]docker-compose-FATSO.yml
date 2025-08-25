@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   web:
@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     env_file: .env
     ports:
-      - "8080:5000"
+      - '8080:5000'
     volumes:
       - .:/app
       - static_volume:/app/static
@@ -18,10 +18,10 @@ services:
       - redis
     restart: unless-stopped
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   postgres:
     image: postgres:14-alpine
@@ -29,9 +29,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - '5432:5432'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dojopool"]
+      test: ['CMD-SHELL', 'pg_isready -U dojopool']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -41,11 +41,11 @@ services:
     image: redis:7-alpine
     command: redis-server --appendonly yes
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5

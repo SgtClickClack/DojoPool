@@ -57,7 +57,7 @@ describe('Performance Tests', () => {
     });
 
     it('should load venues list within performance budget', () => {
-      cy.intercept('GET', '/api/venues').as('getVenues');
+      cy.intercept('GET', '/api/v1/venues').as('getVenues');
       cy.visit('/venues');
       cy.wait('@getVenues').its('duration').should('be.lessThan', 1000);
     });

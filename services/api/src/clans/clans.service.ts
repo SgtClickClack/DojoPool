@@ -1,11 +1,14 @@
 import {
+  BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ErrorUtils } from '../common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UpgradeDojoDto } from './dto/upgrade-dojo.dto';
 
 @Injectable()
 export class ClansService {
@@ -177,6 +180,97 @@ export class ClansService {
         `DB getAllClans failed: ${ErrorUtils.getErrorMessage(err)}`
       );
       return [];
+    }
+  }
+
+  async upgradeDojo(venueId: string, userId: string, dto: UpgradeDojoDto) {
+    const type = dto.type;
+    const levels = Math.max(1, Math.floor(dto.levels ?? 1));
+
+    const incomeCost = Number.parseInt(
+      process.env.DOJO_UPGRADE_INCOME_COST || '100',
+      10
+    );
+    const defenseCost = Number.parseInt(
+      process.env.DOJO_UPGRADE_DEFENSE_COST || '150',
+      10
+    );
+
+    const costPerLevel = type === 'income' ? incomeCost : defenseCost;
+    if (!Number.isFinite(costPerLevel) || costPerLevel < 0) {
+      throw new BadRequestException('Invalid upgrade cost configuration');
+    }
+    const totalCost = costPerLevel * levels;
+
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const venue = await tx.venue.findUnique({ where: { id: venueId } });
+        if (!venue) {
+          throw new NotFoundException(`Venue with ID ${venueId} not found`);
+        }
+        if (!venue.controllingClanId) {
+          throw new BadRequestException('Venue has no controlling clan');
+        }
+
+        const clan = await tx.clan.findUnique({
+          where: { id: venue.controllingClanId },
+        });
+        if (!clan) {
+          throw new NotFoundException('Controlling clan not found');
+        }
+        if (clan.leaderId !== userId) {
+          throw new ForbiddenException(
+            'Only the clan leader can upgrade this dojo'
+          );
+        }
+
+        if (clan.dojoCoinBalance < totalCost) {
+          throw new ConflictException(
+            'Insufficient DojoCoins for this upgrade'
+          );
+        }
+
+        // Deduct cost first
+        const updatedClan = await tx.clan.update({
+          where: { id: clan.id },
+          data: { dojoCoinBalance: { decrement: totalCost } },
+          select: { id: true, dojoCoinBalance: true },
+        });
+
+        let updatedVenue;
+        if (type === 'income') {
+          const increment = 0.1 * levels;
+          updatedVenue = await tx.venue.update({
+            where: { id: venue.id },
+            data: { incomeModifier: { increment } },
+            select: { id: true, incomeModifier: true, defenseLevel: true },
+          });
+        } else {
+          updatedVenue = await tx.venue.update({
+            where: { id: venue.id },
+            data: { defenseLevel: { increment: levels } },
+            select: { id: true, incomeModifier: true, defenseLevel: true },
+          });
+        }
+
+        return {
+          success: true,
+          clanId: clan.id,
+          venueId: venue.id,
+          type,
+          levels,
+          cost: totalCost,
+          dojoCoinBalance: updatedClan.dojoCoinBalance,
+          venue: updatedVenue,
+        };
+      });
+    } catch (err) {
+      this.logger.error(
+        `Failed to upgrade dojo for venue ${venueId}: ${ErrorUtils.getErrorMessage(
+          err
+        )}`
+      );
+      throw err;
     }
   }
 }

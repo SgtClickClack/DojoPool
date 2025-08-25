@@ -32,8 +32,8 @@ const WorldHubMapWrapper: React.FC<WorldHubMapWrapperProps> = ({
             Map Configuration Required
           </Typography>
           <Typography variant="body2" sx={{ color: '#ccc', mb: 2 }}>
-            Mapbox API token is missing. Please set NEXT_PUBLIC_MAPBOX_TOKEN in your
-            environment variables.
+            Mapbox API token is missing. Please set NEXT_PUBLIC_MAPBOX_TOKEN in
+            your environment variables.
           </Typography>
           <Typography
             variant="caption"
