@@ -60,7 +60,6 @@
 @media (display-mode: standalone) {
   body {
     overscroll-behavior-y: none;
-    -webkit-overflow-scrolling: touch;
   }
 
   /* Hide browser UI elements in standalone mode */

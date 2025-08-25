@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Card, Tabs, Descriptions, Tag, message } from 'antd';
 import {
+  CalendarOutlined,
   EnvironmentOutlined,
-  PhoneOutlined,
-  MailOutlined,
   GlobalOutlined,
+  MailOutlined,
+  PhoneOutlined,
   TeamOutlined,
   TrophyOutlined,
-  CalendarOutlined,
 } from '@ant-design/icons';
+import { Card, Descriptions, Tabs, Tag, message } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { getVenue } from '../../api/venues';
+import { LoadingSpinner } from '../Common/[UI]LoadingSpinner';
+import EventList from '../events/[EVENT]EventList';
 import CheckInSystem from './[VENUE]CheckInSystem';
 import LeaderboardList from './[VENUE]LeaderboardList';
-import EventList from '../events/[EVENT]EventList';
-import { LoadingSpinner } from '../Common/[UI]LoadingSpinner';
 
 const { TabPane } = Tabs;
 
@@ -31,7 +31,7 @@ const VenueDetail: React.FC = () => {
   const fetchVenue = async () => {
     try {
       setLoading(true);
-      const data = await getVenue(parseInt(id));
+      const data = await getVenue(parseInt(id || '0'));
       setVenue(data);
     } catch (error) {
       console.error('Error fetching venue:', error);
@@ -121,7 +121,10 @@ const VenueDetail: React.FC = () => {
             }
             key="checkin"
           >
-            <CheckInSystem venueId={parseInt(id)} venueName={venue.name} />
+            <CheckInSystem
+              venueId={parseInt(id || '0')}
+              venueName={venue.name}
+            />
           </TabPane>
           <TabPane
             tab={
@@ -131,7 +134,7 @@ const VenueDetail: React.FC = () => {
             }
             key="leaderboard"
           >
-            <LeaderboardList venueId={parseInt(id)} />
+            <LeaderboardList venueId={parseInt(id || '0')} />
           </TabPane>
           <TabPane
             tab={
@@ -141,7 +144,7 @@ const VenueDetail: React.FC = () => {
             }
             key="events"
           >
-            <EventList venueId={parseInt(id)} />
+            <EventList venueId={parseInt(id || '0')} />
           </TabPane>
         </Tabs>
       </Card>

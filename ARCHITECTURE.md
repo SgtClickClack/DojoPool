@@ -3,7 +3,7 @@
 ## 1. Recommended Tech Stack
 
 - Frontend
-  - Next.js 14 (App Router, React Server Components, Server Actions)
+  - Next.js 15 (App Router, React Server Components, Server Actions)
   - TypeScript, TanStack Query, Zustand, Zod
   - Tailwind CSS + Headless UI; MUI only where needed
   - Mapbox GL JS for map/territory
@@ -46,7 +46,7 @@ Rationale: TypeScript unifies most of the platform, NestJS provides strong modul
 
 - Top-level
   - apps/
-    - web/ (Next.js 14 App Router)
+    - web/ (Next.js 15 App Router)
     - mobile/ (Expo/React Native, optional later)
   - services/
     - api/ (NestJS REST + WebSocket gateway)

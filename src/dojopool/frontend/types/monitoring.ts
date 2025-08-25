@@ -47,6 +47,7 @@ export interface MetricData {
   timestamp: number;
   value: number;
   metadata?: Record<string, any>;
+  label?: string;
 }
 
 export interface ErrorData {
@@ -63,11 +64,42 @@ export interface Anomaly {
   severity: 'warning' | 'critical';
 }
 
+export interface SnapshotHistorical {
+  cpuUsage: MetricData[];
+  memoryUsage: MetricData[];
+  diskUsage: MetricData[];
+  networkTraffic: MetricData[];
+}
+
+export type MonitoringErrorEvent = ErrorEvent;
+
+export interface TrendAnalysis {
+  trendLine: { timestamp: number; value: number }[];
+  forecast: { timestamp: number; value: number; confidence: number }[];
+  anomalies: { timestamp: number; value: number; severity: 'warning' | 'critical' }[];
+}
+
+export interface MetricsCurrent {
+  updateTimes: MetricData[];
+  latency: MetricData[];
+  memoryUsage: MetricData[];
+  alerts?: Alert[];
+}
+
 export interface MetricsSnapshot {
-  metricId: string;
-  data: MetricData[];
+  metricId?: string;
+  data?: MetricData[];
   aggregatedValue?: number;
   trendAnalysis?: TrendAnalysis;
+  updateTimes: MetricData[];
+  latencyData: MetricData[];
+  latency: MetricData[];
+  memoryUsage: MetricData[];
+  successRate?: number;
+  alerts?: Alert[];
+  errorData?: MonitoringErrorEvent[];
+  historical: SnapshotHistorical;
+  current: MetricsCurrent;
 }
 
 export interface TrendAnalysis {

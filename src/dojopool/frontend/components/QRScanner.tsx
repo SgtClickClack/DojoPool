@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { QrReader } from 'react-qr-reader';
+import {
+  Close as CloseIcon,
+  QrCode as QrCodeIcon,
+  Refresh as RefreshIcon,
+} from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -14,13 +17,10 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import {
-  Close as CloseIcon,
-  QrCode as QrCodeIcon,
-  Refresh as RefreshIcon,
-} from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
-import { api } from '../services/api';
+import React, { useEffect, useState } from 'react';
+import QrReader from 'react-qr-reader';
+import api from '../services/APIService';
 
 interface QRScannerProps {
   onScanSuccess?: (result: any) => void;
@@ -215,7 +215,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({
 
             <QrReader
               constraints={{ facingMode: 'environment' }}
-              onResult={(result) => {
+              onResult={(result: any) => {
                 if (result) {
                   handleScan(result.getText());
                 }

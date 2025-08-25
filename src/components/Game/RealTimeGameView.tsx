@@ -1,29 +1,24 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Grid,
-  Typography,
-  Paper,
-  CircularProgress,
+  Cancel,
+  CheckCircle,
+  EmojiEvents,
+  SportsEsports,
+} from '@mui/icons-material';
+import {
   Alert,
-  Chip,
+  Box,
   Button,
   Card,
   CardContent,
-  Divider,
-  IconButton,
-  Tooltip,
+  Chip,
+  CircularProgress,
+  Grid,
+  Paper,
+  Typography,
 } from '@mui/material';
-import {
-  SportsEsports,
-  Timer,
-  EmojiEvents,
-  Warning,
-  CheckCircle,
-  Cancel,
-} from '@mui/icons-material';
-import { useGameSocket } from '../../hooks/useGameSocket';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { useGameSocket } from '../../hooks/useGameSocket';
 
 interface RealTimeGameViewProps {
   gameId: string;
@@ -276,7 +271,11 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
                     <Typography variant="body2" gutterBottom>
                       Shot Velocity: {shotData.velocity}
                     </Typography>
+                    <label htmlFor={`shot-velocity-${gameId}`}>
+                      Shot Velocity
+                    </label>
                     <input
+                      id={`shot-velocity-${gameId}`}
                       type="range"
                       min="0.1"
                       max="2.0"
@@ -288,7 +287,8 @@ const RealTimeGameView: React.FC<RealTimeGameViewProps> = ({ gameId }) => {
                           velocity: parseFloat(e.target.value),
                         }))
                       }
-                      style={{ width: '100%' }}
+                      aria-label="Shot velocity"
+                      title="Shot velocity"
                     />
                   </Box>
 

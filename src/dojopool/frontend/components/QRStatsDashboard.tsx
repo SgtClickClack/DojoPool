@@ -1,36 +1,36 @@
-import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
   CardContent,
-  Grid,
-  Typography,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   CircularProgress,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
+  Typography,
 } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LineChart,
-  Line,
 } from 'recharts';
-import { api } from '../services/api';
+import api from '../services/APIService';
 
 interface QRStatsProps {
   venueId?: string;

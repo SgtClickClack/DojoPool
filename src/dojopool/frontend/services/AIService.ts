@@ -1,11 +1,11 @@
-import api from './api';
 import {
   generateStoryPrompt,
-  validatePrompt,
   sanitizePrompt,
+  validatePrompt,
 } from '../../ai/prompts';
 import { type TrainingSession } from '../../types/training';
 import { type UserProfile } from '../../types/user';
+import api from './APIService';
 
 interface StoryGenerationRequest {
   userProfile: UserProfile;

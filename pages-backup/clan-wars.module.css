@@ -1,0 +1,46 @@
+.warInput {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #00a8ff;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+}
+
+.warTextarea {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #00a8ff;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.declareWarButton {
+  background: linear-gradient(45deg, #ff6b6b 0%, #feca57 100%);
+  color: #000;
+  font-family: 'Orbitron', monospace;
+  font-weight: 600;
+  flex: 1;
+}
+
+.declareWarButton:hover {
+  background: linear-gradient(45deg, #feca57 0%, #ff6b6b 100%);
+}
+
+.cancelButton {
+  border: 2px solid #00a8ff;
+  color: #00a8ff;
+  font-family: 'Orbitron', monospace;
+  font-weight: 600;
+  flex: 1;
+}
+
+.cancelButton:hover {
+  border: 2px solid #00ff9d;
+  color: #00ff9d;
+}

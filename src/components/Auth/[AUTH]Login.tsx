@@ -1,17 +1,40 @@
-import { useAuth } from '@/hooks/useAuth';
-import { Box, Button, Link, Paper, TextField, Typography } from '@mui/material';
+import { useAuth } from '@/frontend/contexts/AuthContext';
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Link,
+  Paper,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, error } = useAuth();
+  const { signIn, error, loading, clearError } = useAuth();
   const router = useRouter();
+
+  // Clear error when component mounts or when error changes
+  useEffect(() => {
+    if (error) {
+      clearError();
+    }
+  }, [error, clearError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, password);
+    try {
+      await signIn(email, password);
+      // Redirect to dashboard on successful login
+      router.push('/dashboard');
+    } catch (err) {
+      // Error is already handled by the context
+      console.error('Login error:', err);
+    }
   };
 
   return (
@@ -36,6 +59,7 @@ const Login: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             margin="normal"
             required
+            disabled={loading}
           />
           <TextField
             fullWidth
@@ -45,14 +69,21 @@ const Login: React.FC = () => {
             onChange={(e) => setPassword(e.target.value)}
             margin="normal"
             required
+            disabled={loading}
           />
           {error && (
-            <Typography color="error" sx={{ mt: 2 }}>
+            <Alert severity="error" sx={{ mt: 2 }}>
               {error}
-            </Typography>
+            </Alert>
           )}
-          <Button fullWidth type="submit" variant="contained" sx={{ mt: 3 }}>
-            Sign In
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            sx={{ mt: 3 }}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} /> : 'Sign In'}
           </Button>
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Link href="/forgot-password">Forgot password?</Link>

@@ -1,5 +1,6 @@
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../../../frontend/contexts/AuthContext';
+import { useAuth } from '@/frontend/contexts/AuthContext';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -7,15 +8,21 @@ interface PrivateRouteProps {
 
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const { user, loading } = useAuth();
-  const location = useLocation();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      // Redirect to login page but save the attempted url
+      router.push(`/login?redirect=${encodeURIComponent(router.asPath)}`);
+    }
+  }, [user, loading, router]);
 
   if (loading) {
-    return null; // or a loading spinner
+    return <div className="auth-loading">Loading...</div>;
   }
 
   if (!user) {
-    // Redirect to login page but save the attempted url
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return null; // Will redirect via useEffect
   }
 
   return <>{children}</>;

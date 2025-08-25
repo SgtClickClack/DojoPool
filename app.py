@@ -23,11 +23,22 @@ connected_clients = {}
 def create_app():
     """Create and configure the Flask application."""
     app = Flask(__name__)
-    
+
+    # Minimal runtime env validation (aligns with docs/tasks.md Task 4)
+    flask_secret = os.environ.get("FLASK_SECRET_KEY")
+    database_url = os.environ.get("DATABASE_URL")
+    if not flask_secret:
+        logger.warning("FLASK_SECRET_KEY is not set. Sessions and CSRF protection may be insecure.")
+        if os.environ.get("FLASK_ENV") == "production":
+            raise RuntimeError("FLASK_SECRET_KEY must be set in production")
+    if not database_url:
+        logger.warning("DATABASE_URL is not set. Defaulting to in-memory or disabled DB features.")
+        # Not raising here since some dev modes may not require DB.
+
     # Enhanced security configurations
     app.config.update(
-        SECRET_KEY=os.environ.get("FLASK_SECRET_KEY"),
-        SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL"),
+        SECRET_KEY=flask_secret,
+        SQLALCHEMY_DATABASE_URI=database_url,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SQLALCHEMY_ENGINE_OPTIONS={
             "pool_recycle": 300,
@@ -68,12 +79,12 @@ def create_app():
         # Skip auth routes to prevent redirect loops
         if request.path.startswith('/auth/'):
             return
-            
+
         # Ensure HTTPS
         if not request.is_secure and app.env != "development":
             url = request.url.replace('http://', 'https://', 1)
             return redirect(url, code=301)
-            
+
         # Check session activity
         if current_user.is_authenticated:
             last_activity = session.get('last_activity')
@@ -90,7 +101,7 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
-    
+
     login_manager.login_view = 'auth.login'
     login_manager.login_message = "Please log in to access this page."
     login_manager.login_message_category = "info"
@@ -112,12 +123,12 @@ def create_app():
         from blueprints.multiplayer import multiplayer
         from blueprints.umpire import umpire
         from routes import routes
-        
+
         app.register_blueprint(auth, url_prefix='/auth')
         app.register_blueprint(multiplayer, url_prefix='/multiplayer')
         app.register_blueprint(umpire, url_prefix='/umpire')
         app.register_blueprint(routes)
-        
+
         # Create database tables
         db.create_all()
         logger.info("Database tables created successfully")

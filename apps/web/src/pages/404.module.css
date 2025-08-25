@@ -1,0 +1,48 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.title {
+  font-size: 4rem;
+  margin: 0 0 1rem 0;
+}
+
+.subtitle {
+  margin: 0 0 1rem 0;
+}
+
+.description {
+  margin: 0 0 2rem 0;
+}
+
+.homeLink {
+  padding: 0.5rem 1rem;
+  background-color: #0070f3;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.homeLink:hover {
+  background-color: #0051cc;
+}
+
+.homeLink:focus-visible {
+  outline: 2px solid #00ff9d;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title,
+  .subtitle,
+  .description,
+  .homeLink {
+    transition: none !important;
+    animation: none !important;
+  }
+}

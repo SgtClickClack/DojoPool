@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, type AxiosError } from 'axios';
+import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 // Create axios instance with default config
 const api: AxiosInstance = axios.create({
@@ -59,3 +59,83 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+// Clan API functions
+export const createClan = async (clanData: any): Promise<any> => {
+  const response = await api.post('/v1/clans', clanData);
+  return response.data;
+};
+
+export const getClans = async (filters?: any): Promise<any[]> => {
+  const response = await api.get('/v1/clans', { params: filters });
+  return response.data;
+};
+
+export const getClanDetails = async (clanId: string): Promise<any> => {
+  const response = await api.get(`/v1/clans/${clanId}`);
+  return response.data;
+};
+
+export const getClanMembers = async (clanId: string): Promise<any[]> => {
+  const response = await api.get(`/v1/clans/${clanId}/members`);
+  return response.data;
+};
+
+export const getClanControlledDojos = async (
+  clanId: string
+): Promise<any[]> => {
+  const response = await api.get(`/v1/territories/clan/${clanId}`);
+  return response.data;
+};
+
+export const joinClan = async (
+  clanId: string,
+  message?: string
+): Promise<void> => {
+  const response = await api.post(`/v1/clans/${clanId}/join`, { message });
+  return response.data;
+};
+
+export const leaveClan = async (
+  clanId: string
+): Promise<void> => {
+  const response = await api.post(`/v1/clans/${clanId}/leave`);
+  return response.data;
+};
+
+// Activity Feed API functions
+export const getActivityFeed = async (
+  filter: 'global' | 'friends' = 'global',
+  page: number = 1,
+  limit: number = 20
+): Promise<any> => {
+  const response = await api.get('/v1/feed', {
+    params: { filter, page, limit }
+  });
+  return response.data;
+};
+
+export const getUserClan = async (userId: string): Promise<any | null> => {
+  try {
+    const response = await api.get(`/v1/users/${userId}/clan`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+};
+
+export const updateClan = async (
+  clanId: string,
+  updates: any
+): Promise<any> => {
+  const response = await api.patch(`/v1/clans/${clanId}`, updates);
+  return response.data;
+};
+
+export const deleteClan = async (clanId: string): Promise<void> => {
+  const response = await api.delete(`/v1/clans/${clanId}`);
+  return response.data;
+};

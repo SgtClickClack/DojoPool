@@ -66,6 +66,11 @@ interface PlayerData {
   achievements: PlayerAchievement[];
   stats: PlayerStats;
   teams: { id: string; name: string }[];
+  clan?: {
+    id: string;
+    name: string;
+    tag: string;
+  };
 }
 
 const PlayerProfile: React.FC<{ playerId: string }> = ({ playerId }) => {
@@ -198,6 +203,34 @@ const PlayerProfile: React.FC<{ playerId: string }> = ({ playerId }) => {
             </CardContent>
           </Card>
         </Grid>
+
+        {/* Clan Section */}
+        {player.clan && (
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  <TeamIcon sx={{ mr: 1 }} />
+                  Clan
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Chip
+                    label={`${player.clan.name} [${player.clan.tag}]`}
+                    color="primary"
+                    variant="filled"
+                    clickable
+                    onClick={() =>
+                      (window.location.href = `/clans/${player.clan.id}`)
+                    }
+                  />
+                  <Typography variant="body2" color="textSecondary">
+                    Click to view clan profile
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
       </Grid>
     </Box>
   );

@@ -1,10 +1,11 @@
 import React from 'react';
 import { useJsApiLoader } from '@react-google-maps/api';
+import getGoogleMapsApiKey from '../../../apps/web/src/utils/getGoogleMapsApiKey';
 
 const MapTest: React.FC = () => {
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    googleMapsApiKey: getGoogleMapsApiKey(),
   });
 
   console.log(

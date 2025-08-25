@@ -1,38 +1,30 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-  Badge,
-  IconButton,
-  Popover,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  Box,
-  Divider,
-  Chip,
-  Button,
-  useTheme,
-  useMediaQuery,
-  Card,
-  CardContent,
-  Collapse,
-  Switch,
-  FormControlLabel,
-  Menu,
-  MenuItem,
-  Tooltip,
-} from '@mui/material';
 import {
   Notifications as NotificationsIcon,
   Settings as SettingsIcon,
-  CheckCircle as ReadIcon,
-  Delete as ClearIcon,
-  NotificationsActive as ActiveIcon,
-  NotificationsOff as MutedIcon,
-  Schedule as ScheduleIcon,
 } from '@mui/icons-material';
-import notificationService from '../../services/[NET]notification';
+import {
+  Badge,
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Collapse,
+  FormControlLabel,
+  IconButton,
+  List,
+  ListItem,
+  Menu,
+  MenuItem,
+  Popover,
+  Switch,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { formatDistanceToNow } from 'date-fns';
+import { useCallback, useEffect, useState } from 'react';
+import notificationService from '../../services/notification';
 
 interface NotificationCenterProps {
   className?: string;
@@ -56,7 +48,7 @@ const NotificationCenter = ({ className }: NotificationCenterProps) => {
   );
   const [showSettings, setShowSettings] = useState(false);
 
-  const handleNotificationUpdate = useCallback((state) => {
+  const handleNotificationUpdate = useCallback((state: any) => {
     setNotifications(state.notifications);
     setUnreadCount(state.unreadCount);
     setPreferences(state.preferences);

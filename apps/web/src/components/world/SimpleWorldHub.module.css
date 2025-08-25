@@ -1,0 +1,205 @@
+.loadingContainer,
+.errorContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(30, 30, 30, 0.95);
+  color: #ffffff;
+  border-radius: 8px;
+}
+
+.loadingContainer.h100,
+.errorContainer.h100 {
+  height: 100%;
+}
+
+.loadingContainer.h200,
+.errorContainer.h200 {
+  height: 200px;
+}
+
+.loadingContainer.h300,
+.errorContainer.h300 {
+  height: 300px;
+}
+
+.loadingContainer.h400,
+.errorContainer.h400 {
+  height: 400px;
+}
+
+.loadingContainer.h500,
+.errorContainer.h500 {
+  height: 500px;
+}
+
+.loadingContainer.h600,
+.errorContainer.h600 {
+  height: 600px;
+}
+
+.loadingContainer.h700,
+.errorContainer.h700 {
+  height: 700px;
+}
+
+.loadingContainer.h800,
+.errorContainer.h800 {
+  height: 800px;
+}
+
+.loadingContainer.h900,
+.errorContainer.h900 {
+  height: 900px;
+}
+
+.loadingContainer.h100vh,
+.errorContainer.h100vh {
+  height: 100vh;
+}
+
+.errorContainer {
+  color: #ff4444;
+}
+
+.mainContainer {
+  height: 100%;
+  background-color: rgba(30, 30, 30, 0.95);
+  color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.mainContainer.h100 {
+  height: 100%;
+}
+
+.mainContainer.h200 {
+  height: 200px;
+}
+
+.mainContainer.h300 {
+  height: 300px;
+}
+
+.mainContainer.h400 {
+  height: 400px;
+}
+
+.mainContainer.h500 {
+  height: 500px;
+}
+
+.mainContainer.h600 {
+  height: 600px;
+}
+
+.mainContainer.h700 {
+  height: 700px;
+}
+
+.mainContainer.h800 {
+  height: 800px;
+}
+
+.mainContainer.h900 {
+  height: 900px;
+}
+
+.mainContainer.h100vh {
+  height: 100vh;
+}
+
+.title {
+  margin-bottom: 16px;
+  color: #ffffff;
+}
+
+.sectionTitle {
+  margin-bottom: 12px;
+}
+
+.playerInfo {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.dojosGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.dojoCard {
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 2px solid #44ff44;
+}
+
+.dojoCard.locked {
+  border-color: #ff4444;
+}
+
+.dojoCard.controlled {
+  border-color: #ff8800;
+}
+
+.dojoTitle {
+  margin: 0 0 8px 0;
+  color: #ffffff;
+}
+
+.dojoStatus {
+  margin: 4px 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dojoController {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #ff8800;
+}
+
+.dojoDistance {
+  margin: 4px 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.buttonContainer {
+  margin-top: 8px;
+}
+
+.challengeButton {
+  padding: 6px 12px;
+  background-color: #4caf50;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.challengeButton:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+/* Accessibility focus */
+.challengeButton:focus-visible {
+  outline: 2px solid #44ff44;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,0 +1,19 @@
+.itemCard {
+  /* Base styles will be handled by existing CSS */
+}
+
+.itemCard[data-rarity='legendary'] {
+  --rarity-color: #ffd700;
+}
+
+.itemCard[data-rarity='epic'] {
+  --rarity-color: #a335ee;
+}
+
+.itemCard[data-rarity='rare'] {
+  --rarity-color: #0070dd;
+}
+
+.itemCard[data-rarity='common'] {
+  --rarity-color: #ffffff;
+}

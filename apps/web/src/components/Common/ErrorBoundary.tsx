@@ -51,7 +51,7 @@ class ErrorBoundary extends Component<Props, State> {
               Something went wrong
             </Typography>
             <Typography variant="body1" paragraph color="text.secondary">
-              We're sorry, but something unexpected happened. Please try
+              We&apos;re sorry, but something unexpected happened. Please try
               refreshing the page.
             </Typography>
             {this.state.error && (

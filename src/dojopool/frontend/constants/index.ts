@@ -36,8 +36,8 @@ export const MONITORING_CONFIG = {
 };
 
 // Map Configuration
-export const GOOGLE_MAPS_API_KEY =
-  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+import getGoogleMapsApiKey from '../../../../apps/web/src/utils/getGoogleMapsApiKey';
+export const GOOGLE_MAPS_API_KEY = getGoogleMapsApiKey();
 
 export const DEFAULT_MAP_OPTIONS = {
   disableDefaultUI: true,

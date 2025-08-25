@@ -82,7 +82,7 @@
   font-size: 1.25rem;
   color: #4a5568;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .quantity-control button:hover:not(:disabled) {
@@ -92,6 +92,11 @@
 .quantity-control button:disabled {
   color: #cbd5e0;
   cursor: not-allowed;
+}
+
+.quantity-control button:focus-visible {
+  outline: 2px solid #4299e1;
+  outline-offset: 2px;
 }
 
 .quantity-control span {
@@ -109,11 +114,16 @@
   border-radius: 4px;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .remove-button:hover {
   background-color: #feb2b2;
+}
+
+.remove-button:focus-visible {
+  outline: 2px solid #c53030;
+  outline-offset: 2px;
 }
 
 .cart-summary {
@@ -161,6 +171,11 @@
   cursor: not-allowed;
 }
 
+.purchase-button:focus-visible {
+  outline: 2px solid #2f855a;
+  outline-offset: 2px;
+}
+
 .empty-cart {
   flex: 1;
   text-align: center;
@@ -197,6 +212,11 @@
   background-color: #3182ce;
 }
 
+.empty-cart button:focus-visible {
+  outline: 2px solid #2b6cb0;
+  outline-offset: 2px;
+}
+
 .error-message {
   color: #e53e3e;
   padding: 1rem;
@@ -204,4 +224,14 @@
   border: 1px solid #feb2b2;
   border-radius: 4px;
   margin-bottom: 1rem;
+}
+
+/* Reduced motion safeguard */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
 }

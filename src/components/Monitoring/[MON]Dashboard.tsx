@@ -79,6 +79,7 @@ import {
 } from '../../types/monitoring';
 import { ErrorTracker, gameMetricsMonitor } from '../../utils/monitoring';
 import { exportToPDF } from '../../utils/pdfExport';
+import styles from './MONDashboard.module.css';
 import { ErrorBoundary } from './[ERR]ErrorBoundary';
 import { MetricsChart } from './[MON]MetricsChart';
 
@@ -1160,7 +1161,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
 
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="metrics">
-            {(provided) => (
+            {(provided: any) => (
               <List {...provided.droppableProps} ref={provided.innerRef}>
                 {metricConfig
                   .sort((a, b) => a.order - b.order)
@@ -1170,7 +1171,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                       draggableId={metric.id}
                       index={index}
                     >
-                      {(provided) => (
+                      {(provided: any) => (
                         <Paper
                           ref={provided.innerRef}
                           {...provided.draggableProps}
@@ -2989,7 +2990,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                   overflow: 'auto',
                 }}
               >
-                <pre style={{ margin: 0 }}>{selectedError.stack}</pre>
+                <pre className={styles.monPreReset}>{selectedError.stack}</pre>
               </Paper>
             )}
             {selectedError.context &&
@@ -3007,7 +3008,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                       overflow: 'auto',
                     }}
                   >
-                    <pre style={{ margin: 0 }}>
+                    <pre className={styles.monPreReset}>
                       {JSON.stringify(selectedError.context, null, 2)}
                     </pre>
                   </Paper>

@@ -1,0 +1,98 @@
+.container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profileHeader {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.avatar {
+  font-size: 4rem;
+}
+
+.profileInfo h2 {
+  margin: 0 0 0.5rem 0;
+}
+
+.profileInfo p {
+  margin: 0;
+  color: #666;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.statCard h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.statCard p {
+  margin: 0;
+  color: #666;
+}
+
+.wins {
+  color: #007acc;
+}
+
+.losses {
+  color: #cc0000;
+}
+
+.winRate {
+  color: #00cc00;
+}
+
+.activityContainer {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.activityItem {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+}
+
+.activityItem:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.activityItem:last-child {
+  border-bottom: none;
+}
+
+/* Focus and reduced motion */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #007acc;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,32 +1,33 @@
-import { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useAuth } from '@/frontend/contexts/AuthContext';
+import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
 import {
   AppBar,
-  Box,
-  Toolbar,
-  IconButton,
-  Typography,
-  Menu,
-  Container,
   Avatar,
+  Box,
   Button,
-  Tooltip,
-  MenuItem,
-  useTheme,
-  useMediaQuery,
-  SwipeableDrawer,
+  Container,
+  Divider,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
+  Menu,
+  MenuItem,
+  SwipeableDrawer,
+  Toolbar,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { useAuth } from '../../contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import notificationService from '../../services/notification';
 import NotificationCenter from './[NOTIFY]NotificationCenter';
-import notificationService from '../../services/[NET]notification';
-import DojoPoolAppBar from '../AppBar';
+// Fallback to MUI AppBar if custom AppBar is not a module
+const DojoPoolAppBar: any = AppBar;
 
 const publicPages = [
   { title: 'Home', path: '/' },
@@ -45,13 +46,13 @@ const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { isAuthenticated, user, logout } = useAuth();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (user) {
       requestNotificationPermission();
     }
-  }, [isAuthenticated]);
+  }, [user]);
 
   const requestNotificationPermission = async () => {
     try {
@@ -88,7 +89,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     handleCloseUserMenu();
-    logout();
+    signOut();
   };
 
   const drawer = (
@@ -106,7 +107,7 @@ const Navbar = () => {
           </ListItem>
         ))}
       </List>
-      {isAuthenticated && (
+      {!!user && (
         <>
           <Divider />
           <List>
@@ -212,15 +213,12 @@ const Navbar = () => {
 
           {/* Right Menu */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {isAuthenticated && <NotificationCenter />}
-            {isAuthenticated ? (
+            {!!user && <NotificationCenter />}
+            {user ? (
               <>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar
-                      alt={user?.name || 'User'}
-                      src={user?.avatar || '/static/images/avatar/2.jpg'}
-                    />
+                    <Avatar alt={user?.name || 'User'} />
                   </IconButton>
                 </Tooltip>
                 <Menu

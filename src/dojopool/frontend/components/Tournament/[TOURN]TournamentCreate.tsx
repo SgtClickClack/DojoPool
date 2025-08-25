@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import type { SelectChangeEvent } from '@mui/material';
 import {
   Box,
-  Typography,
-  Paper,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Button,
-  Grid,
-  FormHelperText,
-  Switch,
+  FormControl,
   FormControlLabel,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Switch,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TournamentFormat } from '../../types/tournament';
 
-const TournamentCreate = (props) => {
+const TournamentCreate: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -49,9 +49,9 @@ const TournamentCreate = (props) => {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
+    e: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>
   ) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target as { name?: string; value: unknown };
     setFormData((prev) => ({
       ...prev,
       [name as string]: value,
@@ -65,6 +65,17 @@ const TournamentCreate = (props) => {
       rules: {
         ...prev.rules,
         [name]: type === 'checkbox' ? checked : value,
+      },
+    }));
+  };
+
+  const handleRuleSelectChange = (e: SelectChangeEvent<string>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      rules: {
+        ...prev.rules,
+        [name as string]: value,
       },
     }));
   };
@@ -94,7 +105,9 @@ const TournamentCreate = (props) => {
                 label="Tournament Name"
                 name="name"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={(e) =>
+                  handleChange(e as React.ChangeEvent<HTMLInputElement>)
+                }
               />
             </Grid>
             <Grid item xs={12}>
@@ -105,7 +118,9 @@ const TournamentCreate = (props) => {
                 label="Description"
                 name="description"
                 value={formData.description}
-                onChange={handleChange}
+                onChange={(e) =>
+                  handleChange(e as React.ChangeEvent<HTMLInputElement>)
+                }
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -143,7 +158,7 @@ const TournamentCreate = (props) => {
               <DateTimePicker
                 label="Start Date"
                 value={formData.startDate}
-                onChange={(date) =>
+                onChange={(date: any) =>
                   setFormData((prev) => ({
                     ...prev,
                     startDate: date || new Date(),
@@ -155,7 +170,7 @@ const TournamentCreate = (props) => {
               <DateTimePicker
                 label="Registration Deadline"
                 value={formData.registrationDeadline}
-                onChange={(date) =>
+                onChange={(date: any) =>
                   setFormData((prev) => ({
                     ...prev,
                     registrationDeadline: date || new Date(),
@@ -171,7 +186,9 @@ const TournamentCreate = (props) => {
                 label="Maximum Players"
                 name="maxPlayers"
                 value={formData.maxPlayers}
-                onChange={handleChange}
+                onChange={(e) =>
+                  handleChange(e as React.ChangeEvent<HTMLInputElement>)
+                }
                 inputProps={{ min: 2 }}
               />
             </Grid>
@@ -183,7 +200,9 @@ const TournamentCreate = (props) => {
                 label="Minimum Players"
                 name="minPlayers"
                 value={formData.minPlayers}
-                onChange={handleChange}
+                onChange={(e) =>
+                  handleChange(e as React.ChangeEvent<HTMLInputElement>)
+                }
                 inputProps={{ min: 2 }}
               />
             </Grid>
@@ -198,7 +217,7 @@ const TournamentCreate = (props) => {
                     <Select
                       name="gameFormat"
                       value={formData.rules.gameFormat}
-                      onChange={handleRulesChange}
+                      onChange={handleRuleSelectChange}
                       label="Game Format"
                     >
                       <MenuItem value="8-Ball">8-Ball</MenuItem>

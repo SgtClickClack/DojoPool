@@ -1,0 +1,13 @@
+.linkButton {
+  text-decoration: none;
+}
+
+.linkButton:hover,
+.linkButton:focus {
+  text-decoration: none;
+}
+
+.linkButton:focus-visible {
+  outline: 2px solid var(--primary-color, currentColor);
+  outline-offset: 2px;
+}

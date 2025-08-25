@@ -1,23 +1,10 @@
-import { Body, Controller, Delete, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch, Post, Put, UseGuards, Request } from '@nestjs/common';
 import { VenuesService } from './venues.service';
-import type { TableStatus } from '@prisma/client';
+import { CreateTableDto, UpdateTableDto, UpdateTableInfoDto } from './dto/table.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CheckInDto } from './dto/check-in.dto';
 
-class UpdateTableDto {
-  status!: string;
-  matchId?: string;
-}
-
-class CreateTableDto {
-  name!: string;
-  status?: string;
-}
-
-class UpdateTableInfoDto {
-  name?: string;
-  status?: string;
-}
-
-@Controller('v1/venues')
+@Controller('venues')
 export class VenuesController {
   constructor(private readonly venuesService: VenuesService) {}
 
@@ -27,7 +14,7 @@ export class VenuesController {
     @Param('venueId') venueId: string,
     @Body() body: CreateTableDto
   ) {
-    const payload = { name: body.name, status: (body.status as any) as TableStatus };
+    const payload = { name: body.name, status: body.status };
     return this.venuesService.createTable(venueId, payload);
   }
 
@@ -38,7 +25,8 @@ export class VenuesController {
     @Param('tableId') tableId: string,
     @Body() body: UpdateTableInfoDto
   ) {
-    return this.venuesService.updateTableInfo(venueId, tableId, body);
+    const payload = { name: body.name, status: body.status };
+    return this.venuesService.updateTableInfo(venueId, tableId, payload);
   }
 
   // DELETE /api/v1/venues/:venueId/tables/:tableId
@@ -59,5 +47,17 @@ export class VenuesController {
   ) {
     const { status, matchId } = body;
     return this.venuesService.updateTableStatus({ venueId, tableId, status, matchId });
+  }
+
+  // POST /api/v1/venues/:venueId/check-in
+  @UseGuards(JwtAuthGuard)
+  @Post(':venueId/check-in')
+  async checkIn(
+    @Param('venueId') venueId: string,
+    @Body() body: CheckInDto,
+    @Request() req: any
+  ) {
+    const userId = req?.user?.userId ?? req?.user?.sub ?? req?.user?.id;
+    return this.venuesService.checkIn({ venueId, userId, lat: body.lat, lng: body.lng });
   }
 }

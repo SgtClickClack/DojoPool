@@ -155,7 +155,7 @@ export const useGameSession = (sessionId: string): UseGameSessionReturn => {
     }, 5000); // Poll every 5 seconds for active sessions
 
     return () => clearInterval(interval);
-  }, [gameSession?.status, fetchSession]);
+  }, [gameSession, fetchSession]);
 
   return {
     gameSession,

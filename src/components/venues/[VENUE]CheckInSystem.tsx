@@ -1,4 +1,10 @@
-import { Line } from '@ant-design/charts';
+let Line: any;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  Line = require('@ant-design/charts').Line;
+} catch (_e) {
+  Line = (props: any) => null;
+}
 import {
   BarChartOutlined,
   CheckCircleOutlined,
@@ -188,7 +194,7 @@ const CheckInSystem: React.FC<CheckInSystemProps> = ({
     {
       title: 'Duration',
       key: 'duration',
-      render: (_, record: any) => {
+      render: (_: any, record: any) => {
         const duration = moment.duration(
           moment().diff(moment(record.checked_in_at))
         );

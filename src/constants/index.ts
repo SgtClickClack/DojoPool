@@ -23,3 +23,20 @@ export const VIOLATION_THRESHOLDS = {
     windowMs: 60000,
   },
 };
+
+// Map/World defaults (used by Map components)
+export const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+
+export const DEFAULT_MAP_OPTIONS: google.maps.MapOptions = {
+  disableDefaultUI: true,
+  zoomControl: true,
+  streetViewControl: false,
+  mapTypeControl: false,
+  fullscreenControl: false,
+};
+
+export const MAP_STYLES: google.maps.MapTypeStyle[] = [];
+
+export const PLAYER_MARKER_RADIUS = 50;
+
+export const ANIMATION_DURATION = 1000;

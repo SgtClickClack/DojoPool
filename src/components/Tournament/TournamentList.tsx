@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEnhancedTournamentAPI } from '../../frontend/hooks/useEnhancedTournamentAPI';
-import TournamentCard from './TournamentCard';
+import TournamentCard from '../Tournament/TournamentCard';
 
 const TournamentList: React.FC = () => {
   const {
@@ -89,7 +89,7 @@ const TournamentList: React.FC = () => {
       </div>
 
       <div className="tournament-grid">
-        {tournaments.map((tournament) => (
+        {tournaments.map((tournament: any) => (
           <TournamentCard
             key={tournament.id}
             tournament={tournament}

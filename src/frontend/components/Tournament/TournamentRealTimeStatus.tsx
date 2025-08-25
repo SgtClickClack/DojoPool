@@ -92,6 +92,7 @@ const TournamentRealTimeStatus: React.FC = () => {
           height: 12px;
           border-radius: 50%;
           display: inline-block;
+          transition: box-shadow 0.2s;
         }
 
         .status-dot.connected {
@@ -144,14 +145,13 @@ const TournamentRealTimeStatus: React.FC = () => {
           border-radius: 4px;
           cursor: pointer;
           font-weight: bold;
-          transition: all 0.2s;
+          transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
         }
 
         .connect-btn {
           background-color: #00ff9d;
           color: #000;
         }
-
         .connect-btn:hover:not(:disabled) {
           background-color: #00cc7a;
           box-shadow: 0 0 10px #00ff9d;
@@ -161,7 +161,6 @@ const TournamentRealTimeStatus: React.FC = () => {
           background-color: #ff4757;
           color: #fff;
         }
-
         .disconnect-btn:hover:not(:disabled) {
           background-color: #ff3742;
           box-shadow: 0 0 10px #ff4757;
@@ -171,6 +170,21 @@ const TournamentRealTimeStatus: React.FC = () => {
         .disconnect-btn:disabled {
           opacity: 0.5;
           cursor: not-allowed;
+        }
+
+        .connect-btn:focus-visible,
+        .disconnect-btn:focus-visible {
+          outline: 2px solid #00ff9d;
+          outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          *,
+          *::before,
+          *::after {
+            transition: none !important;
+            animation: none !important;
+          }
         }
       `}</style>
     </div>

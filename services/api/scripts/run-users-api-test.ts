@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import * as supertest from 'supertest';
+import supertest from 'supertest';
 import { AppModule } from '../src/app.module';
 
 async function run() {

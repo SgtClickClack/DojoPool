@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import DojoMarker from './DojoMarker';
+import WorldHubMap from './WorldHubMap';
 
 interface DojoLocation {
   id: string;
@@ -42,6 +43,7 @@ interface WorldMapProps {
   onChallengeDojo?: (dojoId: string) => void;
   onViewDojo?: (dojoId: string) => void;
   onLocationUpdate?: (lat: number, lng: number) => void;
+  centerOn?: { lat: number; lng: number } | null;
 }
 
 const WorldMap: React.FC<WorldMapProps> = ({
@@ -49,6 +51,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
   onChallengeDojo,
   onViewDojo,
   onLocationUpdate,
+  centerOn,
 }) => {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [searchTerm, setSearchTerm] = useState('');
@@ -265,14 +268,11 @@ const WorldMap: React.FC<WorldMapProps> = ({
 
       {/* Map/List View */}
       {viewMode === 'map' ? (
-        <Paper sx={{ p: 2, minHeight: 600, textAlign: 'center' }}>
-          <Typography variant="h6" color="text.secondary" sx={{ py: 20 }}>
-            🗺️ Interactive Map View
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Google Maps integration will be implemented here with Dojo markers
-          </Typography>
-        </Paper>
+        <WorldHubMap
+          onChallengeDojo={onChallengeDojo}
+          onViewDojo={onViewDojo}
+          centerOn={centerOn}
+        />
       ) : (
         /* List View */
         <Grid container spacing={3}>

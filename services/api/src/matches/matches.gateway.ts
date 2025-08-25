@@ -9,6 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { AiAnalysisService } from './ai-analysis.service';
 
 interface ChatMessage {
   matchId: string;
@@ -23,12 +24,16 @@ interface ChatMessage {
     origin: '*',
   },
 })
-export class MatchesGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class MatchesGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server!: Server;
 
   private readonly logger = new Logger(MatchesGateway.name);
   private connectedClients = new Map<string, Set<string>>(); // matchId -> Set of socketIds
+
+  constructor(private readonly aiAnalysisService: AiAnalysisService) {}
 
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
@@ -46,6 +51,7 @@ export class MatchesGateway implements OnGatewayConnection, OnGatewayDisconnect 
   }
 
   @SubscribeMessage('joinMatch')
+  @SubscribeMessage('join_match')
   handleJoinMatch(
     @MessageBody() data: { matchId: string },
     @ConnectedSocket() client: Socket
@@ -131,12 +137,67 @@ export class MatchesGateway implements OnGatewayConnection, OnGatewayDisconnect 
     this.logger.log(`Match ${matchId} updated: ${JSON.stringify(update)}`);
   }
 
+  @SubscribeMessage('shot_taken')
+  async handleShotTaken(
+    @MessageBody()
+    data: {
+      matchId: string;
+      playerId: string;
+      ballSunk: boolean;
+      wasFoul: boolean;
+      playerName?: string;
+      shotType?: string;
+    },
+    @ConnectedSocket() client: Socket
+  ) {
+    const { matchId, playerId, ballSunk, wasFoul, playerName, shotType } = data;
+
+    this.logger.log(
+      `Shot taken in match ${matchId}: Player ${playerId}, Ball sunk: ${ballSunk}, Foul: ${wasFoul}`
+    );
+
+    try {
+      // Generate AI commentary for the shot
+      const commentary = await this.aiAnalysisService.getLiveCommentary({
+        matchId,
+        playerId,
+        ballSunk,
+        wasFoul,
+        playerName,
+        shotType,
+      });
+
+      // Broadcast the live commentary to all clients in the match room as an object payload
+      this.server.to(matchId).emit('live_commentary', { message: commentary });
+
+      this.logger.log(
+        `Live commentary broadcast for match ${matchId}: ${commentary}`
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to generate live commentary for match ${matchId}:`,
+        error
+      );
+
+      // Broadcast fallback commentary as an object payload
+      this.server
+        .to(matchId)
+        .emit('live_commentary', {
+          message: `${playerName || 'The player'} takes a shot in the digital arena!`,
+        });
+    }
+  }
+
   // Venue-level broadcast helpers for table updates
   broadcastVenueTablesUpdated(venueId: string, tables: any[]) {
     try {
       this.server.to(`venue:${venueId}`).emit('tablesUpdated', tables);
     } catch (err) {
-      this.logger.warn(`broadcastVenueTablesUpdated failed: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.warn(
+        `broadcastVenueTablesUpdated failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
     }
   }
 
@@ -144,7 +205,11 @@ export class MatchesGateway implements OnGatewayConnection, OnGatewayDisconnect 
     try {
       this.server.to(`venue:${venueId}`).emit('tableUpdated', table);
     } catch (err) {
-      this.logger.warn(`broadcastVenueTableUpdate failed: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.warn(
+        `broadcastVenueTableUpdate failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
     }
   }
 }

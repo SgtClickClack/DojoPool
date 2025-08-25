@@ -1,176 +1,131 @@
-import '@testing-library/jest-dom';
-import { TextEncoder, TextDecoder } from 'util';
-import { cleanup } from '@testing-library/react';
+// Vitest jsdom setup for DojoPool
+// Aligns with docs/tasks.md Task 39 and the DojoPool Development Guidelines
+
 import { vi } from 'vitest';
+import 'whatwg-fetch';
 
-// Mock browser APIs
-(global as any).TextEncoder = TextEncoder;
-(global as any).TextDecoder = TextDecoder;
-
-// Proper Vitest shim for compatibility
-// Only expose Vitest-compatible APIs to prevent compatibility issues
-
-// Mock IntersectionObserver
-class IntersectionObserver {
-  observe = vi.fn();
-  disconnect = vi.fn();
-  unobserve = vi.fn();
+// TextEncoder/TextDecoder polyfill (Node < 20 or certain envs)
+if (typeof (globalThis as any).TextEncoder === 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { TextEncoder, TextDecoder } = require('util');
+  (globalThis as any).TextEncoder = TextEncoder;
+  (globalThis as any).TextDecoder = TextDecoder;
 }
 
-Object.defineProperty(window, 'IntersectionObserver', {
-  writable: true,
-  configurable: true,
-  value: IntersectionObserver,
-});
-
-// Mock ResizeObserver
-class ResizeObserver {
-  observe = vi.fn();
-  disconnect = vi.fn();
-  unobserve = vi.fn();
+// requestAnimationFrame / cancelAnimationFrame
+if (!(globalThis as any).requestAnimationFrame) {
+  (globalThis as any).requestAnimationFrame = (cb: FrameRequestCallback) =>
+    setTimeout(() => cb(Date.now()), 16) as unknown as number;
+}
+if (!(globalThis as any).cancelAnimationFrame) {
+  (globalThis as any).cancelAnimationFrame = (id: number) => clearTimeout(id as unknown as NodeJS.Timeout);
 }
 
-Object.defineProperty(window, 'ResizeObserver', {
-  writable: true,
-  configurable: true,
-  value: ResizeObserver,
-});
+// matchMedia mock
+if (typeof (window as any).matchMedia !== 'function') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(), // deprecated
+      removeListener: vi.fn(), // deprecated
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
 
-// Mock matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-});
-
-// Mock scrollTo
-window.scrollTo = vi.fn();
-
-// Mock fetch
-global.fetch = vi.fn();
-
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-  length: 0,
-  key: vi.fn(),
-};
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-});
-
-// Mock sessionStorage
-const sessionStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-  length: 0,
-  key: vi.fn(),
-};
-Object.defineProperty(window, 'sessionStorage', {
-  value: sessionStorageMock,
-});
-
-// Cleanup after each test
-afterEach(() => {
-  cleanup();
-  vi.clearAllMocks();
-});
-
-// Mock console methods in test environment
-const originalConsole = { ...console };
-const mockConsole = {
-  ...console,
-  error: vi.fn(),
-  warn: vi.fn(),
-  log: vi.fn(),
-};
-
-beforeAll(() => {
-  global.console = mockConsole;
-});
-
-afterAll(() => {
-  global.console = originalConsole;
-});
-
-// Mock requestAnimationFrame
-global.requestAnimationFrame = (callback: FrameRequestCallback): number => {
-  return setTimeout(() => callback(Date.now()), 0) as unknown as number;
-};
-
-global.cancelAnimationFrame = (id: number) => {
-  clearTimeout(id);
-};
-
-// Mock WebSocket
-class MockWebSocket {
-  static instances: MockWebSocket[] = [];
-  onopen: ((this: WebSocket, ev: Event) => any) | null = null;
-  onclose: ((this: WebSocket, ev: CloseEvent) => any) | null = null;
-  onmessage: ((this: WebSocket, ev: MessageEvent) => any) | null = null;
-  onerror: ((this: WebSocket, ev: Event) => any) | null = null;
-  readyState: number = WebSocket.CONNECTING;
-  url: string;
-  // WebSocket interface properties
-  binaryType: BinaryType = 'blob';
-  bufferedAmount: number = 0;
-  extensions: string = '';
-  protocol: string = '';
-  CONNECTING: number = WebSocket.CONNECTING;
-  OPEN: number = WebSocket.OPEN;
-  CLOSING: number = WebSocket.CLOSING;
-  CLOSED: number = WebSocket.CLOSED;
-  constructor(url: string) {
-    this.url = url;
-    MockWebSocket.instances.push(this);
+// IntersectionObserver mock
+if (typeof (globalThis as any).IntersectionObserver === 'undefined') {
+  class MockIntersectionObserver {
+    readonly root: Element | Document | null = null;
+    readonly rootMargin = '0px';
+    readonly thresholds: ReadonlyArray<number> = [];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {}
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+    takeRecords = vi.fn(() => [] as IntersectionObserverEntry[]);
   }
-  send(data: string | ArrayBufferLike | Blob | ArrayBufferView) {}
-  close() {}
-  addEventListener() {}
-  removeEventListener() {}
-  dispatchEvent() {
-    return false;
+  (globalThis as any).IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
+}
+
+// ResizeObserver mock
+if (typeof (globalThis as any).ResizeObserver === 'undefined') {
+  class MockResizeObserver {
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+  }
+  ;(globalThis as any).ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
+}
+
+// localStorage/sessionStorage mocks
+class MemoryStorage {
+  private store = new Map<string, string>();
+  get length() {
+    return this.store.size;
+  }
+  clear() {
+    this.store.clear();
+  }
+  getItem(key: string) {
+    return this.store.has(key) ? this.store.get(key)! : null;
+  }
+  key(index: number) {
+    return Array.from(this.store.keys())[index] ?? null;
+  }
+  removeItem(key: string) {
+    this.store.delete(key);
+  }
+  setItem(key: string, value: string) {
+    this.store.set(key, String(value));
   }
 }
-Object.defineProperty(window, 'WebSocket', {
-  writable: true,
-  configurable: true,
-  value: MockWebSocket,
-});
 
-(global as any).URL =
-  global.URL ||
-  class URL {
-    constructor(
-      public href: string,
-      base?: string
-    ) {}
-  };
+if (typeof (globalThis as any).localStorage === 'undefined') {
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: new MemoryStorage(),
+    configurable: true,
+  });
+}
+if (typeof (globalThis as any).sessionStorage === 'undefined') {
+  Object.defineProperty(globalThis, 'sessionStorage', {
+    value: new MemoryStorage(),
+    configurable: true,
+  });
+}
 
-(global as any).OffscreenCanvas =
-  (global as any).OffscreenCanvas ||
-  class OffscreenCanvas {
-    constructor(
-      public width: number,
-      public height: number
-    ) {}
-    getContext() {
-      return null;
+// WebSocket mock (minimal)
+if (typeof (globalThis as any).WebSocket === 'undefined') {
+  class MockWebSocket {
+    static CONNECTING = 0;
+    static OPEN = 1;
+    static CLOSING = 2;
+    static CLOSED = 3;
+
+    readonly url: string;
+    readyState = MockWebSocket.OPEN;
+    binaryType: BinaryType = 'blob';
+    onopen: ((this: WebSocket, ev: Event) => any) | null = null;
+    onclose: ((this: WebSocket, ev: CloseEvent) => any) | null = null;
+    onerror: ((this: WebSocket, ev: Event) => any) | null = null;
+    onmessage: ((this: WebSocket, ev: MessageEvent) => any) | null = null;
+
+    constructor(url: string | URL) {
+      this.url = String(url);
+      setTimeout(() => this.onopen && this.onopen(new Event('open') as any), 0);
     }
-    transferToImageBitmap() {
-      return null;
-    }
-  };
+
+    send = vi.fn();
+    close = vi.fn();
+    addEventListener = vi.fn();
+    removeEventListener = vi.fn();
+    dispatchEvent = vi.fn();
+  }
+  (globalThis as any).WebSocket = MockWebSocket as unknown as typeof WebSocket;
+}

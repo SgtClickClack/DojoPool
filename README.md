@@ -21,7 +21,7 @@
 ## 💻 Tech Stack
 
 - **Monorepo**: npm Workspaces with Turbo
-- **Frontend**: Next.js 14, React 18, TypeScript, Material-UI, Google Maps API
+- **Frontend**: Next.js 15, React 18, TypeScript, Material-UI, Google Maps API
 - **Backend**: NestJS, TypeScript, Prisma ORM, WebSockets (Socket.io)
 - **Database**: PostgreSQL with Prisma ORM
 - **Testing**: Vitest, Jest, Cypress for E2E tests
@@ -59,9 +59,17 @@ dojopool/
 
 ### Prerequisites
 
-- Node.js (v18 or later)
+- Node.js 20.x (pinned via .nvmrc at the repository root)
+- Python 3.11+ (required for Flask/AI services; see pyproject.toml requires-python)
 - npm
 - A running PostgreSQL database instance
+
+#### Node version management (Windows/macOS/Linux)
+
+- This repository includes a .nvmrc set to 20 to ensure a consistent Node version.
+  - Windows (nvm-windows): `nvm install 20` then `nvm use 20`
+  - macOS/Linux (nvm): `nvm install` then `nvm use`
+- Alternatively, you can use Volta to pin and enforce versions globally: `volta pin node@20`
 
 ### Installation & Setup
 
@@ -274,3 +282,56 @@ For technical support or questions:
 ---
 
 _Built with ❤️ by the Dojo Pool development team_
+
+
+---
+
+## 🧰 Troubleshooting (Windows)
+
+### Clean up orphan Node.js processes
+If development servers have been stopped but Node.js processes remain running in the background, use the safe, specific cleanup flow below. Avoid broad search patterns that could match protected Windows processes (e.g., wlanext).
+
+Option A — via npm script (recommended):
+
+1) Open PowerShell as Administrator.
+2) Run:
+
+```
+npm run cleanup:node:win
+```
+
+Option B — run the command directly (in elevated PowerShell):
+
+```
+Get-Process -Name "node" | Stop-Process -Force
+```
+
+Option C — run the helper script directly (in elevated PowerShell):
+
+```
+powershell -ExecutionPolicy Bypass -File scripts\cleanup-node-processes.ps1
+```
+
+Notes:
+- Running as Administrator is required; otherwise Windows may block termination of certain processes.
+- The script targets only "node" processes to avoid stopping unrelated or protected system processes.
+
+
+---
+
+## 🔐 Security
+
+- Security headers are enabled in the NestJS API via Helmet (see services/api/src/main.ts).
+- Basic rate limiting is applied using express-rate-limit (100 requests per 15 minutes per IP).
+- CORS is enabled with credentials support and a configurable allowed origin (FRONTEND_URL or http://localhost:3000).
+
+### CSRF Protection (Documentation)
+
+Our frontend uses the standard Double Submit Cookie pattern for CSRF protection in a stateless JWT architecture:
+
+- The frontend sets/reads a CSRF token value in a cookie (e.g., `csrfToken`).
+- For every state-changing request (POST/PUT/PATCH/DELETE), the frontend also sends this value in a custom header (e.g., `X-CSRF-Token`).
+- The backend remains stateless: it validates that the CSRF header value equals the CSRF cookie value. No server-side session storage is required and no additional CSRF middleware is needed at this time.
+- Ensure the frontend includes the `X-CSRF-Token` header and requests are sent with `credentials: 'include'`; the API CORS config allows credentials and the custom header.
+
+This approach aligns with a stateless JWT setup and avoids server-side CSRF state. For additional hardening, consider SameSite/Lax cookies and HTTPS-only environments in production.

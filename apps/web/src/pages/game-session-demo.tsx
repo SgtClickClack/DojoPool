@@ -129,11 +129,11 @@ const GameSessionDemo: React.FC = () => {
                 Session Management
               </Typography>
               <Typography variant="body2" paragraph>
-                1. Click "Create Demo Session" to start
+                1. Click &quot;Create Demo Session&quot; to start
                 <br />
                 2. Use Pause/Resume to control session state
                 <br />
-                3. Click "End Session" to finish the demo
+                3. Click &quot;End Session&quot; to finish the demo
                 <br />
                 4. Monitor real-time updates every 5 seconds
               </Typography>
@@ -144,11 +144,11 @@ const GameSessionDemo: React.FC = () => {
                 Game Actions
               </Typography>
               <Typography variant="body2" paragraph>
-                1. "Record Shot" - Simulate a player taking a shot
+                1. &quot;Record Shot&quot; - Simulate a player taking a shot
                 <br />
-                2. "Record Foul" - Simulate a foul detection
+                2. &quot;Record Foul&quot; - Simulate a foul detection
                 <br />
-                3. "Show Analytics" - View performance metrics
+                3. &quot;Show Analytics&quot; - View performance metrics
                 <br />
                 4. Monitor ball states and player statistics
               </Typography>

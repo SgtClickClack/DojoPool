@@ -1,0 +1,19 @@
+.statusIndicator {
+  /* Base styles will be handled by existing CSS */
+}
+
+.statusIndicator[data-status='upcoming'] {
+  background-color: #3498db;
+}
+
+.statusIndicator[data-status='registration'] {
+  background-color: #f39c12;
+}
+
+.statusIndicator[data-status='active'] {
+  background-color: #27ae60;
+}
+
+.statusIndicator[data-status='completed'] {
+  background-color: #95a5a6;
+}

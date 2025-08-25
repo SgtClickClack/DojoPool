@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import getGoogleMapsApiKey from '../../../apps/web/src/utils/getGoogleMapsApiKey';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
 // TODO: Implement DojoService and OnboardingService
@@ -348,7 +349,7 @@ const ChooseDojoScreen: React.FC = () => {
       <Head>
         <title>Choose Your Home Dojo - DojoPool</title>
         <script
-          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+          src={`https://maps.googleapis.com/maps/api/js?key=${getGoogleMapsApiKey()}&libraries=places`}
           async
           defer
         />

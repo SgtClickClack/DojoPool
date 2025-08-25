@@ -1,4 +1,4 @@
-import { SocketIOService } from '@/services/WebSocketService';
+import { SocketIOService } from '@/frontend/services/services/network/SocketIOClient';
 import { useEffect, useState } from 'react';
 import { type Tournament } from '../../../tournament/types';
 import { getTournaments } from '../api/tournaments';
@@ -25,17 +25,20 @@ export const useTournaments = () => {
 
     fetchTournaments();
 
-    // Real-time updates
-    const socket = SocketIOService.getInstance();
-    socket.connect();
+    // Real-time updates (stubbed via SocketIOService.subscribe)
     const handleTournamentUpdate = (notification: any) => {
       // notification: { type, tournament_id, update_type, data }
       // For simplicity, refetch the list on any update
       fetchTournaments();
     };
-    socket.on('tournament_update', handleTournamentUpdate);
+    const unsubscribe = SocketIOService.subscribe(
+      'tournament_update',
+      handleTournamentUpdate
+    );
+    // Ensure connection attempt (no-op in stub)
+    SocketIOService.reconnect();
     return () => {
-      socket.off('tournament_update', handleTournamentUpdate);
+      unsubscribe();
     };
   }, []);
 

@@ -10,7 +10,7 @@ from .exceptions import (
     ServiceError,
     ValidationError,
 )
-from .handlers import init_app
+from .handlers import init_app, register_blueprint_error_handlers
 
 
 def register_error_handlers(app):
@@ -20,6 +20,7 @@ def register_error_handlers(app):
 
 __all__ = [
     "register_error_handlers",
+    "register_blueprint_error_handlers",
     "DojoPoolError",
     "ValidationError",
     "AuthenticationError",

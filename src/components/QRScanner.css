@@ -1,0 +1,8 @@
+.qrreader-fullwidth {
+  width: 100%;
+}
+
+.qr-image-responsive {
+  max-width: 100%;
+  height: auto;
+}

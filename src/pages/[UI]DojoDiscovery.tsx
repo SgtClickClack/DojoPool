@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
 import {
+  Avatar,
   Box,
+  Button,
+  Chip,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
-  Paper,
-  Typography,
   List,
   ListItem,
-  ListItemText,
   ListItemAvatar,
-  Avatar,
-  Chip,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  ListItemText,
+  Paper,
+  Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import React, { useEffect, useState } from 'react';
 import DojoMap from '../components/DojoMap/[MAP]DojoMap';
 
 interface LeaderboardEntry {
@@ -122,7 +122,7 @@ const DojoDiscovery: React.FC = () => {
         <Grid item xs={12} md={8}>
           <StyledPaper>
             <DojoMap
-              apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}
+              apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
               onDojoSelect={handleDojoSelect}
             />
           </StyledPaper>
