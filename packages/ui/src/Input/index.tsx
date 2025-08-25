@@ -6,7 +6,8 @@ import React from 'react';
  *
  * Styled text input with optional label and error helper text.
  */
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
 }
@@ -17,7 +18,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label ? (
-          <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-slate-200">
+          <label
+            htmlFor={inputId}
+            className="mb-1 block text-sm font-medium text-slate-200"
+          >
             {label}
           </label>
         ) : null}
@@ -40,5 +44,3 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 
 Input.displayName = 'Input';
-
-

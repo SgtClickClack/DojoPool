@@ -4,7 +4,9 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-bottom: 2px solid var(--primary-color);
-  box-shadow: 0 2px 20px rgba(0, 168, 255, 0.2), 0 0 30px rgba(0, 255, 157, 0.2);
+  box-shadow:
+    0 2px 20px rgba(0, 168, 255, 0.2),
+    0 0 30px rgba(0, 255, 157, 0.2);
   padding: 0.5rem 0;
   position: fixed;
   width: 100%;
@@ -18,7 +20,9 @@
   font-weight: 900;
   letter-spacing: 3px;
   text-transform: uppercase;
-  text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+  text-shadow:
+    0 0 5px var(--primary-color),
+    0 0 10px var(--primary-color);
   display: flex;
   align-items: center;
   gap: 0.75rem;

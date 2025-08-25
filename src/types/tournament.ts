@@ -99,7 +99,6 @@ export interface TournamentParticipant {
   };
 }
 
-
 export interface TournamentFilters {
   status?: 'upcoming' | 'in_progress' | 'completed';
   venueId?: string;

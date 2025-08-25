@@ -9,7 +9,11 @@ if (typeof window === 'undefined') {
 
 // Safe helpers to read env in Node and Next.js
 const readProcessEnv = (key: string): string | undefined => {
-  if (typeof process !== 'undefined' && process.env && process.env[key] !== undefined) {
+  if (
+    typeof process !== 'undefined' &&
+    process.env &&
+    process.env[key] !== undefined
+  ) {
     return process.env[key] as string;
   }
   return undefined;
@@ -29,10 +33,7 @@ export const env = {
   PORT: getEnv(['PORT'], '8080'),
   DATABASE_URL: getEnv(['DATABASE_URL'], 'sqlite:./dojopool.db'),
   JWT_SECRET: getEnv(['JWT_SECRET'], 'your-secret-key'),
-  GOOGLE_MAPS_API_KEY: getEnv(
-    ['NEXT_PUBLIC_GOOGLE_MAPS_API_KEY'],
-    ''
-  ),
+  GOOGLE_MAPS_API_KEY: getEnv(['NEXT_PUBLIC_GOOGLE_MAPS_API_KEY'], ''),
   OPENAI_API_KEY: getEnv(['OPENAI_API_KEY'], ''),
   AWS_ACCESS_KEY_ID: getEnv(['AWS_ACCESS_KEY_ID'], ''),
   AWS_SECRET_ACCESS_KEY: getEnv(['AWS_SECRET_ACCESS_KEY'], ''),
@@ -41,10 +42,7 @@ export const env = {
     'http://localhost:8080/api'
   ),
   NEXT_PUBLIC_GA_TRACKING_ID: getEnv(['NEXT_PUBLIC_GA_TRACKING_ID'], ''),
-  NEXT_PUBLIC_DOJO_COIN_ADDRESS: getEnv(
-    ['NEXT_PUBLIC_DOJO_COIN_ADDRESS'],
-    ''
-  ),
+  NEXT_PUBLIC_DOJO_COIN_ADDRESS: getEnv(['NEXT_PUBLIC_DOJO_COIN_ADDRESS'], ''),
   ENCRYPTION_KEY: getEnv(['ENCRYPTION_KEY'], ''),
   WEBSOCKET_URL: getEnv(
     ['NEXT_PUBLIC_WEBSOCKET_URL', 'WEBSOCKET_URL'],
@@ -52,42 +50,26 @@ export const env = {
   ),
 
   // Firebase Configuration
-  FIREBASE_API_KEY: getEnv(
-    ['NEXT_PUBLIC_FIREBASE_API_KEY'],
-    ''
-  ),
-  FIREBASE_AUTH_DOMAIN: getEnv(
-    ['NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN'],
-    ''
-  ),
-  FIREBASE_PROJECT_ID: getEnv(
-    ['NEXT_PUBLIC_FIREBASE_PROJECT_ID'],
-    ''
-  ),
-  FIREBASE_STORAGE_BUCKET: getEnv(
-    ['NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET'],
-    ''
-  ),
+  FIREBASE_API_KEY: getEnv(['NEXT_PUBLIC_FIREBASE_API_KEY'], ''),
+  FIREBASE_AUTH_DOMAIN: getEnv(['NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN'], ''),
+  FIREBASE_PROJECT_ID: getEnv(['NEXT_PUBLIC_FIREBASE_PROJECT_ID'], ''),
+  FIREBASE_STORAGE_BUCKET: getEnv(['NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET'], ''),
   FIREBASE_MESSAGING_SENDER_ID: getEnv(
     ['NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID'],
     ''
   ),
-  FIREBASE_APP_ID: getEnv(
-    ['NEXT_PUBLIC_FIREBASE_APP_ID'],
-    ''
-  ),
-  FIREBASE_MEASUREMENT_ID: getEnv(
-    ['NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID'],
-    ''
-  ),
+  FIREBASE_APP_ID: getEnv(['NEXT_PUBLIC_FIREBASE_APP_ID'], ''),
+  FIREBASE_MEASUREMENT_ID: getEnv(['NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID'], ''),
 
   // AI Services Configuration
-  NEXT_PUBLIC_3DAI_STUDIO_API_KEY: getEnv(['NEXT_PUBLIC_3DAI_STUDIO_API_KEY'], ''),
+  NEXT_PUBLIC_3DAI_STUDIO_API_KEY: getEnv(
+    ['NEXT_PUBLIC_3DAI_STUDIO_API_KEY'],
+    ''
+  ),
 
   // Environment flags
   DEV: getEnv(['NODE_ENV'], '') === 'development',
-  ENABLE_FIREBASE:
-    getEnv(['NEXT_PUBLIC_ENABLE_FIREBASE'], '') === 'true',
+  ENABLE_FIREBASE: getEnv(['NEXT_PUBLIC_ENABLE_FIREBASE'], '') === 'true',
 };
 
 export const environment = env;

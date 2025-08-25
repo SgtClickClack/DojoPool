@@ -326,14 +326,14 @@ const TournamentDetailPage: React.FC = () => {
                       tournament.status === 'open'
                         ? '0, 255, 157'
                         : tournament.status === 'active'
-                        ? '0, 168, 255'
-                        : tournament.status === 'full'
-                        ? '255, 0, 255'
-                        : tournament.status === 'completed'
-                        ? '255, 255, 0'
-                        : tournament.status === 'cancelled'
-                        ? '255, 68, 68'
-                        : '136, 136, 136'
+                          ? '0, 168, 255'
+                          : tournament.status === 'full'
+                            ? '255, 0, 255'
+                            : tournament.status === 'completed'
+                              ? '255, 255, 0'
+                              : tournament.status === 'cancelled'
+                                ? '255, 68, 68'
+                                : '136, 136, 136'
                     }, 0.2)`,
                     border: `1px solid ${getStatusColor(tournament.status)}`,
                     color: getStatusColor(tournament.status),

@@ -44,7 +44,11 @@ const SimpleWorldHub: React.FC<SimpleWorldHubProps> = ({ height = '100%' }) => {
         setPlayerData(player);
 
         // Fetch dojos in the Brisbane area
-        const dojosData = await dojoService.getDojos(-27.4698, 153.0251, 10000);
+        const dojosData = await dojoService.getNearbyDojos(
+          -27.4698,
+          153.0251,
+          10000
+        );
         setDojos(dojosData);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -80,8 +84,8 @@ const SimpleWorldHub: React.FC<SimpleWorldHubProps> = ({ height = '100%' }) => {
       {playerData && (
         <div className={styles.playerInfo}>
           <h3>Player Info</h3>
-          <p>Name: {playerData.name}</p>
-          {playerData.clan && <p>Clan: {playerData.clan}</p>}
+          <p>Name: {playerData.username}</p>
+          {playerData.clan && <p>Clan: {playerData.clan.name}</p>}
         </div>
       )}
 
@@ -95,19 +99,25 @@ const SimpleWorldHub: React.FC<SimpleWorldHubProps> = ({ height = '100%' }) => {
                 dojo.isLocked
                   ? styles.locked
                   : dojo.controllingClanId
-                  ? styles.controlled
-                  : ''
+                    ? styles.controlled
+                    : ''
               }`}
             >
               <h4 className={styles.dojoTitle}>
                 {dojo.isLocked ? '🔒' : dojo.controllingClanId ? '🏰' : '🎯'}{' '}
                 {dojo.name}
               </h4>
-              <p className={styles.dojoStatus}>Status: {dojo.status}</p>
+              <p className={styles.dojoStatus}>
+                Status:{' '}
+                {dojo.isLocked
+                  ? 'Locked'
+                  : dojo.controllingClanId
+                    ? 'Controlled'
+                    : 'Free'}
+              </p>
               {dojo.controllingClan && (
                 <p className={styles.dojoController}>
-                  Controlled by: {dojo.controllingClan.name}{' '}
-                  {dojo.controllingClan.avatar}
+                  Controlled by: {dojo.controllingClan.name}
                 </p>
               )}
               {dojo.distance && (

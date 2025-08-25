@@ -14,12 +14,16 @@ interface MarketplaceItem {
 
 interface MarketplaceGridProps {
   items: MarketplaceItem[];
-  onItemClick: (item: MarketplaceItem) => void;
+  onBuyItem: (item: MarketplaceItem) => void;
+  userBalance: number;
+  isLoading: boolean;
 }
 
 export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
   items,
-  onItemClick,
+  onBuyItem,
+  userBalance,
+  isLoading,
 }) => {
   const getRarityColor = (rarity: string): string => {
     switch (rarity) {
@@ -41,7 +45,6 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
           key={item.id}
           className={`item-card ${styles.itemCard}`}
           data-rarity={item.rarity}
-          onClick={() => onItemClick(item)}
         >
           <div className="item-image">
             <img src={item.image} alt={item.name} />
@@ -52,8 +55,9 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
             <p>{item.description}</p>
             <div className="item-footer">
               <div className="item-price">
-                <i className="bi bi-coin"></i>
-                <span>{item.price} DP</span>
+                <span style={{ fontWeight: 'bold', color: '#1976d2' }}>
+                  {item.price} DojoCoins
+                </span>
               </div>
               <div className="item-stock">
                 {item.stock > 0 ? (
@@ -63,9 +67,31 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
                 )}
               </div>
             </div>
-            <button className="add-to-cart-btn" disabled={item.stock === 0}>
-              <i className="bi bi-cart-plus"></i>
-              Add to Cart
+            <button
+              className="add-to-cart-btn"
+              disabled={
+                item.stock === 0 || isLoading || userBalance < item.price
+              }
+              onClick={() => onBuyItem(item)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '4px',
+                border: 'none',
+                background: userBalance < item.price ? '#ccc' : '#1976d2',
+                color: 'white',
+                cursor:
+                  userBalance < item.price || item.stock === 0
+                    ? 'not-allowed'
+                    : 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+              }}
+            >
+              {userBalance < item.price
+                ? 'Insufficient Coins'
+                : item.stock === 0
+                ? 'Out of Stock'
+                : 'Buy Now'}
             </button>
           </div>
         </div>

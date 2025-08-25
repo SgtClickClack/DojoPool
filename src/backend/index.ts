@@ -560,8 +560,8 @@ function stepDojoState() {
         newController === 'None'
           ? 'neutral'
           : Math.random() < 0.5
-          ? 'controlled'
-          : 'rival';
+            ? 'controlled'
+            : 'rival';
 
       // If captured, also emit a general game_update for listeners (optional)
       io.to(WORLD_ROOM).emit('game_update', {

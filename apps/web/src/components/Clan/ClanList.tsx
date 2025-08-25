@@ -190,9 +190,7 @@ const ClanList: React.FC<ClanListProps> = ({
                 label="Status"
                 onChange={(e) => setMemberFilter(e.target.value)}
               >
-                <MenuItem value="all">
-                  All ({getMemberCount('all')})
-                </MenuItem>
+                <MenuItem value="all">All ({getMemberCount('all')})</MenuItem>
                 <MenuItem value="member">
                   Member ({getMemberCount('member')})
                 </MenuItem>

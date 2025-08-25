@@ -38,8 +38,7 @@ const AdvancedChallengesPage: React.FC = () => {
               • Challenge rewards and progression system
               <br />
               • Challenge match scheduling and coordination
-              <br />
-              • Advanced challenge analytics and reporting
+              <br />• Advanced challenge analytics and reporting
             </Typography>
           </Box>
         </Alert>
@@ -55,7 +54,8 @@ const AdvancedChallengesPage: React.FC = () => {
             Challenge Manager
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Advanced challenge manager temporarily unavailable. This component will be implemented in a future update.
+            Advanced challenge manager temporarily unavailable. This component
+            will be implemented in a future update.
           </Typography>
         </Box>
       </Stack>

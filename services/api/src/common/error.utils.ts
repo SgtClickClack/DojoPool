@@ -18,7 +18,11 @@ export class ErrorUtils {
    * @param err - The error object
    * @returns string - Formatted error message
    */
-  static formatErrorMessage(operation: string, identifier?: string, err?: unknown): string {
+  static formatErrorMessage(
+    operation: string,
+    identifier?: string,
+    err?: unknown
+  ): string {
     const base = `Failed to ${operation}`;
     const idPart = identifier ? ` ${identifier}` : '';
     const errorPart = err ? `: ${this.getErrorMessage(err)}` : '';

@@ -45,5 +45,3 @@ class MatchUpdateServiceStub {
 const matchUpdateService = new MatchUpdateServiceStub();
 export default matchUpdateService;
 export type { LiveMatch };
-
-

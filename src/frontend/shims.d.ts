@@ -89,7 +89,9 @@ declare module '@tanstack/react-query' {
   export const useQuery: any;
   export const useMutation: any;
   export const useQueryClient: any;
-  export class QueryClient { constructor(...args: any[]); }
+  export class QueryClient {
+    constructor(...args: any[]);
+  }
   export const QueryClientProvider: any;
 }
 
@@ -180,7 +182,6 @@ declare module '../core/consistency/VectorClock.js' {
   const VectorClock: any;
   export default VectorClock;
 }
-
 
 // Ambient modules for monorepo shared types to avoid pulling their internal deps
 // These declarations satisfy imports in the frontend like '../../../packages/types/src/types/*'

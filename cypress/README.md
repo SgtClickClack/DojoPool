@@ -5,6 +5,7 @@ This directory contains comprehensive end-to-end tests for the DojoPool platform
 ## Test Coverage
 
 ### Clan Management Tests (`clan_management.cy.ts`)
+
 - **Complete Clan Creation Journey**: Tests the entire flow from login to clan creation to discovery
 - **Form Validation**: Tests required fields, tag length validation, and form submission
 - **Clan Discovery**: Verifies newly created clans appear in the discovery page
@@ -12,6 +13,7 @@ This directory contains comprehensive end-to-end tests for the DojoPool platform
 - **Error Handling**: Tests API errors and network timeouts gracefully
 
 ### Admin Panel Access Tests (`admin_access.cy.ts`)
+
 - **Non-Admin User Access**: Verifies regular users are redirected away from admin pages
 - **Admin User Access**: Tests admin dashboard functionality and content display
 - **Role-Based Access Control**: Tests dynamic role changes and invalid role handling
@@ -27,16 +29,20 @@ This directory contains comprehensive end-to-end tests for the DojoPool platform
 ## Running Tests
 
 ### Interactive Mode (Recommended for Development)
+
 ```bash
 npm run cypress:open
 ```
+
 This opens the Cypress Test Runner in a browser window where you can:
+
 - See all test files
 - Run individual tests
 - Watch tests execute in real-time
 - Debug test failures
 
 ### Headless Mode (CI/CD)
+
 ```bash
 # Run all E2E tests
 npm run test:e2e
@@ -49,6 +55,7 @@ npx cypress run --record
 ```
 
 ### Individual Test Files
+
 ```bash
 # Run clan management tests only
 npx cypress run --spec "cypress/e2e/clan_management.cy.ts"
@@ -60,6 +67,7 @@ npx cypress run --spec "cypress/e2e/admin_access.cy.ts"
 ## Test Data
 
 Test fixtures are located in `cypress/fixtures/`:
+
 - `test-data.json`: Comprehensive test data including users, clans, and admin data
 - `users.json`: User authentication test data
 - `games.json`: Game-related test data
@@ -70,19 +78,25 @@ Test fixtures are located in `cypress/fixtures/`:
 The following custom Cypress commands are available:
 
 ### `cy.login(email, password)`
+
 Logs in a user with the specified credentials:
+
 ```typescript
 cy.login('test@example.com', 'password123');
 ```
 
 ### `cy.createGame(player1, player2)`
+
 Creates a new game between two players:
+
 ```typescript
 cy.createGame('Player1', 'Player2');
 ```
 
 ### `cy.loadFixtures()`
+
 Loads test data fixtures:
+
 ```typescript
 cy.loadFixtures().then((data) => {
   // Use fixture data
@@ -92,6 +106,7 @@ cy.loadFixtures().then((data) => {
 ## Configuration
 
 Cypress configuration is in `cypress.config.ts`:
+
 - **Base URL**: `http://localhost:3000`
 - **Viewport**: 1280x720
 - **Timeouts**: 10 seconds for commands and requests
@@ -101,16 +116,19 @@ Cypress configuration is in `cypress.config.ts`:
 ## Test Structure
 
 ### Before Each Test
+
 - Mock authentication endpoints
 - Mock API responses
 - Set up test data
 
 ### Test Organization
+
 - **Describe Blocks**: Group related test scenarios
 - **Individual Tests**: Test specific functionality
 - **Assertions**: Verify expected behavior and outcomes
 
 ### Mocking Strategy
+
 - **API Interception**: Mock backend responses for consistent testing
 - **Authentication**: Simulate different user roles and permissions
 - **Error Scenarios**: Test error handling and edge cases
@@ -133,13 +151,17 @@ Cypress configuration is in `cypress.config.ts`:
 4. **Viewport Issues**: Tests are configured for 1280x720 resolution
 
 ### Debug Mode
+
 Run tests with debug information:
+
 ```bash
 DEBUG=cypress:* npm run cypress:run
 ```
 
 ### Visual Debugging
+
 Use Cypress's built-in debugging tools:
+
 - Pause execution with `cy.pause()`
 - Step through commands
 - Inspect DOM elements
@@ -148,6 +170,7 @@ Use Cypress's built-in debugging tools:
 ## Contributing
 
 When adding new tests:
+
 1. Follow the existing test structure and naming conventions
 2. Add appropriate mocks for external dependencies
 3. Include both positive and negative test cases
@@ -157,6 +180,7 @@ When adding new tests:
 ## CI/CD Integration
 
 The E2E tests are designed to run in CI/CD pipelines:
+
 - Use `npm run test:e2e` for headless execution
 - Tests will fail fast on critical errors
 - Screenshots are captured on failures for debugging

@@ -56,7 +56,11 @@ export class TournamentsService {
       });
     } catch (err) {
       this.logger.error(
-        ErrorUtils.formatErrorMessage('fetch tournaments by venue', venueId, err)
+        ErrorUtils.formatErrorMessage(
+          'fetch tournaments by venue',
+          venueId,
+          err
+        )
       );
       throw err;
     }

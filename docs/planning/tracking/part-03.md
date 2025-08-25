@@ -1,3 +1,40 @@
+## 2025-08-25: Venue Portal – Profile & Specials (Frontend)
+
+Implemented the initial Venue Management Portal UI in the web app, including a protected portal shell, profile editing page, and specials management page. Added API service methods for updating the current user's venue and creating/deleting specials. This establishes the foundation for venue owners to manage their presence.
+
+**Core Components Implemented:**
+
+- `VenuePortalLayout` with tabbed navigation (Profile, Specials, Tournaments)
+- Protected routes under `/venue/portal/*`
+- Profile editor with description, gallery (URL-based for now), and opening hours form
+- Specials manager with list and create/delete actions
+- API methods: `updateMyVenue`, `createVenueSpecial`, `deleteVenueSpecial`
+
+**Integration Points:**
+
+- Auth: `ProtectedRoute` ensures venue portal is accessible to authenticated users only
+- API: Uses axios instance from `APIService` with bearer token and refresh handling
+- Types: `VenueHours` leveraged for opening hours data
+
+**File Paths:**
+
+- `apps/web/src/components/VenuePortal/VenuePortalLayout.tsx`
+- `apps/web/src/pages/venue/portal/index.tsx`
+- `apps/web/src/pages/venue/portal/profile.tsx`
+- `apps/web/src/pages/venue/portal/specials.tsx`
+- `apps/web/src/services/APIService.ts` (new venue methods)
+
+**Next Priority Task:**
+
+Wire backend endpoints for venue owner operations in `services/api` (NestJS):
+
+- `PATCH /v1/venues/me` to update description/images/hours
+- `POST /v1/venues/me/specials` to create a special
+- `DELETE /v1/venues/me/specials/:id` to remove a special
+  Add e2e and integration tests; add image upload support (S3/GCS) and replace URL prompts with a proper uploader.
+
+Expected completion time: 1-2 days
+
 ## 2025-08-24: World Hub Map Promoted to Home Page
 
 Replaced the web app home page with the existing World Hub Map page and removed the redundant `/world-map` route. Updated the main navigation to point to the root for the World Map entry.

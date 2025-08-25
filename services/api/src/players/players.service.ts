@@ -25,35 +25,33 @@ export class PlayersService {
       }
 
       // Get tournament participation
-      const tournamentParticipations = await this.prisma.tournamentParticipant.findMany({
-        where: { userId: playerId },
-        include: {
-          tournament: {
-            select: {
-              id: true,
-              name: true,
-              status: true,
-              startDate: true,
-              endDate: true,
-              venue: {
-                select: {
-                  id: true,
-                  name: true,
+      const tournamentParticipations =
+        await this.prisma.tournamentParticipant.findMany({
+          where: { userId: playerId },
+          include: {
+            tournament: {
+              select: {
+                id: true,
+                name: true,
+                status: true,
+                startDate: true,
+                endDate: true,
+                venue: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
                 },
               },
             },
           },
-        },
-        orderBy: { createdAt: 'desc' },
-      });
+          orderBy: { createdAt: 'desc' },
+        });
 
       // Get match history
       const matches = await this.prisma.match.findMany({
         where: {
-          OR: [
-            { playerAId: playerId },
-            { playerBId: playerId },
-          ],
+          OR: [{ playerAId: playerId }, { playerBId: playerId }],
         },
         include: {
           tournament: {
@@ -86,10 +84,16 @@ export class PlayersService {
 
       // Calculate statistics
       const totalMatches = matches.length;
-      const wins = matches.filter(match => {
-        if (match.status === 'COMPLETED' && match.scoreA !== null && match.scoreB !== null) {
-          return (match.playerAId === playerId && match.scoreA > match.scoreB) ||
-                 (match.playerBId === playerId && match.scoreB > match.scoreA);
+      const wins = matches.filter((match) => {
+        if (
+          match.status === 'COMPLETED' &&
+          match.scoreA !== null &&
+          match.scoreB !== null
+        ) {
+          return (
+            (match.playerAId === playerId && match.scoreA > match.scoreB) ||
+            (match.playerBId === playerId && match.scoreB > match.scoreA)
+          );
         }
         return false;
       }).length;
@@ -112,13 +116,22 @@ export class PlayersService {
           description: 'Won your first match',
           icon: '🏆',
           unlocked: wins > 0,
-          unlockedAt: wins > 0 ? matches.find(m => {
-            if (m.status === 'COMPLETED' && m.scoreA !== null && m.scoreB !== null) {
-              return (m.playerAId === playerId && m.scoreA > m.scoreB) ||
-                     (m.playerBId === playerId && m.scoreB > m.scoreA);
-            }
-            return false;
-          })?.createdAt : null,
+          unlockedAt:
+            wins > 0
+              ? matches.find((m) => {
+                  if (
+                    m.status === 'COMPLETED' &&
+                    m.scoreA !== null &&
+                    m.scoreB !== null
+                  ) {
+                    return (
+                      (m.playerAId === playerId && m.scoreA > m.scoreB) ||
+                      (m.playerBId === playerId && m.scoreB > m.scoreA)
+                    );
+                  }
+                  return false;
+                })?.createdAt
+              : null,
         },
         {
           id: 'tournament-participant',
@@ -126,7 +139,10 @@ export class PlayersService {
           description: 'Joined your first tournament',
           icon: '🎮',
           unlocked: tournamentParticipations.length > 0,
-          unlockedAt: tournamentParticipations.length > 0 ? tournamentParticipations[0].createdAt : null,
+          unlockedAt:
+            tournamentParticipations.length > 0
+              ? tournamentParticipations[0].createdAt
+              : null,
         },
         {
           id: 'winning-streak',

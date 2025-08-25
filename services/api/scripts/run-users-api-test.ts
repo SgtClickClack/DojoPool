@@ -31,7 +31,10 @@ async function run() {
     // eslint-disable-next-line no-console
     console.log('Create User -> Status:', createRes.status);
     // eslint-disable-next-line no-console
-    console.log('Create User -> Body:', JSON.stringify(createRes.body, null, 2));
+    console.log(
+      'Create User -> Body:',
+      JSON.stringify(createRes.body, null, 2)
+    );
 
     // Test Case 2: Get All Users
     const getRes = await supertest(server).get('/v1/users');

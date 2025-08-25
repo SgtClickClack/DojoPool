@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { $Enums } from '@prisma/client';
 import { MatchUtils } from '../common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiAnalysisService } from './ai-analysis.service';
+import { MatchGateway } from './match.gateway';
+import { MatchesGateway } from './matches.gateway';
 
 @Injectable()
 export class MatchesService {
@@ -9,7 +12,9 @@ export class MatchesService {
 
   constructor(
     private prisma: PrismaService,
-    private aiAnalysisService: AiAnalysisService
+    private aiAnalysisService: AiAnalysisService,
+    private matchesGateway: MatchesGateway,
+    private matchGateway: MatchGateway
   ) {}
 
   async getMatchById(matchId: string): Promise<any> {
@@ -25,7 +30,13 @@ export class MatchesService {
     playerAId: string;
     playerBId: string;
     round: number;
-    status?: 'PENDING' | 'ACTIVE' | 'COMPLETED' | string;
+    status?:
+      | 'PENDING'
+      | 'IN_PROGRESS'
+      | 'PAUSED'
+      | 'COMPLETED'
+      | 'CANCELLED'
+      | string;
     tableId?: string | null;
     wager?: number;
   }): Promise<any> {
@@ -35,25 +46,37 @@ export class MatchesService {
       playerAId,
       playerBId,
       round,
-      status = 'PENDING',
+      status = 'IN_PROGRESS',
       tableId = null,
       wager = 0,
     } = data;
 
-    const normalizedWager = Math.max(0, Math.floor(Number.isFinite(wager as number) ? (wager as number) : 0));
+    const normalizedWager = Math.max(
+      0,
+      Math.floor(Number.isFinite(wager as number) ? (wager as number) : 0)
+    );
 
     return this.prisma.$transaction(async (tx) => {
       if (normalizedWager > 0) {
         // Ensure both users exist and can afford the wager, then escrow funds.
         const [playerA, playerB] = await Promise.all([
-          tx.user.findUnique({ where: { id: playerAId }, select: { dojoCoinBalance: true } }),
-          tx.user.findUnique({ where: { id: playerBId }, select: { dojoCoinBalance: true } }),
+          tx.user.findUnique({
+            where: { id: playerAId },
+            select: { dojoCoinBalance: true },
+          }),
+          tx.user.findUnique({
+            where: { id: playerBId },
+            select: { dojoCoinBalance: true },
+          }),
         ]);
 
         if (!playerA || !playerB) {
           throw new Error('One or both players not found');
         }
-        if (playerA.dojoCoinBalance < normalizedWager || playerB.dojoCoinBalance < normalizedWager) {
+        if (
+          playerA.dojoCoinBalance < normalizedWager ||
+          playerB.dojoCoinBalance < normalizedWager
+        ) {
           throw new Error('Insufficient DojoCoin balance to cover the wager');
         }
 
@@ -63,14 +86,18 @@ export class MatchesService {
           data: { dojoCoinBalance: { decrement: normalizedWager } },
         });
         if (aUpdate.count !== 1) {
-          throw new Error('Failed to escrow wager from player A (insufficient funds)');
+          throw new Error(
+            'Failed to escrow wager from player A (insufficient funds)'
+          );
         }
         const bUpdate = await tx.user.updateMany({
           where: { id: playerBId, dojoCoinBalance: { gte: normalizedWager } },
           data: { dojoCoinBalance: { decrement: normalizedWager } },
         });
         if (bUpdate.count !== 1) {
-          throw new Error('Failed to escrow wager from player B (insufficient funds)');
+          throw new Error(
+            'Failed to escrow wager from player B (insufficient funds)'
+          );
         }
       }
 
@@ -82,7 +109,7 @@ export class MatchesService {
           playerAId,
           playerBId,
           round,
-          status,
+          status: status as $Enums.MatchStatus,
           tableId: tableId ?? undefined,
           wager: normalizedWager,
         },
@@ -107,9 +134,15 @@ export class MatchesService {
       if (!existing) {
         throw new Error('Match not found');
       }
-      const computedLoserId = winnerId === existing.playerAId ? existing.playerBId : existing.playerAId;
+      const computedLoserId =
+        winnerId === existing.playerAId
+          ? existing.playerBId
+          : existing.playerAId;
 
-      const COIN_REWARD = Number.parseInt(process.env.DOJO_WIN_REWARD || '50', 10);
+      const COIN_REWARD = Number.parseInt(
+        process.env.DOJO_WIN_REWARD || '50',
+        10
+      );
       const wager = Math.max(0, Math.floor(existing.wager ?? 0));
       const prize = wager > 0 ? wager * 2 : 0;
 
@@ -122,7 +155,7 @@ export class MatchesService {
             loserId: computedLoserId,
             scoreA,
             scoreB,
-            status: 'COMPLETED',
+            status: 'COMPLETED' as $Enums.MatchStatus,
             endedAt: new Date(),
           },
           include: {
@@ -146,9 +179,13 @@ export class MatchesService {
       });
 
       if (prize > 0) {
-        this.logger.log(`Awarded wager prize ${prize} DojoCoins to winner ${winnerId} for match ${matchId}`);
+        this.logger.log(
+          `Awarded wager prize ${prize} DojoCoins to winner ${winnerId} for match ${matchId}`
+        );
       }
-      this.logger.log(`Awarded ${COIN_REWARD} DojoCoins to winner ${winnerId} for match ${matchId}`);
+      this.logger.log(
+        `Awarded ${COIN_REWARD} DojoCoins to winner ${winnerId} for match ${matchId}`
+      );
 
       // Generate AI analysis asynchronously
       this.generateAndStoreAnalysis(updatedMatch).catch((error) => {
@@ -181,9 +218,8 @@ export class MatchesService {
         round: match.round,
       };
 
-      const analysis = await this.aiAnalysisService.generateMatchAnalysis(
-        matchData
-      );
+      const analysis =
+        await this.aiAnalysisService.generateMatchAnalysis(matchData);
 
       // Store the analysis in the database
       await this.prisma.match.update({
@@ -197,6 +233,49 @@ export class MatchesService {
     } catch (error) {
       this.logger.error('Failed to generate and store AI analysis:', error);
     }
+  }
+
+  async pauseMatch(matchId: string, userId: string) {
+    // Allow pause only from IN_PROGRESS to PAUSED
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+    });
+    if (!match) throw new Error('Match not found');
+    if (match.playerAId !== userId && match.playerBId !== userId) {
+      throw new Error('Not authorized to pause this match');
+    }
+    if (match.status !== 'IN_PROGRESS') {
+      throw new Error('Match is not in progress');
+    }
+    const updated = await this.prisma.match.update({
+      where: { id: matchId },
+      data: { status: 'PAUSED' as $Enums.MatchStatus },
+    });
+    // Broadcast to both gateway room styles
+    this.matchesGateway.broadcastMatchStatusUpdate(matchId, 'PAUSED');
+    this.matchGateway.broadcastMatchStatusUpdate(matchId, 'PAUSED');
+    return updated;
+  }
+
+  async resumeMatch(matchId: string, userId: string) {
+    // Allow resume only from PAUSED to IN_PROGRESS
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+    });
+    if (!match) throw new Error('Match not found');
+    if (match.playerAId !== userId && match.playerBId !== userId) {
+      throw new Error('Not authorized to resume this match');
+    }
+    if (match.status !== 'PAUSED') {
+      throw new Error('Match is not paused');
+    }
+    const updated = await this.prisma.match.update({
+      where: { id: matchId },
+      data: { status: 'IN_PROGRESS' as $Enums.MatchStatus },
+    });
+    this.matchesGateway.broadcastMatchStatusUpdate(matchId, 'IN_PROGRESS');
+    this.matchGateway.broadcastMatchStatusUpdate(matchId, 'IN_PROGRESS');
+    return updated;
   }
 
   async getMatchWithAnalysis(matchId: string): Promise<any> {

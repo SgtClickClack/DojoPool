@@ -4,17 +4,31 @@ import styles from './advanced-analytics.module.css';
 
 // Placeholder components for build stability. Real implementations live in the frontend package.
 const AdvancedAnalyticsDashboard: React.FC = () => (
-  <div role="region" aria-label="AdvancedAnalyticsDashboard placeholder" className={styles.placeholderContainer}>
+  <div
+    role="region"
+    aria-label="AdvancedAnalyticsDashboard placeholder"
+    className={styles.placeholderContainer}
+  >
     Advanced Analytics Dashboard (placeholder)
   </div>
 );
-const AdvancedVenueAnalyticsComponent: React.FC<{ venueId: string }> = ({ venueId }) => (
-  <div role="region" aria-label="AdvancedVenueAnalyticsComponent placeholder" className={styles.placeholderContainer}>
+const AdvancedVenueAnalyticsComponent: React.FC<{ venueId: string }> = ({
+  venueId,
+}) => (
+  <div
+    role="region"
+    aria-label="AdvancedVenueAnalyticsComponent placeholder"
+    className={styles.placeholderContainer}
+  >
     Advanced Venue Analytics for {venueId} (placeholder)
   </div>
 );
 const AdvancedVenueManagementDashboard: React.FC = () => (
-  <div role="region" aria-label="AdvancedVenueManagementDashboard placeholder" className={styles.placeholderContainer}>
+  <div
+    role="region"
+    aria-label="AdvancedVenueManagementDashboard placeholder"
+    className={styles.placeholderContainer}
+  >
     Advanced Venue Management Dashboard (placeholder)
   </div>
 );

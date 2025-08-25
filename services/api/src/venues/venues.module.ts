@@ -1,12 +1,13 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { VenuesService } from './venues.service';
-import { VenuesController } from './venues.controller';
-import { PrismaModule } from '../prisma/prisma.module';
+import { Module } from '@nestjs/common';
 import { MatchesModule } from '../matches/matches.module';
+import { PrismaModule } from '../prisma/prisma.module';
+import { VenueOwnerGuard } from './venue-owner.guard';
+import { VenuesController } from './venues.controller';
+import { VenuesService } from './venues.service';
 
 @Module({
-  imports: [PrismaModule, forwardRef(() => MatchesModule)],
+  imports: [PrismaModule, MatchesModule],
   controllers: [VenuesController],
-  providers: [VenuesService],
+  providers: [VenuesService, VenueOwnerGuard],
 })
 export class VenuesModule {}

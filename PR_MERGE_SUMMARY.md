@@ -12,6 +12,7 @@ To create and merge the Pull Request from `fresh-start` into `main`, use the pro
   - Merge via squash after checks pass.
 
 After merging:
+
 - Announce that all new work must branch from `main`.
 - Archive old/stale branches to avoid confusion.
 

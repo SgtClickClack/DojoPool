@@ -30,6 +30,10 @@ export interface UserBalance {
   lastUpdated: string;
 }
 
+export interface CartItem extends MarketplaceItem {
+  quantity: number;
+}
+
 class MarketplaceService {
   async getMarketplaceItems(): Promise<MarketplaceItem[]> {
     try {
@@ -42,12 +46,17 @@ class MarketplaceService {
     }
   }
 
-  async buyMarketplaceItem(itemId: string): Promise<{ success: boolean; message: string; newBalance?: number }> {
+  async buyMarketplaceItem(
+    itemId: string
+  ): Promise<{ success: boolean; message: string; newBalance?: number }> {
     try {
       const response = await apiClient.post(`/marketplace/items/${itemId}/buy`);
       return response.data;
     } catch (error: any) {
-      const message = error.response?.data?.message || error.message || 'Failed to purchase item';
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to purchase item';
       throw new Error(message);
     }
   }
@@ -74,6 +83,75 @@ class MarketplaceService {
     }
   }
 
+  // --- Cart utilities (client-side only) ---
+  private inMemoryCart: CartItem[] = [];
+
+  private getCartStorage(): CartItem[] {
+    if (typeof window === 'undefined') return this.inMemoryCart;
+    try {
+      const raw = window.localStorage.getItem('dp_cart');
+      return raw ? (JSON.parse(raw) as CartItem[]) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private setCartStorage(cart: CartItem[]): void {
+    if (typeof window === 'undefined') {
+      this.inMemoryCart = cart;
+      return;
+    }
+    try {
+      window.localStorage.setItem('dp_cart', JSON.stringify(cart));
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  getCartItems(): CartItem[] {
+    return this.getCartStorage();
+  }
+
+  getCartTotal(): number {
+    return this.getCartStorage().reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+  }
+
+  addToCart(item: MarketplaceItem, deltaQuantity: number): void {
+    if (!deltaQuantity) return;
+    const cart = this.getCartStorage();
+    const idx = cart.findIndex((ci) => ci.id === item.id);
+    if (idx === -1) {
+      const initialQty = Math.max(0, Math.min(item.stock, deltaQuantity));
+      if (initialQty > 0) cart.push({ ...item, quantity: initialQty });
+      this.setCartStorage(cart);
+      return;
+    }
+    const current = cart[idx];
+    const nextQty = current.quantity + deltaQuantity;
+    if (nextQty <= 0) {
+      cart.splice(idx, 1);
+    } else {
+      cart[idx] = { ...current, quantity: Math.min(nextQty, item.stock) };
+    }
+    this.setCartStorage(cart);
+  }
+
+  async purchaseItems(): Promise<void> {
+    // Minimal implementation: attempt to buy each item quantity times
+    const cart = this.getCartStorage();
+    for (const item of cart) {
+      const times = Math.max(1, Math.min(item.quantity, item.stock));
+      for (let i = 0; i < times; i += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await this.buyMarketplaceItem(item.id);
+      }
+    }
+    this.setCartStorage([]);
+  }
+
   private getMockMarketplaceItems(): MarketplaceItem[] {
     return [
       {
@@ -85,7 +163,7 @@ class MarketplaceService {
         category: 'cues',
         rarity: 'legendary',
         stock: 3,
-        type: 'cue'
+        type: 'cue',
       },
       {
         id: '2',
@@ -96,7 +174,7 @@ class MarketplaceService {
         category: 'avatars',
         rarity: 'epic',
         stock: 10,
-        type: 'avatar'
+        type: 'avatar',
       },
       {
         id: '3',
@@ -107,7 +185,7 @@ class MarketplaceService {
         category: 'emotes',
         rarity: 'rare',
         stock: 25,
-        type: 'emote'
+        type: 'emote',
       },
       {
         id: '4',
@@ -118,7 +196,7 @@ class MarketplaceService {
         category: 'tables',
         rarity: 'epic',
         stock: 5,
-        type: 'table'
+        type: 'table',
       },
       {
         id: '5',
@@ -129,7 +207,7 @@ class MarketplaceService {
         category: 'titles',
         rarity: 'legendary',
         stock: 1,
-        type: 'title'
+        type: 'title',
       },
       {
         id: '6',
@@ -140,8 +218,8 @@ class MarketplaceService {
         category: 'cues',
         rarity: 'rare',
         stock: 15,
-        type: 'cue'
-      }
+        type: 'cue',
+      },
     ];
   }
 
@@ -157,7 +235,7 @@ class MarketplaceService {
         rarity: 'legendary',
         type: 'cue',
         acquiredAt: '2024-01-15T10:30:00Z',
-        equipped: true
+        equipped: true,
       },
       {
         id: 'inv2',
@@ -169,8 +247,8 @@ class MarketplaceService {
         rarity: 'epic',
         type: 'avatar',
         acquiredAt: '2024-01-10T14:20:00Z',
-        equipped: false
-      }
+        equipped: false,
+      },
     ];
   }
 }

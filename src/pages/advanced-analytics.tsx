@@ -37,7 +37,8 @@ const AdvancedAnalyticsPage: React.FC = () => {
                 Analytics Dashboard
               </h2>
               <p className="text-gray-600">
-                Advanced analytics dashboard temporarily unavailable. This component will be implemented in a future update.
+                Advanced analytics dashboard temporarily unavailable. This
+                component will be implemented in a future update.
               </p>
             </div>
           </div>
@@ -53,7 +54,8 @@ const AdvancedAnalyticsPage: React.FC = () => {
                 Venue Management Analytics
               </h3>
               <p className="text-gray-600">
-                Venue management analytics temporarily unavailable. This component will be implemented in a future update.
+                Venue management analytics temporarily unavailable. This
+                component will be implemented in a future update.
               </p>
             </div>
           </div>
@@ -69,7 +71,8 @@ const AdvancedAnalyticsPage: React.FC = () => {
                 Detailed Venue Analytics
               </h3>
               <p className="text-gray-600">
-                Detailed venue analytics temporarily unavailable. This component will be implemented in a future update.
+                Detailed venue analytics temporarily unavailable. This component
+                will be implemented in a future update.
               </p>
             </div>
           </div>

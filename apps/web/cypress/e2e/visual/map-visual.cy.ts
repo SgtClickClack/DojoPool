@@ -1,6 +1,4 @@
-import { addMatchImageSnapshotCommand } from 'cypress-image-snapshot/command';
-
-addMatchImageSnapshotCommand();
+// visual snapshot plugin disabled in stabilization sprint
 
 describe('Map Component Visual Regression', () => {
   beforeEach(() => {

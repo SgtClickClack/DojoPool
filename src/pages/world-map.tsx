@@ -392,8 +392,8 @@ const WorldMapPage: React.FC = () => {
                       territory.status === 'controlled'
                         ? '#00ff9d'
                         : territory.status === 'rival'
-                        ? '#ff6b6b'
-                        : '#00a8ff',
+                          ? '#ff6b6b'
+                          : '#00a8ff',
                     color: '#000',
                     fontWeight: 'bold',
                     fontSize: '0.8rem',

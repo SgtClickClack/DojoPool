@@ -31,7 +31,12 @@ This will parse `docs/tasks.md` and generate:
       "title": "0. Project Hygiene and Baseline",
       "index": 0,
       "tasks": [
-        { "id": 1, "text": "Consolidate duplicate config files...", "checked": false, "status": "open" }
+        {
+          "id": 1,
+          "text": "Consolidate duplicate config files...",
+          "checked": false,
+          "status": "open"
+        }
       ]
     }
   ],

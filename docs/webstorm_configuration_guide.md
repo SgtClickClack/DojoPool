@@ -20,6 +20,7 @@ A run configuration has been set up to easily start the development server:
 ## Code Quality Tools
 
 Actions on Save are configured for this project:
+
 - Reformat with Prettier
 - Run ESLint --fix
 - Optimize imports
@@ -113,9 +114,9 @@ If you see this error in WebStorm, it almost always points to a network/DNS issu
 
 2. Firewall and Network Settings (most common)
    - Windows Defender Firewall (or other security software):
-     1) Open Windows Defender Firewall.
-     2) Click "Allow an app through firewall".
-     3) Ensure WebStorm (e.g., webstorm64.exe) is allowed for both Private and Public networks.
+     1. Open Windows Defender Firewall.
+     2. Click "Allow an app through firewall".
+     3. Ensure WebStorm (e.g., webstorm64.exe) is allowed for both Private and Public networks.
    - Disable VPN/Proxy temporarily and click Retry in WebStorm.
 
 3. Flush DNS Cache (Windows)

@@ -3,6 +3,7 @@
 Use this when a local clone contains large or problematic files that block pushes.
 
 ## Prerequisites
+
 - Git installed
 - PowerShell 7+ (pwsh) recommended
 - Optional: GitHub Personal Access Token (repo scope) if you want to auto-merge via API
@@ -33,7 +34,7 @@ Use this when a local clone contains large or problematic files that block pushe
 
 6. Create and merge via API (Option B: automated):
    - Set a PAT temporarily (repo scope):
-     - $env:GITHUB_TOKEN = 'ghp_xxx'  # replace with your token
+     - $env:GITHUB_TOKEN = 'ghp_xxx' # replace with your token
    - Run script:
      - pwsh scripts/create_and_merge_pr.ps1 -RepoOwner SgtClickClack -RepoName DojoPool -HeadBranch fresh-start -BaseBranch main -Title "Fresh start: Merge clean foundation into main" -BodyFile PR_FRESH_START_MERGE.md -AutoMerge
 

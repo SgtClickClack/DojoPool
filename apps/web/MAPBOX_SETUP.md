@@ -3,13 +3,11 @@
 ## 🚀 Quick Setup
 
 1. **Get a Mapbox Access Token**
-
    - Go to [Mapbox Account](https://account.mapbox.com/access-tokens/)
    - Sign up or log in
    - Create a new token or use your default public token
 
 2. **Configure Environment Variables**
-
    - Create a `.env.local` file in the `apps/web` directory
    - Add your Mapbox token:
 

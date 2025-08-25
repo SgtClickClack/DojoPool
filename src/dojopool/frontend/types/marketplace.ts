@@ -27,5 +27,3 @@ export interface Transaction {
   status: 'pending' | 'completed' | 'failed';
   timestamp: number;
 }
-
-

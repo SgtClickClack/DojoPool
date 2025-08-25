@@ -19,7 +19,9 @@ import { SOCKET_NAMESPACES } from '../config/sockets.config';
   },
   namespace: SOCKET_NAMESPACES.NOTIFICATIONS,
 })
-export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server!: Server;
 
@@ -27,8 +29,11 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
 
   private getUserIdFromSocket(client: Socket): string | undefined {
     const headers = client.handshake.headers as Record<string, any>;
-    const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as string | undefined;
-    const fromAuth = (client.handshake.auth && (client.handshake.auth as any).userId) as string | undefined;
+    const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as
+      | string
+      | undefined;
+    const fromAuth = (client.handshake.auth &&
+      (client.handshake.auth as any).userId) as string | undefined;
     return fromHeader || fromAuth;
   }
 
@@ -36,9 +41,13 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     const userId = this.getUserIdFromSocket(client);
     if (userId) {
       client.join(userId);
-      this.logger.log(`Client ${client.id} joined notifications room ${userId}`);
+      this.logger.log(
+        `Client ${client.id} joined notifications room ${userId}`
+      );
     } else {
-      this.logger.warn(`Client ${client.id} connected without x-user-id/auth.userId; cannot join notifications room`);
+      this.logger.warn(
+        `Client ${client.id} connected without x-user-id/auth.userId; cannot join notifications room`
+      );
     }
   }
 

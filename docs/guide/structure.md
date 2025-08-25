@@ -102,13 +102,11 @@ models/
 ## File Naming Conventions
 
 1. **SCSS Files**
-
    - Partial files start with underscore: `_buttons.scss`
    - Main files without underscore: `main.scss`
    - Use kebab-case: `form-controls.scss`
 
 2. **JavaScript/TypeScript Files**
-
    - Components use PascalCase: `Button.ts`
    - Utilities use camelCase: `formValidation.ts`
    - Constants use UPPER_SNAKE_CASE: `API_ENDPOINTS.ts`
@@ -193,21 +191,18 @@ dojo-pool/
 ## Best Practices
 
 1. **File Organization**
-
    - Keep related files together
    - Use clear, descriptive names
    - Maintain consistent structure
    - Follow naming conventions
 
 2. **Import Management**
-
    - Use absolute imports for project files
    - Group imports logically
    - Avoid circular dependencies
    - Use index files for public APIs
 
 3. **Component Structure**
-
    - One component per file
    - Co-locate related files
    - Keep components focused

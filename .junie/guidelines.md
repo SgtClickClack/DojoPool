@@ -225,7 +225,6 @@ Key directories:
 
 _Last updated: 2025-08-01_
 
-
 ---
 
 ## Project-specific Quickstart (verified 2025-08-24 02:03 local)
@@ -233,6 +232,7 @@ _Last updated: 2025-08-01_
 This section captures verified, repo-specific steps and caveats for advanced contributors. All commands are PowerShell-friendly for Windows.
 
 ### Build and Development
+
 - Node version: 20.x (package type: module). Ensure `node -v` >= 20.
 - Install deps: `npm ci` (prefer CI install for deterministic lockfile resolution).
 - Environment checks:
@@ -254,10 +254,12 @@ This section captures verified, repo-specific steps and caveats for advanced con
 - Docker: `docker build -t dojopool .` (multi-stage build consolidates frontend + Flask via Nginx/Supervisor, exposes 5000).
 
 Notes:
+
 - Path aliases: In Vite/Vitest, `@` resolves to `/src`. TypeScript paths (tsconfig.json) map `@/*` to `src/*`, `src/frontend/*`, and `src/dojopool/frontend/*`.
 - Module format: ESM. Use `import` syntax. For CJS interop, prefer dynamic `import()` in Node scripts.
 
 ### Testing (Vitest)
+
 - Primary command: `npm test` maps to `vitest run --config vitest.unit.config.ts`.
 - Unit test config: `vitest.unit.config.ts`
   - Environment: `jsdom`
@@ -273,6 +275,7 @@ Notes:
 - Global config: `vitest.config.ts` exists for broader patterns, but CI and `npm test` intentionally target the unit config by default.
 
 Common commands:
+
 - Run all unit tests: `npm test`
 - Run a specific test: `npm test -- src\tests\unit\SomeFile.test.ts`
 - Watch mode: `npm run test:watch`
@@ -282,11 +285,13 @@ Common commands:
 - UI runner: `npm run test:ui`
 
 Add new tests:
+
 - Unit: place under `src/tests/unit/` using `.test.ts`/`.test.tsx`. DOM/component tests should use React Testing Library (`@testing-library/react`) and rely on jsdom + the provided mocks.
 - Integration: place under `src/tests/integration/` targeting Node runtime; avoid DOM globals.
 - Use the `@` alias for imports from `src/` and prefer stable, deterministic data. If a test relies on timers or random, use `vi.useFakeTimers()` or seed randomness.
 
 Verified smoke test (demonstration):
+
 - We validated the test runner and setup by creating a temporary file at `src\tests\unit\junie.smoke.test.ts` and executing it as follows:
 
 ```powershell
@@ -312,6 +317,7 @@ describe('Junie smoke test (unit, 2025-08-24)', () => {
 - Outcome (2025-08-24 02:03): 1 passed, confirming jsdom + setup mocks are active. The file has been removed after verification to keep the repository clean.
 
 ### Advanced Notes / Pitfalls
+
 - Windows paths: When running a single test, use backslashes in PowerShell (e.g., `src\tests\unit\File.test.ts`).
 - Known flaky tests are excluded in `vitest.unit.config.ts`. Do not rely on those for CI; stabilize and remove from exclude before enabling.
 - Ports: Ensure 3000 (Vite), 3001 (Next dev), 5000 (Flask), 8080 (Node dev) are free.
@@ -324,4 +330,3 @@ describe('Junie smoke test (unit, 2025-08-24)', () => {
   - If dev server doesn’t reflect changes, ensure `concurrently` hasn’t left orphaned processes; run `npm run cleanup:node:win`.
   - If Next build fails due to env, run `npm run env:check:strict` and verify `config.env` / `[ENV].flaskenv`.
 - ESM nuances: The repo uses ESM (`"type": "module"`). Prefer `import` and avoid bare `require` in Node scripts unless using dynamic `import()` or transpiling.
-

@@ -1,5 +1,6 @@
 import ChallengeModal from '@/components/challenge/ChallengeModal';
 import { useAuth } from '@/hooks/useAuth';
+import api from '@/services/APIService';
 import { Challenge } from '@/services/challengeService';
 import {
   Alert,
@@ -16,7 +17,8 @@ import {
   Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import useSWR from 'swr';
 
 interface PlayerProfile {
   id: string;
@@ -39,43 +41,26 @@ const PlayerProfilePage: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user } = useAuth();
-  const [player, setPlayer] = useState<PlayerProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [challengeModalOpen, setChallengeModalOpen] = useState(false);
-  const [notification, setNotification] = useState<{
+  type NotificationState = {
     open: boolean;
     message: string;
     severity: 'success' | 'error' | 'info';
-  }>({ open: false, message: '', severity: 'info' });
+  };
+  const [challengeModalOpen, setChallengeModalOpen] = useState(false);
+  const [notification, setNotification] = useState<NotificationState>({
+    open: false,
+    message: '',
+    severity: 'info',
+  });
 
-  // Mock player data - in real app, fetch from API
-  useEffect(() => {
-    if (id) {
-      // Simulate API call
-      setTimeout(() => {
-        setPlayer({
-          id: id as string,
-          username: `Player_${id}`,
-          avatarUrl: `https://api.dicebear.com/7.x/identicon/svg?seed=${id}`,
-          skillRating: Math.floor(Math.random() * 1000) + 500,
-          clanTitle: 'Crimson Monkey',
-          stats: {
-            wins: Math.floor(Math.random() * 50) + 10,
-            losses: Math.floor(Math.random() * 30) + 5,
-          },
-          achievements: [
-            { id: '1', name: 'First Win', description: 'Win your first match' },
-            {
-              id: '2',
-              name: 'Territory Master',
-              description: 'Control 5 territories',
-            },
-          ],
-        });
-        setLoading(false);
-      }, 500);
-    }
-  }, [id]);
+  const fetcher = (url: string) =>
+    api.get(url).then((res) => res.data as PlayerProfile);
+
+  const {
+    data: player,
+    error,
+    isLoading,
+  } = useSWR<PlayerProfile>(() => (id ? `/v1/users/${id}` : null), fetcher);
 
   const handleChallengeClick = () => {
     if (!user) {
@@ -112,10 +97,10 @@ const PlayerProfilePage: React.FC = () => {
   };
 
   const handleCloseNotification = () => {
-    setNotification((prev) => ({ ...prev, open: false }));
+    setNotification((prev: NotificationState) => ({ ...prev, open: false }));
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Typography>Loading player profile...</Typography>
@@ -123,10 +108,10 @@ const PlayerProfilePage: React.FC = () => {
     );
   }
 
-  if (!player) {
+  if (error || !player) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography color="error">Player not found</Typography>
+        <Typography color="error">Failed to load player profile</Typography>
       </Container>
     );
   }

@@ -76,7 +76,11 @@ export type MonitoringErrorEvent = ErrorEvent;
 export interface TrendAnalysis {
   trendLine: { timestamp: number; value: number }[];
   forecast: { timestamp: number; value: number; confidence: number }[];
-  anomalies: { timestamp: number; value: number; severity: 'warning' | 'critical' }[];
+  anomalies: {
+    timestamp: number;
+    value: number;
+    severity: 'warning' | 'critical';
+  }[];
 }
 
 export interface MetricsCurrent {

@@ -3,7 +3,7 @@ import challengeService, {
   ChallengeRequest,
 } from '@/services/challengeService';
 import marketplaceService, { UserBalance } from '@/services/marketplaceService';
-import { CoinIcon } from '@mui/icons-material/AttachMoney';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney.js';
 import {
   Alert,
   Box,
@@ -95,9 +95,8 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
         wagerAmount: wagerAmount > 0 ? wagerAmount : undefined,
       };
 
-      const response = await challengeService.sendMockChallenge(
-        challengeRequest
-      );
+      const response =
+        await challengeService.sendMockChallenge(challengeRequest);
 
       if (response.success) {
         onChallengeSent?.(response.challenge);
@@ -153,7 +152,7 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
             <CircularProgress size={20} />
           ) : userBalance ? (
             <Box display="flex" alignItems="center" gap={1}>
-              <CoinIcon sx={{ color: '#ffd700' }} />
+              <AttachMoneyIcon sx={{ color: '#ffd700' }} />
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                 {userBalance.dojoCoins.toLocaleString()} DojoCoins
               </Typography>
@@ -176,7 +175,9 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
             onChange={handleWagerChange}
             disabled={isLoading}
             InputProps={{
-              startAdornment: <CoinIcon sx={{ color: '#ffd700', mr: 1 }} />,
+              startAdornment: (
+                <AttachMoneyIcon sx={{ color: '#ffd700', mr: 1 }} />
+              ),
               endAdornment: (
                 <Typography variant="body2" color="text.secondary">
                   DC
@@ -214,7 +215,7 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
             >
               <Typography>Wager Amount:</Typography>
               <Chip
-                icon={<CoinIcon sx={{ color: '#ffd700' }} />}
+                icon={<AttachMoneyIcon sx={{ color: '#ffd700' }} />}
                 label={`${wagerAmount} DojoCoins`}
                 color="primary"
                 variant="outlined"

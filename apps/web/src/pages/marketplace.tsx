@@ -3,7 +3,7 @@ import marketplaceService, {
   MarketplaceItem,
   UserBalance,
 } from '@/services/marketplaceService';
-import { CoinIcon } from '@mui/icons-material/AttachMoney';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney.js';
 import {
   Alert,
   Box,
@@ -159,7 +159,7 @@ export default function MarketplacePage() {
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CoinIcon sx={{ color: '#ffd700', fontSize: 28 }} />
+                <AttachMoneyIcon sx={{ color: '#ffd700', fontSize: 28 }} />
                 <Box>
                   <Typography
                     variant="h4"

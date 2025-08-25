@@ -10,7 +10,15 @@ const DOCS = path.join(ROOT, 'docs');
 const OUT = path.join(DOCS, 'duplicates-report.md');
 
 const IGNORE_DIRS = new Set([
-  'node_modules', '.git', 'dist', 'build', '.next', 'coverage', 'lcov-report', '.turbo', '.vercel'
+  'node_modules',
+  '.git',
+  'dist',
+  'build',
+  '.next',
+  'coverage',
+  'lcov-report',
+  '.turbo',
+  '.vercel',
 ]);
 
 const PATTERNS = [
@@ -41,8 +49,8 @@ async function* walk(dir) {
 
 function matchPatterns(filePath) {
   const name = path.basename(filePath);
-  const matches = PATTERNS.filter(p => p.test(name));
-  return matches.map(m => m.name);
+  const matches = PATTERNS.filter((p) => p.test(name));
+  return matches.map((m) => m.name);
 }
 
 async function main() {
@@ -71,19 +79,24 @@ async function main() {
   } else {
     lines.push(`Total candidates: ${candidates.length}`);
     lines.push('');
-    for (const c of candidates.sort((a,b)=>a.file.localeCompare(b.file))) {
+    for (const c of candidates.sort((a, b) => a.file.localeCompare(b.file))) {
       lines.push(`- ${c.file}  (reasons: ${c.reasons.join(', ')})`);
     }
   }
 
   lines.push('');
-  lines.push('Review guidance: Verify each file is not referenced by build/test scripts before deletion. Prefer keeping a single source-of-truth config.');
+  lines.push(
+    'Review guidance: Verify each file is not referenced by build/test scripts before deletion. Prefer keeping a single source-of-truth config.'
+  );
 
   await fs.writeFile(OUT, lines.join('\n'), 'utf8');
   console.log(`Duplicate report written to ${path.relative(ROOT, OUT)}`);
 }
 
-main().catch(err => {
-  console.error('Failed to build duplicates report:', err?.stack || err?.message || err);
+main().catch((err) => {
+  console.error(
+    'Failed to build duplicates report:',
+    err?.stack || err?.message || err
+  );
   process.exitCode = 1;
 });

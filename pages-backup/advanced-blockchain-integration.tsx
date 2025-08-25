@@ -10,7 +10,11 @@ import styles from './advanced-blockchain-integration.module.css';
 
 // Placeholder for build stability; replace with real dashboard when implemented.
 const AdvancedBlockchainIntegrationDashboard: React.FC = () => (
-  <div role="region" aria-label="AdvancedBlockchainIntegrationDashboard placeholder" className={styles.placeholderContainer}>
+  <div
+    role="region"
+    aria-label="AdvancedBlockchainIntegrationDashboard placeholder"
+    className={styles.placeholderContainer}
+  >
     Advanced Blockchain Integration Dashboard (placeholder)
   </div>
 );

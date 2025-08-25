@@ -39,7 +39,12 @@ const AdminPage: React.FC = () => {
         <Box sx={{ maxWidth: '7xl', mx: 'auto', py: 6, px: { sm: 6, lg: 8 } }}>
           {/* Header */}
           <Box sx={{ px: { xs: 4, sm: 0 }, py: 6 }}>
-            <Typography variant="h3" component="h1" fontWeight="bold" sx={{ mb: 2 }}>
+            <Typography
+              variant="h3"
+              component="h1"
+              fontWeight="bold"
+              sx={{ mb: 2 }}
+            >
               Admin Panel
             </Typography>
             <Typography variant="body1" color="text.secondary">
@@ -50,7 +55,11 @@ const AdminPage: React.FC = () => {
           {/* Navigation Tabs */}
           <Box sx={{ px: { xs: 4, sm: 0 } }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs value={activeTab} onChange={handleTabChange} aria-label="Admin panel tabs">
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                aria-label="Admin panel tabs"
+              >
                 <Tab label="Dashboard" />
                 <Tab label="User Management" />
               </Tabs>

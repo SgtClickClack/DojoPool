@@ -1,7 +1,14 @@
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException, ForbiddenException, forwardRef } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { MatchesGateway } from '../matches/matches.gateway';
-
+import { PrismaService } from '../prisma/prisma.service';
 
 interface UpdateTableInput {
   venueId: string;
@@ -21,7 +28,10 @@ export class VenuesService {
   ) {}
 
   private async getVenueTables(venueId: string) {
-    return this.prisma.table.findMany({ where: { venueId }, orderBy: { createdAt: 'asc' } });
+    return this.prisma.table.findMany({
+      where: { venueId },
+      orderBy: { createdAt: 'asc' },
+    });
   }
 
   async createTable(venueId: string, data: { name: string; status?: string }) {
@@ -30,7 +40,9 @@ export class VenuesService {
     }
 
     // Optional: ensure venue exists
-    const venue = await this.prisma.venue.findUnique({ where: { id: venueId } });
+    const venue = await this.prisma.venue.findUnique({
+      where: { id: venueId },
+    });
     if (!venue) {
       throw new NotFoundException('Venue not found');
     }
@@ -48,19 +60,31 @@ export class VenuesService {
     try {
       this.matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
     } catch (err) {
-      this.logger.warn(`Failed to emit tablesUpdated event: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.warn(
+        `Failed to emit tablesUpdated event: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
     }
 
     return tables;
   }
 
-  async updateTableInfo(venueId: string, tableId: string, data: { name?: string; status?: string }) {
-    const table = await this.prisma.table.findUnique({ where: { id: tableId } });
+  async updateTableInfo(
+    venueId: string,
+    tableId: string,
+    data: { name?: string; status?: string }
+  ) {
+    const table = await this.prisma.table.findUnique({
+      where: { id: tableId },
+    });
     if (!table) {
       throw new NotFoundException('Table not found');
     }
     if (table.venueId !== venueId) {
-      throw new BadRequestException('Table does not belong to the specified venue');
+      throw new BadRequestException(
+        'Table does not belong to the specified venue'
+      );
     }
 
     const updateData: any = {};
@@ -70,31 +94,45 @@ export class VenuesService {
       throw new BadRequestException('No changes provided');
     }
 
-    await this.prisma.table.update({ where: { id: tableId }, data: updateData });
+    await this.prisma.table.update({
+      where: { id: tableId },
+      data: updateData,
+    });
 
     const tables = await this.getVenueTables(venueId);
 
     try {
       this.matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
     } catch (err) {
-      this.logger.warn(`Failed to emit tablesUpdated event: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.warn(
+        `Failed to emit tablesUpdated event: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
     }
 
     return tables;
   }
 
   async deleteTable(venueId: string, tableId: string) {
-    const table = await this.prisma.table.findUnique({ where: { id: tableId } });
+    const table = await this.prisma.table.findUnique({
+      where: { id: tableId },
+    });
     if (!table) {
       throw new NotFoundException('Table not found');
     }
     if (table.venueId !== venueId) {
-      throw new BadRequestException('Table does not belong to the specified venue');
+      throw new BadRequestException(
+        'Table does not belong to the specified venue'
+      );
     }
 
     await this.prisma.$transaction(async (tx) => {
       // Nullify references in matches first to avoid foreign key constraint issues
-      await tx.match.updateMany({ where: { tableId }, data: { tableId: null } });
+      await tx.match.updateMany({
+        where: { tableId },
+        data: { tableId: null },
+      });
       await tx.table.delete({ where: { id: tableId } });
     });
 
@@ -103,35 +141,52 @@ export class VenuesService {
     try {
       this.matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
     } catch (err) {
-      this.logger.warn(`Failed to emit tablesUpdated event: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.warn(
+        `Failed to emit tablesUpdated event: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
     }
 
     return tables;
   }
 
-  async updateTableStatus({ venueId, tableId, status, matchId }: UpdateTableInput) {
+  async updateTableStatus({
+    venueId,
+    tableId,
+    status,
+    matchId,
+  }: UpdateTableInput) {
     // Validate input
     if (!status || typeof status !== 'string') {
       throw new BadRequestException('status is required');
     }
 
     // Ensure the table exists and belongs to this venue
-    const table = await this.prisma.table.findUnique({ where: { id: tableId } });
+    const table = await this.prisma.table.findUnique({
+      where: { id: tableId },
+    });
     if (!table) {
       throw new NotFoundException('Table not found');
     }
     if (table.venueId !== venueId) {
-      throw new BadRequestException('Table does not belong to the specified venue');
+      throw new BadRequestException(
+        'Table does not belong to the specified venue'
+      );
     }
 
     // Optional: if matchId provided, ensure match exists and belongs to this venue
     if (matchId) {
-      const match = await this.prisma.match.findUnique({ where: { id: matchId } });
+      const match = await this.prisma.match.findUnique({
+        where: { id: matchId },
+      });
       if (!match) {
         throw new NotFoundException('Match not found');
       }
       if (match.venueId !== venueId) {
-        throw new BadRequestException('Match does not belong to the specified venue');
+        throw new BadRequestException(
+          'Match does not belong to the specified venue'
+        );
       }
     }
 
@@ -169,44 +224,69 @@ export class VenuesService {
     try {
       this.matchesGateway.broadcastVenueTableUpdate(venueId, result);
     } catch (err) {
-      this.logger.warn(`Failed to emit tableUpdated event: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.warn(
+        `Failed to emit tableUpdated event: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
     }
 
     return result;
   }
 
-  private haversineDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
+  private haversineDistanceMeters(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) {
     const toRad = (deg: number) => (deg * Math.PI) / 180;
     const R = 6371000; // meters
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
 
-  async checkIn(params: { venueId: string; userId?: string; lat: number; lng: number }) {
+  async checkIn(params: {
+    venueId: string;
+    userId?: string;
+    lat: number;
+    lng: number;
+  }) {
     const { venueId, userId, lat, lng } = params;
 
     if (!userId) {
       throw new BadRequestException('Authenticated user required');
     }
     if (
-      typeof lat !== 'number' || Number.isNaN(lat) ||
-      typeof lng !== 'number' || Number.isNaN(lng)
+      typeof lat !== 'number' ||
+      Number.isNaN(lat) ||
+      typeof lng !== 'number' ||
+      Number.isNaN(lng)
     ) {
       throw new BadRequestException('lat and lng must be valid numbers');
     }
 
-    const venue = await this.prisma.venue.findUnique({ where: { id: venueId } });
+    const venue = await this.prisma.venue.findUnique({
+      where: { id: venueId },
+    });
     if (!venue) {
       throw new NotFoundException('Venue not found');
     }
 
-    const distance = this.haversineDistanceMeters(lat, lng, venue.lat, venue.lng);
+    const distance = this.haversineDistanceMeters(
+      lat,
+      lng,
+      venue.lat,
+      venue.lng
+    );
     const MAX_RADIUS_METERS = 100;
     if (distance > MAX_RADIUS_METERS) {
       throw new ForbiddenException('You are too far away to check in.');
@@ -224,5 +304,104 @@ export class VenuesService {
       message: 'Checked in successfully',
       distanceMeters: Math.round(distance),
     };
+  }
+
+  async getOwnedVenues(userId: string) {
+    return this.prisma.venue.findMany({ where: { ownerId: userId } });
+  }
+
+  async updateVenue(id: string, userId: string, data: any) {
+    const venue = await this.prisma.venue.findUnique({ where: { id } });
+    if (!venue || venue.ownerId !== userId) throw new ForbiddenException();
+    return this.prisma.venue.update({ where: { id }, data });
+  }
+
+  // New: get the single venue owned by the authenticated user
+  async getMyVenue(userId: string) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) {
+      throw new NotFoundException('You do not own a venue');
+    }
+    return venue;
+  }
+
+  // New: update the authenticated user's venue profile
+  async updateMyVenue(userId: string, data: any) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) {
+      throw new NotFoundException('You do not own a venue');
+    }
+    const allowed: any = {};
+    if (typeof data?.description === 'string')
+      allowed.description = data.description;
+    if (data?.photos !== undefined) allowed.photos = data.photos;
+    if (data?.openingHours !== undefined)
+      allowed.openingHours = data.openingHours;
+    if (typeof data?.address === 'string') allowed.address = data.address;
+    if (Object.keys(allowed).length === 0) {
+      throw new BadRequestException('No valid profile fields provided');
+    }
+    return this.prisma.venue.update({ where: { id: venue.id }, data: allowed });
+  }
+
+  // New: list specials for the authenticated user's venue
+  async listMySpecials(userId: string) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) throw new NotFoundException('You do not own a venue');
+    return this.prisma.venueSpecial.findMany({
+      where: { venueId: venue.id },
+      orderBy: { validUntil: 'asc' },
+    });
+  }
+
+  // New: create a special for the authenticated user's venue
+  async createMySpecial(userId: string, data: any) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) throw new NotFoundException('You do not own a venue');
+    const title = data?.title;
+    if (!title || typeof title !== 'string') {
+      throw new BadRequestException('title is required');
+    }
+    let validUntil = data?.validUntil as any;
+    if (!validUntil) {
+      throw new BadRequestException('validUntil is required');
+    }
+    if (typeof validUntil === 'string') {
+      const parsed = new Date(validUntil);
+      if (isNaN(parsed.getTime()))
+        throw new BadRequestException('validUntil must be a valid date');
+      validUntil = parsed;
+    }
+    return this.prisma.venueSpecial.create({
+      data: {
+        venueId: venue.id,
+        title,
+        description:
+          typeof data?.description === 'string' ? data.description : undefined,
+        validUntil: validUntil as Date,
+      },
+    });
+  }
+
+  // New: delete a special ensuring it belongs to the authenticated user's venue
+  async deleteMySpecial(userId: string, specialId: string) {
+    const special = await this.prisma.venueSpecial.findUnique({
+      where: { id: specialId },
+      include: { venue: { select: { id: true, ownerId: true } } },
+    });
+    if (!special) throw new NotFoundException('Special not found');
+    if (special.venue?.ownerId !== userId) throw new ForbiddenException();
+    await this.prisma.venueSpecial.delete({
+      where: { id: specialId },
+    });
+    return { status: 'ok' };
   }
 }

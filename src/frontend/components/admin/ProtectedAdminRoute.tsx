@@ -7,7 +7,9 @@ interface ProtectedAdminRouteProps {
   children: React.ReactNode;
 }
 
-export const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({ children }) => {
+export const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({
+  children,
+}) => {
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -19,7 +21,12 @@ export const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({ childr
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
         <CircularProgress size={80} />
       </Box>
     );

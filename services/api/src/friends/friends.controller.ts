@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Headers, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { FriendsService } from './friends.service';
 
 interface SendRequestDto {
@@ -9,8 +17,12 @@ interface RespondDto {
   action: 'accept' | 'decline';
 }
 
-function getCurrentUserId(headers: Record<string, string | string[] | undefined>): string {
-  const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as string | undefined;
+function getCurrentUserId(
+  headers: Record<string, string | string[] | undefined>
+): string {
+  const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as
+    | string
+    | undefined;
   // In a real setup, this comes from auth middleware/session/JWT
   if (!fromHeader || fromHeader.length === 0) {
     // For development/test we can default a static user id or throw
@@ -25,7 +37,10 @@ export class FriendsController {
   constructor(private readonly friendsService: FriendsService) {}
 
   @Post('requests')
-  async sendRequest(@Headers() headers: Record<string, any>, @Body() body: SendRequestDto) {
+  async sendRequest(
+    @Headers() headers: Record<string, any>,
+    @Body() body: SendRequestDto
+  ) {
     const currentUserId = getCurrentUserId(headers);
     return this.friendsService.sendRequest(currentUserId, body.addresseeId);
   }
@@ -37,7 +52,11 @@ export class FriendsController {
   }
 
   @Patch('requests/:id')
-  async respond(@Headers() headers: Record<string, any>, @Param('id') id: string, @Body() body: RespondDto) {
+  async respond(
+    @Headers() headers: Record<string, any>,
+    @Param('id') id: string,
+    @Body() body: RespondDto
+  ) {
     const currentUserId = getCurrentUserId(headers);
     if (body.action !== 'accept' && body.action !== 'decline') {
       throw new Error('Invalid action, expected "accept" or "decline"');

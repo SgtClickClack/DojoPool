@@ -102,8 +102,8 @@ class AuthService {
       if (
         error &&
         typeof error === 'object' &&
-        'response' in error &&
-        error.response?.status === 401
+        'response' in (error as any) &&
+        (error as any).response?.status === 401
       ) {
         this.logout();
       }
@@ -146,4 +146,5 @@ class AuthService {
   }
 }
 
-export default new AuthService();
+const authService = new AuthService();
+export default authService;

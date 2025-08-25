@@ -53,7 +53,14 @@ const LoginPage: React.FC = () => {
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <Box sx={{ mb: 2 }}>
-              <label htmlFor="email" style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+              <label
+                htmlFor="email"
+                style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontWeight: 500,
+                }}
+              >
                 Email Address
               </label>
               <TextField
@@ -63,6 +70,7 @@ const LoginPage: React.FC = () => {
                 id="email"
                 label="Email Address"
                 name="email"
+                inputProps={{ 'data-testid': 'login-email-input' }}
                 autoComplete="email"
                 autoFocus
                 value={email}
@@ -70,7 +78,14 @@ const LoginPage: React.FC = () => {
               />
             </Box>
             <Box sx={{ mb: 2 }}>
-              <label htmlFor="password" style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+              <label
+                htmlFor="password"
+                style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  fontWeight: 500,
+                }}
+              >
                 Password
               </label>
               <TextField
@@ -81,6 +96,7 @@ const LoginPage: React.FC = () => {
                 label="Password"
                 type="password"
                 id="password"
+                inputProps={{ 'data-testid': 'login-password-input' }}
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

@@ -180,11 +180,9 @@ export class MatchesGateway
       );
 
       // Broadcast fallback commentary as an object payload
-      this.server
-        .to(matchId)
-        .emit('live_commentary', {
-          message: `${playerName || 'The player'} takes a shot in the digital arena!`,
-        });
+      this.server.to(matchId).emit('live_commentary', {
+        message: `${playerName || 'The player'} takes a shot in the digital arena!`,
+      });
     }
   }
 
@@ -207,6 +205,19 @@ export class MatchesGateway
     } catch (err) {
       this.logger.warn(
         `broadcastVenueTableUpdate failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
+    }
+  }
+
+  // Match status broadcast helper (room = matchId)
+  broadcastMatchStatusUpdate(matchId: string, status: string) {
+    try {
+      this.server.to(matchId).emit('match_status_update', { matchId, status });
+    } catch (err) {
+      this.logger.warn(
+        `broadcastMatchStatusUpdate failed: ${
           err instanceof Error ? err.message : String(err)
         }`
       );

@@ -44,19 +44,26 @@ export class AdminService {
   }
 
   async toggleBan(userId: string) {
-    const existing = await this.prisma.user.findUnique({ where: { id: userId } });
+    const existing = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
     if (!existing) throw new NotFoundException('User not found');
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data: { isBanned: !existing.isBanned },
       select: { id: true, username: true, isBanned: true },
     });
-    return { message: updated.isBanned ? 'User banned' : 'User unbanned', user: updated };
+    return {
+      message: updated.isBanned ? 'User banned' : 'User unbanned',
+      user: updated,
+    };
   }
 
   async deleteUser(userId: string) {
     // Consider cascading effects; schema defines many relations with onDelete cascade in some places
-    const existing = await this.prisma.user.findUnique({ where: { id: userId } });
+    const existing = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
     if (!existing) throw new NotFoundException('User not found');
     await this.prisma.user.delete({ where: { id: userId } });
     return { message: 'User deleted' };

@@ -12,6 +12,14 @@ enum Role {
   ADMIN
 }
 
+enum MatchStatus {
+  PENDING
+  IN_PROGRESS
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id            String                 @id @default(uuid())
   email         String                 @unique
@@ -88,6 +96,8 @@ model Venue {
   lat               Float
   lng               Float
   address           String?
+  photos            Json?
+  openingHours      Json?
   ownerId           String?
   owner             User?         @relation(fields: [ownerId], references: [id])
   tables            Table[]
@@ -98,13 +108,27 @@ model Venue {
   challenges        Challenge[]
   matches           Match[]
   gameSessions      GameSession[]
+  specials          VenueSpecial[]
+  shadowRunsTargeted ShadowRun[]  @relation("TargetVenue")
   controllingClanId String?
   controllingClan   Clan?         @relation("ClanControlsVenues", fields: [controllingClanId], references: [id])
   activityEvents    ActivityEvent[] @relation("VenueActivityEvents")
+  incomeModifier    Float         @default(1.0)
+  defenseLevel      Int           @default(1)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
-
   @@index([controllingClanId])
+}
+
+model VenueSpecial {
+  id          String   @id @default(uuid())
+  venueId     String
+  venue       Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  validUntil  DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Table {
@@ -173,7 +197,7 @@ model Match {
   scoreB       Int?
   round        Int
   wager        Int?          @default(0)
-  status       String        @default("PENDING")
+  status       MatchStatus   @default(IN_PROGRESS)
   startedAt    DateTime?
   endedAt      DateTime?
   tableId      String?
@@ -246,6 +270,8 @@ model Clan {
   territories       Territory[]
   venues            Venue[]       @relation("ClanControlsVenues")
   activityEvents    ActivityEvent[] @relation("ClanActivityEvents")
+  dojoCoinBalance   Int           @default(0)
+  shadowRunsInitiated ShadowRun[] @relation("InitiatingClan")
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 }
@@ -490,4 +516,35 @@ model UserInventoryItem {
   @@unique([userId, itemId])
   @@index([userId])
   @@index([itemId])
+}
+
+
+// Shadow Run feature
+
+enum ShadowRunStatus {
+  IN_PROGRESS
+  SUCCESS
+  FAILED
+}
+
+enum ShadowRunType {
+  DATA_HEIST
+  SABOTAGE
+}
+
+model ShadowRun {
+  id               String           @id @default(uuid())
+  initiatingClanId String
+  initiatingClan   Clan             @relation("InitiatingClan", fields: [initiatingClanId], references: [id])
+  targetVenueId    String
+  targetVenue      Venue            @relation("TargetVenue", fields: [targetVenueId], references: [id])
+  type             ShadowRunType
+  status           ShadowRunStatus  @default(IN_PROGRESS)
+  cost             Int              @default(0)
+  outcome          Json?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([initiatingClanId])
+  @@index([targetVenueId])
 }

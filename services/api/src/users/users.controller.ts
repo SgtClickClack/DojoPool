@@ -64,7 +64,10 @@ export class UsersController {
   @Get('me/journal')
   @UseGuards(JwtAuthGuard)
   async getMyJournal(
-    @Req() req: ExpressRequest & { user: { userId?: string; sub?: string; id?: string } },
+    @Req()
+    req: ExpressRequest & {
+      user: { userId?: string; sub?: string; id?: string };
+    },
     @Query(new ValidationPipe({ transform: true, whitelist: true }))
     query: GetJournalQueryDto
   ) {
