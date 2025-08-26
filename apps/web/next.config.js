@@ -6,6 +6,8 @@ const nextConfig = {
   compress: true,
   // Prevent EMFILE errors during build trace collection
   outputFileTracing: false,
+  // Configure pages directory
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   webpack: (config) => {
     config.resolve = config.resolve || {};
     config.resolve.alias = {
