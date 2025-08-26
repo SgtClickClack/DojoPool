@@ -1,8 +1,13 @@
 'use client';
 
 import { Box, Paper, Typography } from '@mui/material';
+import dynamic from 'next/dynamic';
 import React from 'react';
-import WorldHubMap from './WorldHubMap';
+
+const WorldHubMap = dynamic(
+  () => import('./WorldHubMap'),
+  { ssr: false } // This is the crucial part
+);
 
 interface WorldHubMapWrapperProps {
   height?: string | number;

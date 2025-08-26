@@ -1,10 +1,14 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import React from 'react';
 import styles from './WorldHub.module.css';
 
 // Use the wrapper to handle missing environment variables gracefully
-import WorldHubMapWrapper from './WorldHubMapWrapper';
+const WorldHubMapWrapper = dynamic(
+  () => import('./WorldHubMapWrapper'),
+  { ssr: false } // This is the crucial part
+);
 
 const WorldHub: React.FC = () => {
   return (
