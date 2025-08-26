@@ -250,5 +250,9 @@
     "validator": "13.15.15",
     "winston": "3.17.0"
   },
-  "packageManager": "yarn@4.9.3"
+  "packageManager": "yarn@4.9.3",
+  "workspaces": [
+    "apps/*",
+    "services/*"
+  ]
 }
