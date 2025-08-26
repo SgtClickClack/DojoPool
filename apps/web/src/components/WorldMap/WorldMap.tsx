@@ -13,9 +13,14 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import dynamic from 'next/dynamic';
 import React, { useMemo, useState } from 'react';
 import DojoMarker from './DojoMarker';
-import WorldHubMap from './WorldHubMap';
+
+const WorldHubMap = dynamic(
+  () => import('./WorldHubMap'),
+  { ssr: false } // This is the crucial part
+);
 
 interface DojoLocation {
   id: string;

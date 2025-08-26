@@ -1,7 +1,12 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import React from 'react';
-import MapboxWorldHubMap from './MapboxWorldHubMap';
+
+const MapboxWorldHubMap = dynamic(
+  () => import('./MapboxWorldHubMap'),
+  { ssr: false } // This is the crucial part
+);
 
 interface EnhancedWorldHubMapProps {
   height?: string | number;
