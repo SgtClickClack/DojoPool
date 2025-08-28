@@ -2,14 +2,24 @@ import React from 'react';
 import { Tournament } from '../../types/tournament';
 import styles from './TournamentCard.module.css';
 
+interface TournamentSponsorship {
+  venueName: string;
+  venueId: string;
+  benefits: string[];
+  budget: number;
+  duration: number;
+}
+
 interface TournamentCardProps {
   tournament: Tournament;
   onViewDetails: (tournamentId: string) => void;
+  sponsorship?: TournamentSponsorship;
 }
 
 const TournamentCard: React.FC<TournamentCardProps> = ({
   tournament,
   onViewDetails,
+  sponsorship,
 }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -56,7 +66,16 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
   };
 
   return (
-    <div className="tournament-card">
+    <div className={`tournament-card ${sponsorship ? 'sponsored' : ''}`}>
+      {sponsorship && (
+        <div className="sponsorship-banner">
+          <span className="sponsorship-star">⭐</span>
+          <span className="sponsorship-text">
+            Sponsored by {sponsorship.venueName}
+          </span>
+          <span className="sponsorship-budget">${sponsorship.budget}</span>
+        </div>
+      )}
       <div className="tournament-header">
         <h3 className="tournament-name">{tournament.name}</h3>
         <div

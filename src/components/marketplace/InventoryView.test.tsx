@@ -33,7 +33,7 @@ describe('InventoryView', () => {
 
   const renderWithRouter = () =>
     render(
-      <MemoryRouter initialEntries={["/marketplace/inventory"]}>
+      <MemoryRouter initialEntries={['/marketplace/inventory']}>
         <Routes>
           <Route path="/marketplace/inventory" element={<InventoryView />} />
         </Routes>
@@ -50,7 +50,9 @@ describe('InventoryView', () => {
     await waitFor(() => {
       expect(screen.getByText(/your inventory/i)).toBeInTheDocument();
       expect(screen.getByText('Starter Cue')).toBeInTheDocument();
-      expect(screen.getByText(/a basic cue for new players/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/a basic cue for new players/i)
+      ).toBeInTheDocument();
     });
 
     expect(fetchInventorySpy).toHaveBeenCalled();

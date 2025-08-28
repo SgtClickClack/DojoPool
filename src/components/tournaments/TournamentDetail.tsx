@@ -161,12 +161,12 @@ const TournamentDetail: React.FC = () => {
             status === 'completed'
               ? 'success'
               : status === 'in_progress'
-              ? 'processing'
-              : status === 'walkover'
-              ? 'warning'
-              : status === 'cancelled'
-              ? 'error'
-              : 'default'
+                ? 'processing'
+                : status === 'walkover'
+                  ? 'warning'
+                  : status === 'cancelled'
+                    ? 'error'
+                    : 'default'
           }
         >
           {status.toUpperCase()}
@@ -212,12 +212,12 @@ const TournamentDetail: React.FC = () => {
                   (tournament.status as any) === 'completed'
                     ? 'success'
                     : (tournament.status as any) === 'in_progress'
-                    ? 'processing'
-                    : (tournament.status as any) === 'registration'
-                    ? 'warning'
-                    : (tournament.status as any) === 'cancelled'
-                    ? 'error'
-                    : 'default'
+                      ? 'processing'
+                      : (tournament.status as any) === 'registration'
+                        ? 'warning'
+                        : (tournament.status as any) === 'cancelled'
+                          ? 'error'
+                          : 'default'
                 }
               >
                 {(tournament.status as any).toUpperCase?.() ||

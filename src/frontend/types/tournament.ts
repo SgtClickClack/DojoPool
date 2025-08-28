@@ -9,8 +9,17 @@ export interface VenueRef {
   address?: string;
 }
 
-export type TournamentStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled' | 'draft';
-export type TournamentType = 'single_elimination' | 'double_elimination' | 'round_robin' | string;
+export type TournamentStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled'
+  | 'draft';
+export type TournamentType =
+  | 'single_elimination'
+  | 'double_elimination'
+  | 'round_robin'
+  | string;
 
 export interface MatchRef {
   id: string;

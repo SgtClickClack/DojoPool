@@ -19,7 +19,9 @@ describe('MissionHub component', () => {
 
     render(<MissionHub />);
 
-    const activeHeading = await screen.findByRole('heading', { name: /Mission Active/i });
+    const activeHeading = await screen.findByRole('heading', {
+      name: /Mission Active/i,
+    });
     expect(activeHeading).toBeInTheDocument();
 
     const progress = screen.getByTestId('mission-progress');
@@ -39,7 +41,9 @@ describe('MissionHub component', () => {
 
     render(<MissionHub />);
 
-    const completedHeading = await screen.findByRole('heading', { name: /Mission Completed/i });
+    const completedHeading = await screen.findByRole('heading', {
+      name: /Mission Completed/i,
+    });
     expect(completedHeading).toBeInTheDocument();
     expect(screen.getByText(/Congratulations!/)).toBeInTheDocument();
 
@@ -56,7 +60,9 @@ describe('MissionHub component', () => {
 
     render(<MissionHub />);
 
-    const failedHeading = await screen.findByRole('heading', { name: /Mission Failed/i });
+    const failedHeading = await screen.findByRole('heading', {
+      name: /Mission Failed/i,
+    });
     expect(failedHeading).toBeInTheDocument();
     expect(screen.getByText(/Better luck next time/i)).toBeInTheDocument();
   });

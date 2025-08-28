@@ -27,9 +27,8 @@ const TournamentDetails: React.FC<TournamentDetailsProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const tournament = await tournamentService.getTournamentById(
-        tournamentId
-      );
+      const tournament =
+        await tournamentService.getTournamentById(tournamentId);
       if (tournament) {
         setTournament(tournament);
       } else {
@@ -219,8 +218,8 @@ const TournamentDetails: React.FC<TournamentDetailsProps> = ({
               {isFull
                 ? 'Tournament Full'
                 : isRegistrationOpen
-                ? 'Open'
-                : 'Closed'}
+                  ? 'Open'
+                  : 'Closed'}
             </span>
           </div>
         </div>

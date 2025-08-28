@@ -25,7 +25,8 @@ export const VIOLATION_THRESHOLDS = {
 };
 
 // Map/World defaults (used by Map components)
-export const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+export const GOOGLE_MAPS_API_KEY =
+  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
 export const DEFAULT_MAP_OPTIONS: google.maps.MapOptions = {
   disableDefaultUI: true,

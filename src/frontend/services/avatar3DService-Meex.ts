@@ -12,13 +12,14 @@ export type Avatar3DResponse = {
 
 export const avatar3DService = {
   // Mocked generator for development and tests
-  async generateMockAvatar(_request: Avatar3DRequest): Promise<Avatar3DResponse> {
+  async generateMockAvatar(
+    _request: Avatar3DRequest
+  ): Promise<Avatar3DResponse> {
     // Return a placeholder GLB model URL or any accessible asset
     // For now we just return a data URL placeholder to satisfy usage
     return {
       success: true,
-      modelUrl:
-        'https://example.com/mock-avatar.glb',
+      modelUrl: 'https://example.com/mock-avatar.glb',
     };
   },
 };

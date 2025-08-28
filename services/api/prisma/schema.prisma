@@ -109,6 +109,7 @@ model Venue {
   matches           Match[]
   gameSessions      GameSession[]
   specials          VenueSpecial[]
+  quests            VenueQuest[]
   shadowRunsTargeted ShadowRun[]  @relation("TargetVenue")
   controllingClanId String?
   controllingClan   Clan?         @relation("ClanControlsVenues", fields: [controllingClanId], references: [id])
@@ -158,6 +159,8 @@ model Tournament {
   maxPlayers  Int?
   entryFee    Int?
   prizePool   Int?
+  isSponsored Boolean                @default(false)
+  sponsorBannerUrl String?
   activityEvents ActivityEvent[]     @relation("TournamentActivityEvents")
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
@@ -271,6 +274,7 @@ model Clan {
   venues            Venue[]       @relation("ClanControlsVenues")
   activityEvents    ActivityEvent[] @relation("ClanActivityEvents")
   dojoCoinBalance   Int           @default(0)
+  seasonalPoints    Int           @default(0)
   shadowRunsInitiated ShadowRun[] @relation("InitiatingClan")
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
@@ -547,4 +551,31 @@ model ShadowRun {
 
   @@index([initiatingClanId])
   @@index([targetVenueId])
+}
+
+
+model Season {
+  id              String    @id @default(uuid())
+  name            String
+  startDate       DateTime
+  endDate         DateTime?
+  isActive        Boolean   @default(true)
+  finalStandings  Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([isActive])
+}
+
+
+model VenueQuest {
+  id               String   @id @default(uuid())
+  venueId          String
+  venue            Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  rewardDojoCoins  Int
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

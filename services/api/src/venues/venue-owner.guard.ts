@@ -1,4 +1,10 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -24,7 +30,9 @@ export class VenueOwnerGuard implements CanActivate {
         throw new NotFoundException('Special not found');
       }
       if (!special.venue || special.venue.ownerId !== userId) {
-        throw new ForbiddenException('You are not allowed to manage this special');
+        throw new ForbiddenException(
+          'You are not allowed to manage this special'
+        );
       }
       // Attach the venue for downstream usage
       req.myVenue = special.venue;
@@ -32,7 +40,9 @@ export class VenueOwnerGuard implements CanActivate {
     }
 
     // Default: authorize based on owning a venue
-    const venue = await this.prisma.venue.findFirst({ where: { ownerId: userId } });
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
     if (!venue) {
       throw new ForbiddenException('You do not own a venue');
     }

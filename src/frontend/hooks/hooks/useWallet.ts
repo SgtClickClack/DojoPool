@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
-import { getWallet, processPayment, type Wallet, type Transaction } from '../api/wallet';
+import {
+  getWallet,
+  processPayment,
+  type Wallet,
+  type Transaction,
+} from '../api/wallet';
 
 interface PaymentResult {
   success: boolean;

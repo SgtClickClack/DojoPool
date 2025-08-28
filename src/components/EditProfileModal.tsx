@@ -16,7 +16,8 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 // Fallback to any-typed imports to avoid missing type namespace issues
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const ReactCrop: any = require('react-image-crop').default ?? require('react-image-crop');
+const ReactCrop: any =
+  require('react-image-crop').default ?? require('react-image-crop');
 type Crop = any;
 type PixelCrop = any;
 import 'react-image-crop/dist/ReactCrop.css';

@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
@@ -7,12 +11,17 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService, private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService
+  ) {}
 
   async register(data: RegisterDto) {
     const { email, username, password } = data;
     if (!email || !username || !password) {
-      throw new BadRequestException('email, username, and password are required');
+      throw new BadRequestException(
+        'email, username, and password are required'
+      );
     }
     const existing = await this.prisma.user.findFirst({
       where: { OR: [{ email: email.toLowerCase() }, { username }] },
@@ -36,7 +45,9 @@ export class AuthService {
   async login(data: LoginDto) {
     const { usernameOrEmail, password } = data;
     if (!usernameOrEmail || !password) {
-      throw new BadRequestException('usernameOrEmail and password are required');
+      throw new BadRequestException(
+        'usernameOrEmail and password are required'
+      );
     }
     const identifier = usernameOrEmail.toLowerCase();
     const user = await this.prisma.user.findFirst({

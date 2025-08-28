@@ -1,11 +1,12 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import WorldHub from '../components/world/WorldHub';
+import FeedPage from '../dojopool/frontend/pages/feed';
 import ClanTestPage from '../pages/clan-test';
 import ClansPage from '../pages/clans';
 import ClanProfilePage from '../pages/clans/[clanId]';
 import CreateClanPage from '../pages/clans/create';
-import FeedPage from '../dojopool/frontend/pages/feed';
+import SeasonsPage from './pages/seasons';
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
       <Route path="/clans/:clanId" element={<ClanProfilePage />} />
       <Route path="/clan-test" element={<ClanTestPage />} />
       <Route path="/feed" element={<FeedPage />} />
+      <Route path="/seasons" element={<SeasonsPage />} />
       <Route path="*" element={<Navigate to="/clan-test" replace />} />
     </Routes>
   );

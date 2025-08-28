@@ -26,7 +26,9 @@ export const Box: React.FC<MUIBoxProps> = (props) => <MUIBox {...props} />;
 
 // Container (map Chakra's maxW to MUI's maxWidth and allow numeric/sx props like py)
 export const Container: React.FC<
-  PropsWithChildren<MUIContainerProps & { maxW?: string | number; py?: number; px?: number }>
+  PropsWithChildren<
+    MUIContainerProps & { maxW?: string | number; py?: number; px?: number }
+  >
 > = ({ maxW, py, px, sx, ...rest }) => {
   const mapped: Partial<MUIContainerProps> = {};
   // Map common Chakra container sizes to MUI maxWidth values
@@ -40,13 +42,7 @@ export const Container: React.FC<
   if (typeof maxW === 'string') {
     mapped.maxWidth = sizeMap[maxW] ?? 'lg';
   }
-  return (
-    <MUIContainer
-      {...mapped}
-      {...rest}
-      sx={{ py, px, ...(sx as Sx) }}
-    />
-  );
+  return <MUIContainer {...mapped} {...rest} sx={{ py, px, ...(sx as Sx) }} />;
 };
 
 // Heading -> Typography with variant mapping
@@ -95,18 +91,33 @@ export const Text: React.FC<
 );
 
 // VStack / HStack -> Stack
-type AlignItems = 'stretch' | 'center' | 'flex-start' | 'flex-end' | 'baseline' | 'initial' | 'inherit';
+type AlignItems =
+  | 'stretch'
+  | 'center'
+  | 'flex-start'
+  | 'flex-end'
+  | 'baseline'
+  | 'initial'
+  | 'inherit';
 export const VStack: React.FC<
-  PropsWithChildren<{
-    spacing?: number;
-    align?: 'stretch' | 'start' | 'center' | 'end' | 'baseline';
-    [key: string]: any;
-  } & MUIStackProps>
+  PropsWithChildren<
+    {
+      spacing?: number;
+      align?: 'stretch' | 'start' | 'center' | 'end' | 'baseline';
+      [key: string]: any;
+    } & MUIStackProps
+  >
 > = ({ spacing, align = 'stretch', children, ...rest }) => (
   <MUIStack
     direction="column"
     spacing={spacing}
-    alignItems={align === 'start' ? 'flex-start' : align === 'end' ? 'flex-end' : (align as AlignItems)}
+    alignItems={
+      align === 'start'
+        ? 'flex-start'
+        : align === 'end'
+          ? 'flex-end'
+          : (align as AlignItems)
+    }
     {...rest}
   >
     {children}
@@ -114,11 +125,19 @@ export const VStack: React.FC<
 );
 
 export const HStack: React.FC<
-  PropsWithChildren<{
-    spacing?: number;
-    justify?: 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly';
-    [key: string]: any;
-  } & MUIStackProps>
+  PropsWithChildren<
+    {
+      spacing?: number;
+      justify?:
+        | 'start'
+        | 'center'
+        | 'end'
+        | 'space-between'
+        | 'space-around'
+        | 'space-evenly';
+      [key: string]: any;
+    } & MUIStackProps
+  >
 > = ({ spacing, justify, children, ...rest }) => (
   <MUIStack
     direction="row"
@@ -127,8 +146,8 @@ export const HStack: React.FC<
       justify === 'start'
         ? 'flex-start'
         : justify === 'end'
-        ? 'flex-end'
-        : (justify as any)
+          ? 'flex-end'
+          : (justify as any)
     }
     {...rest}
   >
@@ -137,10 +156,15 @@ export const HStack: React.FC<
 );
 
 // Button -> MUI Button (map colorScheme to color)
-export const Button: React.FC<MUIButtonProps & { colorScheme?: MUIButtonProps['color'] }> = ({
-  colorScheme,
-  ...rest
-}) => <MUIButton color={colorScheme as any} variant={rest.variant ?? 'contained'} {...rest} />;
+export const Button: React.FC<
+  MUIButtonProps & { colorScheme?: MUIButtonProps['color'] }
+> = ({ colorScheme, ...rest }) => (
+  <MUIButton
+    color={colorScheme as any}
+    variant={rest.variant ?? 'contained'}
+    {...rest}
+  />
+);
 
 // Alert -> MUI Alert (map status to severity, borderRadius to sx)
 export const Alert: React.FC<
@@ -151,7 +175,11 @@ export const Alert: React.FC<
     }
   >
 > = ({ status = 'info', borderRadius, children, sx, ...rest }) => (
-  <MUIAlert severity={status as any} sx={{ borderRadius, ...(sx as Sx) }} {...rest}>
+  <MUIAlert
+    severity={status as any}
+    sx={{ borderRadius, ...(sx as Sx) }}
+    {...rest}
+  >
     {children}
   </MUIAlert>
 );
@@ -161,7 +189,18 @@ export const AlertIcon: React.FC = () => null;
 
 // Badge -> use Chip to render a label-like badge
 export const Badge: React.FC<
-  PropsWithChildren<{ colorScheme?: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'; mt?: number; sx?: Sx }>
+  PropsWithChildren<{
+    colorScheme?:
+      | 'default'
+      | 'primary'
+      | 'secondary'
+      | 'error'
+      | 'info'
+      | 'success'
+      | 'warning';
+    mt?: number;
+    sx?: Sx;
+  }>
 > = ({ colorScheme = 'default', children, mt, sx }) => {
   const colorMap: Record<string, any> = {
     default: 'default',
@@ -177,54 +216,117 @@ export const Badge: React.FC<
     success: 'success',
     warning: 'warning',
   };
-  return <MUIChip label={children as any} color={colorMap[colorScheme] ?? 'default'} size="small" sx={{ mt, ...(sx as Sx) }} />;
+  return (
+    <MUIChip
+      label={children as any}
+      color={colorMap[colorScheme] ?? 'default'}
+      size="small"
+      sx={{ mt, ...(sx as Sx) }}
+    />
+  );
 };
 
 // Grid / GridItem: provide simple CSS grid wrappers for basic layout use
 export const Grid: React.FC<
-  PropsWithChildren<{ templateColumns?: string; gap?: number | string; [key: string]: any }>
-> = ({ templateColumns = 'repeat(1, 1fr)', gap = 0, children, sx, ...rest }) => (
-  <MUIBox display="grid" gridTemplateColumns={templateColumns} gap={gap} sx={sx as Sx} {...rest}>
+  PropsWithChildren<{
+    templateColumns?: string;
+    gap?: number | string;
+    [key: string]: any;
+  }>
+> = ({
+  templateColumns = 'repeat(1, 1fr)',
+  gap = 0,
+  children,
+  sx,
+  ...rest
+}) => (
+  <MUIBox
+    display="grid"
+    gridTemplateColumns={templateColumns}
+    gap={gap}
+    sx={sx as Sx}
+    {...rest}
+  >
     {children}
   </MUIBox>
 );
 
-export const GridItem: React.FC<PropsWithChildren<{ [key: string]: any }>> = ({ children, ...rest }) => (
-  <MUIBox {...rest}>{children}</MUIBox>
-);
+export const GridItem: React.FC<PropsWithChildren<{ [key: string]: any }>> = ({
+  children,
+  ...rest
+}) => <MUIBox {...rest}>{children}</MUIBox>;
 
 // Tabs placeholders: pass-through containers to maintain structure; state handled externally where used
 export const Tabs: React.FC<
-  PropsWithChildren<{ index?: number; onChange?: (index: number) => void; variant?: string; [key: string]: any }>
+  PropsWithChildren<{
+    index?: number;
+    onChange?: (index: number) => void;
+    variant?: string;
+    [key: string]: any;
+  }>
 > = ({ children }) => <>{children}</>;
 
-export const TabList: React.FC<PropsWithChildren<{}>> = ({ children }) => <>{children}</>;
-export const TabsList: React.FC<PropsWithChildren<{}>> = ({ children }) => <>{children}</>; // alias used in some files
-export const TabsPanels: React.FC<PropsWithChildren<{}>> = ({ children }) => <>{children}</>;
-export const TabPanels: React.FC<PropsWithChildren<{}>> = ({ children }) => <>{children}</>;
-export const TabPanel: React.FC<PropsWithChildren<{}>> = ({ children }) => <>{children}</>;
-export const Tab: React.FC<PropsWithChildren<{}>> = ({ children }) => <>{children}</>;
+export const TabList: React.FC<PropsWithChildren<{}>> = ({ children }) => (
+  <>{children}</>
+);
+export const TabsList: React.FC<PropsWithChildren<{}>> = ({ children }) => (
+  <>{children}</>
+); // alias used in some files
+export const TabsPanels: React.FC<PropsWithChildren<{}>> = ({ children }) => (
+  <>{children}</>
+);
+export const TabPanels: React.FC<PropsWithChildren<{}>> = ({ children }) => (
+  <>{children}</>
+);
+export const TabPanel: React.FC<PropsWithChildren<{}>> = ({ children }) => (
+  <>{children}</>
+);
+export const Tab: React.FC<PropsWithChildren<{}>> = ({ children }) => (
+  <>{children}</>
+);
 
 // Center -> Box with flex centering
-export const Center: React.FC<PropsWithChildren<MUIBoxProps>> = ({ children, sx, ...rest }) => (
-  <MUIBox display="flex" alignItems="center" justifyContent="center" sx={sx as Sx} {...rest}>
+export const Center: React.FC<PropsWithChildren<MUIBoxProps>> = ({
+  children,
+  sx,
+  ...rest
+}) => (
+  <MUIBox
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    sx={sx as Sx}
+    {...rest}
+  >
     {children}
   </MUIBox>
 );
 
 // useToast placeholder: returns a function that logs, shape-compatible with Chakra's usage in this repo
 export const useToast = () => {
-  return (options: { title?: string; description?: string; status?: 'info' | 'warning' | 'success' | 'error'; duration?: number; isClosable?: boolean }) => {
+  return (options: {
+    title?: string;
+    description?: string;
+    status?: 'info' | 'warning' | 'success' | 'error';
+    duration?: number;
+    isClosable?: boolean;
+  }) => {
     if (options?.status === 'error') {
-      console.error(`[toast:${options.status}] ${options.title ?? ''} - ${options.description ?? ''}`);
+      console.error(
+        `[toast:${options.status}] ${options.title ?? ''} - ${options.description ?? ''}`
+      );
     } else {
-      console.log(`[toast:${options?.status ?? 'info'}] ${options?.title ?? ''} - ${options?.description ?? ''}`);
+      console.log(
+        `[toast:${options?.status ?? 'info'}] ${options?.title ?? ''} - ${options?.description ?? ''}`
+      );
     }
   };
 };
 
 // ChakraProvider stub (in case tests or legacy code reference it) - no-op wrapper
-export const ChakraProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => <>{children}</>;
+export const ChakraProvider: React.FC<PropsWithChildren<{}>> = ({
+  children,
+}) => <>{children}</>;
 
 // Utilities occasionally referenced
 export const useColorModeValue = <T,>(light: T, dark: T): T => light; // simple stub

@@ -310,8 +310,8 @@ const PlayerProfilePage: React.FC = () => {
                           challenge.status === 'ACCEPTED'
                             ? 'success'
                             : challenge.status === 'DECLINED'
-                            ? 'error'
-                            : 'warning'
+                              ? 'error'
+                              : 'warning'
                         }
                         size="small"
                       />

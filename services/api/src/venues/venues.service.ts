@@ -404,4 +404,101 @@ export class VenuesService {
     });
     return { status: 'ok' };
   }
+
+  // Sponsorship: set isSponsored=true for a tournament owned by this venue. Payment simulated.
+  async sponsorTournament(
+    userId: string,
+    tournamentId: string,
+    sponsorBannerUrl?: string
+  ) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) throw new NotFoundException('You do not own a venue');
+
+    const tournament = await this.prisma.tournament.findUnique({
+      where: { id: tournamentId },
+    });
+    if (!tournament) throw new NotFoundException('Tournament not found');
+    if (tournament.venueId !== venue.id)
+      throw new ForbiddenException('Tournament does not belong to your venue');
+
+    // Simulate payment processing (future integration point)
+    this.logger.log(
+      `Simulating sponsorship payment for venue ${venue.id} on tournament ${tournamentId}`
+    );
+
+    const updated = await this.prisma.tournament.update({
+      where: { id: tournamentId },
+      data: {
+        isSponsored: true,
+        sponsorBannerUrl:
+          typeof sponsorBannerUrl === 'string' && sponsorBannerUrl.length > 0
+            ? sponsorBannerUrl
+            : undefined,
+      },
+    });
+
+    return {
+      status: 'ok',
+      message: 'Tournament sponsored successfully (payment simulated)',
+      tournament: updated,
+    };
+  }
+
+  // Quests: create a quest for the authenticated venue owner
+  async createMyQuest(userId: string, data: any) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) throw new NotFoundException('You do not own a venue');
+
+    const title = data?.title;
+    const reward = data?.rewardDojoCoins;
+    if (!title || typeof title !== 'string')
+      throw new BadRequestException('title is required');
+    if (typeof reward !== 'number' || !Number.isInteger(reward) || reward < 0) {
+      throw new BadRequestException(
+        'rewardDojoCoins must be a non-negative integer'
+      );
+    }
+
+    const quest = await this.prisma.venueQuest.create({
+      data: {
+        venueId: venue.id,
+        title,
+        description:
+          typeof data?.description === 'string' ? data.description : undefined,
+        rewardDojoCoins: reward,
+        isActive: data?.isActive === false ? false : true,
+      },
+    });
+
+    return quest;
+  }
+
+  // Quests: delete a quest if it belongs to the owner's venue
+  async deleteMyQuest(userId: string, questId: string) {
+    const quest = await this.prisma.venueQuest.findUnique({
+      where: { id: questId },
+      include: { venue: { select: { id: true, ownerId: true } } },
+    });
+    if (!quest) throw new NotFoundException('Quest not found');
+    if (quest.venue?.ownerId !== userId)
+      throw new ForbiddenException('You are not allowed to delete this quest');
+
+    await this.prisma.venueQuest.delete({ where: { id: questId } });
+    return { status: 'ok' };
+  }
+
+  // Public: list active quests for a venue
+  async listActiveQuests(venueId: string) {
+    if (!venueId || typeof venueId !== 'string') {
+      throw new BadRequestException('venueId is required');
+    }
+    return this.prisma.venueQuest.findMany({
+      where: { venueId, isActive: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 }

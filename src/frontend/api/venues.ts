@@ -1,5 +1,5 @@
-import { type Venue, type VenueEvent, LeaderboardEntry } from '../types/venue';
 import axios from 'axios';
+import { type Venue, type VenueEvent } from '../types/venue';
 
 interface GetVenuesParams {
   limit?: number;
@@ -156,5 +156,161 @@ export const getOccupancyStats = async (
   const response = await axios.get(`${BASE_URL}/${venueId}/occupancy`, {
     params: { period },
   });
+  return response.data;
+};
+
+// Sponsorship and Quest Management APIs
+export interface SponsorshipData {
+  tournamentId: string;
+  benefits: string[];
+  duration: number; // in days
+  budget: number;
+  targetAudience?: string;
+  promotionChannels?: string[];
+}
+
+export interface VenueQuest {
+  id: string;
+  venueId: string;
+  title: string;
+  description: string;
+  requirements: {
+    type: 'wins' | 'games' | 'time' | 'streak';
+    value: number;
+    gameType?: string;
+  };
+  rewards: {
+    dojoCoins: number;
+    xp: number;
+    items?: string[];
+  };
+  duration: number; // in days
+  maxParticipants: number;
+  currentParticipants: number;
+  status: 'active' | 'completed' | 'expired';
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface QuestCreationData {
+  title: string;
+  description: string;
+  requirements: VenueQuest['requirements'];
+  rewards: VenueQuest['rewards'];
+  duration: number;
+  maxParticipants: number;
+}
+
+// Sponsorship APIs
+export const sponsorTournament = async (
+  venueId: number,
+  sponsorshipData: SponsorshipData
+): Promise<{ success: boolean; message: string; sponsorshipId: string }> => {
+  const response = await axios.post(
+    `${BASE_URL}/${venueId}/sponsorships`,
+    sponsorshipData
+  );
+  return response.data;
+};
+
+export const getTournamentSponsorships = async (
+  venueId: number
+): Promise<SponsorshipData[]> => {
+  const response = await axios.get(`${BASE_URL}/${venueId}/sponsorships`);
+  return response.data;
+};
+
+export const updateSponsorship = async (
+  venueId: number,
+  sponsorshipId: string,
+  updates: Partial<SponsorshipData>
+): Promise<SponsorshipData> => {
+  const response = await axios.put(
+    `${BASE_URL}/${venueId}/sponsorships/${sponsorshipId}`,
+    updates
+  );
+  return response.data;
+};
+
+export const cancelSponsorship = async (
+  venueId: number,
+  sponsorshipId: string
+): Promise<void> => {
+  await axios.delete(`${BASE_URL}/${venueId}/sponsorships/${sponsorshipId}`);
+};
+
+// Quest Management APIs
+export const createVenueQuest = async (
+  venueId: number,
+  questData: QuestCreationData
+): Promise<VenueQuest> => {
+  const response = await axios.post(`${BASE_URL}/${venueId}/quests`, questData);
+  return response.data;
+};
+
+export const getVenueQuests = async (
+  venueId: number,
+  status?: 'active' | 'completed' | 'expired'
+): Promise<VenueQuest[]> => {
+  const response = await axios.get(`${BASE_URL}/${venueId}/quests`, {
+    params: { status },
+  });
+  return response.data;
+};
+
+export const updateVenueQuest = async (
+  venueId: number,
+  questId: string,
+  updates: Partial<QuestCreationData>
+): Promise<VenueQuest> => {
+  const response = await axios.put(
+    `${BASE_URL}/${venueId}/quests/${questId}`,
+    updates
+  );
+  return response.data;
+};
+
+export const deleteVenueQuest = async (
+  venueId: number,
+  questId: string
+): Promise<void> => {
+  await axios.delete(`${BASE_URL}/${venueId}/quests/${questId}`);
+};
+
+export const getQuestParticipants = async (
+  venueId: number,
+  questId: string
+): Promise<any[]> => {
+  const response = await axios.get(
+    `${BASE_URL}/${venueId}/quests/${questId}/participants`
+  );
+  return response.data;
+};
+
+// Public APIs for users
+export const getSponsoredTournaments = async (): Promise<any[]> => {
+  const response = await axios.get(`${BASE_URL}/sponsored-tournaments`);
+  return response.data;
+};
+
+export const joinVenueQuest = async (
+  venueId: number,
+  questId: string
+): Promise<void> => {
+  await axios.post(`${BASE_URL}/${venueId}/quests/${questId}/join`);
+};
+
+export const getUserQuestProgress = async (
+  venueId: number,
+  questId: string
+): Promise<{
+  completed: boolean;
+  progress: number;
+  requirements: VenueQuest['requirements'];
+  rewards: VenueQuest['rewards'];
+}> => {
+  const response = await axios.get(
+    `${BASE_URL}/${venueId}/quests/${questId}/progress`
+  );
   return response.data;
 };

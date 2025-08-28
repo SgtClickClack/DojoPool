@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -13,10 +17,15 @@ export class MarketplaceService {
 
   async buyItem(userId: string, itemId: string) {
     return this.prisma.$transaction(async (tx) => {
-      const item = await tx.marketplaceItem.findUnique({ where: { id: itemId } });
+      const item = await tx.marketplaceItem.findUnique({
+        where: { id: itemId },
+      });
       if (!item) throw new NotFoundException('Item not found');
 
-      const user = await tx.user.findUnique({ where: { id: userId }, select: { dojoCoinBalance: true } });
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+        select: { dojoCoinBalance: true },
+      });
       if (!user) throw new NotFoundException('User not found');
 
       if (user.dojoCoinBalance < item.price) {

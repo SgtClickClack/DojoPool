@@ -27,7 +27,9 @@ export const walletConnectionService = {
     return null;
   },
   getDojoCoinBalance: async (address?: string): Promise<string> => {
-    console.log('Dojo coin balance retrieval temporarily disabled', { address });
+    console.log('Dojo coin balance retrieval temporarily disabled', {
+      address,
+    });
     return '0';
   },
   transferDojoCoin: async (to: string, amount: string): Promise<any> => {
@@ -42,5 +44,5 @@ export const walletConnectionService = {
   },
   switchToPolygon: async (): Promise<void> => {
     console.log('Switch to Polygon temporarily disabled');
-  }
+  },
 };

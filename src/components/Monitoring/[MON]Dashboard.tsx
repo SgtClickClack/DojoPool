@@ -1588,8 +1588,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                                   status === 'critical'
                                     ? 'error'
                                     : status === 'warning'
-                                    ? 'warning'
-                                    : 'default'
+                                      ? 'warning'
+                                      : 'default'
                                 }
                               />
                             </TableCell>
@@ -1982,8 +1982,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                           Math.abs(correlationData.coefficient) > 0.7
                             ? 'error'
                             : Math.abs(correlationData.coefficient) > 0.3
-                            ? 'warning'
-                            : 'text.primary'
+                              ? 'warning'
+                              : 'text.primary'
                         }
                       >
                         {correlationData.coefficient.toFixed(3)}
@@ -2001,8 +2001,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                       {Math.abs(correlationData.coefficient) > 0.7
                         ? 'Strong correlation detected'
                         : Math.abs(correlationData.coefficient) > 0.3
-                        ? 'Moderate correlation detected'
-                        : 'Weak or no correlation detected'}
+                          ? 'Moderate correlation detected'
+                          : 'Weak or no correlation detected'}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -2822,8 +2822,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ gameId }) => {
                                     Math.abs(corr.correlation) > 0.7
                                       ? 'error.main'
                                       : Math.abs(corr.correlation) > 0.5
-                                      ? 'warning.main'
-                                      : 'text.primary',
+                                        ? 'warning.main'
+                                        : 'text.primary',
                                 }}
                               >
                                 {(corr.correlation * 100).toFixed(1)}%

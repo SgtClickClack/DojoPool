@@ -3,7 +3,14 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import io, { Socket } from 'socket.io-client';
-import { Box, Container, Paper, Typography, CircularProgress, Divider } from '@mui/material';
+import {
+  Box,
+  Container,
+  Paper,
+  Typography,
+  CircularProgress,
+  Divider,
+} from '@mui/material';
 import ChatBox from '../../components/live/ChatBox';
 
 interface PlayerInfo {
@@ -11,8 +18,16 @@ interface PlayerInfo {
   name: string;
   avatarUrl?: string;
 }
-interface MatchScore { player1: number; player2: number }
-interface TournamentInfo { id: string; name: string; round?: number; stage?: string }
+interface MatchScore {
+  player1: number;
+  player2: number;
+}
+interface TournamentInfo {
+  id: string;
+  name: string;
+  round?: number;
+  stage?: string;
+}
 interface MatchDetail {
   id: string;
   status: 'PENDING' | 'LIVE' | 'COMPLETED';
@@ -106,19 +121,37 @@ export default function LiveMatchPage() {
         ) : error ? (
           <Typography color="error">{error}</Typography>
         ) : match ? (
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 3 }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' },
+              gap: 3,
+            }}
+          >
             <Paper sx={{ p: 3 }}>
               <Typography variant="h5" gutterBottom>
                 {match.tournament.name} — {match.tournament.stage || 'Match'}
               </Typography>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                gutterBottom
+              >
                 Match ID: {match.id} • Status: {match.status}
               </Typography>
               <Divider sx={{ my: 2 }} />
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Box sx={{ flex: 1, pr: 2 }}>
                   <Typography variant="h6">
-                    <Link href={`/players/${encodeURIComponent(match.players.player1.id || match.players.player1.name)}`}>
+                    <Link
+                      href={`/players/${encodeURIComponent(match.players.player1.id || match.players.player1.name)}`}
+                    >
                       {match.players.player1.name}
                     </Link>
                   </Typography>
@@ -128,10 +161,18 @@ export default function LiveMatchPage() {
                 </Box>
               </Box>
               <Divider sx={{ my: 2 }} />
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Box sx={{ flex: 1, pr: 2 }}>
                   <Typography variant="h6">
-                    <Link href={`/players/${encodeURIComponent(match.players.player2.id || match.players.player2.name)}`}>
+                    <Link
+                      href={`/players/${encodeURIComponent(match.players.player2.id || match.players.player2.name)}`}
+                    >
                       {match.players.player2.name}
                     </Link>
                   </Typography>
@@ -146,7 +187,9 @@ export default function LiveMatchPage() {
               {id && socket ? (
                 <ChatBox socket={socket} matchId={id} />
               ) : (
-                <Typography color="text.secondary">Connecting chat...</Typography>
+                <Typography color="text.secondary">
+                  Connecting chat...
+                </Typography>
               )}
             </Paper>
           </Box>

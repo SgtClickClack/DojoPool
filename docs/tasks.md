@@ -9,7 +9,7 @@ Note: Each actionable item begins with a check placeholder. Tackle in order for 
    - [x] Expand env:check to validate missing/invalid values with friendly hints for common dev/prod setups
 
 2. [ ] Repository hygiene and consolidation
-   - [ ] Inventory and de-duplicate legacy directories (DojoPool*, Dojo_Pool*, "Dojo Pool*", combined/, pages-backup/)
+   - [ ] Inventory and de-duplicate legacy directories (DojoPool*, Dojo_Pool*, "Dojo Pool\*", combined/, pages-backup/)
    - [x] Use scripts\report-duplicates.mjs to produce a report and plan moves/deletions
    - [ ] Migrate any living code from legacy dirs into apps/web or services/api, then remove stale copies
    - [x] Ensure .gitignore covers generated/, lcov-report/, coverage/, .next/, dist/
@@ -17,12 +17,12 @@ Note: Each actionable item begins with a check placeholder. Tackle in order for 
 3. [ ] Align build systems (Vite dev, Next prod)
    - [ ] Confirm Vite dev proxy aligns with Next rewrites (API_BASE_URL) for consistent API paths
    - [ ] Document dev vs prod URL matrix and ports (3000, 3001, 3002, 5000, 8080)
-   - [ ] Validate investor-portal assets routing (/investor-portal, /invest/*) and add automated test to protect rewrites
+   - [ ] Validate investor-portal assets routing (/investor-portal, /invest/\*) and add automated test to protect rewrites
 
 4. [ ] Tighten TypeScript boundaries and CI behavior
    - [ ] Re-enable type checking in CI: keep next.config.js ignore in local builds but fail CI on type errors (npm run type-check)
    - [ ] Reduce over-broad tsconfig.json excludes; include critical src paths and ensure tests compile under Vitest configs
-   - [ ] Ensure path alias parity across tsconfig, Vitest, Next/Vite (currently @ -> /src in vitest; tsconfig maps @/* to multiple roots)
+   - [ ] Ensure path alias parity across tsconfig, Vitest, Next/Vite (currently @ -> /src in vitest; tsconfig maps @/\* to multiple roots)
    - [ ] Add project references if splitting backend/frontend tsconfigs for faster, isolated builds
 
 5. [ ] Linting/formatting consistency
@@ -160,7 +160,7 @@ Note: Each actionable item begins with a check placeholder. Tackle in order for 
     - [ ] Set test flakiness watchlist and auto-open tasks when retries exceed limits
 
 31. [ ] Cleanup dead code and scripts
-    - [ ] Remove superseded scripts (multiple git_* variants) keeping one canonical toolchain
+    - [ ] Remove superseded scripts (multiple git\_\* variants) keeping one canonical toolchain
     - [ ] Delete duplicate [PKG]/[LINT]/[DOC] files after consolidating their content
 
 32. [ ] Windows developer experience

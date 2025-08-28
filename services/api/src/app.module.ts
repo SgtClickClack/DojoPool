@@ -17,6 +17,8 @@ import { TasksService } from './tasks/tasks.service';
 import { UsersModule } from './users/users.module';
 import { VenuesModule } from './venues/venues.module';
 import { WorldMapModule } from './world-map/world-map.module';
+import { SeasonsModule } from './seasons/seasons.module';
+import { ArAnalysisModule } from './ar-analysis/ar-analysis.module';
 
 @Module({
   imports: [
@@ -38,7 +40,9 @@ import { WorldMapModule } from './world-map/world-map.module';
     AdminModule,
     NotificationsModule,
     DashboardModule,
+    SeasonsModule,
     VenuesModule,
+    ArAnalysisModule,
     // Temporarily commented out for testing
     // TournamentsModule,
     // TerritoriesModule,

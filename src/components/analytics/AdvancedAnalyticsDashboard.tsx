@@ -8,8 +8,8 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
         Advanced Analytics Dashboard
       </Typography>
       <Typography variant="body1" color="text.secondary">
-        Comprehensive analytics and insights for the DojoPool platform.
-        This component is under development.
+        Comprehensive analytics and insights for the DojoPool platform. This
+        component is under development.
       </Typography>
     </Paper>
   );

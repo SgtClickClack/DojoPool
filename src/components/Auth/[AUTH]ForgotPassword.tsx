@@ -76,9 +76,7 @@ export const ForgotPassword: React.FC = () => {
           </Box>
         )}
         <Box sx={{ mt: 2, textAlign: 'center' }}>
-          <Link href="/login">
-            Back to Sign In
-          </Link>
+          <Link href="/login">Back to Sign In</Link>
         </Box>
       </Paper>
     </Box>
