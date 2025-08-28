@@ -120,7 +120,9 @@ describe('MarketplaceLayout', () => {
     renderWithRouter(['/marketplace']);
 
     // Search input visible
-    expect(await screen.findByPlaceholderText(/search items/i)).toBeInTheDocument();
+    expect(
+      await screen.findByPlaceholderText(/search items/i)
+    ).toBeInTheDocument();
 
     // Category and Sort select visible
     expect(screen.getByLabelText(/category/i)).toBeInTheDocument();

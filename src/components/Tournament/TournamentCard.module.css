@@ -17,3 +17,39 @@
 .statusIndicator[data-status='completed'] {
   background-color: #95a5a6;
 }
+
+/* Sponsorship Styles */
+.sponsorship-banner {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #2c3e50;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 0.9rem;
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sponsorship-star {
+  font-size: 1.2rem;
+  margin-right: 4px;
+}
+
+.sponsorship-text {
+  flex: 1;
+  text-align: center;
+}
+
+.sponsorship-budget {
+  font-weight: bold;
+  color: #e74c3c;
+  margin-left: 8px;
+}
+
+/* Sponsored card styling */
+.sponsored .tournament-card {
+  border: 2px solid #ffd700;
+  box-shadow: 0 4px 8px rgba(255, 215, 0, 0.2);
+}

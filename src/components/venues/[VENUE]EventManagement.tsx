@@ -144,8 +144,8 @@ const EventManagement: React.FC<EventManagementProps> = ({
             type === 'tournament'
               ? 'blue'
               : type === 'social'
-              ? 'green'
-              : 'default'
+                ? 'green'
+                : 'default'
           }
         >
           {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -203,10 +203,10 @@ const EventManagement: React.FC<EventManagementProps> = ({
               status === 'upcoming'
                 ? 'blue'
                 : status === 'in_progress'
-                ? 'green'
-                : status === 'completed'
-                ? 'default'
-                : 'red'
+                  ? 'green'
+                  : status === 'completed'
+                    ? 'default'
+                    : 'red'
             }
           >
             {status.replace('_', ' ').toUpperCase()}

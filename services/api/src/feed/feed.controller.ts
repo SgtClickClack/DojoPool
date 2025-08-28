@@ -2,7 +2,9 @@ import { Controller, Get, Headers, Query } from '@nestjs/common';
 import { FeedService } from './feed.service';
 
 function getCurrentUserId(headers: Record<string, any>): string | undefined {
-  const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as string | undefined;
+  const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as
+    | string
+    | undefined;
   return fromHeader && fromHeader.length > 0 ? fromHeader : undefined;
 }
 

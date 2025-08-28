@@ -30,7 +30,8 @@ const MissionHub: FC<MissionHubProps> = ({ mission, loader }) => {
         const result = await (loader ? loader() : getCurrentMission());
         if (isMounted) setState(result);
       } catch (e) {
-        if (isMounted) setError(e instanceof Error ? e.message : 'Failed to load mission');
+        if (isMounted)
+          setError(e instanceof Error ? e.message : 'Failed to load mission');
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -55,7 +56,13 @@ const MissionHub: FC<MissionHubProps> = ({ mission, loader }) => {
           aria-valuemin={0}
           aria-valuemax={100}
           data-testid="mission-progress"
-          style={{ width: 200, height: 12, background: '#eee', position: 'relative', borderRadius: 6 }}
+          style={{
+            width: 200,
+            height: 12,
+            background: '#eee',
+            position: 'relative',
+            borderRadius: 6,
+          }}
         >
           <div
             style={{

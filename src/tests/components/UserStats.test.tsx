@@ -16,16 +16,20 @@ vi.mock('@/services/userStats', () => ({
 }));
 
 describe('UserStats component', () => {
-  it('fetches and displays the user\'s name, total rings, and ring visuals', async () => {
+  it("fetches and displays the user's name, total rings, and ring visuals", async () => {
     render(<UserStats />);
 
     // Name
-    const name = await screen.findByRole('heading', { name: 'Alex The Breaker' });
+    const name = await screen.findByRole('heading', {
+      name: 'Alex The Breaker',
+    });
     expect(name).toBeInTheDocument();
 
     // Total rings
     expect(screen.getByText(/Total Rings:/)).toBeInTheDocument();
-    expect(screen.getByText((content) => content.includes('3'))).toBeInTheDocument();
+    expect(
+      screen.getByText((content) => content.includes('3'))
+    ).toBeInTheDocument();
 
     // Ring visuals
     const ringContainer = screen.getByLabelText('Cue Rings');

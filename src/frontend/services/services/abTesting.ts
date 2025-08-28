@@ -4,7 +4,17 @@ export const abTestingService = {
     console.log('A/B testing temporarily disabled', { testId, userId });
     return null;
   },
-  trackMetric: (testId: string, userId: string, metricName: string, value: number) => {
-    console.log('A/B testing metric tracking temporarily disabled', { testId, userId, metricName, value });
-  }
+  trackMetric: (
+    testId: string,
+    userId: string,
+    metricName: string,
+    value: number
+  ) => {
+    console.log('A/B testing metric tracking temporarily disabled', {
+      testId,
+      userId,
+      metricName,
+      value,
+    });
+  },
 };

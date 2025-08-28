@@ -12,7 +12,8 @@ vi.mock('../../../apps/web/src/hooks/useMapData', () => {
           id: 'dojo-1',
           name: 'The Jade Tiger',
           controllingClan: 'Crimson Monkey',
-          clanLogoUrl: 'https://via.placeholder.com/60x60/ff6b6b/ffffff?text=CM',
+          clanLogoUrl:
+            'https://via.placeholder.com/60x60/ff6b6b/ffffff?text=CM',
           coordinates: [153.0251, -27.4698],
           address: '123 Pool Street, Brisbane',
           level: 5,
@@ -60,27 +61,40 @@ describe('DojoInterior Challenge Player flow', () => {
     render(<DojoInterior dojoId="dojo-1" onExit={() => {}} />);
 
     // Check in current user
-    const checkInButton = await screen.findByRole('button', { name: /check in/i });
+    const checkInButton = await screen.findByRole('button', {
+      name: /check in/i,
+    });
     fireEvent.click(checkInButton);
 
     // Open Challenge modal
-    const challengeBtn = await screen.findByRole('button', { name: /challenge player/i });
+    const challengeBtn = await screen.findByRole('button', {
+      name: /challenge player/i,
+    });
     fireEvent.click(challengeBtn);
 
     // Select the opponent by name
-    const opponentButton = await screen.findByRole('button', { name: /shadowstriker/i });
+    const opponentButton = await screen.findByRole('button', {
+      name: /shadowstriker/i,
+    });
     fireEvent.click(opponentButton);
 
     // Send the challenge
-    const sendBtn = await screen.findByRole('button', { name: /send challenge/i });
+    const sendBtn = await screen.findByRole('button', {
+      name: /send challenge/i,
+    });
     fireEvent.click(sendBtn);
 
     // Success message appears
-    expect(await screen.findByText(/challenge sent to shadowstriker/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/challenge sent to shadowstriker/i)
+    ).toBeInTheDocument();
 
     // And the challenge is persisted
     const challenges = ChallengeService.getActiveChallenges('dojo-1');
     expect(challenges.length).toBe(1);
-    expect(challenges[0]).toMatchObject({ defenderId: 'user-2', challengerId: 'user-1' });
+    expect(challenges[0]).toMatchObject({
+      defenderId: 'user-2',
+      challengerId: 'user-1',
+    });
   });
 });

@@ -12,7 +12,8 @@ vi.mock('../../../apps/web/src/hooks/useMapData', () => {
           id: 'dojo-1',
           name: 'The Jade Tiger',
           controllingClan: 'Crimson Monkey',
-          clanLogoUrl: 'https://via.placeholder.com/60x60/ff6b6b/ffffff?text=CM',
+          clanLogoUrl:
+            'https://via.placeholder.com/60x60/ff6b6b/ffffff?text=CM',
           coordinates: [153.0251, -27.4698],
           address: '123 Pool Street, Brisbane',
           level: 5,
@@ -38,7 +39,9 @@ describe('DojoInterior Check In Button', () => {
     render(<DojoInterior dojoId="dojo-1" onExit={() => {}} />);
 
     // The Check In button should be visible initially
-    const checkInButton = await screen.findByRole('button', { name: /check in/i });
+    const checkInButton = await screen.findByRole('button', {
+      name: /check in/i,
+    });
     expect(checkInButton).toBeInTheDocument();
 
     // Click the Check In button
@@ -52,6 +55,8 @@ describe('DojoInterior Check In Button', () => {
 
     // UI should reflect checked in state
     expect(await screen.findByText(/checked in/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /check out/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /check out/i })
+    ).toBeInTheDocument();
   });
 });

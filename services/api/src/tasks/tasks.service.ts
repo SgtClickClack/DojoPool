@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 
-
 @Injectable()
 export class TasksService {
   private readonly logger = new Logger(TasksService.name);
@@ -15,14 +14,14 @@ export class TasksService {
 
     const result = await this.prisma.challenge.updateMany({
       where: {
-        status: "PENDING",
+        status: 'PENDING',
         expiresAt: {
           not: null,
           lt: now,
         },
       },
       data: {
-        status: "EXPIRED",
+        status: 'EXPIRED',
       },
     });
 
@@ -34,7 +33,10 @@ export class TasksService {
   // Passive Dojo income accrual (hourly)
   @Cron(CronExpression.EVERY_HOUR)
   async accrueDojoIncome() {
-    const baseIncome = Number.parseInt(process.env.DOJO_BASE_INCOME || '10', 10);
+    const baseIncome = Number.parseInt(
+      process.env.DOJO_BASE_INCOME || '10',
+      10
+    );
     try {
       const venues = await this.prisma.venue.findMany({
         where: { controllingClanId: { not: null } },
@@ -46,9 +48,15 @@ export class TasksService {
       const totals = new Map<string, number>();
       for (const v of venues) {
         if (!v.controllingClanId) continue;
-        const amount = Math.max(0, Math.floor(baseIncome * (v.incomeModifier ?? 1)));
+        const amount = Math.max(
+          0,
+          Math.floor(baseIncome * (v.incomeModifier ?? 1))
+        );
         if (amount <= 0) continue;
-        totals.set(v.controllingClanId, (totals.get(v.controllingClanId) || 0) + amount);
+        totals.set(
+          v.controllingClanId,
+          (totals.get(v.controllingClanId) || 0) + amount
+        );
       }
 
       if (totals.size === 0) return;
@@ -65,7 +73,9 @@ export class TasksService {
         `Accrued Dojo income for ${totals.size} clan(s); total venues: ${venues.length}`
       );
     } catch (err) {
-      this.logger.warn(`accrueDojoIncome failed: ${err instanceof Error ? err.message : String(err)}`);
+      this.logger.warn(
+        `accrueDojoIncome failed: ${err instanceof Error ? err.message : String(err)}`
+      );
     }
   }
 }

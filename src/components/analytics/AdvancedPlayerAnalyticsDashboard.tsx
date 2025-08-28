@@ -8,8 +8,8 @@ export const AdvancedPlayerAnalyticsDashboard: React.FC = () => {
         Advanced Player Analytics Dashboard
       </Typography>
       <Typography variant="body1" color="text.secondary">
-        Comprehensive player performance analytics and insights.
-        This component is under development.
+        Comprehensive player performance analytics and insights. This component
+        is under development.
       </Typography>
     </Paper>
   );

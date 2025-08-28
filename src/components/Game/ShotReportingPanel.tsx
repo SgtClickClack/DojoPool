@@ -66,10 +66,10 @@ const ShotButton = styled(Button)(({ theme, color }) => ({
     color === 'success'
       ? 'linear-gradient(135deg, #4caf50, #45a049)'
       : color === 'warning'
-      ? 'linear-gradient(135deg, #ff9800, #f57c00)'
-      : color === 'error'
-      ? 'linear-gradient(135deg, #f44336, #d32f2f)'
-      : 'linear-gradient(135deg, #2196f3, #1976d2)',
+        ? 'linear-gradient(135deg, #ff9800, #f57c00)'
+        : color === 'error'
+          ? 'linear-gradient(135deg, #f44336, #d32f2f)'
+          : 'linear-gradient(135deg, #2196f3, #1976d2)',
   border: '2px solid rgba(255, 255, 255, 0.2)',
   borderRadius: '8px',
   color: 'white',

@@ -32,7 +32,10 @@ const UserStats: FC<UserStatsProps> = ({ data, loader }) => {
         const result = await (loader ? loader() : getUserStatsWithRings());
         if (isMounted) setState(result);
       } catch (e) {
-        if (isMounted) setError(e instanceof Error ? e.message : 'Failed to load user stats');
+        if (isMounted)
+          setError(
+            e instanceof Error ? e.message : 'Failed to load user stats'
+          );
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -53,7 +56,10 @@ const UserStats: FC<UserStatsProps> = ({ data, loader }) => {
       <p>
         Total Rings: <strong>{state.rings.length}</strong>
       </p>
-      <div aria-label="Cue Rings" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <div
+        aria-label="Cue Rings"
+        style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}
+      >
         {state.rings.map((ring) => (
           <div
             key={ring.id}

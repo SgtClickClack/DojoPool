@@ -90,8 +90,8 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
               {userBalance < item.price
                 ? 'Insufficient Coins'
                 : item.stock === 0
-                ? 'Out of Stock'
-                : 'Buy Now'}
+                  ? 'Out of Stock'
+                  : 'Buy Now'}
             </button>
           </div>
         </div>

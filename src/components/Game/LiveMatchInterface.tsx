@@ -83,8 +83,8 @@ const LiveMatchInterface: React.FC<LiveMatchInterfaceProps> = ({
             {matchStatus === 'active'
               ? 'Match Active'
               : matchStatus === 'paused'
-              ? 'Match Paused'
-              : 'Match Finished'}
+                ? 'Match Paused'
+                : 'Match Finished'}
           </Alert>
 
           {isPlayerTurn && (

@@ -6,18 +6,34 @@
 
 ## ✨ Features
 
+### 🎮 Core Gaming Features
 - **World Hub Map**: Interactive map of players, Dojos (venues), and territories.
 - **Territory Control**: Claim, defend, and level up Dojos; NFT-backed ownership.
-- **Venue Management Portal**: Owner dashboards for profile, specials, tournaments, rewards, NFTs.
 - **Live Tournaments**: Brackets, live match reporting, prize pools, cross-chain support.
+- **Seasons System**: Competitive seasons with leaderboards, rewards, and progression tracking.
 - **Clans**: Create/join clans, clan wars, bonuses, and territory influence.
-- **Marketplace**: Trade NFTs, avatar items, and Dojo ownership with filters and pricing.
-- **Player Profiles**: Stats, history, avatar evolution, achievements, ranking.
-- **Direct Messaging**: Friends, DMs, notifications, and social feed integration.
+
+### 🤖 AI & Analysis
+- **AR Coach**: AI-powered table analysis with ball detection and coaching insights.
 - **AI Analysis & Commentary**: Sky-T1 referee decisions, Diception tracking, Pool God commentary.
 - **Content Generation**: Highlights, tutorials, promos via Wan 2.1 and AudioCraft.
+- **Real-time Match Tracking**: Computer vision for ball position and shot analysis.
+
+### 💼 Venue Management
+- **Venue Management Portal**: Owner dashboards for profile, specials, tournaments, rewards, NFTs.
+- **Tournament Sponsorship**: Venue owners can sponsor tournaments with custom benefits and budgets.
+- **Quest Management**: Create and manage venue-specific quests with rewards and progression.
+- **Analytics Dashboard**: Revenue tracking, player analytics, and venue performance metrics.
+
+### 👥 Social & Community
+- **Player Profiles**: Stats, history, avatar evolution, achievements, ranking.
+- **Direct Messaging**: Friends, DMs, notifications, and social feed integration.
+- **Marketplace**: Trade NFTs, avatar items, and Dojo ownership with filters and pricing.
+
+### 🔐 Security & Infrastructure
 - **Authentication**: JWT-based auth with CSRF header and secure CORS.
 - **Blockchain Integration**: Dojo Coin (ERC-20), multi-chain wallets, NFT trophies.
+- **Real-time Communication**: WebSocket support for live matches and chat.
 
 ---
 
@@ -280,9 +296,19 @@ For technical support or questions:
 ## 🗺️ Roadmap
 
 - **Phase 1**: Core platform and basic features ✅
-- **Phase 2**: AI integration and advanced gameplay 🚧
+- **Phase 2**: AI integration, AR Coach, and Venue Sponsorship Portal ✅
 - **Phase 3**: Global scaling and franchise system 📋
 - **Phase 4**: Advanced AI and blockchain features 📋
+
+### 🎯 Recent Releases
+
+#### v3.0.0 - Feature Complete Release ✨
+- **AR Coach System**: AI-powered table analysis and ball detection
+- **Venue Sponsorship Portal**: Tournament sponsorship and quest management
+- **Seasons System**: Competitive seasons with leaderboards and rewards
+- **Enhanced Tournament System**: Live brackets and cross-chain support
+- **Security Updates**: Dependency security audit and fixes
+- **Code Quality**: Consistent formatting and documentation updates
 
 ---
 

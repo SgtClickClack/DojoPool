@@ -8,8 +8,8 @@ const AdvancedAIRefereeRuleEnforcementDashboard: React.FC = () => {
         AI Referee & Rule Enforcement Dashboard
       </Typography>
       <Typography variant="body1" color="text.secondary">
-        Advanced AI-powered referee system with rule interpretation and enforcement.
-        This component is under development.
+        Advanced AI-powered referee system with rule interpretation and
+        enforcement. This component is under development.
       </Typography>
     </Paper>
   );

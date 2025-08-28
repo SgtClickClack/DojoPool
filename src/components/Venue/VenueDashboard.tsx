@@ -172,8 +172,8 @@ const VenueDashboard: React.FC = () => {
                       table.status === 'available'
                         ? 'success'
                         : table.status === 'occupied'
-                        ? 'warning'
-                        : 'info'
+                          ? 'warning'
+                          : 'info'
                     }
                     size="small"
                   />

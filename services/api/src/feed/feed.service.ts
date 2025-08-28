@@ -21,7 +21,8 @@ export class FeedService {
     const where: any = {};
 
     if (query.filter === 'friends') {
-      if (!query.userId) throw new Error('userId is required for friends filter');
+      if (!query.userId)
+        throw new Error('userId is required for friends filter');
       // find accepted friendships involving current user
       const accepted = await this.prisma.friendship.findMany({
         where: {
@@ -30,7 +31,9 @@ export class FeedService {
         },
         select: { requesterId: true, addresseeId: true },
       });
-      const friendIds = accepted.map((f) => (f.requesterId === query.userId ? f.addresseeId : f.requesterId));
+      const friendIds = accepted.map((f) =>
+        f.requesterId === query.userId ? f.addresseeId : f.requesterId
+      );
       if (friendIds.length === 0) {
         return { page, pageSize, items: [] };
       }
