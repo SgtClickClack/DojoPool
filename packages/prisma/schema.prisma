@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -211,9 +211,9 @@ model Territory {
   level        Int             @default(1)
   defenseScore Int             @default(0)
   // Strategic Map extensions
-  resources    Json            @default("{}") // e.g., { "gold": 100, "wood": 50, "iron": 20 }
+  resources    Json            // e.g., { "gold": 100, "wood": 50, "iron": 20 }
   strategicValue Int           @default(0)     // composite score for targeting AI/players
-  resourceRate Json            @default("{}") // e.g., per-hour generation rates per resource
+  resourceRate Json            // e.g., per-hour generation rates per resource
   lastTickAt   DateTime?                      // last time periodic resource tick applied
   events       TerritoryEvent[]
   createdAt    DateTime        @default(now())
@@ -540,28 +540,28 @@ model GameSession {
   venue           Venue?    @relation(fields: [venueId], references: [id])
   status          String    @default("ACTIVE")
   gameType        String?
-  rules           Json      @default("{}")
+  rules           Json
   startTime       DateTime?
   endTime         DateTime?
   duration        Int?
-  playerIds       Json      @default("[]")
+  playerIds       Json
   currentPlayerId String?
-  ballStates      Json      @default("[]")
-  fouls           Json      @default("{}")
-  score           Json      @default("{}")
-  events          Json      @default("[]")
+  ballStates      Json
+  fouls           Json
+  score           Json
+  events          Json
   totalShots      Int       @default(0)
   totalFouls      Int       @default(0)
   totalFrames     Int       @default(0)
   lastUpdated     DateTime?
   winnerId        String?
-  data            Json      @default("{}")
+  data            Json
   frameCount      Int       @default(0)
   shotCount       Int       @default(0)
   foulCount       Int       @default(0)
-  shots           Json      @default("{}")
-  statistics      Json      @default("{}")
-  aiCommentary    Json      @default("{}")
+  shots           Json
+  statistics      Json
+  aiCommentary    Json
   matchId         String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt

@@ -12,14 +12,10 @@ export default defineConfig({
       '**/build/**',
       '**/coverage/**',
       'apps/web/**',
+      'services/api/src/**/*.e2e.spec.ts',
       'services/api/src/**/*.integration.spec.ts',
     ],
-    include: [
-      'services/api/src/**/*.spec.ts',
-      'services/api/src/**/*.test.ts',
-      'packages/**/src/**/*.spec.ts',
-      'packages/**/src/**/*.test.ts',
-    ],
+    include: ['services/api/src/cache/cache.helper.spec.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

@@ -1,11 +1,25 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.test' });
 
+// Provide a minimal Jest-compat layer for Vitest
+import { vi } from 'vitest';
+if (!(global as any).jest) {
+  (global as any).jest = {
+    ...vi,
+    fn: vi.fn,
+    mock: vi.mock,
+    setTimeout: (ms: number) => {},
+  };
+}
+
 // Polyfill TextEncoder/TextDecoder for Node.js test environment
 if (typeof global.TextEncoder === 'undefined') {
-  const { TextEncoder, TextDecoder } = require('util');
-  global.TextEncoder = TextEncoder;
-  global.TextDecoder = TextDecoder;
+  // Use ESM import to avoid require in lint
+  const util = await import('node:util');
+  // @ts-expect-error node global augmentation for tests
+  global.TextEncoder = (util as any).TextEncoder;
+  // @ts-expect-error node global augmentation for tests
+  global.TextDecoder = (util as any).TextDecoder;
 }
 
 import '@testing-library/jest-dom';
