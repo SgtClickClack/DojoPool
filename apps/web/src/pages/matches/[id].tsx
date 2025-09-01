@@ -1,3 +1,4 @@
+import { apiClient } from '@/services/APIService';
 import {
   Box,
   CircularProgress,
@@ -36,7 +37,7 @@ interface MatchDetail {
   startTime?: string;
 }
 
-const wsUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'http://localhost:3002';
 
 export default function LiveMatchPage() {
   const router = useRouter();
@@ -59,13 +60,12 @@ export default function LiveMatchPage() {
     if (!id) return;
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/v1/matches/${id}`)
-      .then(async (r) => {
-        if (!r.ok) throw new Error(`Failed to load match ${id}`);
-        return r.json();
-      })
-      .then((data: any) => {
+
+    apiClient
+      .get(`/matches/${id}`)
+      .then((response) => {
         if (!cancelled) {
+          const data = response.data;
           // Map backend response (playerA/playerB, scoreA/scoreB) to UI shape
           const mapped: MatchDetail = {
             id: data.id,

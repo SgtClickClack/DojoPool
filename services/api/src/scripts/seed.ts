@@ -61,6 +61,7 @@ async function main() {
       lat: 40.7128,
       lng: -74.006,
       address: '123 Test Street, Test City',
+      ownerId: user1.id,
     },
   });
 
@@ -71,11 +72,10 @@ async function main() {
     create: {
       id: 'test-tournament-1',
       name: 'Test Tournament',
+      startTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
       startDate: new Date(),
       status: 'REGISTRATION',
       venueId: venue.id,
-      maxPlayers: 8,
-      entryFee: 25,
     },
   });
 
@@ -86,7 +86,7 @@ async function main() {
         tournamentId: tournament.id,
         userId: user1.id,
       },
-    },
+    } as any, // Type workaround for compound unique constraint
     update: {},
     create: {
       tournamentId: tournament.id,
@@ -100,7 +100,7 @@ async function main() {
         tournamentId: tournament.id,
         userId: user2.id,
       },
-    },
+    } as any, // Type workaround for compound unique constraint
     update: {},
     create: {
       tournamentId: tournament.id,
@@ -114,7 +114,7 @@ async function main() {
         tournamentId: tournament.id,
         userId: user3.id,
       },
-    },
+    } as any, // Type workaround for compound unique constraint
     update: {},
     create: {
       tournamentId: tournament.id,
@@ -128,7 +128,7 @@ async function main() {
         tournamentId: tournament.id,
         userId: user4.id,
       },
-    },
+    } as any, // Type workaround for compound unique constraint
     update: {},
     create: {
       tournamentId: tournament.id,

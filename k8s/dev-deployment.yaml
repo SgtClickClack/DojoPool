@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dojopool-dev-app
+  namespace: dojopool
+  labels:
+    app: dojopool-dev-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dojopool-dev-app
+  template:
+    metadata:
+      labels:
+        app: dojopool-dev-app
+    spec:
+      containers:
+      - name: dojopool-app
+        image: node:20-alpine
+        workingDir: /app
+        command: ["sh", "-c"]
+        args:
+        - |
+          apk add --no-cache git
+          git clone https://github.com/your-username/dojopool.git /app
+          cd /app
+          yarn install
+          yarn dev
+        ports:
+        - containerPort: 3000
+        - containerPort: 3002
+        env:
+        - name: NODE_ENV
+          value: "development"
+        - name: PORT
+          value: "3000"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"

@@ -3,7 +3,7 @@ import challengeService, {
   ChallengeRequest,
 } from '@/services/challengeService';
 import marketplaceService, { UserBalance } from '@/services/marketplaceService';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney.js';
+import { AttachMoney as AttachMoneyIcon } from '@mui/icons-material';
 import {
   Alert,
   Box,

@@ -1,3 +1,6 @@
+import PageBackground from '@/components/Common/PageBackground';
+import Layout from '@/components/Layout/Layout';
+import { useClanSystem } from '@/hooks/useClanSystem';
 import { AccessTime, Group } from '@mui/icons-material';
 import {
   Box,
@@ -6,14 +9,10 @@ import {
   CardContent,
   Chip,
   Container,
-  Grid,
   Paper,
   Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-import PageBackground from '../components/Common/PageBackground';
-import Layout from '../components/Layout/Layout';
-import { useClanSystem } from '../hooks/useClanSystem';
 import styles from './clan-wars.module.css';
 
 const ClanWarsPage: React.FC = () => {
@@ -172,11 +171,21 @@ const ClanWarsPage: React.FC = () => {
           <Typography variant="h4" sx={{ color: '#fff', mb: 3 }}>
             Available Clans
           </Typography>
-          <Grid container spacing={3}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              },
+              gap: 3,
+            }}
+          >
             {mockClans
               .filter((clan) => clan.id !== currentClan?.id)
               .map((clan) => (
-                <Grid item xs={12} md={6} lg={4} key={clan.id}>
+                <Box key={clan.id}>
                   <Card
                     sx={{
                       background: 'rgba(0, 0, 0, 0.8)',
@@ -224,9 +233,9 @@ const ClanWarsPage: React.FC = () => {
                       )}
                     </CardContent>
                   </Card>
-                </Grid>
+                </Box>
               ))}
-          </Grid>
+          </Box>
 
           {/* Create Clan Modal */}
           {showCreateClan && (

@@ -1,6 +1,6 @@
+import PlayerAvatar from '@/components/Avatar/PlayerAvatar';
+import LoadingSpinner from '@/components/Common/LoadingSpinner';
 import { Box, Grid, Paper, Typography } from '@mui/material';
-import PlayerAvatar from '../components/Avatar/PlayerAvatar';
-import LoadingSpinner from '../components/Common/LoadingSpinner';
 
 const TestComponentsPage = () => {
   return (

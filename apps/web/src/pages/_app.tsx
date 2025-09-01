@@ -1,23 +1,46 @@
+import GlobalErrorBoundary from '@/components/ErrorBoundary/GlobalErrorBoundary';
+import Layout from '@/components/Layout/Layout';
+import { ChatProvider } from '@/contexts/ChatContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
+import { AuthProvider } from '@/hooks/useAuth';
+import errorReportingService from '@/services/errorReportingService';
+import '@/styles/index.css';
+import '@/styles/mobile-responsive.css';
+import '@/styles/mobile.css';
+import { theme } from '@/styles/theme';
+import { CssBaseline } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import type { AppProps } from 'next/app';
-import '../../index.css';
-import ErrorBoundary from '../components/Common/ErrorBoundary';
-import Layout from '../components/Layout/Layout';
-import { ChatProvider } from '../contexts/ChatContext';
-import { NotificationProvider } from '../contexts/NotificationContext';
-import { AuthProvider } from '../hooks/useAuth';
+
+// Error handler for GlobalErrorBoundary
+const handleGlobalError = (error: Error, errorInfo: React.ErrorInfo) => {
+  errorReportingService.reportReactError(error, errorInfo, {
+    component: 'App',
+    userAgent: navigator.userAgent,
+    url: window.location.href,
+  });
+};
+
+// Setup global error handlers when component mounts
+if (typeof window !== 'undefined') {
+  errorReportingService.setupGlobalHandlers();
+}
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <ChatProvider>
-          <NotificationProvider>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
-          </NotificationProvider>
-        </ChatProvider>
-      </AuthProvider>
-    </ErrorBoundary>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <GlobalErrorBoundary onError={handleGlobalError}>
+        <AuthProvider>
+          <ChatProvider>
+            <NotificationProvider>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </NotificationProvider>
+          </ChatProvider>
+        </AuthProvider>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }

@@ -1,6 +1,6 @@
 import {
-  Injectable,
   BadRequestException,
+  Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -82,7 +82,9 @@ export class SeasonsService {
         data: {
           type: 'SEASON_POINTS_AWARDED',
           message: `Awarded ${Math.floor(points)} seasonal points to clan ${updated.name}${reason ? `: ${reason}` : ''}`,
+          userId: updated.leaderId,
           clanId: updated.id,
+          data: JSON.stringify({ points: Math.floor(points), reason }),
           metadata: JSON.stringify({ points: Math.floor(points), reason }),
         },
       });

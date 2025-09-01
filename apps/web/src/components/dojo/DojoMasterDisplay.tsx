@@ -10,7 +10,6 @@ import {
   CardContent,
   Chip,
   Divider,
-  Grid,
   Typography,
   styled,
 } from '@mui/material';
@@ -125,82 +124,83 @@ const DojoMasterDisplay: React.FC<DojoMasterDisplayProps> = ({
         </Box>
 
         {/* Stats Grid */}
-        <Grid container spacing={2} mb={3}>
-          <Grid item xs={6} sm={3}>
-            <StatBox>
-              <Typography variant="h6" sx={{ color: '#4caf50' }}>
-                {master.winCount}
-              </Typography>
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                Wins
-              </Typography>
-            </StatBox>
-          </Grid>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' },
+            gap: 2,
+            mb: 3,
+          }}
+        >
+          <StatBox>
+            <Typography variant="h6" sx={{ color: '#4caf50' }}>
+              {master.winCount}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.8 }}>
+              Wins
+            </Typography>
+          </StatBox>
 
-          <Grid item xs={6} sm={3}>
-            <StatBox>
-              <Typography variant="h6" sx={{ color: '#f44336' }}>
-                {master.lossCount}
-              </Typography>
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                Losses
-              </Typography>
-            </StatBox>
-          </Grid>
+          <StatBox>
+            <Typography variant="h6" sx={{ color: '#f44336' }}>
+              {master.lossCount}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.8 }}>
+              Losses
+            </Typography>
+          </StatBox>
 
-          <Grid item xs={6} sm={3}>
-            <StatBox>
-              <Typography
-                variant="h6"
-                sx={{ color: getWinRateColor(master.winRate) }}
-              >
-                {master.winRate}%
-              </Typography>
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                Win Rate
-              </Typography>
-            </StatBox>
-          </Grid>
+          <StatBox>
+            <Typography
+              variant="h6"
+              sx={{ color: getWinRateColor(master.winRate) }}
+            >
+              {master.winRate}%
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.8 }}>
+              Win Rate
+            </Typography>
+          </StatBox>
 
-          <Grid item xs={6} sm={3}>
-            <StatBox>
-              <Typography
-                variant="h6"
-                sx={{ color: getStreakColor(master.currentStreak) }}
-              >
-                {master.currentStreak}
-              </Typography>
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>
-                Current Streak
-              </Typography>
-            </StatBox>
-          </Grid>
-        </Grid>
+          <StatBox>
+            <Typography
+              variant="h6"
+              sx={{ color: getStreakColor(master.currentStreak) }}
+            >
+              {master.currentStreak}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.8 }}>
+              Current Streak
+            </Typography>
+          </StatBox>
+        </Box>
 
         {/* Additional Stats */}
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <StatBox>
-              <Box display="flex" alignItems="center" justifyContent="center">
-                <StarIcon sx={{ fontSize: 20, mr: 1, color: '#ffd700' }} />
-                <Typography variant="body2">
-                  Best: {master.bestStreak} wins
-                </Typography>
-              </Box>
-            </StatBox>
-          </Grid>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 2,
+          }}
+        >
+          <StatBox>
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <StarIcon sx={{ fontSize: 20, mr: 1, color: '#ffd700' }} />
+              <Typography variant="body2">
+                Best: {master.bestStreak} wins
+              </Typography>
+            </Box>
+          </StatBox>
 
-          <Grid item xs={6}>
-            <StatBox>
-              <Box display="flex" alignItems="center" justifyContent="center">
-                <TrendingIcon sx={{ fontSize: 20, mr: 1, color: '#4caf50' }} />
-                <Typography variant="body2">
-                  {master.dojoControlDays} days
-                </Typography>
-              </Box>
-            </StatBox>
-          </Grid>
-        </Grid>
+          <StatBox>
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <TrendingIcon sx={{ fontSize: 20, mr: 1, color: '#4caf50' }} />
+              <Typography variant="body2">
+                {master.dojoControlDays} days
+              </Typography>
+            </Box>
+          </StatBox>
+        </Box>
 
         {/* Achievements */}
         {master.achievements.length > 0 && (

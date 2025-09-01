@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dojopool-working
+  namespace: dojopool
+  labels:
+    app: dojopool-working
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dojopool-working
+  template:
+    metadata:
+      labels:
+        app: dojopool-working
+    spec:
+      containers:
+      - name: dojopool-app
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"

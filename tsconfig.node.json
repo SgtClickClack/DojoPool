@@ -11,12 +11,19 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist/node",
+    "declaration": true,
+    "declarationMap": true
   },
   "include": [
     "./next.config.js",
     "./scripts/**/*.js",
     "./scripts/**/*.ts",
     "./scripts/**/*.mjs"
+  ],
+  "exclude": [
+    "./dist/**/*",
+    "./node_modules/**/*"
   ]
 }

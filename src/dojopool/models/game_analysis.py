@@ -1,1 +1,0 @@
-# emptied to remove Django models; replace with SQLAlchemy models if needed

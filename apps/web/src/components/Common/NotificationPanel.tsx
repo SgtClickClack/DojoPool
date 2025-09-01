@@ -1,3 +1,5 @@
+import { useNotifications } from '@/contexts/NotificationContext';
+import type { Notification } from '@/types/notification';
 import {
   Star as AchievementIcon,
   CheckCircle as CheckCircleIcon,
@@ -25,8 +27,6 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { useNotifications } from '../../contexts/NotificationContext';
-import { Notification } from '../../types/notification';
 
 interface NotificationPanelProps {
   open: boolean;
@@ -223,7 +223,16 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
                       <Chip
                         label={notification.type}
                         size="small"
-                        color={getNotificationColor(notification.type) as any}
+                        color={
+                          getNotificationColor(notification.type) as
+                            | 'default'
+                            | 'primary'
+                            | 'secondary'
+                            | 'error'
+                            | 'info'
+                            | 'success'
+                            | 'warning'
+                        }
                         variant="outlined"
                       />
                     </Box>

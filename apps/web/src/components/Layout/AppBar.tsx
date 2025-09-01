@@ -1,3 +1,7 @@
+import NotificationBell from '@/components/Common/NotificationBell';
+import { useChat } from '@/contexts/ChatContext';
+import { useAuth } from '@/hooks/useAuth';
+import marketplaceService, { UserBalance } from '@/services/marketplaceService';
 import { AttachMoney as MoneyIcon } from '@mui/icons-material';
 import {
   AppBarProps,
@@ -14,12 +18,6 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { useChat } from '../../contexts/ChatContext';
-import { useAuth } from '../../hooks/useAuth';
-import marketplaceService, {
-  UserBalance,
-} from '../../services/marketplaceService';
-import NotificationBell from '../Common/NotificationBell';
 
 /**
  * DojoPoolAppBar - The main application bar for the DojoPool frontend.
@@ -71,19 +69,19 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
+          <Link href="/">
             <Button color="inherit">World Map</Button>
           </Link>
-          <Link href="/tournaments" style={{ textDecoration: 'none' }}>
+          <Link href="/tournaments">
             <Button color="inherit">Tournaments</Button>
           </Link>
-          <Link href="/clan-wars" style={{ textDecoration: 'none' }}>
+          <Link href="/clan-wars">
             <Button color="inherit">Clan Wars</Button>
           </Link>
-          <Link href="/marketplace" style={{ textDecoration: 'none' }}>
+          <Link href="/marketplace">
             <Button color="inherit">Marketplace</Button>
           </Link>
-          <Link href="/messages" style={{ textDecoration: 'none' }}>
+          <Link href="/messages">
             <Button color="inherit">
               Messages
               {unreadCount > 0 && (
@@ -167,11 +165,35 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
               </Menu>
             </>
           ) : (
-            <Link href="/login" style={{ textDecoration: 'none' }}>
-              <Button color="inherit" variant="outlined">
-                Login
-              </Button>
-            </Link>
+            <>
+              <Link href="/auth/register">
+                <Button
+                  variant="contained"
+                  sx={{
+                    mr: 1,
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    fontWeight: 600,
+                    px: 3,
+                    py: 1,
+                    borderRadius: 2,
+                    '&:hover': {
+                      backgroundColor: '#1565c0',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 8px rgba(25, 118, 210, 0.3)',
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button color="inherit" variant="outlined">
+                  Login
+                </Button>
+              </Link>
+            </>
           )}
         </Box>
       </Toolbar>

@@ -1,3 +1,4 @@
+import authService, { User } from '@/services/authService';
 import React, {
   ReactNode,
   createContext,
@@ -5,7 +6,6 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import authService, { User } from '../services/authService';
 
 interface AuthContextType {
   user: User | null;
@@ -19,6 +19,7 @@ interface AuthContextType {
     username: string
   ) => Promise<void>;
   logout: () => Promise<void>;
+  setToken: (token: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -100,6 +101,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const setToken = async (token: string) => {
+    try {
+      setError(null);
+      // Store the token
+      authService.setToken(token);
+      // Get user info with the new token
+      const currentUser = await authService.getCurrentUser();
+      if (currentUser) {
+        setUser(currentUser);
+        setIsAdmin(currentUser.isAdmin || false);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Token validation failed');
+      throw err;
+    }
+  };
+
   const clearError = () => {
     setError(null);
   };
@@ -112,6 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    setToken,
     clearError,
   };
 

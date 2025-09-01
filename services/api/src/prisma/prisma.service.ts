@@ -6,6 +6,16 @@ import { ErrorUtils } from '../common';
 export class PrismaService extends PrismaClient implements OnModuleInit {
   private readonly logger = new Logger(PrismaService.name);
 
+  constructor() {
+    super({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL,
+        },
+      },
+    });
+  }
+
   async onModuleInit() {
     try {
       await this.$connect();

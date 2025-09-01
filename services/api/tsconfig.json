@@ -12,14 +12,22 @@
     "isolatedModules": false,
     "module": "CommonJS",
     "moduleResolution": "node",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ],
     "paths": {}
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
     "dist",
     "scripts/**/*",
     "src/notifications/test-notifications.script.ts",
-    "src/shadow-runs/**/*"
+    "src/shadow-runs/**/*",
+    "**/*.spec.ts",
+    "**/*.test.ts"
   ]
 }

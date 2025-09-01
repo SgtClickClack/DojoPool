@@ -1,17 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import { Add, FilterList, Group } from '@mui/icons-material';
 import {
   Box,
-  Grid,
-  Typography,
-  TextField,
+  Button,
   FormControl,
   InputLabel,
-  Select,
   MenuItem,
-  Button,
-  Chip,
+  Select,
+  TextField,
+  Typography,
 } from '@mui/material';
-import { Add, FilterList, Group } from '@mui/icons-material';
+import React, { useMemo, useState } from 'react';
 import ClanCard from './ClanCard';
 
 interface ClanMember {
@@ -135,8 +133,15 @@ const ClanList: React.FC<ClanListProps> = ({
 
       {/* Filters */}
       <Box sx={{ mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={3}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 2,
+            alignItems: 'center',
+          }}
+        >
+          <Box sx={{ flex: '1 1 calc(25% - 6px)', minWidth: '200px' }}>
             <TextField
               fullWidth
               label="Search clans"
@@ -144,9 +149,9 @@ const ClanList: React.FC<ClanListProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name or description..."
             />
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={2}>
+          <Box sx={{ flex: '1 1 calc(16.66% - 6px)', minWidth: '150px' }}>
             <FormControl fullWidth>
               <InputLabel>Location</InputLabel>
               <Select
@@ -162,9 +167,9 @@ const ClanList: React.FC<ClanListProps> = ({
                 ))}
               </Select>
             </FormControl>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={2}>
+          <Box sx={{ flex: '1 1 calc(16.66% - 6px)', minWidth: '150px' }}>
             <FormControl fullWidth>
               <InputLabel>Level</InputLabel>
               <Select
@@ -180,9 +185,9 @@ const ClanList: React.FC<ClanListProps> = ({
                 ))}
               </Select>
             </FormControl>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={2}>
+          <Box sx={{ flex: '1 1 calc(16.66% - 6px)', minWidth: '150px' }}>
             <FormControl fullWidth>
               <InputLabel>Status</InputLabel>
               <Select
@@ -199,9 +204,9 @@ const ClanList: React.FC<ClanListProps> = ({
                 </MenuItem>
               </Select>
             </FormControl>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={3}>
+          <Box sx={{ flex: '1 1 calc(25% - 6px)', minWidth: '200px' }}>
             <Button
               fullWidth
               variant="outlined"
@@ -215,8 +220,8 @@ const ClanList: React.FC<ClanListProps> = ({
             >
               Clear All Filters
             </Button>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Box>
 
       {/* Results count */}
@@ -228,18 +233,21 @@ const ClanList: React.FC<ClanListProps> = ({
 
       {/* Clan grid */}
       {filteredClans.length > 0 ? (
-        <Grid container spacing={3}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
           {filteredClans.map((clan) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={clan.id}>
+            <Box
+              sx={{ flex: '1 1 calc(25% - 9px)', minWidth: '280px' }}
+              key={clan.id}
+            >
               <ClanCard
                 {...clan}
                 onJoin={onJoinClan}
                 onView={onViewClan}
                 onLeave={onLeaveClan}
               />
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
       ) : (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Group sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />

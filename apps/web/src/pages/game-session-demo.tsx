@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   Container,
-  Grid,
   TextField,
   Typography,
 } from '@mui/material';
@@ -49,8 +48,14 @@ const GameSessionDemo: React.FC = () => {
               Start Demo Session
             </Typography>
 
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                gap: 3,
+              }}
+            >
+              <Box>
                 <TextField
                   fullWidth
                   label="Session ID (Optional)"
@@ -59,9 +64,9 @@ const GameSessionDemo: React.FC = () => {
                   placeholder="Enter custom session ID or leave empty for auto-generated"
                   helperText="Leave empty to use auto-generated demo session ID"
                 />
-              </Grid>
+              </Box>
 
-              <Grid item xs={12} md={6}>
+              <Box>
                 <Box display="flex" gap={2} alignItems="flex-end">
                   <Button
                     variant="contained"
@@ -72,8 +77,8 @@ const GameSessionDemo: React.FC = () => {
                     Create Demo Session
                   </Button>
                 </Box>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
 
             <Alert severity="info" sx={{ mt: 2 }}>
               <Typography variant="body2">
@@ -123,8 +128,14 @@ const GameSessionDemo: React.FC = () => {
             How to Use the Demo
           </Typography>
 
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+              gap: 2,
+            }}
+          >
+            <Box>
               <Typography variant="subtitle2" color="primary" gutterBottom>
                 Session Management
               </Typography>
@@ -137,9 +148,9 @@ const GameSessionDemo: React.FC = () => {
                 <br />
                 4. Monitor real-time updates every 5 seconds
               </Typography>
-            </Grid>
+            </Box>
 
-            <Grid item xs={12} md={6}>
+            <Box>
               <Typography variant="subtitle2" color="primary" gutterBottom>
                 Game Actions
               </Typography>
@@ -152,8 +163,8 @@ const GameSessionDemo: React.FC = () => {
                 <br />
                 4. Monitor ball states and player statistics
               </Typography>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
 
           <Alert severity="warning" sx={{ mt: 2 }}>
             <Typography variant="body2">

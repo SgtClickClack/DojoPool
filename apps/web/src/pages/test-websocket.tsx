@@ -1,6 +1,6 @@
+import { websocketService } from '@/services/WebSocketService';
 import { Box, Button, Chip, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { websocketService } from '../services/services/network/WebSocketService';
 
 interface TestData {
   playerPositions: any[];
@@ -40,7 +40,7 @@ const TestWebSocketPage: React.FC = () => {
         });
 
         // Subscribe to player position updates
-        websocketService.subscribe('player_position_update', (data) => {
+        websocketService.subscribe('player_position_update', (data: any) => {
           setTestData((prev) => ({
             ...prev,
             playerPositions: data.data || data,
@@ -48,7 +48,7 @@ const TestWebSocketPage: React.FC = () => {
         });
 
         // Subscribe to dojo status updates
-        websocketService.subscribe('dojo_status_update', (data) => {
+        websocketService.subscribe('dojo_status_update', (data: any) => {
           setTestData((prev) => ({
             ...prev,
             dojoStatuses: data.data?.dojos || data,
@@ -56,7 +56,7 @@ const TestWebSocketPage: React.FC = () => {
         });
 
         // Subscribe to game updates
-        websocketService.subscribe('game_update', (data) => {
+        websocketService.subscribe('game_update', (data: any) => {
           setTestData((prev) => ({
             ...prev,
             gameEvents: [...prev.gameEvents, data.data || data].slice(-10),

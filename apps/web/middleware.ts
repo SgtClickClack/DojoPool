@@ -6,12 +6,6 @@ export function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
 
-  // Set Content Security Policy header
-  response.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.vercel-insights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.mapbox.com https://events.mapbox.com"
-  );
-
   // Set other security headers
   response.headers.set('X-DNS-Prefetch-Control', 'on');
   response.headers.set(

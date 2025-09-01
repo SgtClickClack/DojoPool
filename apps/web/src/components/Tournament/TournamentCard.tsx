@@ -19,15 +19,15 @@ import React from 'react';
 interface TournamentCardProps {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   startDate: string;
-  endDate: string;
-  location: string;
-  maxParticipants: number;
-  currentParticipants: number;
-  entryFee: number;
-  prizePool: number;
-  status: 'upcoming' | 'active' | 'completed' | 'cancelled';
+  endDate?: string;
+  location?: string;
+  maxParticipants?: number;
+  currentParticipants?: number;
+  entryFee?: number;
+  prizePool?: number;
+  status: 'REGISTRATION' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   onJoin?: (tournamentId: string) => void;
   onView?: (tournamentId: string) => void;
 }
@@ -49,13 +49,13 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
 }) => {
   const getStatusColor = () => {
     switch (status) {
-      case 'upcoming':
+      case 'REGISTRATION':
         return 'info';
-      case 'active':
+      case 'IN_PROGRESS':
         return 'success';
-      case 'completed':
+      case 'COMPLETED':
         return 'default';
-      case 'cancelled':
+      case 'CANCELLED':
         return 'error';
       default:
         return 'default';
@@ -64,21 +64,24 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
 
   const getStatusText = () => {
     switch (status) {
-      case 'upcoming':
+      case 'REGISTRATION':
         return 'Upcoming';
-      case 'active':
+      case 'IN_PROGRESS':
         return 'Active';
-      case 'completed':
+      case 'COMPLETED':
         return 'Completed';
-      case 'cancelled':
+      case 'CANCELLED':
         return 'Cancelled';
       default:
         return 'Unknown';
     }
   };
 
-  const isFull = currentParticipants >= maxParticipants;
-  const canJoin = status === 'upcoming' && !isFull;
+  const isFull =
+    maxParticipants && currentParticipants
+      ? currentParticipants >= maxParticipants
+      : false;
+  const canJoin = status === 'REGISTRATION' && !isFull;
 
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -101,35 +104,40 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
           />
         </Box>
 
-        <Typography variant="body2" color="text.secondary" paragraph>
-          {description}
-        </Typography>
+        {description && (
+          <Typography variant="body2" color="text.secondary" paragraph>
+            {description}
+          </Typography>
+        )}
 
         <Stack spacing={1} sx={{ mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CalendarToday fontSize="small" color="action" />
             <Typography variant="body2">
-              {new Date(startDate).toLocaleDateString()} -{' '}
-              {new Date(endDate).toLocaleDateString()}
+              {new Date(startDate).toLocaleDateString()}
+              {endDate ? ` - ${new Date(endDate).toLocaleDateString()}` : ''}
             </Typography>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <LocationOn fontSize="small" color="action" />
-            <Typography variant="body2">{location}</Typography>
-          </Box>
+          {location && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <LocationOn fontSize="small" color="action" />
+              <Typography variant="body2">{location}</Typography>
+            </Box>
+          )}
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <People fontSize="small" color="action" />
             <Typography variant="body2">
-              {currentParticipants}/{maxParticipants} participants
+              {currentParticipants || 0}
+              {maxParticipants ? `/${maxParticipants}` : ''} participants
             </Typography>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <EmojiEvents fontSize="small" color="action" />
             <Typography variant="body2">
-              Prize Pool: {prizePool} Dojo Coins
+              Prize Pool: {prizePool || 0} Dojo Coins
             </Typography>
           </Box>
         </Stack>
@@ -142,7 +150,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
           }}
         >
           <Typography variant="h6" color="primary">
-            Entry: {entryFee} Dojo Coins
+            Entry: {entryFee || 0} Dojo Coins
           </Typography>
           {isFull && <Chip label="Full" color="warning" size="small" />}
         </Box>
@@ -164,7 +172,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
           </Button>
         )}
 
-        {!canJoin && status === 'upcoming' && isFull && (
+        {!canJoin && status === 'REGISTRATION' && isFull && (
           <Button size="small" variant="outlined" disabled>
             Tournament Full
           </Button>

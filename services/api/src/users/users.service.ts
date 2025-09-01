@@ -3,13 +3,16 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import type { Prisma, User } from '@prisma/client';
+import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
+import { CacheInvalidate, Cacheable } from '../cache/cache.decorator';
+import { CacheService } from '../cache/cache.service';
 import { ErrorUtils } from '../common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
-import { Readable } from 'stream';
 
 // Simple in-memory fallback store when DB is unavailable
 interface FallbackUser extends Omit<User, 'id'> {
@@ -22,7 +25,10 @@ export class UsersService {
   private fallbackUsers: FallbackUser[] = [];
   private idCounter = 1;
 
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    @Optional() private cacheService?: CacheService
+  ) {
     // Configure Cloudinary once
     if (
       process.env.CLOUDINARY_CLOUD_NAME &&
@@ -63,6 +69,11 @@ export class UsersService {
     }
   }
 
+  @Cacheable({
+    ttl: 300, // 5 minutes
+    keyPrefix: 'users',
+    keyGenerator: () => 'all_users',
+  })
   async findAllUsers(): Promise<User[]> {
     try {
       return await this.prisma.user.findMany();
@@ -76,6 +87,7 @@ export class UsersService {
     }
   }
 
+  @CacheInvalidate(['users:*'])
   async updateProfile(
     userId: string,
     updateProfileDto: UpdateProfileDto

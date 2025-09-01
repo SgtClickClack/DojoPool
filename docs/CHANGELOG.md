@@ -51,7 +51,7 @@ All notable changes to this project will be documented in this file.
 - Database migrations support
 - API endpoints for venue data
 
-### Changed
+### Improvements
 
 - Updated project structure to follow Flask best practices
 - Improved navigation with fixed header
@@ -77,7 +77,7 @@ All notable changes to this project will be documented in this file.
 - Database models
 - Core business logic structure
 
-### Changed
+### Enhancements
 
 - Reorganized project files
 - Updated dependency management
@@ -92,7 +92,7 @@ All notable changes to this project will be documented in this file.
 - Development environment setup
 - Documentation structure
 
-### Changed
+### Updates
 
 - Updated project requirements
 - Improved development workflow

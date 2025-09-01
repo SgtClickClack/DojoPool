@@ -9,6 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { corsOptions } from '../config/cors.config';
 import { SOCKET_NAMESPACES } from '../config/sockets.config';
 import { ChatService } from './chat.service';
 
@@ -18,14 +19,7 @@ interface SendDmPayload {
 }
 
 @WebSocketGateway({
-  cors: {
-    origin:
-      (process.env.ALLOWED_ORIGINS &&
-        process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim())) ||
-      process.env.FRONTEND_URL ||
-      'http://localhost:3000',
-    credentials: true,
-  },
+  cors: corsOptions,
   namespace: SOCKET_NAMESPACES.CHAT,
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {

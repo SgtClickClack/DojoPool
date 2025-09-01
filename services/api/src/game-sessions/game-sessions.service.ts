@@ -44,21 +44,12 @@ export class GameSessionsService {
     try {
       const gameSession = await this.prisma.gameSession.create({
         data: {
+          playerId: createDto.playerIds[0], // Use first player as the session owner
           gameId: createDto.gameId,
-          venueId: createDto.venueId,
           status: 'ACTIVE',
           gameType: createDto.gameType,
-          rules: JSON.stringify(createDto.rules),
           startTime: new Date(),
-          playerIds: JSON.stringify(createDto.playerIds),
-          currentPlayerId: createDto.playerIds[0], // First player starts
-          ballStates: JSON.stringify(this.initializeBallStates()),
-          fouls: JSON.stringify(
-            createDto.playerIds.reduce((acc, id) => ({ ...acc, [id]: 0 }), {})
-          ),
-          score: JSON.stringify(
-            createDto.playerIds.reduce((acc, id) => ({ ...acc, [id]: 0 }), {})
-          ),
+          score: 0,
           events: JSON.stringify([]),
           totalShots: 0,
           totalFouls: 0,
@@ -126,7 +117,6 @@ export class GameSessionsService {
         where: { id: sessionId },
         data: {
           ...processedData,
-          lastUpdated: new Date(),
         },
       });
 
@@ -164,7 +154,6 @@ export class GameSessionsService {
       data: {
         totalShots: session.totalShots + 1,
         events: JSON.stringify(updatedEvents),
-        lastUpdated: new Date(),
       },
     });
 
@@ -207,7 +196,6 @@ export class GameSessionsService {
         fouls: JSON.stringify(updatedFouls),
         totalFouls: session.totalFouls + 1,
         events: JSON.stringify(updatedEvents),
-        lastUpdated: new Date(),
       },
     });
 
@@ -224,7 +212,7 @@ export class GameSessionsService {
     const session = await this.getGameSession(sessionId);
     const endTime = new Date();
     const duration = Math.floor(
-      (endTime.getTime() - session.startTime.getTime()) / 1000
+      (endTime.getTime() - (session.startTime?.getTime() || 0)) / 1000
     );
 
     const updatedSession = await this.prisma.gameSession.update({
@@ -233,8 +221,6 @@ export class GameSessionsService {
         status: 'COMPLETED',
         endTime,
         duration,
-        winnerId,
-        lastUpdated: new Date(),
       },
     });
 

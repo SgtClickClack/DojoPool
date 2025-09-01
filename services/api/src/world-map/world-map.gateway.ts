@@ -9,7 +9,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { corsOptions } from '../config/cors.config';
+import { FeatureFlagsConfig } from '../config/feature-flags.config';
 import { SOCKET_NAMESPACES } from '../config/sockets.config';
+import { PrismaService } from '../prisma/prisma.service';
 
 interface PlayerPosition {
   playerId: string;
@@ -46,19 +49,17 @@ interface GameEvent {
 }
 
 @WebSocketGateway({
-  cors: {
-    origin:
-      (process.env.ALLOWED_ORIGINS &&
-        process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim())) ||
-      process.env.FRONTEND_URL ||
-      'http://localhost:3000',
-    credentials: true,
-  },
+  cors: corsOptions,
   namespace: SOCKET_NAMESPACES.WORLD_MAP,
 })
 export class WorldMapGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
+  constructor(
+    private readonly featureFlags: FeatureFlagsConfig,
+    private readonly prisma: PrismaService
+  ) {}
+
   @WebSocketServer()
   server!: Server;
 
@@ -243,6 +244,47 @@ export class WorldMapGateway
     this.server.to('world_map').emit('message', event);
   }
 
+  // Resource tick: periodic resource accrual and strategic updates
+  async tickResourcesForAllTerritories() {
+    try {
+      const territories = await this.prisma.territory.findMany({
+        select: {
+          id: true,
+          resources: true,
+          resourceRate: true,
+          lastTickAt: true,
+        },
+      });
+
+      const now = new Date();
+      for (const t of territories) {
+        const last = t.lastTickAt ? new Date(t.lastTickAt) : null;
+        const elapsedHours = last
+          ? (now.getTime() - last.getTime()) / 3600000
+          : 1;
+        const rate = (t.resourceRate as any) || {};
+        const current = (t.resources as any) || {};
+        const next: Record<string, number> = { ...current };
+        for (const key of Object.keys(rate)) {
+          const inc = Number(rate[key]) * elapsedHours;
+          next[key] = Math.max(0, Math.floor((next[key] || 0) + inc));
+        }
+        await this.prisma.territory.update({
+          where: { id: t.id },
+          data: { resources: next, lastTickAt: now },
+        });
+      }
+
+      // Broadcast a lightweight tick event
+      this.server.to('world_map').emit('message', {
+        type: 'resource_tick',
+        data: { ts: now.toISOString() },
+      });
+    } catch (err) {
+      this.logger.warn(`Resource tick failed: ${String(err)}`);
+    }
+  }
+
   // Helper methods
   private sendWorldState(client: Socket) {
     // Send current player positions
@@ -271,6 +313,14 @@ export class WorldMapGateway
 
   // Method to simulate real-time updates for testing
   startSimulation() {
+    // Use feature flags configuration for simulation control
+    if (!this.featureFlags.isSimulationEnabled()) {
+      this.logger.warn('Simulation disabled by feature flags configuration');
+      return;
+    }
+
+    this.logger.log('Starting simulation mode for real-time updates');
+
     setInterval(() => {
       // Simulate player movement
       this.simulatePlayerMovement();

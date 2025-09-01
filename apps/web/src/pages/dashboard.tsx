@@ -1,3 +1,9 @@
+import ProtectedRoute from '@/components/Common/ProtectedRoute';
+import ActivityCard from '@/components/Dashboard/ActivityCard';
+import StatCard from '@/components/Dashboard/StatCard';
+import { useAuth } from '@/hooks/useAuth';
+import { DashboardStats, getDashboardStats } from '@/services/APIService';
+import { mockDashboardStats } from '@/services/mockDashboardData';
 import {
   AccountBalanceWallet,
   EmojiEvents,
@@ -10,18 +16,11 @@ import {
   Button,
   CircularProgress,
   Container,
-  Grid,
   Paper,
   Typography,
   useTheme,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import ProtectedRoute from '../components/Common/ProtectedRoute';
-import ActivityCard from '../components/Dashboard/ActivityCard';
-import StatCard from '../components/Dashboard/StatCard';
-import { useAuth } from '../hooks/useAuth';
-import { DashboardStats, getDashboardStats } from '../services/APIService';
-import { mockDashboardStats } from '../services/mockDashboardData';
 
 const DashboardPage: React.FC = () => {
   const { user, isAdmin } = useAuth();
@@ -73,9 +72,15 @@ const DashboardPage: React.FC = () => {
             <CircularProgress size={60} />
           </Box>
         ) : (
-          <Grid container spacing={3}>
+          <Box>
             {/* Quick Stats */}
-            <Grid item xs={12} md={3}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: 'repeat(4, 1fr)' },
+                gap: 3,
+              }}
+            >
               <StatCard
                 title="Games Played"
                 value={stats?.matches.total || 0}
@@ -88,9 +93,6 @@ const DashboardPage: React.FC = () => {
                   label: 'vs last month',
                 }}
               />
-            </Grid>
-
-            <Grid item xs={12} md={3}>
               <StatCard
                 title="Win Rate"
                 value={`${stats?.matches.winRate || 0}%`}
@@ -103,9 +105,6 @@ const DashboardPage: React.FC = () => {
                   label: 'vs last month',
                 }}
               />
-            </Grid>
-
-            <Grid item xs={12} md={3}>
               <StatCard
                 title="Clan Points"
                 value={stats?.clan.points || 0}
@@ -113,9 +112,6 @@ const DashboardPage: React.FC = () => {
                 icon={Group}
                 color="warning"
               />
-            </Grid>
-
-            <Grid item xs={12} md={3}>
               <StatCard
                 title="DojoCoins"
                 value={stats?.dojoCoins.balance || 0}
@@ -123,72 +119,82 @@ const DashboardPage: React.FC = () => {
                 icon={AccountBalanceWallet}
                 color="info"
               />
-            </Grid>
+            </Box>
 
             {/* Recent Activity */}
-            <Grid item xs={12} md={8}>
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  Recent Activity
-                </Typography>
-                <Box sx={{ mt: 2 }}>
-                  {stats?.recentActivity && stats.recentActivity.length > 0 ? (
-                    stats.recentActivity.map((activity) => (
-                      <ActivityCard key={activity.id} activity={activity} />
-                    ))
-                  ) : (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ textAlign: 'center', py: 2 }}
-                    >
-                      No recent activity
-                    </Typography>
-                  )}
-                </Box>
-              </Paper>
-            </Grid>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' },
+                gap: 3,
+                mt: 3,
+              }}
+            >
+              <Box>
+                <Paper elevation={2} sx={{ p: 3 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Recent Activity
+                  </Typography>
+                  <Box sx={{ mt: 2 }}>
+                    {stats?.recentActivity &&
+                    stats.recentActivity.length > 0 ? (
+                      stats.recentActivity.map((activity) => (
+                        <ActivityCard key={activity.id} activity={activity} />
+                      ))
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ textAlign: 'center', py: 2 }}
+                      >
+                        No recent activity
+                      </Typography>
+                    )}
+                  </Box>
+                </Paper>
+              </Box>
 
-            {/* Quick Actions */}
-            <Grid item xs={12} md={4}>
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  Quick Actions
-                </Typography>
-                <Box
-                  sx={{
-                    mt: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 2,
-                  }}
-                >
-                  <Button variant="contained" fullWidth>
-                    Find Match
-                  </Button>
-                  <Button variant="outlined" fullWidth>
-                    View Clan
-                  </Button>
-                  <Button variant="outlined" fullWidth>
-                    Check Venues
-                  </Button>
-                  {isAdmin && (
-                    <Button variant="outlined" color="secondary" fullWidth>
-                      Admin Panel
-                    </Button>
-                  )}
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    onClick={() => window.location.reload()}
-                    disabled={loading}
+              {/* Quick Actions */}
+              <Box>
+                <Paper elevation={2} sx={{ p: 3 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Quick Actions
+                  </Typography>
+                  <Box
+                    sx={{
+                      mt: 2,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 2,
+                    }}
                   >
-                    Refresh Data
-                  </Button>
-                </Box>
-              </Paper>
-            </Grid>
-          </Grid>
+                    <Button variant="contained" fullWidth>
+                      Find Match
+                    </Button>
+                    <Button variant="outlined" fullWidth>
+                      View Clan
+                    </Button>
+                    <Button variant="outlined" fullWidth>
+                      Check Venues
+                    </Button>
+                    {isAdmin && (
+                      <Button variant="outlined" color="secondary" fullWidth>
+                        Admin Panel
+                      </Button>
+                    )}
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      onClick={() => window.location.reload()}
+                      disabled={loading}
+                    >
+                      Refresh Data
+                    </Button>
+                  </Box>
+                </Paper>
+              </Box>
+            </Box>
+          </Box>
         )}
       </Container>
     </ProtectedRoute>

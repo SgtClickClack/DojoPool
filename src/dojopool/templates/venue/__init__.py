@@ -1,1 +1,0 @@
-"""DojoPool venue module."""

@@ -3,7 +3,6 @@ import {
   Button,
   Container,
   FormControl,
-  Grid,
   InputLabel,
   MenuItem,
   Modal,
@@ -167,9 +166,19 @@ const ClanProfile = () => {
           </Tabs>
 
           {tabValue === 1 && (
-            <Grid container spacing={3}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                },
+                gap: 3,
+              }}
+            >
               {dojos.map((dojo) => (
-                <Grid item xs={12} sm={6} md={4} key={dojo.id}>
+                <Box key={dojo.id}>
                   <VenueCard
                     venue={dojo}
                     incomeRate={dojo.incomeRate}
@@ -177,9 +186,9 @@ const ClanProfile = () => {
                     isLeader={isLeader}
                     onUpgrade={handleOpenUpgrade}
                   />
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           )}
 
           {tabValue === 2 && (
@@ -191,9 +200,9 @@ const ClanProfile = () => {
               >
                 Initiate Shadow Run
               </Button>
-              <Grid container spacing={3}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3 }}>
                 {shadowRuns.map((run) => (
-                  <Grid item xs={12} key={run.id}>
+                  <Box key={run.id}>
                     <Box
                       sx={{ p: 2, border: '1px solid gray', borderRadius: 2 }}
                     >
@@ -207,9 +216,9 @@ const ClanProfile = () => {
                         Date: {new Date(run.createdAt).toLocaleString()}
                       </Typography>
                     </Box>
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
+              </Box>
             </Box>
           )}
 

@@ -22,19 +22,17 @@ export class ActivityEventsService {
         data: {
           type: data.type,
           message: data.message,
-          userId: data.userId,
-          venueId: data.venueId,
-          matchId: data.matchId,
-          tournamentId: data.tournamentId,
-          clanId: data.clanId,
-          metadata: data.metadata || '{}',
+          userId: data.userId!,
+          data: '{}',
+          venueId: data.venueId || null,
+          matchId: data.matchId || null,
+          tournamentId: data.tournamentId || null,
+          clanId: data.clanId || null,
+          metadata: data.metadata ? JSON.parse(data.metadata) : null,
         },
         include: {
           user: true,
           venue: true,
-          match: true,
-          tournament: true,
-          clan: true,
         },
       });
 
@@ -50,11 +48,6 @@ export class ActivityEventsService {
         metadata: created.metadata,
         createdAt: created.createdAt,
         updatedAt: created.updatedAt,
-        user: created.user,
-        venue: created.venue,
-        match: created.match,
-        tournament: created.tournament,
-        clan: created.clan,
       };
     } catch (error) {
       this.logger.error(
@@ -79,7 +72,6 @@ export class ActivityEventsService {
         include: {
           user: { select: { id: true, username: true } },
           venue: { select: { id: true, name: true } },
-          clan: { select: { id: true, name: true } },
         },
         orderBy: { createdAt: 'desc' },
         take: limit,

@@ -1,7 +1,7 @@
+import { useNotifications } from '@/contexts/NotificationContext';
 import { Notifications as NotificationsIcon } from '@mui/icons-material';
 import { Badge, Box, IconButton, Tooltip } from '@mui/material';
 import React, { useState } from 'react';
-import { useNotifications } from '../../contexts/NotificationContext';
 import NotificationPanel from './NotificationPanel';
 
 const NotificationBell: React.FC = () => {

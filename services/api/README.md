@@ -5,7 +5,7 @@ Clean, rebuilt NestJS backend service as part of the monorepo.
 ## Prerequisites
 
 - Node.js 20+
-- pnpm preferred (workspace already configured)
+- Yarn v4 preferred (workspace already configured)
 - A PostgreSQL database and a DATABASE_URL env var
 
 ## Environment
@@ -22,14 +22,14 @@ PORT=8080
 From the monorepo root:
 
 ```
-pnpm install
+yarn install --immutable
 ```
 
 Or inside this service:
 
 ```
 cd services/api
-pnpm install
+yarn install --immutable
 ```
 
 ## Prisma
@@ -38,23 +38,23 @@ Generate Prisma Client:
 
 ```
 cd services/api
-pnpm exec prisma generate
+yarn prisma generate
 ```
 
 (Optional) Create and run an initial migration:
 
 ```
-pnpm exec prisma migrate dev --name init
+yarn prisma migrate dev --name init
 ```
 
 ## Run (development)
 
 ```
 cd services/api
-pnpm run start:dev
+yarn start:dev
 ```
 
-The API will start on http://localhost:8080
+The API will start on http://localhost:3002
 
 ## API Endpoints
 

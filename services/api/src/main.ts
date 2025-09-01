@@ -1,78 +1,228 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { IoAdapter } from '@nestjs/platform-socket.io';
-import express from 'express';
-import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import 'reflect-metadata';
+import rateLimit from 'express-rate-limit';
 import { AppModule } from './app.module';
+import { GlobalErrorHandler } from './common/error-handler.middleware';
 import { corsOptions } from './config/cors.config';
-import { WorldMapGateway } from './world-map/world-map.gateway';
+import { RedisService } from './redis/redis.service';
+
+// Startup validation function
+function validateEnvironment(): void {
+  const logger = new Logger('StartupValidation');
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  logger.log('🔍 Validating environment variables...');
+
+  // Required in all environments
+  const requiredVars = ['JWT_SECRET', 'DATABASE_URL'];
+
+  // Required only in production
+  const productionVars = [
+    'REDIS_URL',
+    'GOOGLE_OAUTH_CLIENT_ID',
+    'GOOGLE_OAUTH_CLIENT_SECRET',
+  ];
+
+  // Validate feature flags for production safety
+  if (isProduction) {
+    logger.log('🔍 Validating production feature flags...');
+
+    // Warn about potentially unsafe feature flags in production
+    const unsafeFlags = [];
+    if (process.env.ENABLE_SIMULATION === 'true') {
+      unsafeFlags.push('ENABLE_SIMULATION');
+    }
+    if (process.env.SIMULATION_FEATURE_FLAG === 'true') {
+      unsafeFlags.push('SIMULATION_FEATURE_FLAG');
+    }
+    if (process.env.BACKGROUND_BROADCASTING === 'true') {
+      unsafeFlags.push('BACKGROUND_BROADCASTING');
+    }
+
+    if (unsafeFlags.length > 0) {
+      logger.warn(
+        `⚠️ Warning: Background task flags enabled in production: ${unsafeFlags.join(', ')}. ` +
+          'This may impact production performance. Consider disabling these flags.'
+      );
+    } else {
+      logger.log('✅ Background task flags properly disabled in production');
+    }
+  }
+
+  // Check required variables
+  const missingRequired: string[] = [];
+  for (const varName of requiredVars) {
+    if (!process.env[varName]) {
+      missingRequired.push(varName);
+    }
+  }
+
+  // Check production variables
+  const missingProduction: string[] = [];
+  if (isProduction) {
+    for (const varName of productionVars) {
+      if (!process.env[varName]) {
+        missingProduction.push(varName);
+      }
+    }
+  }
+
+  // Report missing variables
+  if (missingRequired.length > 0) {
+    logger.error(
+      `❌ Missing required environment variables: ${missingRequired.join(', ')}`
+    );
+    throw new Error(
+      `Application cannot start. Missing required environment variables: ${missingRequired.join(', ')}`
+    );
+  }
+
+  if (missingProduction.length > 0) {
+    logger.error(
+      `❌ Missing production environment variables: ${missingProduction.join(', ')}`
+    );
+    throw new Error(
+      `Application cannot start in production. Missing required environment variables: ${missingProduction.join(', ')}`
+    );
+  }
+
+  // Warn about optional variables
+  const optionalVars = [
+    'PORT',
+    'FRONTEND_URL',
+    'CORS_ORIGINS',
+    'SESSION_SECRET',
+  ];
+
+  const missingOptional: string[] = [];
+  for (const varName of optionalVars) {
+    if (!process.env[varName]) {
+      missingOptional.push(varName);
+    }
+  }
+
+  if (missingOptional.length > 0) {
+    logger.warn(
+      `⚠️ Missing optional environment variables (using defaults): ${missingOptional.join(', ')}`
+    );
+  }
+
+  logger.log('✅ Environment validation completed successfully');
+}
+
+class SocketIORedisAdapter extends IoAdapter {
+  private readonly logger = new Logger(SocketIORedisAdapter.name);
+
+  constructor(
+    app: any,
+    private readonly redisService: RedisService
+  ) {
+    super(app);
+  }
+
+  createIOServer(port: number, options?: any): any {
+    const server = super.createIOServer(port, {
+      ...options,
+      cors: corsOptions,
+    });
+
+    // Configure Redis adapter for production
+    if (this.redisService.isProductionMode()) {
+      try {
+        const adapter = this.redisService.createSocketAdapter();
+        server.adapter(adapter);
+        this.logger.log(
+          'Socket.IO Redis adapter configured successfully for production'
+        );
+      } catch (error) {
+        this.logger.error(
+          'Failed to configure Redis adapter in production:',
+          error
+        );
+        throw error; // Fail fast in production
+      }
+    } else {
+      this.logger.log(
+        'Socket.IO using default in-memory adapter for development'
+      );
+    }
+
+    return server;
+  }
+}
 
 async function bootstrap() {
+  // Validate environment variables before starting
+  validateEnvironment();
+
   const app = await NestFactory.create(AppModule);
-  const logger = new Logger('Bootstrap');
 
-  // 1. Set global API prefix
-  app.setGlobalPrefix('api/v1');
+  // Apply global error handler
+  app.useGlobalFilters(new GlobalErrorHandler(app.get('ErrorLoggerService')));
 
-  // 2. Enable validation pipes
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      forbidUnknownValues: true,
-      transform: true,
-    })
-  );
+  // WebSocket adapter configuration
+  try {
+    const redisService = app.get(RedisService);
 
-  // 2.1 JSON and URL-encoded parsers (increase body size limits)
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+    if (redisService.isProductionMode()) {
+      // In production, Redis adapter is mandatory
+      app.useWebSocketAdapter(new SocketIORedisAdapter(app, redisService));
+      console.log('✅ WebSocket adapter: Redis (production mode)');
+    } else {
+      // In development, use in-memory adapter
+      app.useWebSocketAdapter(new SocketIORedisAdapter(app, redisService));
+      console.log('✅ WebSocket adapter: In-memory (development mode)');
+    }
+  } catch (error) {
+    console.error('❌ Failed to configure WebSocket adapter:', error);
+    if (process.env.NODE_ENV === 'production') {
+      console.error('❌ Application cannot start in production without Redis');
+      process.exit(1);
+    } else {
+      console.log(
+        'ℹ️ WebSocket adapter: default (Redis service not available)'
+      );
+    }
+  }
 
-  // 3. Enable Helmet security headers
+  // Security middleware
   app.use(helmet());
-
-  // 4. Enable central CORS
-  app.enableCors(corsOptions);
-
-  // 5. Apply rate limiting
+  // Global rate limiter
   app.use(
     rateLimit({
-      windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 100, // Limit each IP to 100 requests per window
+      windowMs: 60 * 1000,
+      max: 100,
       standardHeaders: true,
       legacyHeaders: false,
     })
   );
 
-  // 6. Enable WebSocket support
-  app.useWebSocketAdapter(new IoAdapter(app));
+  // Global pipes
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    })
+  );
 
-  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
+  // CORS configuration
+  app.enableCors(corsOptions);
+
+  // Global prefix for API routes
+  app.setGlobalPrefix('api/v1');
+
+  const port = process.env.PORT || 3002;
   await app.listen(port);
 
-  logger.log(`API listening on http://localhost:${port}`);
-  logger.log(`WebSocket server enabled on ws://localhost:${port}`);
-
-  // Start simulation for testing (remove in production)
-  if (process.env.NODE_ENV === 'development') {
-    try {
-      logger.log('Starting world map simulation for development...');
-      // Resolve by class token only if registered in the module graph
-      const worldMapGateway = app.get(WorldMapGateway, { strict: false });
-      if (
-        worldMapGateway &&
-        typeof (worldMapGateway as any).startSimulation === 'function'
-      ) {
-        (worldMapGateway as any).startSimulation();
-      } else {
-        logger.warn('WorldMapGateway not available; skipping simulation');
-      }
-    } catch (err) {
-      logger.warn('WorldMapGateway not found; skipping simulation');
-    }
-  }
+  console.log(`✅ DojoPool API listening on http://localhost:${port}`);
+  console.log(`✅ Health check: http://localhost:${port}/api/v1/health`);
+  console.log('✅ Backend started successfully with NestJS!');
 }
 
-void bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Error starting the application:', error);
+  process.exit(1);
+});

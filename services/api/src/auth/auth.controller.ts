@@ -1,5 +1,16 @@
-import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -24,6 +35,34 @@ export class AuthController {
       return { message: 'Registration successful', user: result };
     } catch (error) {
       throw new UnauthorizedException('Registration failed');
+    }
+  }
+
+  @Post('refresh')
+  async refresh(@Body() body: { refresh_token: string }) {
+    const { refresh_token } = body || ({} as any);
+    if (!refresh_token) {
+      throw new UnauthorizedException('Missing refresh token');
+    }
+    return this.authService.refreshToken(refresh_token);
+  }
+
+  @Get('google')
+  async googleAuth(@Res() res: Response) {
+    const authUrl = await this.authService.getGoogleAuthUrl();
+    res.redirect(authUrl);
+  }
+
+  @Get('google/callback')
+  async googleAuthCallback(@Query('code') code: string, @Res() res: Response) {
+    try {
+      const result = await this.authService.handleGoogleCallback(code);
+      // Redirect to frontend with token
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}`);
+    } catch (error) {
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
     }
   }
 }

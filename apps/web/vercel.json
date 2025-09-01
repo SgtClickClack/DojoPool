@@ -1,7 +1,7 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "yarn build",
+"installCommand": "yarn install",
   "outputDirectory": ".next",
   "env": {
     "NODEJS_VERSION": "20.x"

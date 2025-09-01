@@ -1,1 +1,0 @@
-"""DojoPool animations module."""

@@ -1,3 +1,4 @@
+import { ActivityEvent, ActivityEventType } from '@/types/activity';
 import {
   Avatar,
   Box,
@@ -7,7 +8,6 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { ActivityEvent, ActivityEventType } from '../types/activity';
 
 interface ActivityEventCardProps {
   event: ActivityEvent;

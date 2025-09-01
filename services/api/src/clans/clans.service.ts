@@ -51,6 +51,7 @@ export class ClansService {
           name: data.name,
           description: data.description,
           leaderId: data.leaderId,
+          tag: data.name.toUpperCase().substring(0, 3), // Generate tag from name
         },
         include: {
           leader: { select: { id: true, username: true } },

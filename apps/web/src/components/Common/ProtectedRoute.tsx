@@ -1,7 +1,7 @@
+import { useAuth } from '@/hooks/useAuth';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,9 +18,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.push('/login');
+        void router.push('/login');
       } else if (requireAdmin && !isAdmin) {
-        router.push('/dashboard');
+        void router.push('/dashboard');
       }
     }
   }, [user, loading, isAdmin, requireAdmin, router]);

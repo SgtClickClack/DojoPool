@@ -7,7 +7,6 @@ import {
   CardActions,
   CardContent,
   Chip,
-  Grid,
   LinearProgress,
   Stack,
   Typography,
@@ -104,41 +103,41 @@ const ClanCard: React.FC<ClanCardProps> = ({
         </Typography>
 
         {/* Stats Grid */}
-        <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs={6}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+          <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Group fontSize="small" color="action" />
               <Typography variant="body2">
                 {memberCount}/{maxMembers} members
               </Typography>
             </Box>
-          </Grid>
+          </Box>
 
-          <Grid item xs={6}>
+          <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <LocationOn fontSize="small" color="action" />
               <Typography variant="body2">{location}</Typography>
             </Box>
-          </Grid>
+          </Box>
 
-          <Grid item xs={6}>
+          <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <EmojiEvents fontSize="small" color="action" />
               <Typography variant="body2">
                 {territoryCount} territories
               </Typography>
             </Box>
-          </Grid>
+          </Box>
 
-          <Grid item xs={6}>
+          <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Shield fontSize="small" color="action" />
               <Typography variant="body2">
                 {warWinRate.toFixed(1)}% win rate
               </Typography>
             </Box>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Experience Bar */}
         <Box sx={{ mb: 2 }}>

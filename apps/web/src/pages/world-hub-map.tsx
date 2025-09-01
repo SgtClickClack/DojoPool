@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import React from 'react';
 
 const WorldHubMap = dynamic(
-  () => import('../components/world/WorldHubMap'),
+  () => import('@/components/world/WorldHubMap'),
   { ssr: false } // This is the crucial part
 );
 

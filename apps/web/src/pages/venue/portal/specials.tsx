@@ -5,7 +5,7 @@ import {
   deleteVenueSpecial,
   getMyVenueSpecials,
 } from '@/services/APIService';
-import DeleteIcon from '@mui/icons-material/Delete.js';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import {
   Alert,
   Box,

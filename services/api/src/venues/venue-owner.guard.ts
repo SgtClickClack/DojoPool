@@ -13,7 +13,7 @@ export class VenueOwnerGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    const userId: string | undefined = req?.user?.sub;
+    const userId: string | undefined = req?.user?.userId;
 
     if (!userId) {
       throw new ForbiddenException('Authentication required');

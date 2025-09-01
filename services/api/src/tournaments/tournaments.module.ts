@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
+import { AchievementsModule } from '../achievements/achievements.module';
+import { CacheModule } from '../cache/cache.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { TournamentsController } from './tournaments.controller';
 import { TournamentsService } from './tournaments.service';
-import { AchievementsModule } from '../achievements/achievements.module';
 
 @Module({
-  imports: [AchievementsModule],
+  imports: [AchievementsModule, CacheModule],
   controllers: [TournamentsController],
   providers: [TournamentsService, PrismaService],
 })

@@ -1,4 +1,8 @@
 import {
+  JournalEntryType as EntryType,
+  JournalEntry as JournalEntryType,
+} from '@/types/journal';
+import {
   Star as AchievementIcon,
   Bolt as ChallengeIcon,
   Groups as ClanIcon,
@@ -21,10 +25,6 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import {
-  JournalEntryType as EntryType,
-  JournalEntry as JournalEntryType,
-} from '../../types/journal';
 
 interface JournalEntryProps {
   entry: JournalEntryType;

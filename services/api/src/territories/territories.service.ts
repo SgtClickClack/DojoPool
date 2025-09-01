@@ -20,13 +20,13 @@ export class TerritoriesService {
         select: {
           id: true,
           name: true,
+          strategicValue: true,
+          resources: true,
           venue: {
             select: {
               id: true,
               name: true,
-              controllingClan: {
-                select: { id: true, name: true },
-              },
+              controllingClanId: true,
             },
           },
         },
@@ -71,6 +71,9 @@ export class TerritoriesService {
             select: { id: true, username: true },
           },
           clan: {
+            select: { id: true, name: true },
+          },
+          venue: {
             select: { id: true, name: true },
           },
         },
@@ -205,6 +208,94 @@ export class TerritoriesService {
         `Failed to get user clan: ${ErrorUtils.getErrorMessage(err)}`
       );
       return null;
+    }
+  }
+
+  // Strategic map methods
+  async getStrategicMap(bbox?: string) {
+    // For now, return all territories with minimal shape; bbox can be parsed later
+    const territories = await this.prisma.territory.findMany({
+      include: {
+        venue: { select: { id: true, name: true, lat: true, lng: true } },
+        clan: { select: { id: true, name: true } },
+        owner: { select: { id: true, username: true } },
+      },
+    });
+
+    return territories.map((t) => ({
+      id: t.id,
+      name: t.name,
+      venueId: t.venueId,
+      coordinates: t.venue ? { lat: t.venue.lat, lng: t.venue.lng } : undefined,
+      owner: t.owner ? { id: t.owner.id, username: t.owner.username } : null,
+      clan: t.clan ? { id: t.clan.id, name: t.clan.name } : null,
+      level: t.level,
+      defenseScore: t.defenseScore,
+      strategicValue: (t as any).strategicValue ?? 0,
+      resources: (t as any).resources ?? {},
+    }));
+  }
+
+  async scoutTerritory(territoryId: string, playerId: string) {
+    // No-op for permissions for now; record an event
+    const event = await this.prisma.territoryEvent.create({
+      data: {
+        territoryId,
+        type: 'CLAIM',
+        metadata: JSON.stringify({
+          action: 'SCOUT',
+          by: playerId,
+          at: new Date().toISOString(),
+        }),
+      },
+    });
+    return { success: true, eventId: event.id };
+  }
+
+  async manageTerritory(
+    territoryId: string,
+    action: 'upgrade_defense' | 'allocate_resources' | 'transfer_ownership',
+    payload?: any
+  ) {
+    switch (action) {
+      case 'upgrade_defense': {
+        const updated = await this.prisma.territory.update({
+          where: { id: territoryId },
+          data: {
+            defenseScore: { increment: 1 },
+            strategicValue: { increment: 2 },
+          },
+        });
+        return {
+          success: true,
+          territoryId: updated.id,
+          defenseScore: updated.defenseScore,
+        };
+      }
+      case 'allocate_resources': {
+        const current = await this.prisma.territory.findUnique({
+          where: { id: territoryId },
+          select: { resources: true },
+        });
+        const resources = {
+          ...(current?.resources as any),
+          ...(payload?.resources || {}),
+        };
+        await this.prisma.territory.update({
+          where: { id: territoryId },
+          data: { resources },
+        });
+        return { success: true };
+      }
+      case 'transfer_ownership': {
+        const newOwnerId: string | undefined = payload?.newOwnerId;
+        if (!newOwnerId) throw new Error('newOwnerId required');
+        await this.prisma.territory.update({
+          where: { id: territoryId },
+          data: { ownerId: newOwnerId },
+        });
+        return { success: true };
+      }
     }
   }
 }

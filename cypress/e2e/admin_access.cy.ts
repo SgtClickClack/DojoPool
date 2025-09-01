@@ -15,7 +15,7 @@ describe('Admin Panel Access', () => {
               role: 'ADMIN',
               avatar: 'admin-avatar',
             },
-            token: 'admin-jwt-token',
+            token: process.env.ADMIN_JWT_TOKEN || 'test-admin-token',
           },
         });
       } else {
@@ -29,7 +29,7 @@ describe('Admin Panel Access', () => {
               role: 'USER',
               avatar: 'user-avatar',
             },
-            token: 'user-jwt-token',
+            token: process.env.USER_JWT_TOKEN || 'test-user-token',
           },
         });
       }
@@ -39,7 +39,10 @@ describe('Admin Panel Access', () => {
     cy.intercept('GET', '/api/auth/me', (req) => {
       const authHeader = req.headers.authorization;
 
-      if (authHeader === 'Bearer admin-jwt-token') {
+      if (
+        authHeader ===
+        `Bearer ${process.env.ADMIN_JWT_TOKEN || 'test-admin-token'}`
+      ) {
         req.reply({
           statusCode: 200,
           body: {
@@ -114,7 +117,10 @@ describe('Admin Panel Access', () => {
   describe('Non-Admin User Access', () => {
     it('should redirect non-admin users away from admin panel', () => {
       // Login as regular user
-      cy.login('user@example.com', 'password123');
+      cy.login(
+        'user@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.url().should('include', '/dashboard');
 
       // Attempt to visit admin panel
@@ -135,7 +141,10 @@ describe('Admin Panel Access', () => {
     });
 
     it('should not show admin navigation elements to regular users', () => {
-      cy.login('user@example.com', 'password123');
+      cy.login(
+        'user@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.visit('/dashboard');
 
       // Verify admin-related navigation is not present
@@ -147,7 +156,10 @@ describe('Admin Panel Access', () => {
     });
 
     it('should handle direct URL access attempts gracefully', () => {
-      cy.login('user@example.com', 'password123');
+      cy.login(
+        'user@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
 
       // Try to access admin sub-routes directly
       cy.visit('/admin/dashboard');
@@ -164,7 +176,10 @@ describe('Admin Panel Access', () => {
   describe('Admin User Access', () => {
     it('should allow admin users to access admin panel', () => {
       // Login as admin user
-      cy.login('admin@example.com', 'password123');
+      cy.login(
+        'admin@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.url().should('include', '/dashboard');
 
       // Visit admin panel
@@ -186,7 +201,10 @@ describe('Admin Panel Access', () => {
     });
 
     it('should display admin dashboard with stats cards', () => {
-      cy.login('admin@example.com', 'password123');
+      cy.login(
+        'admin@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.visit('/admin');
 
       // Wait for user validation and stats API call
@@ -214,7 +232,10 @@ describe('Admin Panel Access', () => {
     });
 
     it('should display user management table', () => {
-      cy.login('admin@example.com', 'password123');
+      cy.login(
+        'admin@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.visit('/admin');
 
       // Wait for user validation
@@ -245,7 +266,10 @@ describe('Admin Panel Access', () => {
     });
 
     it('should maintain admin access after page reload', () => {
-      cy.login('admin@example.com', 'password123');
+      cy.login(
+        'admin@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.visit('/admin');
       cy.wait('@getUser');
 
@@ -270,7 +294,10 @@ describe('Admin Panel Access', () => {
         body: { error: 'Internal server error' },
       }).as('getAdminStatsError');
 
-      cy.login('admin@example.com', 'password123');
+      cy.login(
+        'admin@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.visit('/admin');
       cy.wait('@getUser');
 
@@ -297,7 +324,10 @@ describe('Admin Panel Access', () => {
         },
       }).as('getUserAdmin');
 
-      cy.login('admin@example.com', 'password123');
+      cy.login(
+        'admin@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.visit('/admin');
       cy.wait('@getUserAdmin');
 
@@ -337,7 +367,10 @@ describe('Admin Panel Access', () => {
         },
       }).as('getUserInvalid');
 
-      cy.login('invalid@example.com', 'password123');
+      cy.login(
+        'invalid@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.visit('/admin');
       cy.wait('@getUserInvalid');
 
@@ -348,7 +381,10 @@ describe('Admin Panel Access', () => {
 
   describe('Admin Panel Navigation', () => {
     it('should allow navigation between admin tabs', () => {
-      cy.login('admin@example.com', 'password123');
+      cy.login(
+        'admin@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.visit('/admin');
       cy.wait('@getUser');
 
@@ -383,7 +419,10 @@ describe('Admin Panel Access', () => {
     });
 
     it('should maintain tab state during page interactions', () => {
-      cy.login('admin@example.com', 'password123');
+      cy.login(
+        'admin@example.com',
+        process.env.TEST_USER_PASSWORD || 'test-password'
+      );
       cy.visit('/admin');
       cy.wait('@getUser');
 

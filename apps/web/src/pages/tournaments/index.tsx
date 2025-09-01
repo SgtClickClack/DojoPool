@@ -1,13 +1,25 @@
 import TournamentList from '@/components/Tournament/TournamentList';
 import { useAuth } from '@/hooks/useAuth';
+import { Tournament, getTournaments } from '@/services/APIService';
 import { Add as AddIcon } from '@mui/icons-material';
-import { Box, Button, Container, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Typography,
+} from '@mui/material';
 import { useRouter } from 'next/router';
-import React from 'react';
+import { enqueueSnackbar } from 'notistack';
+import React, { useEffect, useState } from 'react';
 
 const TournamentDashboard: React.FC = () => {
   const { user, isAdmin } = useAuth();
   const router = useRouter();
+
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const handleCreateTournament = () => {
     router.push('/tournaments/create');
@@ -17,35 +29,52 @@ const TournamentDashboard: React.FC = () => {
     router.push(`/tournaments/${tournamentId}`);
   };
 
-  // Mock tournaments data for now
-  const mockTournaments = [
-    {
-      id: '1',
-      name: 'Spring Championship',
-      description: 'Annual spring tournament for all skill levels',
-      startDate: '2024-03-15',
-      endDate: '2024-03-17',
-      location: 'The Jade Tiger',
-      maxParticipants: 32,
-      currentParticipants: 24,
-      entryFee: 50,
-      prizePool: 2000,
-      status: 'upcoming' as const,
-    },
-    {
-      id: '2',
-      name: 'Beginner Friendly',
-      description: 'Perfect for new players',
-      startDate: '2024-03-20',
-      endDate: '2024-03-20',
-      location: "Beginner's Haven",
-      maxParticipants: 16,
-      currentParticipants: 8,
-      entryFee: 25,
-      prizePool: 400,
-      status: 'upcoming' as const,
-    },
-  ];
+  const fetchTournaments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getTournaments();
+      setTournaments(data);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to load tournaments';
+      setError(message);
+      enqueueSnackbar(message, { variant: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTournaments();
+  }, []);
+
+  if (loading) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 4, textAlign: 'center' }}>
+        <CircularProgress size={60} />
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Loading tournaments...
+        </Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Typography variant="h4" color="error" gutterBottom>
+          Error Loading Tournaments
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          {error}
+        </Typography>
+        <Button variant="contained" sx={{ mt: 2 }} onClick={fetchTournaments}>
+          Try Again
+        </Button>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -79,7 +108,7 @@ const TournamentDashboard: React.FC = () => {
 
       {/* Tournament List */}
       <TournamentList
-        tournaments={mockTournaments}
+        tournaments={tournaments}
         onViewTournament={handleViewTournament}
         onCreateTournament={handleCreateTournament}
       />

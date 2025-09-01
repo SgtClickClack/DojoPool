@@ -1,9 +1,9 @@
+import JournalFeed from '@/components/profile/JournalFeed';
+import { useAuth } from '@/hooks/useAuth';
 import { Box, Breadcrumbs, Container, Link, Typography } from '@mui/material';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import JournalFeed from '../../components/profile/JournalFeed';
-import { useAuth } from '../../hooks/useAuth';
 
 const JournalPage: React.FC = () => {
   const { user } = useAuth();

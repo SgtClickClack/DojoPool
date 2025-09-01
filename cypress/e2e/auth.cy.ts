@@ -5,7 +5,9 @@ describe('Authentication', () => {
 
   it('should sign in with email and password', () => {
     cy.findByLabelText('Email').type('test@example.com');
-    cy.findByLabelText('Password').type('password123');
+    cy.findByLabelText('Password').type(
+      process.env.TEST_USER_PASSWORD || 'test-password'
+    );
     cy.findByRole('button', { name: 'Sign In' }).click();
     cy.url().should('eq', Cypress.config().baseUrl + '/dashboard');
   });
@@ -14,8 +16,12 @@ describe('Authentication', () => {
     cy.get('[data-testid="signup-link"]').click();
     cy.get('[data-testid="name-input"]').type('Test User');
     cy.get('[data-testid="email-input"]').type('newuser@example.com');
-    cy.get('[data-testid="password-input"]').type('password123');
-    cy.get('[data-testid="confirm-password-input"]').type('password123');
+    cy.get('[data-testid="password-input"]').type(
+      process.env.TEST_USER_PASSWORD || 'test-password'
+    );
+    cy.get('[data-testid="confirm-password-input"]').type(
+      process.env.TEST_USER_PASSWORD || 'test-password'
+    );
     cy.get('[data-testid="signup-button"]').click();
     cy.url().should('eq', Cypress.config().baseUrl + '/dashboard');
   });
@@ -77,7 +83,7 @@ describe('Authentication', () => {
 
   it('should handle invalid credentials', () => {
     cy.get('[data-testid="email-input"]').type('invalid@example.com');
-    cy.get('[data-testid="password-input"]').type('wrongpassword');
+    cy.get('[data-testid="password-input"]').type('wrong-password');
     cy.get('[data-testid="signin-button"]').click();
     cy.get('[data-testid="error-message"]').should('be.visible');
   });

@@ -1,4 +1,4 @@
-import { apiClient } from './apiClient';
+import { apiClient } from './APIService';
 export interface Dojo {
   id: string;
   name: string;
@@ -40,15 +40,10 @@ export interface DojoData {
 }
 
 class DojoService {
-  private baseUrl = '/api/dojos';
-
   async getDojos(): Promise<Dojo[]> {
     try {
-      const response = await fetch(this.baseUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch dojos: ${response.statusText}`);
-      }
-      return await response.json();
+      const response = await apiClient.get<Dojo[]>('/dojos');
+      return response.data;
     } catch (error) {
       console.error('Error fetching dojos:', error);
       throw error;
@@ -57,11 +52,8 @@ class DojoService {
 
   async getDojoById(id: string): Promise<Dojo> {
     try {
-      const response = await fetch(`${this.baseUrl}/${id}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch dojo: ${response.statusText}`);
-      }
-      return await response.json();
+      const response = await apiClient.get<Dojo>(`/dojos/${id}`);
+      return response.data;
     } catch (error) {
       console.error('Error fetching dojo:', error);
       throw error;
@@ -70,17 +62,8 @@ class DojoService {
 
   async createDojo(data: CreateDojoData): Promise<Dojo> {
     try {
-      const response = await fetch(this.baseUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to create dojo: ${response.statusText}`);
-      }
-      return await response.json();
+      const response = await apiClient.post<Dojo>('/dojos', data);
+      return response.data;
     } catch (error) {
       console.error('Error creating dojo:', error);
       throw error;
@@ -89,17 +72,8 @@ class DojoService {
 
   async updateDojo(id: string, data: UpdateDojoData): Promise<Dojo> {
     try {
-      const response = await fetch(`${this.baseUrl}/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to update dojo: ${response.statusText}`);
-      }
-      return await response.json();
+      const response = await apiClient.patch<Dojo>(`/dojos/${id}`, data);
+      return response.data;
     } catch (error) {
       console.error('Error updating dojo:', error);
       throw error;
@@ -108,12 +82,7 @@ class DojoService {
 
   async deleteDojo(id: string): Promise<void> {
     try {
-      const response = await fetch(`${this.baseUrl}/${id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to delete dojo: ${response.statusText}`);
-      }
+      await apiClient.delete(`/dojos/${id}`);
     } catch (error) {
       console.error('Error deleting dojo:', error);
       throw error;
@@ -137,12 +106,10 @@ class DojoService {
   ): Promise<DojoData[]> {
     // If an API exists, prefer it; otherwise return mock dojos near provided coords
     try {
-      const url = `${this.baseUrl}?lat=${lat}&lng=${lng}&radius=${radiusMeters}`;
-      const response = await fetch(url);
-      if (response.ok) {
-        const data = (await response.json()) as DojoData[];
-        return data;
-      }
+      const response = await apiClient.get<DojoData[]>(
+        `/dojos?lat=${lat}&lng=${lng}&radius=${radiusMeters}`
+      );
+      return response.data;
     } catch {
       // fall through to mock
     }

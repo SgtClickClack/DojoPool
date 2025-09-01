@@ -128,7 +128,7 @@ export async function testNotificationSystem(
     console.log('\n📝 Test 7: Marking Notification as Read...');
     if (userNotifications.notifications.length > 0) {
       const firstNotification = userNotifications.notifications[0];
-      const updatedNotification = await notificationsService.markAsRead(
+      const updatedNotification = await notificationsService.markRead(
         firstNotification.id,
         testUser.id
       );

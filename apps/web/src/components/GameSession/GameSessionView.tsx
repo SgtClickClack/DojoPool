@@ -1,7 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useGameSession } from '@/hooks/useGameSession';
 import { pauseMatch, resumeMatch } from '@/services/APIService';
-import { websocketService } from '@/services/services/network/WebSocketService';
+import { websocketService } from '@/services/WebSocketService';
 import { GameSessionStatus, GameType } from '@/types/gameSession';
 import {
   Pause,
@@ -18,7 +18,6 @@ import {
   Card,
   CardContent,
   Chip,
-  Grid,
   LinearProgress,
   Typography,
 } from '@mui/material';
@@ -266,9 +265,15 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({
       </Card>
 
       {/* Game State Grid */}
-      <Grid container spacing={2}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+          gap: 2,
+        }}
+      >
         {/* Players Panel */}
-        <Grid item xs={12} md={6}>
+        <Box>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -304,10 +309,10 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({
               ))}
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
         {/* Ball States Panel */}
-        <Grid item xs={12} md={6}>
+        <Box>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -328,10 +333,10 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({
               </Box>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
         {/* Game Actions */}
-        <Grid item xs={12}>
+        <Box>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -362,59 +367,58 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({
               </Box>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
         {/* Analytics Panel */}
         {showAnalytics && (
-          <Grid item xs={12}>
+          <Box>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   Session Analytics
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={6} md={3}>
-                    <Typography variant="body2" color="text.secondary">
-                      Total Shots
-                    </Typography>
-                    <Typography variant="h4">
-                      {gameSession.totalShots}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6} md={3}>
-                    <Typography variant="body2" color="text.secondary">
-                      Total Fouls
-                    </Typography>
-                    <Typography variant="h4" color="warning.main">
-                      {gameSession.totalFouls}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6} md={3}>
-                    <Typography variant="body2" color="text.secondary">
-                      Total Frames
-                    </Typography>
-                    <Typography variant="h4">
-                      {gameSession.totalFrames}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6} md={3}>
-                    <Typography variant="body2" color="text.secondary">
-                      Duration
-                    </Typography>
-                    <Typography variant="h4">
-                      {gameSession.duration
-                        ? `${Math.floor(gameSession.duration / 60)}m ${
-                            gameSession.duration % 60
-                          }s`
-                        : 'N/A'}
-                    </Typography>
-                  </Grid>
-                </Grid>
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                      xs: 'repeat(2, 1fr)',
+                      md: 'repeat(4, 1fr)',
+                    },
+                    gap: 2,
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    Total Shots
+                  </Typography>
+                  <Typography variant="h4">{gameSession.totalShots}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Total Fouls
+                  </Typography>
+                  <Typography variant="h4" color="warning.main">
+                    {gameSession.totalFouls}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Total Frames
+                  </Typography>
+                  <Typography variant="h4">
+                    {gameSession.totalFrames}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Duration
+                  </Typography>
+                  <Typography variant="h4">
+                    {gameSession.duration
+                      ? `${Math.floor(gameSession.duration / 60)}m ${
+                          gameSession.duration % 60
+                        }s`
+                      : 'N/A'}
+                  </Typography>
+                </Box>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
         )}
-      </Grid>
+      </Box>
       {/* Paused Overlay */}
       {isPaused && (
         <Box

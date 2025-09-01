@@ -1,50 +1,47 @@
+import path from 'path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    globals: true,
     environment: 'node',
-    include: ['src/tests/integration/**/*.{test,spec}.{ts,tsx}'],
+    setupFiles: ['./jest.setup.ts'],
+    globals: true,
     exclude: [
-      'node_modules',
-      'dist',
-      '.idea',
-      '.git',
-      '.cache',
-      '**/*.d.ts',
-      '**/*.config.ts',
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
       '**/coverage/**',
+      'apps/web/**',
     ],
-    setupFiles: ['./src/tests/setup-integration.ts'],
-    mockReset: 'afterEach',
+    include: [
+      'services/api/src/**/*.integration.spec.ts',
+      'services/api/src/**/*.integration.test.ts',
+    ],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'lcov'],
-      reportsDirectory: 'coverage/js/integration',
-      all: false,
+      reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
-        'src/tests/**',
-        '**/*.d.ts',
         '**/node_modules/**',
         '**/dist/**',
         '**/build/**',
-        '**/coverage/**',
-        'generated/**',
+        'apps/web/**',
+        'services/api/src/main.ts',
+        'services/api/src/**/*.module.ts',
+        'packages/**/dist/**',
       ],
       thresholds: {
-        lines: 70,
-        functions: 70,
-        branches: 60,
-        statements: 70,
+        global: {
+          branches: 80,
+          functions: 80,
+          lines: 80,
+          statements: 80,
+        },
       },
     },
   },
   resolve: {
     alias: {
-      '@': '/src',
+      '@': path.resolve(__dirname, 'services/api/src'),
     },
-  },
-  define: {
-    global: 'globalThis',
   },
 });

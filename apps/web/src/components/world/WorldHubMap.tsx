@@ -1,5 +1,8 @@
 'use client';
 import { useAuth } from '@/hooks/useAuth';
+import { useMapData } from '@/hooks/useMapData';
+import { PlayerPosition } from '@/services/WebSocketService';
+import { DojoData } from '@/services/dojoService';
 import {
   GoogleMap,
   InfoWindow,
@@ -7,10 +10,12 @@ import {
   Marker,
 } from '@react-google-maps/api';
 import React, { useState } from 'react';
-import { useMapData } from '../../hooks/useMapData';
-import { DojoData } from '../../services/dojoService';
-import { PlayerPosition } from '../../services/services/network/WebSocketService';
 import { ShadowRunModal } from './ShadowRunModal';
+import { ConnectionStatusBar } from './ConnectionStatusBar';
+import { DojoInfoWindow } from './DojoInfoWindow';
+import { PlayerInfoWindow } from './PlayerInfoWindow';
+import { getMarkerIcon, getPlayerMarkerIcon } from './MapMarkerIcons';
+import { mapStyles, center, defaultZoom } from './MapStyles';
 import styles from './WorldHubMap.module.css';
 
 // Prefer build-time inlined env var to avoid client/runtime env lookup pitfalls
@@ -33,103 +38,6 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
 interface WorldHubMapProps {
   height?: string | number;
 }
-
-const mapStyles = [
-  {
-    featureType: 'all',
-    elementType: 'geometry',
-    stylers: [{ color: '#242f3e' }],
-  },
-  {
-    featureType: 'all',
-    elementType: 'labels.text.stroke',
-    stylers: [{ color: '#242f3e' }],
-  },
-  {
-    featureType: 'all',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#746855' }],
-  },
-  {
-    featureType: 'administrative.locality',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#d59563' }],
-  },
-  {
-    featureType: 'poi',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#d59563' }],
-  },
-  {
-    featureType: 'poi.park',
-    elementType: 'geometry',
-    stylers: [{ color: '#263c3f' }],
-  },
-  {
-    featureType: 'poi.park',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#6b9a76' }],
-  },
-  {
-    featureType: 'road',
-    elementType: 'geometry',
-    stylers: [{ color: '#38414e' }],
-  },
-  {
-    featureType: 'road',
-    elementType: 'geometry.stroke',
-    stylers: [{ color: '#212a37' }],
-  },
-  {
-    featureType: 'road',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#9ca5b3' }],
-  },
-  {
-    featureType: 'road.highway',
-    elementType: 'geometry',
-    stylers: [{ color: '#746855' }],
-  },
-  {
-    featureType: 'road.highway',
-    elementType: 'geometry.stroke',
-    stylers: [{ color: '#1f2835' }],
-  },
-  {
-    featureType: 'road.highway',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#f3d19c' }],
-  },
-  {
-    featureType: 'transit',
-    elementType: 'geometry',
-    stylers: [{ color: '#2f3948' }],
-  },
-  {
-    featureType: 'transit.station',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#d59563' }],
-  },
-  {
-    featureType: 'water',
-    elementType: 'geometry',
-    stylers: [{ color: '#17263c' }],
-  },
-  {
-    featureType: 'water',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#515c6d' }],
-  },
-  {
-    featureType: 'water',
-    elementType: 'labels.text.stroke',
-    stylers: [{ color: '#17263c' }],
-  },
-];
-
-// Container styling handled via CSS module class `mapContainer`
-const center = { lat: -27.4698, lng: 153.0251 }; // Brisbane center
-const defaultZoom = 13;
 
 const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
   // Utility function to generate height class
@@ -218,67 +126,20 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
     setSelectedPlayer(null);
   };
 
-  const getMarkerIcon = (dojo: DojoData) => {
-    if (dojo.isLocked) {
-      return {
-        url:
-          'data:image/svg+xml;charset=UTF-8,' +
-          encodeURIComponent(`
-            <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="14" fill="#ff4444" stroke="#ffffff" stroke-width="2"/>
-              <path d="M12 16h8v8h-8z" fill="#ffffff"/>
-              <rect x="14" y="12" width="4" height="4" fill="#ffffff"/>
-            </svg>
-          `),
-        scaledSize: new google.maps.Size(32, 32),
-      };
-    }
-
-    if (dojo.controllingClanId && dojo.controllingClan) {
-      // Enhanced clan-controlled dojo marker with clan tag
-      return {
-        url:
-          'data:image/svg+xml;charset=UTF-8,' +
-          encodeURIComponent(`
-            <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="14" fill="#ff8800" stroke="#ffffff" stroke-width="2"/>
-              <text x="16" y="18" text-anchor="middle" fill="#ffffff" font-size="12" font-family="Arial">🏰</text>
-              <text x="16" y="28" text-anchor="middle" fill="#ffffff" font-size="8" font-family="Arial">${
-                dojo.controllingClan
-                  ? dojo.controllingClan.name.slice(0, 4).toUpperCase()
-                  : 'CLAN'
-              }</text>
-            </svg>
-          `),
-        scaledSize: new google.maps.Size(32, 32),
-      };
-    }
-
-    return {
-      url:
-        'data:image/svg+xml;charset=UTF-8,' +
-        encodeURIComponent(`
-          <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="16" cy="16" r="14" fill="#44ff44" stroke="#ffffff" stroke-width="2"/>
-            <text x="16" y="20" text-anchor="middle" fill="#ffffff" font-size="16" font-family="Arial">🎱</text>
-          </svg>
-        `),
-      scaledSize: new google.maps.Size(32, 32),
-    };
+  const handleChallengeDojo = (dojoId: string) => {
+    console.log('Challenging dojo:', dojoId);
   };
 
-  const getPlayerMarkerIcon = (player: PlayerPosition) => {
-    return {
-      url:
-        'data:image/svg+xml;charset=UTF-8,' +
-        encodeURIComponent(`
-          <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" fill="#4a90e2" stroke="#ffffff" stroke-width="2"/>
-            <text x="12" y="16" text-anchor="middle" fill="#ffffff" font-size="12" font-family="Arial">👤</text>
-          </svg>
-        `),
-      scaledSize: new google.maps.Size(24, 24),
-    };
+  const handleViewDojoDetails = (dojoId: string) => {
+    console.log('Viewing dojo details:', dojoId);
+  };
+
+  const handleChallengePlayer = (playerId: string) => {
+    console.log('Challenging player:', playerId);
+  };
+
+  const handleViewPlayerProfile = (playerId: string) => {
+    console.log('Viewing player profile:', playerId);
   };
 
   if (isLoading) {
@@ -322,17 +183,11 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
   return (
     <div className={styles.mapContainer} data-height={height}>
       {/* Connection Status Indicator */}
-      <div className={styles.connectionStatusBar}>
-        <span
-          className={`${styles.statusDot} ${
-            isWebSocketConnected ? styles.connected : styles.disconnected
-          } ${messageActivity ? styles.heartbeat : ''}`}
-        />
-        {isWebSocketConnected ? 'Live Updates Active' : 'Connecting...'}
-        <span className={styles.playerCount}>
-          {playerPositions.length} players online
-        </span>
-      </div>
+      <ConnectionStatusBar
+        isWebSocketConnected={isWebSocketConnected}
+        messageActivity={messageActivity}
+        playerCount={playerPositions.length}
+      />
 
       <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY_INLINE}>
         <GoogleMap
@@ -389,79 +244,15 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
               }}
               onCloseClick={handleCloseInfoWindow}
             >
-              <div className={styles.infoWindowContent}>
-                <h3 className={styles.infoWindowTitle}>{selectedDojo.name}</h3>
-                <p className={styles.infoWindowText}>
-                  {selectedDojo.isLocked
-                    ? 'Locked'
-                    : selectedDojo.controllingClan
-                      ? 'Controlled'
-                      : 'Available'}
-                </p>
-                <div className={styles.infoWindowSection}>
-                  <strong>Coordinates:</strong>{' '}
-                  {selectedDojo.coordinates.lat.toFixed(4)},{' '}
-                  {selectedDojo.coordinates.lng.toFixed(4)}
-                </div>
-                <div className={styles.infoWindowSection}>
-                  <strong>Status:</strong>{' '}
-                  {selectedDojo.isLocked
-                    ? 'Locked'
-                    : selectedDojo.controllingClan
-                      ? 'Controlled'
-                      : 'Free'}
-                </div>
-                {selectedDojo.controllingClan && (
-                  <div className={styles.infoWindowSection}>
-                    <strong>Controlled by:</strong>
-                    <div className={styles.controllerContainer}>
-                      <div>
-                        <div className={styles.clanName}>
-                          {selectedDojo.controllingClan.name}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {selectedDojo.distance && (
-                  <div className={styles.infoWindowSection}>
-                    <strong>Distance:</strong> {selectedDojo.distance}
-                  </div>
-                )}
-                {selectedDojo.isLocked && (
-                  <div className={styles.infoWindowSection}>
-                    <strong>Status:</strong> 🔒 Locked
-                  </div>
-                )}
-                <div className={styles.buttonRow}>
-                  <button
-                    onClick={() => {
-                      // Handle challenge logic
-                      console.log('Challenging dojo:', selectedDojo.id);
-                    }}
-                    className={styles.challengeButton}
-                  >
-                    Challenge
-                  </button>
-                  <button
-                    onClick={() => {
-                      // Handle view details logic
-                      console.log('Viewing dojo details:', selectedDojo.id);
-                    }}
-                    className={styles.viewDetailsButton}
-                  >
-                    View Details
-                  </button>
-                </div>
-                {isRival && isLeader && (
-                  <button
-                    onClick={() => setShadowRunOpen(true)}
-                    className={styles.shadowRunButton}
-                  >
-                    Initiate Shadow Run
-                  </button>
-                )}
-              </div>
+              <DojoInfoWindow
+                dojo={selectedDojo}
+                isRival={isRival}
+                isLeader={isLeader}
+                onClose={handleCloseInfoWindow}
+                onChallenge={handleChallengeDojo}
+                onViewDetails={handleViewDojoDetails}
+                onShadowRun={() => setShadowRunOpen(true)}
+              />
             </InfoWindow>
           )}
 
@@ -474,62 +265,12 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
               }}
               onCloseClick={handleCloseInfoWindow}
             >
-              <div className={styles.infoWindowContent}>
-                <h3 className={styles.infoWindowTitle}>
-                  {selectedPlayer.playerName}
-                </h3>
-                <div className={styles.infoWindowSection}>
-                  <strong>Status:</strong>{' '}
-                  <span
-                    className={
-                      selectedPlayer.isOnline
-                        ? styles.statusActive
-                        : styles.statusInactive
-                    }
-                  >
-                    {selectedPlayer.isOnline ? 'Online' : 'Offline'}
-                  </span>
-                </div>
-                {selectedPlayer.clan && (
-                  <div className={styles.infoWindowSection}>
-                    <strong>Clan:</strong> {selectedPlayer.clan}
-                  </div>
-                )}
-                <div className={styles.infoWindowSection}>
-                  <strong>Coordinates:</strong> {selectedPlayer.lat.toFixed(4)},{' '}
-                  {selectedPlayer.lng.toFixed(4)}
-                </div>
-                <div className={styles.infoWindowSection}>
-                  <strong>Last Update:</strong>{' '}
-                  {new Date(selectedPlayer.timestamp).toLocaleTimeString()}
-                </div>
-                <div className={styles.buttonRow}>
-                  <button
-                    onClick={() => {
-                      // Handle challenge logic
-                      console.log(
-                        'Challenging player:',
-                        selectedPlayer.playerId
-                      );
-                    }}
-                    className={styles.challengeButton}
-                  >
-                    Challenge
-                  </button>
-                  <button
-                    onClick={() => {
-                      // Handle view profile logic
-                      console.log(
-                        'Viewing player profile:',
-                        selectedPlayer.playerId
-                      );
-                    }}
-                    className={styles.viewDetailsButton}
-                  >
-                    View Profile
-                  </button>
-                </div>
-              </div>
+              <PlayerInfoWindow
+                player={selectedPlayer}
+                onClose={handleCloseInfoWindow}
+                onChallenge={handleChallengePlayer}
+                onViewProfile={handleViewPlayerProfile}
+              />
             </InfoWindow>
           )}
         </GoogleMap>

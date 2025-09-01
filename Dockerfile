@@ -2,10 +2,10 @@
 FROM node:20-alpine AS frontend-build
 ARG SKIP_FRONTEND_BUILD=false
 WORKDIR /app/frontend
-COPY src/dojopool/frontend/package*.json ./
-RUN if [ "$SKIP_FRONTEND_BUILD" = "false" ] ; then npm install ; fi
-COPY src/dojopool/frontend .
-RUN if [ "$SKIP_FRONTEND_BUILD" = "false" ] ; then npm run build ; fi
+COPY apps/web/package.json ./
+RUN if [ "$SKIP_FRONTEND_BUILD" = "false" ] ; then yarn install --immutable ; fi
+COPY apps/web .
+RUN if [ "$SKIP_FRONTEND_BUILD" = "false" ] ; then yarn build ; fi
 
 # Python build stage
 FROM python:3.13.2-slim AS backend-build
@@ -42,7 +42,9 @@ RUN mkdir -p /var/run/supervisor /var/log/supervisor /var/log/nginx \
     && chown -R www-data:www-data /var/run/supervisor /var/log/supervisor /var/log/nginx
 
 # Copy built frontend
-COPY --from=frontend-build /app/frontend/build /app/static
+COPY --from=frontend-build /app/frontend/.next/standalone /app/static
+COPY --from=frontend-build /app/frontend/public /app/static/public
+COPY --from=frontend-build /app/frontend/.next/static /app/static/.next/static
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy Python packages and application code
@@ -64,4 +66,4 @@ RUN chmod 755 /app/dojopool/app.py
 EXPOSE 5000
 
 # Start services using supervisord
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"] 
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

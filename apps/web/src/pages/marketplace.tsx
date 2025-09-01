@@ -3,7 +3,7 @@ import marketplaceService, {
   MarketplaceItem,
   UserBalance,
 } from '@/services/marketplaceService';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney.js';
+import { AttachMoney as AttachMoneyIcon } from '@mui/icons-material';
 import {
   Alert,
   Box,

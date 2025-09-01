@@ -1,22 +1,26 @@
+import { CMSDashboard } from '@/components/CMS';
+import ProtectedRoute from '@/components/Common/ProtectedRoute';
 import {
   Box,
   Button,
   Container,
-  Grid,
   Paper,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  Tabs,
   Typography,
 } from '@mui/material';
 import dynamic from 'next/dynamic';
-import React from 'react';
-import ProtectedRoute from '../components/Common/ProtectedRoute';
+import React, { useState } from 'react';
 
 const AdminPage: React.FC = () => {
+  const [tabValue, setTabValue] = useState(0);
+
   // Sample admin data
   const recentUsers = [
     {
@@ -50,151 +54,176 @@ const AdminPage: React.FC = () => {
     totalVenues: 67,
   };
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  const SystemOverviewTab = () => (
+    <>
+      <Box sx={{ mt: 4, mb: 6 }}>
+        <Typography variant="h3" component="h1" gutterBottom>
+          Admin Dashboard
+        </Typography>
+        <Typography variant="h6" color="text.secondary" gutterBottom>
+          System Overview & Management
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(4, 1fr)' },
+          gap: 3,
+        }}
+      >
+        {/* System Stats */}
+        <Paper elevation={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Total Users
+          </Typography>
+          <Typography variant="h3" color="primary">
+            {systemStats.totalUsers}
+          </Typography>
+        </Paper>
+
+        <Paper elevation={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Active Users
+          </Typography>
+          <Typography variant="h3" color="success.main">
+            {systemStats.activeUsers}
+          </Typography>
+        </Paper>
+
+        <Paper elevation={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Total Clans
+          </Typography>
+          <Typography variant="h3" color="warning.main">
+            {systemStats.totalClans}
+          </Typography>
+        </Paper>
+
+        <Paper elevation={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Active Matches
+          </Typography>
+          <Typography variant="h3" color="info.main">
+            {systemStats.activeMatches}
+          </Typography>
+        </Paper>
+      </Box>
+
+      {/* Recent Users Table */}
+      <Box sx={{ mt: 3 }}>
+        <Paper elevation={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Recent Users
+          </Typography>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Username</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Join Date</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {recentUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        color={
+                          user.status === 'Active'
+                            ? 'success.main'
+                            : 'error.main'
+                        }
+                      >
+                        {user.status}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{user.joinDate}</TableCell>
+                    <TableCell>
+                      <Button size="small" variant="outlined">
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      </Box>
+
+      {/* Quick Actions */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+          gap: 3,
+          mt: 3,
+        }}
+      >
+        <Paper elevation={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            User Management
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Button variant="contained" fullWidth>
+              View All Users
+            </Button>
+            <Button variant="outlined" fullWidth>
+              Manage Bans
+            </Button>
+            <Button variant="outlined" fullWidth>
+              User Analytics
+            </Button>
+          </Box>
+        </Paper>
+
+        <Paper elevation={2} sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            System Management
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Button variant="contained" fullWidth>
+              System Status
+            </Button>
+            <Button variant="outlined" fullWidth>
+              Backup Data
+            </Button>
+            <Button variant="outlined" fullWidth>
+              View Logs
+            </Button>
+          </Box>
+        </Paper>
+      </Box>
+    </>
+  );
+
   return (
     <ProtectedRoute requireAdmin={true}>
       <Container maxWidth="lg">
-        <Box sx={{ mt: 4, mb: 6 }}>
-          <Typography variant="h3" component="h1" gutterBottom>
-            Admin Dashboard
-          </Typography>
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            System Overview & Management
-          </Typography>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            aria-label="admin dashboard tabs"
+          >
+            <Tab label="System Overview" />
+            <Tab label="Content Management" />
+          </Tabs>
         </Box>
 
-        <Grid container spacing={3}>
-          {/* System Stats */}
-          <Grid item xs={12} md={3}>
-            <Paper elevation={2} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Total Users
-              </Typography>
-              <Typography variant="h3" color="primary">
-                {systemStats.totalUsers}
-              </Typography>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={3}>
-            <Paper elevation={2} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Active Users
-              </Typography>
-              <Typography variant="h3" color="success.main">
-                {systemStats.activeUsers}
-              </Typography>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={3}>
-            <Paper elevation={2} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Total Clans
-              </Typography>
-              <Typography variant="h3" color="warning.main">
-                {systemStats.totalClans}
-              </Typography>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={3}>
-            <Paper elevation={2} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Active Matches
-              </Typography>
-              <Typography variant="h3" color="info.main">
-                {systemStats.activeMatches}
-              </Typography>
-            </Paper>
-          </Grid>
-
-          {/* Recent Users Table */}
-          <Grid item xs={12}>
-            <Paper elevation={2} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Recent Users
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Username</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Join Date</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {recentUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>{user.username}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          <Typography
-                            variant="body2"
-                            color={
-                              user.status === 'Active'
-                                ? 'success.main'
-                                : 'error.main'
-                            }
-                          >
-                            {user.status}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>{user.joinDate}</TableCell>
-                        <TableCell>
-                          <Button size="small" variant="outlined">
-                            View
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Grid>
-
-          {/* Quick Actions */}
-          <Grid item xs={12} md={6}>
-            <Paper elevation={2} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                User Management
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Button variant="contained" fullWidth>
-                  View All Users
-                </Button>
-                <Button variant="outlined" fullWidth>
-                  Manage Bans
-                </Button>
-                <Button variant="outlined" fullWidth>
-                  User Analytics
-                </Button>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Paper elevation={2} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                System Management
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Button variant="contained" fullWidth>
-                  System Status
-                </Button>
-                <Button variant="outlined" fullWidth>
-                  Backup Data
-                </Button>
-                <Button variant="outlined" fullWidth>
-                  View Logs
-                </Button>
-              </Box>
-            </Paper>
-          </Grid>
-        </Grid>
+        {tabValue === 0 && <SystemOverviewTab />}
+        {tabValue === 1 && <CMSDashboard />}
       </Container>
     </ProtectedRoute>
   );
