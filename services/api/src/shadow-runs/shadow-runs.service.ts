@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -10,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ShadowRunsService {
+  private readonly logger = new Logger(ShadowRunsService.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService
@@ -142,7 +144,11 @@ export class ShadowRunsService {
             : `Shadow run ${type} failed against venue ${venue.name}.`,
           { runId: finalized.id, venueId: venue.id, transfer }
         );
-      } catch {}
+      } catch (_err) {
+        this.logger.warn(
+          'Failed to notify attacking clan leader of shadow run outcome'
+        );
+      }
 
       if (venue.controllingClanId) {
         const defendingClan = await tx.clan.findUnique({
@@ -158,7 +164,11 @@ export class ShadowRunsService {
                 : `A shadow run ${type} failed against your venue ${venue.name}.`,
               { runId: finalized.id, venueId: venue.id, transfer }
             );
-          } catch {}
+          } catch (_err) {
+            this.logger.warn(
+              'Failed to notify defending clan leader of shadow run outcome'
+            );
+          }
         }
       }
 

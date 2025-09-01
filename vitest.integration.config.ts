@@ -16,10 +16,16 @@ export default defineConfig({
     include: [
       'services/api/src/**/*.integration.spec.ts',
       'services/api/src/**/*.integration.test.ts',
+      'services/api/src/__tests__/territories.e2e.spec.ts',
     ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
+      all: false,
+      include: [
+        'services/api/src/**/*.integration.spec.ts',
+        'services/api/src/__tests__/territories.e2e.spec.ts',
+      ],
       exclude: [
         '**/node_modules/**',
         '**/dist/**',
@@ -42,6 +48,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'services/api/src'),
+      // Stub winston in tests to avoid missing dependency
+      winston: path.resolve(__dirname, 'tests/mocks/winston-stub.ts'),
     },
   },
 });

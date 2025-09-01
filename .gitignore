@@ -68,3 +68,31 @@ dojopool.bundle
 .vite/
 .vitest/
 .eslintcache
+
+# Large files and bundles
+*.bundle
+*.tar.gz
+*.zip
+*.7z
+*.rar
+*.iso
+*.dmg
+*.exe
+*.msi
+*.deb
+*.rpm
+*.apk
+
+# Security reports and logs (large files)
+security_reports/
+*.security
+cleanup/security_reports/
+*.log.gz
+*.log.bz2
+
+# Build artifacts that might be large
+dist/
+build/
+out/
+.next/
+.cache/

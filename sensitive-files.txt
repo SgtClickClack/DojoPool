@@ -1,0 +1,5 @@
+.env
+apps/web/localhost.key
+config.env
+src/dojopool/frontend/localhost.key
+src/frontend/.env
