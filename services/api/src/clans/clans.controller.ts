@@ -11,8 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Cacheable } from '../cache/cache.decorator';
 import { ClansService } from './clans.service';
-import { ClanResponseDto } from './dto/clan-response.dto';
 import { CreateClanDto } from './dto/create-clan.dto';
 import { UpgradeDojoDto } from './dto/upgrade-dojo.dto';
 
@@ -34,11 +34,19 @@ export class ClansController {
   }
 
   @Get()
+  @Cacheable({
+    ttl: 300, // 5 minutes
+    keyPrefix: 'clans:list',
+  })
   async getAllClans(): Promise<any[]> {
     return this.clansService.getAllClans();
   }
 
   @Get(':clanId')
+  @Cacheable({
+    ttl: 600, // 10 minutes
+    keyPrefix: 'clans:detail',
+  })
   async getClanById(@Param('clanId') clanId: string): Promise<any> {
     return this.clansService.getClanById(clanId);
   }

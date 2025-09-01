@@ -1,1 +1,0 @@
-"""DojoPool tournaments module."""

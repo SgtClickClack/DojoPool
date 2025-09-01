@@ -2,24 +2,25 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Patch,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
-  HttpCode,
-  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Cacheable } from '../cache/cache.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
 import { GetJournalQueryDto } from './dto/get-journal-query.dto';
-import { UsersService } from './users.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JournalService } from './journal.service';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -34,6 +35,10 @@ export class UsersController {
   }
 
   @Get()
+  @Cacheable({
+    ttl: 300, // 5 minutes
+    keyPrefix: 'users:list',
+  })
   findAll() {
     return this.usersService.findAllUsers();
   }

@@ -1,1 +1,0 @@
-"""DojoPool scripts module."""

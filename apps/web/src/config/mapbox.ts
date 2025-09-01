@@ -1,8 +1,6 @@
 // Mapbox Configuration
 export const MAPBOX_CONFIG = {
-  accessToken:
-    process.env.NEXT_PUBLIC_MAPBOX_TOKEN ||
-    'pk.eyJ1IjoiZGVmYXVsdCIsImEiOiJjbGV4YW1wbGUifQ.example',
+  accessToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '',
   defaultStyle: 'mapbox://styles/mapbox/streets-v12',
   defaultCenter: {
     longitude: 153.0251, // Brisbane, QLD
@@ -11,19 +9,29 @@ export const MAPBOX_CONFIG = {
   },
 };
 
-// Fallback token for development (replace with your actual token)
-export const getMapboxToken = (): string => {
+// Get Mapbox token with proper validation
+export const getMapboxToken = (): string | undefined => {
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-  if (
-    !token ||
-    token === 'pk.eyJ1IjoiZGVmYXVsdCIsImEiOiJjbGV4YW1wbGUifQ.example'
-  ) {
+
+  if (!token || token.trim() === '') {
     console.warn(
       '⚠️ Mapbox token not configured. Please set NEXT_PUBLIC_MAPBOX_TOKEN in your .env.local file'
     );
     console.warn(
       '🔗 Get your token from: https://account.mapbox.com/access-tokens/'
     );
+    console.warn(
+      'ℹ️ Map functionality will be disabled until a valid token is provided'
+    );
+    return undefined;
   }
-  return token || MAPBOX_CONFIG.accessToken;
+
+  // Basic validation - check if it looks like a valid Mapbox token
+  if (!token.startsWith('pk.') || token.length < 20) {
+    console.warn(
+      '⚠️ Mapbox token appears to be invalid. Please verify your token from https://account.mapbox.com/access-tokens/'
+    );
+  }
+
+  return token;
 };

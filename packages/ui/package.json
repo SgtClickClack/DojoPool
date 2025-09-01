@@ -15,20 +15,21 @@
     "@headlessui/react": "^1.7.17",
     "@tailwindcss/forms": "^0.5.7",
     "clsx": "^2.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
-    "typescript": "^5.3.3",
-    "eslint": "^8.56.0",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0"
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "react": ">=18.3.1",
+    "react-dom": ">=18.3.1"
   },
-  "private": true
+  "private": true,
+  "packageManager": "yarn@4.9.3"
 }

@@ -1,7 +1,7 @@
 'use client';
 
+import { DojoData, PlayerData, dojoService } from '@/services/dojoService';
 import React, { useEffect, useState } from 'react';
-import { DojoData, PlayerData, dojoService } from '../../services/dojoService';
 import styles from './SimpleWorldHub.module.css';
 
 interface SimpleWorldHubProps {

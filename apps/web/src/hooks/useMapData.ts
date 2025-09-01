@@ -1,9 +1,6 @@
+import { PlayerPosition, websocketService } from '@/services/WebSocketService';
+import { DojoData, PlayerData, dojoService } from '@/services/dojoService';
 import { useCallback, useEffect, useState } from 'react';
-import { DojoData, PlayerData, dojoService } from '../services/dojoService';
-import {
-  PlayerPosition,
-  websocketService,
-} from '../services/services/network/WebSocketService';
 
 export interface MapData {
   dojos: DojoData[];
@@ -78,7 +75,7 @@ export const useMapData = (
 
         // Subscribe to player position updates
         unsubscribe = websocketService.subscribeToPlayerPositions(
-          (positions) => {
+          (positions: any) => {
             console.log('Received player position updates:', positions);
             setPlayerPositions(positions);
           }
@@ -87,7 +84,7 @@ export const useMapData = (
         // Subscribe to dojo status updates
         const dojoUnsubscribe = websocketService.subscribe(
           'dojo_status_update',
-          (data) => {
+          (data: any) => {
             console.log('Received dojo status update:', data);
           }
         );
@@ -95,7 +92,7 @@ export const useMapData = (
         // Subscribe to game updates
         const gameUnsubscribe = websocketService.subscribe(
           'game_update',
-          (data) => {
+          (data: any) => {
             console.log('Received game update:', data);
           }
         );

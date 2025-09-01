@@ -1,9 +1,9 @@
 'use client';
 
+import { DojoData, PlayerData, dojoService } from '@/services/dojoService';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { DojoData, PlayerData, dojoService } from '../../services/dojoService';
 import styles from './MapboxWorldHubMap.module.css';
 
 interface MapboxWorldHubMapProps {

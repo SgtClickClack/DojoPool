@@ -3,7 +3,7 @@ import ConversationList from '@/components/chat/ConversationList';
 import { useChat } from '@/contexts/ChatContext';
 import { useAuth } from '@/hooks/useAuth';
 import chatService, { ChatMessage, Conversation } from '@/services/chatService';
-import { websocketService } from '@/services/services/network/WebSocketService';
+import { websocketService } from '@/services/WebSocketService';
 import {
   Alert,
   Box,

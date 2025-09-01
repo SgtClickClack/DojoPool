@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useAuth';
 import { ChatMessage, Conversation } from '@/services/chatService';
-import { websocketService } from '@/services/services/network/WebSocketService';
+import { websocketService } from '@/services/WebSocketService';
 import React, {
   createContext,
   useCallback,

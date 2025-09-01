@@ -1,3 +1,7 @@
+import EditProfileModal from '@/components/EditProfileModal';
+import JournalFeed from '@/components/profile/JournalFeed';
+import { useAuth } from '@/hooks/useAuth';
+import { type UserProfile } from '@/services/api/profile';
 import {
   Avatar,
   Box,
@@ -14,10 +18,6 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
-import EditProfileModal from '../components/EditProfileModal';
-import JournalFeed from '../components/profile/JournalFeed';
-import { useAuth } from '../hooks/useAuth';
-import { type UserProfile } from '../services/api/profile';
 
 const ProfilePage: React.FC = () => {
   const { user, logout } = useAuth();

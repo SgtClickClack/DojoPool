@@ -9,13 +9,11 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { corsOptions } from '../config/cors.config';
 import { AiAnalysisService, ShotData } from './ai-analysis.service';
 
 @WebSocketGateway({
-  cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true,
-  },
+  cors: corsOptions,
   namespace: '/match',
 })
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {

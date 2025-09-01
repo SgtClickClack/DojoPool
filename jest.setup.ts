@@ -9,8 +9,8 @@ if (typeof global.TextEncoder === 'undefined') {
 }
 
 import '@testing-library/jest-dom';
-import 'whatwg-fetch'; // Polyfill for fetch
 import structuredClone from '@ungap/structured-clone';
+import 'whatwg-fetch'; // Polyfill for fetch
 if (typeof global.structuredClone !== 'function') {
   global.structuredClone = structuredClone;
 }
@@ -18,12 +18,12 @@ if (typeof global.structuredClone !== 'function') {
 // Mock Firebase Initialization
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(() => ({
-    options: { apiKey: 'mock-key' },
+    options: { apiKey: process.env.FIREBASE_API_KEY || 'test-mock-key' },
     name: 'mock-app',
   })),
   getApps: jest.fn(() => []),
   getApp: jest.fn(() => ({
-    options: { apiKey: 'mock-key' },
+    options: { apiKey: process.env.FIREBASE_API_KEY || 'test-mock-key' },
     name: 'mock-app',
   })),
   _getProvider: jest.fn().mockReturnValue({
@@ -82,7 +82,7 @@ jest.mock('ws', () => {
         }
         send = jest.fn();
         close = jest.fn(() => { setTimeout(() => this.emit('close'), 1); });
-        readyState = 1; 
+        readyState = 1;
     }
     class MockWebSocketServer extends EventEmitter {
         constructor(options: { port: number }) {
@@ -95,12 +95,12 @@ jest.mock('ws', () => {
         clients = new Set();
     }
     return {
-        __esModule: true, 
+        __esModule: true,
         default: {
             Server: MockWebSocketServer,
-            WebSocket: MockWebSocket 
+            WebSocket: MockWebSocket
         },
-        Server: MockWebSocketServer, 
+        Server: MockWebSocketServer,
     };
 });
 */

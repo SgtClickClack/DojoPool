@@ -1,20 +1,23 @@
+import { useAuth } from '@/hooks/useAuth';
+import { Google as GoogleIcon } from '@mui/icons-material';
 import {
   Alert,
   Box,
   Button,
   Container,
+  Divider,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
@@ -25,8 +28,40 @@ const LoginPage: React.FC = () => {
     try {
       await login(email, password);
       router.push('/');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      // Provide more specific error messages based on the error type
+      if (
+        err.message?.includes('Network Error') ||
+        err.message?.includes('ECONNREFUSED')
+      ) {
+        setError(
+          'Unable to connect to the server. Please check your internet connection and try again.'
+        );
+      } else if (err.response?.status === 401) {
+        setError('Invalid email or password. Please try again.');
+      } else if (err.response?.status === 429) {
+        setError(
+          'Too many login attempts. Please wait a few minutes and try again.'
+        );
+      } else if (err.response?.status === 500) {
+        setError('Server error. Please try again later.');
+      } else {
+        setError(err.message || 'Login failed. Please try again.');
+      }
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    setError('');
+
+    try {
+      // Redirect to Google OAuth
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || '/api'}/auth/google`;
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError('Google sign-in failed. Please try again.');
+      setIsGoogleLoading(false);
     }
   };
 
@@ -51,18 +86,45 @@ const LoginPage: React.FC = () => {
             </Alert>
           )}
 
+          {/* Google Sign In Button */}
+          <Button
+            fullWidth
+            variant="outlined"
+            startIcon={<GoogleIcon />}
+            onClick={handleGoogleSignIn}
+            disabled={isGoogleLoading}
+            sx={{
+              mb: 3,
+              borderColor: '#4285f4',
+              color: '#4285f4',
+              '&:hover': {
+                borderColor: '#357ae8',
+                backgroundColor: '#f8f9fa',
+              },
+            }}
+          >
+            {isGoogleLoading ? 'Connecting...' : 'Sign in with Google'}
+          </Button>
+
+          <Divider sx={{ mb: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              or
+            </Typography>
+          </Divider>
+
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <Box sx={{ mb: 2 }}>
-              <label
+              <Box
+                component="label"
                 htmlFor="email"
-                style={{
+                sx={{
                   display: 'block',
-                  marginBottom: '8px',
+                  mb: 1,
                   fontWeight: 500,
                 }}
               >
                 Email Address
-              </label>
+              </Box>
               <TextField
                 margin="normal"
                 required
@@ -78,16 +140,17 @@ const LoginPage: React.FC = () => {
               />
             </Box>
             <Box sx={{ mb: 2 }}>
-              <label
+              <Box
+                component="label"
                 htmlFor="password"
-                style={{
+                sx={{
                   display: 'block',
-                  marginBottom: '8px',
+                  mb: 1,
                   fontWeight: 500,
                 }}
               >
                 Password
-              </label>
+              </Box>
               <TextField
                 margin="normal"
                 required

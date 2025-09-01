@@ -7,7 +7,6 @@ import {
   CardContent,
   Container,
   Divider,
-  Grid,
   Paper,
   Typography,
 } from '@mui/material';
@@ -131,8 +130,14 @@ export default function ChallengeDemoPage() {
       </Paper>
 
       {/* Challenge Notifications */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' },
+          gap: 3,
+        }}
+      >
+        <Box>
           <Typography variant="h5" gutterBottom>
             Incoming Challenges ({challenges.length})
           </Typography>
@@ -156,10 +161,10 @@ export default function ChallengeDemoPage() {
               />
             ))
           )}
-        </Grid>
+        </Box>
 
         {/* Demo Information */}
-        <Grid item xs={12} md={4}>
+        <Box>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -181,17 +186,17 @@ export default function ChallengeDemoPage() {
               <Typography variant="subtitle2" gutterBottom>
                 Challenge Flow:
               </Typography>
-              <ol style={{ margin: 0, paddingLeft: '1.2rem' }}>
+              <Box component="ol" sx={{ m: 0, pl: '1.2rem' }}>
                 <li>Player sends challenge with optional wager</li>
                 <li>Challenged player receives notification</li>
                 <li>If wager involved, confirmation dialog appears</li>
                 <li>Upon acceptance, match is created</li>
                 <li>Winner receives DojoCoins</li>
-              </ol>
+              </Box>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Container>
   );
 }

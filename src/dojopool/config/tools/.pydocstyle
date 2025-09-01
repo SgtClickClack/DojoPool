@@ -1,8 +1,0 @@
-[pydocstyle]
-convention = google
-add-select = D417
-add-ignore = D100,D104,D107,D203,D213,D406,D407
-match = .*\.py
-match-dir = [^\.].*
-ignore-decorators = (property|classmethod|staticmethod)
-inherit = false 

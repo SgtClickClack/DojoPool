@@ -1,6 +1,6 @@
+import EnhancedVenueManagementPanel from '@/components/venue/EnhancedVenueManagementPanel';
 import { Box, Container, Paper, Typography } from '@mui/material';
 import React from 'react';
-import EnhancedVenueManagementPanel from '../../components/venue/EnhancedVenueManagementPanel';
 
 const VenueManagementPage: React.FC = () => {
   return (

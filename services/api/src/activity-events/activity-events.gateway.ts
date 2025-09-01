@@ -1,17 +1,11 @@
 import { Logger } from '@nestjs/common';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { corsOptions } from '../config/cors.config';
 import { SOCKET_NAMESPACES } from '../config/sockets.config';
 
 @WebSocketGateway({
-  cors: {
-    origin:
-      (process.env.ALLOWED_ORIGINS &&
-        process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim())) ||
-      process.env.FRONTEND_URL ||
-      'http://localhost:3000',
-    credentials: true,
-  },
+  cors: corsOptions,
   namespace: SOCKET_NAMESPACES.ACTIVITY,
 })
 export class ActivityEventsGateway {

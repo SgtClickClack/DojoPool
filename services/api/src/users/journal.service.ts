@@ -100,7 +100,7 @@ export class JournalService {
     const activityItems: JournalItem[] = activities.map((e) => ({
       type: 'activity',
       id: e.id,
-      message: e.message,
+      message: e.message || 'Activity occurred',
       rawType: e.type as string,
       timestamp: e.createdAt.toISOString(),
       relatedEntityId:
@@ -127,7 +127,7 @@ export class JournalService {
       return {
         type: 'notification',
         id: n.id,
-        message: n.message,
+        message: n.message || 'Notification received',
         timestamp: n.createdAt.toISOString(),
         relatedEntityId,
       };

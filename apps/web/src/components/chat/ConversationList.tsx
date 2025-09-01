@@ -5,8 +5,8 @@ import {
   Box,
   Divider,
   List,
-  ListItem,
   ListItemAvatar,
+  ListItemButton,
   ListItemText,
   Paper,
   Typography,
@@ -63,8 +63,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
       <List sx={{ p: 0, height: 'calc(100% - 80px)', overflow: 'auto' }}>
         {conversations.map((conversation, index) => (
           <React.Fragment key={conversation.id}>
-            <ListItem
-              button
+            <ListItemButton
               selected={selectedConversationId === conversation.id}
               onClick={() => onSelectConversation(conversation)}
               sx={{
@@ -181,7 +180,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                 }
                 sx={{ mr: 1 }}
               />
-            </ListItem>
+            </ListItemButton>
             {index < conversations.length - 1 && <Divider />}
           </React.Fragment>
         ))}

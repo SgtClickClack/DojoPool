@@ -7,6 +7,7 @@
 ## ✨ Features
 
 ### 🎮 Core Gaming Features
+
 - **World Hub Map**: Interactive map of players, Dojos (venues), and territories.
 - **Territory Control**: Claim, defend, and level up Dojos; NFT-backed ownership.
 - **Live Tournaments**: Brackets, live match reporting, prize pools, cross-chain support.
@@ -14,23 +15,27 @@
 - **Clans**: Create/join clans, clan wars, bonuses, and territory influence.
 
 ### 🤖 AI & Analysis
+
 - **AR Coach**: AI-powered table analysis with ball detection and coaching insights.
 - **AI Analysis & Commentary**: Sky-T1 referee decisions, Diception tracking, Pool God commentary.
 - **Content Generation**: Highlights, tutorials, promos via Wan 2.1 and AudioCraft.
 - **Real-time Match Tracking**: Computer vision for ball position and shot analysis.
 
 ### 💼 Venue Management
+
 - **Venue Management Portal**: Owner dashboards for profile, specials, tournaments, rewards, NFTs.
 - **Tournament Sponsorship**: Venue owners can sponsor tournaments with custom benefits and budgets.
 - **Quest Management**: Create and manage venue-specific quests with rewards and progression.
 - **Analytics Dashboard**: Revenue tracking, player analytics, and venue performance metrics.
 
 ### 👥 Social & Community
+
 - **Player Profiles**: Stats, history, avatar evolution, achievements, ranking.
 - **Direct Messaging**: Friends, DMs, notifications, and social feed integration.
 - **Marketplace**: Trade NFTs, avatar items, and Dojo ownership with filters and pricing.
 
 ### 🔐 Security & Infrastructure
+
 - **Authentication**: JWT-based auth with CSRF header and secure CORS.
 - **Blockchain Integration**: Dojo Coin (ERC-20), multi-chain wallets, NFT trophies.
 - **Real-time Communication**: WebSocket support for live matches and chat.
@@ -39,7 +44,7 @@
 
 ## 💻 Tech Stack
 
-- **Monorepo**: npm Workspaces with Turbo
+- **Monorepo**: Yarn v4 Workspaces
 - **Frontend**: Next.js 15, React 18, TypeScript, Material-UI, Google Maps API
 - **Backend**: NestJS, TypeScript, Prisma ORM, WebSockets (Socket.io)
 - **Database**: PostgreSQL with Prisma ORM
@@ -54,7 +59,7 @@
 
 This is a monorepo with two primary packages:
 
-```
+```bash
 dojopool/
 ├── apps/
 │   └── web/                 # Next.js frontend application
@@ -102,7 +107,7 @@ dojopool/
 2. **Install Dependencies**: From the project root, run:
 
    ```bash
-   npm install
+   yarn install --immutable
    ```
 
 3. **Set Environment Variables**: Create a `.env` file in the `services/api` directory. At a minimum, you need:
@@ -124,7 +129,7 @@ dojopool/
 5. **Run Development Servers**: From the project root, run both services concurrently:
 
    ```bash
-   npm run dev
+   yarn dev
    ```
 
    - Frontend will be available at `http://localhost:3000`.
@@ -138,16 +143,16 @@ The project uses multiple testing frameworks:
 
 ```bash
 # Unit tests with Vitest
-npm run test:unit
+yarn test:unit
 
 # Integration tests
-npm run test:int
+yarn test:int
 
 # All tests with coverage
-npm run test:coverage
+yarn test:coverage
 
 # E2E tests with Cypress
-npm run cypress:open
+yarn cypress:open
 ```
 
 ---
@@ -156,46 +161,22 @@ npm run cypress:open
 
 ```bash
 # Development
-npm run dev                    # Start both frontend and backend
-npm run dev:backend           # Start only backend
-npm run build                 # Build frontend
-npm run build:backend         # Build backend
+yarn dev                      # Start both frontend and backend
+yarn dev:backend              # Start only backend
+yarn build                    # Build frontend
+yarn build:backend            # Build backend
 
 # Code Quality
-npm run lint                  # Run ESLint
-npm run lint:fix              # Fix ESLint issues
-npm run format                # Format code with Prettier
-npm run type-check            # TypeScript type checking
+yarn lint                     # Run ESLint
+yarn lint:fix                 # Fix ESLint issues
+yarn format                   # Format code with Prettier
+yarn type-check               # TypeScript type checking
 
 # AI-Assisted Development
-npm run ai:explain-error      # Get AI explanation of errors
-npm run ai:fix                # AI-assisted bug fixes
-npm run ai:refactor           # AI-assisted code refactoring
+yarn ai:explain-error         # Get AI explanation of errors
+yarn ai:fix                   # AI-assisted bug fixes
+yarn ai:refactor              # AI-assisted code refactoring
 ```
-
----
-
-## 🎮 Core Gameplay Features
-
-### Territory Control System
-
-- Players compete for control of physical venue locations
-- Real-time territory battles with stake-based matches
-- NFT-backed digital ownership of venues
-
-### Tournament System
-
-- Live bracket visualization
-- Real-time match reporting
-- Cross-chain tournament support
-- Prize pool management
-
-### Social Features
-
-- Friend system with requests and messaging
-- Clan-based gameplay mechanics
-- Achievement and progression tracking
-- Player reputation system
 
 ---
 
@@ -303,6 +284,7 @@ For technical support or questions:
 ### 🎯 Recent Releases
 
 #### v3.0.0 - Feature Complete Release ✨
+
 - **AR Coach System**: AI-powered table analysis and ball detection
 - **Venue Sponsorship Portal**: Tournament sponsorship and quest management
 - **Seasons System**: Competitive seasons with leaderboards and rewards
@@ -322,24 +304,24 @@ _Built with ❤️ by the Dojo Pool development team_
 
 If development servers have been stopped but Node.js processes remain running in the background, use the safe, specific cleanup flow below. Avoid broad search patterns that could match protected Windows processes (e.g., wlanext).
 
-Option A — via npm script (recommended):
+Option A — via Yarn script (recommended):
 
 1. Open PowerShell as Administrator.
 2. Run:
 
-```
-npm run cleanup:node:win
+```bash
+yarn cleanup:node:win
 ```
 
 Option B — run the command directly (in elevated PowerShell):
 
-```
+```bash
 Get-Process -Name "node" | Stop-Process -Force
 ```
 
 Option C — run the helper script directly (in elevated PowerShell):
 
-```
+```bash
 powershell -ExecutionPolicy Bypass -File scripts\cleanup-node-processes.ps1
 ```
 

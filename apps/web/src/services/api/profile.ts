@@ -1,4 +1,4 @@
-import apiClient from './apiClient';
+import { apiClient } from '@/services/APIService';
 
 export interface UpdateProfileData {
   username?: string;

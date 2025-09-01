@@ -1,61 +1,50 @@
+import path from 'path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [],
   test: {
-    environment: 'jsdom',
-    setupFiles: ['./src/tests/setup.ts'],
+    environment: 'node',
+    setupFiles: ['./jest.setup.ts'],
     globals: true,
-    include: [
-      'src/tests/unit/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-    ],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
       '**/build/**',
       '**/coverage/**',
-      'src/tests/integration/**',
-      'src/**/__tests__/**',
-      'generated/**',
-      // Exclude known flaky/broken unit tests for now
-      'src/tests/unit/AIPoweredMatchAnalysisService.test.ts',
-      'src/tests/unit/AdvancedAIRefereeService.test.ts',
-      'src/tests/unit/AdvancedMatchAnalysisService.test.ts',
-      'src/tests/unit/AdvancedMatchCommentaryService.test.ts',
-      'src/tests/unit/MatchAnalysisService.test.ts',
-      'src/tests/unit/RealTimeAICommentaryService.test.ts',
-      'src/tests/unit/SkyT1Service.test.ts',
-      'src/tests/unit/TournamentCommentaryService.test.ts',
-      'src/tests/unit/TournamentPredictionService.test.ts',
-      'src/tests/unit/EnhancedVenueManagementService.test.ts',
+      'apps/web/**',
+      'services/api/src/**/*.integration.spec.ts',
+    ],
+    include: [
+      'services/api/src/**/*.spec.ts',
+      'services/api/src/**/*.test.ts',
+      'packages/**/src/**/*.spec.ts',
+      'packages/**/src/**/*.test.ts',
     ],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'lcov'],
-      reportsDirectory: 'coverage/js/unit',
-      all: false,
-      include: ['src/services/economy/**/*.ts', 'src/services/avatar/**/*.ts'],
+      reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
-        'src/tests/**',
-        'src/**/__tests__/**',
-        '**/*.d.ts',
         '**/node_modules/**',
         '**/dist/**',
         '**/build/**',
-        '**/coverage/**',
-        'generated/**',
+        'apps/web/**',
+        'services/api/src/main.ts',
+        'services/api/src/**/*.module.ts',
+        'packages/**/dist/**',
       ],
       thresholds: {
-        lines: 70,
-        functions: 70,
-        branches: 60,
-        statements: 70,
+        global: {
+          branches: 80,
+          functions: 80,
+          lines: 80,
+          statements: 80,
+        },
       },
     },
   },
   resolve: {
     alias: {
-      '@': '/src',
+      '@': path.resolve(__dirname, 'services/api/src'),
     },
   },
 });

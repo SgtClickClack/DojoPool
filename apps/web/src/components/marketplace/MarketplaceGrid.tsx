@@ -1,5 +1,5 @@
 import { MarketplaceItem } from '@/services/marketplaceService';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney.js';
+import { AttachMoney as AttachMoneyIcon } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -7,7 +7,6 @@ import {
   CardContent,
   CardMedia,
   Chip,
-  Grid,
   Typography,
 } from '@mui/material';
 import React from 'react';
@@ -48,9 +47,20 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
   };
 
   return (
-    <Grid container spacing={3}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: '1fr',
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(3, 1fr)',
+          lg: 'repeat(4, 1fr)',
+        },
+        gap: 3,
+      }}
+    >
       {items.map((item) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
+        <Box key={item.id}>
           <Card
             className={styles.itemCard}
             sx={{
@@ -169,9 +179,9 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
               </Button>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
       ))}
-    </Grid>
+    </Box>
   );
 };
 

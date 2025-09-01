@@ -19,7 +19,6 @@ import {
   CircularProgress,
   Container,
   Divider,
-  Grid,
   List,
   ListItem,
   ListItemAvatar,
@@ -257,59 +256,57 @@ const DojoDetailPage: React.FC = () => {
         </Typography>
       </Box>
 
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3 }}>
         {/* Dojo Master Display - Full Width */}
-        <Grid item xs={12}>
+        <Box>
           {master && <DojoMasterDisplay master={master} dojoName={dojo.name} />}
-        </Grid>
+        </Box>
 
         {/* Stats Overview */}
-        <Grid item xs={12} md={4}>
+        <Box>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Dojo Statistics
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <StatCard>
-                    <Typography variant="h4" color="primary">
-                      {leaderboard.length}
-                    </Typography>
-                    <Typography variant="caption">Active Players</Typography>
-                  </StatCard>
-                </Grid>
-                <Grid item xs={6}>
-                  <StatCard>
-                    <Typography variant="h4" color="success.main">
-                      {recentMatches.length}
-                    </Typography>
-                    <Typography variant="caption">Recent Matches</Typography>
-                  </StatCard>
-                </Grid>
-                <Grid item xs={6}>
-                  <StatCard>
-                    <Typography variant="h4" color="warning.main">
-                      {master?.dojoControlDays || 0}
-                    </Typography>
-                    <Typography variant="caption">Days Controlled</Typography>
-                  </StatCard>
-                </Grid>
-                <Grid item xs={6}>
-                  <StatCard>
-                    <Typography variant="h4" color="info.main">
-                      {master?.currentStreak || 0}
-                    </Typography>
-                    <Typography variant="caption">Current Streak</Typography>
-                  </StatCard>
-                </Grid>
-              </Grid>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: 2,
+                }}
+              >
+                <StatCard>
+                  <Typography variant="h4" color="primary">
+                    {leaderboard.length}
+                  </Typography>
+                  <Typography variant="caption">Active Players</Typography>
+                </StatCard>
+                <StatCard>
+                  <Typography variant="h4" color="success.main">
+                    {recentMatches.length}
+                  </Typography>
+                  <Typography variant="caption">Recent Matches</Typography>
+                </StatCard>
+                <StatCard>
+                  <Typography variant="h4" color="warning.main">
+                    {master?.dojoControlDays || 0}
+                  </Typography>
+                  <Typography variant="caption">Days Controlled</Typography>
+                </StatCard>
+                <StatCard>
+                  <Typography variant="h4" color="info.main">
+                    {master?.currentStreak || 0}
+                  </Typography>
+                  <Typography variant="caption">Current Streak</Typography>
+                </StatCard>
+              </Box>
             </CardContent>
           </StyledCard>
-        </Grid>
+        </Box>
 
         {/* Leaderboard */}
-        <Grid item xs={12} md={8}>
+        <Box>
           <StyledCard>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
@@ -350,19 +347,29 @@ const DojoDetailPage: React.FC = () => {
               </List>
             </CardContent>
           </StyledCard>
-        </Grid>
+        </Box>
 
         {/* Recent Matches */}
-        <Grid item xs={12}>
+        <Box>
           <StyledCard>
             <CardContent>
               <Box display="flex" alignItems="center" mb={2}>
                 <TrendingIcon sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography variant="h6">Recent Matches</Typography>
               </Box>
-              <Grid container spacing={2}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: {
+                    xs: '1fr',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)',
+                  },
+                  gap: 2,
+                }}
+              >
                 {recentMatches.map((match) => (
-                  <Grid item xs={12} sm={6} md={4} key={match.id}>
+                  <Box key={match.id}>
                     <Card variant="outlined">
                       <CardContent>
                         <Box
@@ -400,13 +407,13 @@ const DojoDetailPage: React.FC = () => {
                         </Typography>
                       </CardContent>
                     </Card>
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
+              </Box>
             </CardContent>
           </StyledCard>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Action Buttons */}
       <Box display="flex" gap={2} mt={4} justifyContent="center">

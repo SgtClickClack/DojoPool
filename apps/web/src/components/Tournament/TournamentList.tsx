@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   FormControl,
-  Grid,
   InputLabel,
   MenuItem,
   Select,
@@ -16,15 +15,15 @@ import TournamentCard from './TournamentCard';
 interface Tournament {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   startDate: string;
-  endDate: string;
-  location: string;
-  maxParticipants: number;
-  currentParticipants: number;
-  entryFee: number;
-  prizePool: number;
-  status: 'upcoming' | 'active' | 'completed' | 'cancelled';
+  endDate?: string;
+  location?: string;
+  maxParticipants?: number;
+  currentParticipants?: number;
+  entryFee?: number;
+  prizePool?: number;
+  status: 'REGISTRATION' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 }
 
 interface TournamentListProps {
@@ -48,7 +47,10 @@ const TournamentList: React.FC<TournamentListProps> = ({
     return tournaments.filter((tournament) => {
       const matchesSearch =
         tournament.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tournament.description.toLowerCase().includes(searchTerm.toLowerCase());
+        (tournament.description
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ??
+          false);
 
       const matchesStatus =
         statusFilter === 'all' || tournament.status === statusFilter;
@@ -97,8 +99,15 @@ const TournamentList: React.FC<TournamentListProps> = ({
 
       {/* Filters */}
       <Box sx={{ mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={4}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 2,
+            alignItems: 'center',
+          }}
+        >
+          <Box sx={{ flex: '1 1 300px' }}>
             <TextField
               fullWidth
               label="Search tournaments"
@@ -106,9 +115,9 @@ const TournamentList: React.FC<TournamentListProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name or description..."
             />
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={3}>
+          <Box sx={{ flex: '1 1 220px' }}>
             <FormControl fullWidth>
               <InputLabel>Status</InputLabel>
               <Select
@@ -131,9 +140,9 @@ const TournamentList: React.FC<TournamentListProps> = ({
                 </MenuItem>
               </Select>
             </FormControl>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={3}>
+          <Box sx={{ flex: '1 1 220px' }}>
             <FormControl fullWidth>
               <InputLabel>Location</InputLabel>
               <Select
@@ -149,9 +158,9 @@ const TournamentList: React.FC<TournamentListProps> = ({
                 ))}
               </Select>
             </FormControl>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} md={2}>
+          <Box sx={{ flex: '1 1 160px' }}>
             <Button
               fullWidth
               variant="outlined"
@@ -164,8 +173,8 @@ const TournamentList: React.FC<TournamentListProps> = ({
             >
               Clear Filters
             </Button>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Box>
 
       {/* Results count */}
@@ -178,17 +187,28 @@ const TournamentList: React.FC<TournamentListProps> = ({
 
       {/* Tournament grid */}
       {filteredTournaments.length > 0 ? (
-        <Grid container spacing={3}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)',
+            },
+            gap: 3,
+          }}
+        >
           {filteredTournaments.map((tournament) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={tournament.id}>
+            <Box key={tournament.id}>
               <TournamentCard
                 {...tournament}
                 onJoin={onJoinTournament}
                 onView={onViewTournament}
               />
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
       ) : (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Typography variant="h6" color="text.secondary" gutterBottom>

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dojopool-frontend-service
+  namespace: dojopool
+  labels:
+    app: dojopool-frontend
+spec:
+  selector:
+    app: dojopool-frontend
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+  type: NodePort

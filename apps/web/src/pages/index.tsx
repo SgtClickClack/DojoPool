@@ -1,7 +1,7 @@
+import { useAuth } from '@/hooks/useAuth';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
 
 const HomePage: React.FC = () => {
   const { user, loading } = useAuth();
@@ -33,7 +33,7 @@ const HomePage: React.FC = () => {
         <Typography variant="h3" gutterBottom>
           Welcome to DojoPool
         </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
+        <Typography variant="h6" sx={{ mb: 4, color: '#EEEEEE' }}>
           Explore venues, manage your dojo, and join tournaments.
         </Typography>
         <Box
@@ -49,6 +49,9 @@ const HomePage: React.FC = () => {
           </Button>
           <Button variant="outlined" href="/venue/portal/profile">
             Venue Portal
+          </Button>
+          <Button variant="contained" href="/auth/register">
+            Sign Up
           </Button>
           <Button variant="outlined" href="/login">
             Sign In

@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationType } from '@prisma/client';
 
 export interface NotificationTemplate {
   title: string;
   message: string;
-  type: NotificationType;
+  type: string;
 }
 
 @Injectable()
@@ -13,7 +12,7 @@ export class NotificationTemplatesService {
     return {
       title: 'New Friend Request',
       message: `${requesterUsername} sent you a friend request`,
-      type: NotificationType.FRIEND_REQUEST,
+      type: 'FRIEND_REQUEST',
     };
   }
 
@@ -24,7 +23,7 @@ export class NotificationTemplatesService {
     return {
       title: 'New Challenge Received',
       message: `${challengerUsername} challenged you at ${venueName}`,
-      type: NotificationType.CHALLENGE_RECEIVED,
+      type: 'CHALLENGE_RECEIVED',
     };
   }
 
@@ -35,7 +34,7 @@ export class NotificationTemplatesService {
     return {
       title: 'Territory Control Changed',
       message: `${newOwnerUsername} now controls ${venueName}`,
-      type: NotificationType.TERRITORY_CHANGED,
+      type: 'TERRITORY_CHANGED',
     };
   }
 
@@ -46,7 +45,7 @@ export class NotificationTemplatesService {
     return {
       title: 'Tournament Invitation',
       message: `${inviterUsername} invited you to join ${tournamentName}`,
-      type: NotificationType.TOURNAMENT_INVITE,
+      type: 'TOURNAMENT_INVITE',
     };
   }
 
@@ -57,7 +56,7 @@ export class NotificationTemplatesService {
     return {
       title: 'Clan Invitation',
       message: `${inviterUsername} invited you to join ${clanName}`,
-      type: NotificationType.CLAN_INVITE,
+      type: 'CLAN_INVITE',
     };
   }
 
@@ -67,7 +66,7 @@ export class NotificationTemplatesService {
     return {
       title: 'Achievement Unlocked!',
       message: `Congratulations! You've unlocked: ${achievementName}`,
-      type: NotificationType.ACHIEVEMENT_UNLOCKED,
+      type: 'ACHIEVEMENT_UNLOCKED',
     };
   }
 
@@ -80,7 +79,7 @@ export class NotificationTemplatesService {
     return {
       title: `Match ${result === 'win' ? 'Victory' : 'Result'}`,
       message: `You ${resultText} ${opponentUsername} at ${venueName}`,
-      type: NotificationType.MATCH_RESULT,
+      type: 'MATCH_RESULT',
     };
   }
 
@@ -88,7 +87,7 @@ export class NotificationTemplatesService {
     return {
       title: 'Venue Check-in',
       message: `Welcome to ${venueName}! You're now checked in and ready to play.`,
-      type: NotificationType.VENUE_CHECKIN,
+      type: 'VENUE_CHECKIN',
     };
   }
 
@@ -106,7 +105,7 @@ export class NotificationTemplatesService {
     return {
       title: 'Clan War Update',
       message: messages[action],
-      type: NotificationType.CLAN_WAR_UPDATE,
+      type: 'CLAN_WAR_UPDATE',
     };
   }
 
@@ -117,7 +116,7 @@ export class NotificationTemplatesService {
     return {
       title,
       message,
-      type: NotificationType.SYSTEM,
+      type: 'SYSTEM',
     };
   }
 }

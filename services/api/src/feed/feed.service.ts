@@ -48,9 +48,6 @@ export class FeedService {
       include: {
         user: { select: { id: true, username: true } },
         venue: { select: { id: true, name: true } },
-        tournament: { select: { id: true, name: true } },
-        match: { select: { id: true } },
-        clan: { select: { id: true, name: true } },
       },
     });
 

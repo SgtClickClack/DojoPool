@@ -7,6 +7,8 @@ import {
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
+import { CacheInvalidate, CacheKey, Cacheable } from '../cache/cache.decorator';
+import { CacheHelper } from '../cache/cache.helper';
 import { MatchesGateway } from '../matches/matches.gateway';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -23,6 +25,7 @@ export class VenuesService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly cacheHelper: CacheHelper,
     @Inject(forwardRef(() => MatchesGateway))
     private readonly matchesGateway: MatchesGateway
   ) {}
@@ -34,6 +37,7 @@ export class VenuesService {
     });
   }
 
+  @CacheInvalidate(['venues'])
   async createTable(venueId: string, data: { name: string; status?: string }) {
     if (!data?.name || typeof data.name !== 'string') {
       throw new BadRequestException('name is required');
@@ -50,6 +54,7 @@ export class VenuesService {
     await this.prisma.table.create({
       data: {
         venueId,
+        // Remove tableNumber as it doesn't exist in schema
         name: data.name,
         status: (data.status ?? 'AVAILABLE') as any,
       },
@@ -284,8 +289,8 @@ export class VenuesService {
     const distance = this.haversineDistanceMeters(
       lat,
       lng,
-      venue.lat,
-      venue.lng
+      venue.lat || 0,
+      venue.lng || 0
     );
     const MAX_RADIUS_METERS = 100;
     if (distance > MAX_RADIUS_METERS) {
@@ -296,6 +301,7 @@ export class VenuesService {
       data: {
         userId,
         venueId,
+        // Remove dojoName as it doesn't exist in schema
       },
     });
 
@@ -306,10 +312,16 @@ export class VenuesService {
     };
   }
 
+  @Cacheable({
+    ttl: 300, // 5 minutes
+    keyPrefix: 'venues:owned',
+    keyGenerator: (userId: string) => CacheKey('owned', userId),
+  })
   async getOwnedVenues(userId: string) {
     return this.prisma.venue.findMany({ where: { ownerId: userId } });
   }
 
+  @CacheInvalidate(['venues', 'venues:owned'])
   async updateVenue(id: string, userId: string, data: any) {
     const venue = await this.prisma.venue.findUnique({ where: { id } });
     if (!venue || venue.ownerId !== userId) throw new ForbiddenException();
@@ -386,6 +398,8 @@ export class VenuesService {
         title,
         description:
           typeof data?.description === 'string' ? data.description : undefined,
+        type: 'SPECIAL',
+        // Remove startDate as it doesn't exist in schema
         validUntil: validUntil as Date,
       },
     });
@@ -489,6 +503,150 @@ export class VenuesService {
 
     await this.prisma.venueQuest.delete({ where: { id: questId } });
     return { status: 'ok' };
+  }
+
+  // Public: list all venues with filters and pagination
+  async listVenues(filters: any, pagination: { page: number; limit: number }) {
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
+
+    // Build where clause based on filters
+    const where: any = {
+      status: 'ACTIVE', // Only show active venues
+    };
+
+    if (filters.search) {
+      where.OR = [
+        { name: { contains: filters.search, mode: 'insensitive' } },
+        { description: { contains: filters.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (filters.city) {
+      where.address = {
+        ...where.address,
+        city: { contains: filters.city, mode: 'insensitive' },
+      };
+    }
+
+    if (filters.state) {
+      where.address = {
+        ...where.address,
+        state: { contains: filters.state, mode: 'insensitive' },
+      };
+    }
+
+    // Feature filters
+    if (filters.hasTournaments) {
+      where.features = {
+        has: 'TOURNAMENTS',
+      };
+    }
+
+    if (filters.hasFood) {
+      where.features = {
+        ...where.features,
+        has:
+          filters.hasFood && where.features?.has
+            ? [...where.features.has, 'FOOD']
+            : ['FOOD'],
+      };
+    }
+
+    if (filters.hasBar) {
+      where.features = {
+        ...where.features,
+        has:
+          filters.hasBar && where.features?.has
+            ? [...where.features.has, 'BAR']
+            : ['BAR'],
+      };
+    }
+
+    // Get total count for pagination
+    const total = await this.prisma.venue.count({ where });
+
+    // Get venues with related data
+    const venues = await this.prisma.venue.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        // tables: true, // Tables stored as field, not relation
+        _count: {
+          select: {
+            // reviews: true, // Reviews stored as JSON, not relation
+            // tables: true, // Tables stored as field, not relation
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    // Transform data to match frontend expectations
+    const transformedVenues = venues.map((venue) => ({
+      id: venue.id,
+      name: venue.name,
+      description: venue.description,
+      status: venue.status,
+      address: venue.address,
+      images: venue.photos || [],
+      rating: venue.rating || 0,
+      features: venue.features || [],
+      tables: [],
+      reviews: [], // We'll populate this if needed
+      lat: venue.lat,
+      lng: venue.lng,
+    }));
+
+    return {
+      venues: transformedVenues,
+      total,
+      page,
+      totalPages,
+    };
+  }
+
+  // Public: get venue by ID
+  @Cacheable({
+    ttl: 600, // 10 minutes
+    keyPrefix: 'venues',
+    keyGenerator: (id: string) => CacheKey('venue', id),
+  })
+  async getVenue(id: string) {
+    const venue = await this.prisma.venue.findUnique({
+      where: { id },
+      include: {
+        // tables: true, // Tables stored as field, not relation
+        _count: {
+          select: {
+            // reviews: true, // Reviews stored as JSON, not relation
+            // tables: true, // Tables stored as field, not relation
+          },
+        },
+      },
+    });
+
+    if (!venue) {
+      throw new NotFoundException('Venue not found');
+    }
+
+    return {
+      id: venue.id,
+      name: venue.name,
+      description: venue.description,
+      status: venue.status,
+      address: venue.address,
+      images: venue.photos || [],
+      rating: venue.rating || 0,
+      features: venue.features || [],
+      tables: [],
+      reviews: [],
+      lat: venue.lat,
+      lng: venue.lng,
+    };
   }
 
   // Public: list active quests for a venue

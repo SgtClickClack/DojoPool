@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+// Reference removed: vite/client (project standardized on Next.js)
 
 interface ImportMetaEnv {
   readonly MODE: string;

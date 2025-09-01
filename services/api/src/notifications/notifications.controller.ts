@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CacheInvalidate, Cacheable } from '../cache/cache.decorator';
 import { NotificationsService } from './notifications.service';
 
 @Controller('notifications')
@@ -20,6 +21,15 @@ export class NotificationsController {
   constructor(private readonly notifications: NotificationsService) {}
 
   @Get()
+  @Cacheable({
+    ttl: 60, // 1 minute
+    keyPrefix: 'notifications:user:',
+    condition: (args) => {
+      // Only cache for reasonable page sizes
+      const limit = parseInt(args[1]?.limit || '50', 10);
+      return limit <= 100;
+    },
+  })
   async getMyNotifications(
     @Req() req: ExpressRequest & { user: { userId: string } },
     @Query('page') page: string = '1',
@@ -33,6 +43,7 @@ export class NotificationsController {
   }
 
   @Patch(':id/read')
+  @CacheInvalidate(['notifications:unread:*'])
   async markRead(
     @Req() req: ExpressRequest & { user: { userId: string } },
     @Param('id') id: string
@@ -49,6 +60,10 @@ export class NotificationsController {
   }
 
   @Get('unread-count')
+  @Cacheable({
+    ttl: 30, // 30 seconds
+    keyPrefix: 'notifications:unread:',
+  })
   async getUnreadCount(
     @Req() req: ExpressRequest & { user: { userId: string } }
   ) {

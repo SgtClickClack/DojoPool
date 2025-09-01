@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { Friendship, User } from '@prisma/client';
-import { NotificationType } from '@prisma/client';
+
 import { randomUUID } from 'node:crypto';
 import { NotificationTemplatesService } from '../notifications/notification-templates.service';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -108,7 +108,7 @@ export class FriendsService {
       try {
         await this.notifications.createNotification(
           addresseeId,
-          NotificationType.FRIEND_REQUEST,
+          'FRIEND_REQUEST',
           'You have a new friend request',
           { requesterId: currentUserId, friendshipId: item.id, fallback: true }
         );

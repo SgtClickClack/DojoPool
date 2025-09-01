@@ -9,12 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import {
+import type {
   CreateGameSessionDto,
   GameSessionUpdateDto,
-  GameSessionsService,
   ShotData,
 } from './game-sessions.service';
+import { GameSessionsService } from './game-sessions.service';
 
 @Controller('game-sessions')
 @UseGuards(JwtAuthGuard)

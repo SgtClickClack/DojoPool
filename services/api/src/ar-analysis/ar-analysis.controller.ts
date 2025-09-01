@@ -7,10 +7,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { Request } from 'express';
+import multer from 'multer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ArAnalysisService } from './ar-analysis.service';
-import { memoryStorage } from 'multer';
 
 @Controller('ar')
 export class ArAnalysisController {
@@ -25,7 +24,7 @@ export class ArAnalysisController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: memoryStorage(),
+      storage: multer.memoryStorage(),
       limits: { fileSize: 5 * 1024 * 1024 },
       fileFilter: (_req, file, cb) => {
         const ok =
@@ -39,7 +38,7 @@ export class ArAnalysisController {
       },
     })
   )
-  async analyze(@UploadedFile() file: Express.Multer.File) {
+  async analyze(@UploadedFile() file: any) {
     if (!file?.buffer?.length) {
       throw new BadRequestException('No file uploaded or file is empty');
     }

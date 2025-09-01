@@ -24,8 +24,8 @@ export default [
       '**/generated/**',
       '**/*.min.*',
       'venv/**',
-      'apps/**',
-      'packages/**',
+
+      // Legacy directories that are no longer part of the core project
       'DojoPool*/**',
       'Dojo_Pool*/**',
       'Dojo Pool*/**',
@@ -41,9 +41,16 @@ export default [
       'spectator/**',
       'static/**',
       'templates/**',
-      'tests/**',
       'lcov-report/**',
       'cypress/**',
+
+      // Test files are now properly configured
+      'src/tests/**',
+      'src/**/__tests__/**',
+      'apps/web/src/tests/**',
+      'apps/web/src/**/__tests__/**',
+      'services/api/src/tests/**',
+      'services/api/src/**/__tests__/**',
     ],
   },
 
@@ -89,6 +96,19 @@ export default [
       '@typescript-eslint/no-misused-promises': [
         'error',
         { checksVoidReturn: { attributes: false } },
+      ],
+      // Enforce consistent import aliasing
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../**', '../../**', '../../../**', '../../../../**'],
+              message:
+                'Use @/* import alias instead of relative paths for better maintainability',
+            },
+          ],
+        },
       ],
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',

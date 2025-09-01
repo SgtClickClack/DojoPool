@@ -1,3 +1,10 @@
+import { ActivityEventCard } from '@/components/ActivityEventCard';
+import { getActivityFeed } from '@/services/APIService';
+import { websocketService } from '@/services/WebSocketService';
+import {
+  type ActivityEvent,
+  type ActivityFeedResponse,
+} from '@/types/activity';
 import { Refresh as RefreshIcon } from '@mui/icons-material';
 import {
   Alert,
@@ -8,13 +15,6 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
-import { getActivityFeed } from '../services/APIService';
-import { websocketService } from '../services/WebSocketService';
-import {
-  type ActivityEvent,
-  type ActivityFeedResponse,
-} from '../types/activity';
-import { ActivityEventCard } from './ActivityEventCard';
 
 interface ActivityFeedProps {
   filter: 'global' | 'friends';

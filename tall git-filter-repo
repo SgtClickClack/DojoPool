@@ -1,0 +1,5 @@
+[33m91e0c162e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;33mtag: [m[1;33mv3.0.0[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: Complete Dojo Pool v3.0.0 Feature Release
+[33m5c6a261a2[m docs: Minor documentation updates for v2.0 release
+[33m37df64e1a[m[33m ([m[1;33mtag: [m[1;33mv2.0.0[m[33m)[m chore: ignore npm lockfile after yarn migration
+[33m246271425[m fix: resolve Next.js routing issues and frontend connection refused errors
+[33m5f84fe539[m feat: configure yarn workspaces and fix backend TypeScript module resolution

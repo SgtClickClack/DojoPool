@@ -1,17 +1,18 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
-  Delete,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { VenuesService } from './venues.service';
+import { Cacheable } from '../cache/cache.decorator';
 import { VenueOwnerGuard } from './venue-owner.guard';
+import { VenuesService } from './venues.service';
 
 @Controller('venues')
 export class VenuesController {
@@ -78,6 +79,46 @@ export class VenuesController {
   @Delete('me/quests/:questId')
   async deleteMyQuest(@Request() req: any, @Param('questId') questId: string) {
     return this.service.deleteMyQuest(req.user.sub, questId);
+  }
+
+  // Public: list all venues with filters
+  @Get()
+  @Cacheable({
+    ttl: 300, // 5 minutes
+    keyPrefix: 'venues:list',
+  })
+  async listVenues(@Request() req: any) {
+    const {
+      search,
+      city,
+      state,
+      hasTournaments,
+      hasFood,
+      hasBar,
+      page = 1,
+      limit = 12,
+    } = req.query;
+
+    const filters = {
+      search: search as string,
+      city: city as string,
+      state: state as string,
+      hasTournaments: hasTournaments === 'true',
+      hasFood: hasFood === 'true',
+      hasBar: hasBar === 'true',
+    };
+
+    return this.service.listVenues(filters, { page: +page, limit: +limit });
+  }
+
+  // Public: get venue by ID
+  @Get(':id')
+  @Cacheable({
+    ttl: 600, // 10 minutes
+    keyPrefix: 'venues:detail',
+  })
+  async getVenue(@Param('id') id: string) {
+    return this.service.getVenue(id);
   }
 
   // Public: list active quests for a venue

@@ -1,3 +1,9 @@
+import { getMyJournal } from '@/services/APIService';
+import {
+  JournalEntry as JournalEntryType,
+  JournalResponse,
+} from '@/types/journal';
+import { generateMockJournalResponse } from '@/utils/mockJournalData';
 import { Refresh as RefreshIcon } from '@mui/icons-material';
 import {
   Alert,
@@ -8,12 +14,6 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
-import { getMyJournal } from '../../services/APIService';
-import {
-  JournalEntry as JournalEntryType,
-  JournalResponse,
-} from '../../types/journal';
-import { generateMockJournalResponse } from '../../utils/mockJournalData';
 import JournalEntry from './JournalEntry';
 
 const JournalFeed: React.FC = () => {

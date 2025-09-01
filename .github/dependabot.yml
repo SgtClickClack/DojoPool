@@ -1,7 +1,7 @@
 version: 2
 updates:
-  # Enable version updates for npm
-  - package-ecosystem: 'npm'
+  # Enable version updates for yarn
+  - package-ecosystem: 'yarn'
     directory: '/'
     schedule:
       interval: 'weekly'
@@ -17,7 +17,7 @@ updates:
       prefix-development: 'chore(deps-dev)'
     labels:
       - 'dependencies'
-      - 'npm'
+      - 'yarn'
     ignore:
       # Ignore major version updates for stable dependencies
       - dependency-name: 'react'

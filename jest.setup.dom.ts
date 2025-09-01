@@ -12,8 +12,8 @@ dotenv.config({ path: '.env.test' });
 
 // Polyfills needed for jsdom environment
 // Removed TextEncoder/TextDecoder as they might conflict/be redundant
-import 'whatwg-fetch'; // Polyfill for fetch
 import structuredClone from '@ungap/structured-clone';
+import 'whatwg-fetch'; // Polyfill for fetch
 if (typeof global.structuredClone !== 'function') {
   global.structuredClone = structuredClone;
 }
@@ -21,12 +21,12 @@ if (typeof global.structuredClone !== 'function') {
 // Mock Firebase Initialization (needed for UI tests using Firebase hooks/context)
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(() => ({
-    options: { apiKey: 'mock-key' },
+    options: { apiKey: process.env.FIREBASE_API_KEY || 'test-mock-key' },
     name: 'mock-app',
   })),
   getApps: jest.fn(() => []),
   getApp: jest.fn(() => ({
-    options: { apiKey: 'mock-key' },
+    options: { apiKey: process.env.FIREBASE_API_KEY || 'test-mock-key' },
     name: 'mock-app',
   })),
   _getProvider: jest.fn().mockReturnValue({
@@ -34,7 +34,11 @@ jest.mock('firebase/app', () => ({
       if (options?.optional) return null;
       return {
         getFunctions: jest.fn(() => ({
-          app: { options: { apiKey: 'mock-key' } },
+          app: {
+            options: {
+              apiKey: process.env.FIREBASE_API_KEY || 'test-mock-key',
+            },
+          },
           INTERNAL: { deleted: false },
         })),
       };

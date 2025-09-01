@@ -15,14 +15,14 @@ export class ShadowRunsService {
     private readonly notifications: NotificationsService
   ) {}
 
-  private getRunCost(type: ShadowRunType): number {
+  private getRunCost(type: string): number {
     const base = type === 'DATA_HEIST' ? 50 : 75;
     return base;
   }
 
   private simulateOutcome(
     defenseLevel: number,
-    type: ShadowRunType
+    type: string
   ): { success: boolean; roll: number; threshold: number } {
     // Simple probability: success chance decreases with defenseLevel
     // Baseline 70% minus 10% per defense level, min 10%, max 90%
@@ -35,11 +35,7 @@ export class ShadowRunsService {
     return { success: roll < successChance, roll, threshold: successChance };
   }
 
-  async initiateRun(
-    userId: string,
-    targetVenueId: string,
-    runType: ShadowRunType
-  ) {
+  async initiateRun(userId: string, targetVenueId: string, runType: string) {
     const type = runType;
     const cost = this.getRunCost(type);
 
@@ -77,17 +73,18 @@ export class ShadowRunsService {
       // Create initial record
       const run = await tx.shadowRun.create({
         data: {
+          playerId: userId,
           initiatingClanId: initiatingClan.id,
           targetVenueId,
           type,
-          status: 'IN_PROGRESS',
+          status: 'PENDING',
           cost,
         },
       });
 
       // Simulate resolution
       const sim = this.simulateOutcome(venue.defenseLevel ?? 1, type);
-      let status: ShadowRunStatus = sim.success ? 'SUCCESS' : 'FAILED';
+      let status: string = sim.success ? 'SUCCESS' : 'FAILED';
       const outcome: Prisma.JsonObject = {
         runId: run.id,
         type,
@@ -131,7 +128,7 @@ export class ShadowRunsService {
       // Update run with final status and outcome
       const finalized = await tx.shadowRun.update({
         where: { id: run.id },
-        data: { status, outcome },
+        data: { status, outcome: outcome as any },
       });
 
       // Notify leaders of both clans if possible

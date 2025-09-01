@@ -1,3 +1,11 @@
+import { useAuth } from '@/hooks/useAuth';
+import {
+  getNotifications,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+} from '@/services/APIService';
+import { websocketService } from '@/services/WebSocketService';
+import { Notification, NotificationResponse } from '@/types/notification';
 import React, {
   ReactNode,
   createContext,
@@ -6,14 +14,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import {
-  getNotifications,
-  markAllNotificationsAsRead,
-  markNotificationAsRead,
-} from '../services/APIService';
-import { websocketService } from '../services/WebSocketService';
-import { Notification, NotificationResponse } from '../types/notification';
 
 interface NotificationContextType {
   notifications: Notification[];

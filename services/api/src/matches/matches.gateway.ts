@@ -9,6 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { corsOptions } from '../config/cors.config';
 import { AiAnalysisService } from './ai-analysis.service';
 
 interface ChatMessage {
@@ -20,9 +21,7 @@ interface ChatMessage {
 }
 
 @WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
+  cors: corsOptions,
 })
 export class MatchesGateway
   implements OnGatewayConnection, OnGatewayDisconnect

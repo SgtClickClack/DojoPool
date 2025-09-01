@@ -1,3 +1,8 @@
+import {
+  profileApi,
+  type UpdateProfileData,
+  type UserProfile,
+} from '@/services/api/profile';
 import { PhotoCamera } from '@mui/icons-material';
 import {
   Alert,
@@ -16,11 +21,6 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import {
-  profileApi,
-  type UpdateProfileData,
-  type UserProfile,
-} from '../services/api/profile';
 
 interface EditProfileModalProps {
   open: boolean;

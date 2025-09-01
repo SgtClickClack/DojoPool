@@ -1,4 +1,0 @@
-{
-  "template": "Create a player profile for $player highlighting their:\n- Playing style and strengths\n- Notable achievements\n- Recent form and statistics\n- Preferred game types and strategies",
-  "required_vars": ["player"]
-}

@@ -4,7 +4,13 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Notification, NotificationType } from '@prisma/client';
+import { Notification } from '@prisma/client';
+import {
+  CacheKey,
+  CacheWriteThrough,
+  Cacheable,
+} from '../cache/cache.decorator';
+import { CacheHelper } from '../cache/cache.helper';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsGateway } from './notifications.gateway';
 
@@ -14,21 +20,24 @@ export class NotificationsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly gateway: NotificationsGateway
+    private readonly gateway: NotificationsGateway,
+    private readonly cacheHelper: CacheHelper
   ) {}
 
   async createNotification(
     recipientId: string,
-    type: NotificationType,
+    type: string,
     message: string,
     payload?: Record<string, any>
   ): Promise<Notification> {
     const notification = await this.prisma.notification.create({
       data: {
         recipientId,
+        userId: recipientId, // recipientId is actually the userId
+        title: type,
         type,
         message,
-        payload: payload ? JSON.stringify(payload) : undefined,
+        payload: payload ? payload : 'null',
       },
     });
 
@@ -44,6 +53,22 @@ export class NotificationsService {
     return notification;
   }
 
+  /**
+   * Read-heavy endpoint with caching
+   */
+  @Cacheable({
+    ttl: 60, // 1 minute (notifications change frequently)
+    keyPrefix: 'notifications:user',
+    keyGenerator: (userId: string, page: number, limit: number) =>
+      CacheKey(
+        'notifications',
+        'user',
+        userId,
+        page.toString(),
+        limit.toString()
+      ),
+    condition: (userId: string, page: number, limit: number) => page <= 3, // Only cache first 3 pages
+  })
   async findForUser(
     userId: string,
     page: number = 1,
@@ -93,6 +118,16 @@ export class NotificationsService {
     };
   }
 
+  /**
+   * Write operation with cache invalidation
+   */
+  @CacheWriteThrough({
+    ttl: 60,
+    keyPrefix: 'notifications:user',
+    invalidatePatterns: ['notifications:user:*'],
+    keyGenerator: (id: string, userId: string) =>
+      CacheKey('notifications', 'read', id, userId),
+  })
   async markRead(id: string, userId: string): Promise<Notification> {
     const existing = await this.prisma.notification.findUnique({
       where: { id },

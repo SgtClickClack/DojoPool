@@ -1,6 +1,9 @@
 import challengeService, { Challenge } from '@/services/challengeService';
-import { Cancel, CheckCircle } from '@mui/icons-material';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney.js';
+import {
+  AttachMoney as AttachMoneyIcon,
+  Cancel,
+  CheckCircle,
+} from '@mui/icons-material';
 import {
   Alert,
   Box,

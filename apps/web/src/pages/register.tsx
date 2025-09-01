@@ -1,3 +1,4 @@
+import { useAuth } from '@/hooks/useAuth';
 import {
   Alert,
   Box,
@@ -10,7 +11,6 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -121,7 +121,7 @@ const RegisterPage: React.FC = () => {
           </Button>
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Link href="/login" variant="body2">
-              Already have an account? Sign in
+              Already have an account? Sign in here
             </Link>
           </Box>
         </Box>

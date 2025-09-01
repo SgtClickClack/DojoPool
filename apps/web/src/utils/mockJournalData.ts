@@ -1,4 +1,4 @@
-import { JournalEntry, JournalEntryType } from '../types/journal';
+import { JournalEntry, JournalEntryType } from '@/types/journal';
 
 export const generateMockJournalEntries = (
   count: number = 20

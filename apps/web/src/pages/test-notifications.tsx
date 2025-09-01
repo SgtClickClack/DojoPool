@@ -1,3 +1,5 @@
+import { useNotifications } from '@/contexts/NotificationContext';
+import { websocketService } from '@/services/WebSocketService';
 import {
   Box,
   Button,
@@ -7,8 +9,6 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { useNotifications } from '../contexts/NotificationContext';
-import { websocketService } from '../services/WebSocketService';
 
 const TestNotificationsPage: React.FC = () => {
   const {

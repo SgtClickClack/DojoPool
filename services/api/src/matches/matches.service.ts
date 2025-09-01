@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { $Enums } from '@prisma/client';
 import { MatchUtils } from '../common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiAnalysisService } from './ai-analysis.service';
@@ -109,7 +108,7 @@ export class MatchesService {
           playerAId,
           playerBId,
           round,
-          status: status as $Enums.MatchStatus,
+          status: status as any,
           tableId: tableId ?? undefined,
           wager: normalizedWager,
         },
@@ -155,7 +154,7 @@ export class MatchesService {
             loserId: computedLoserId,
             scoreA,
             scoreB,
-            status: 'COMPLETED' as $Enums.MatchStatus,
+            status: 'COMPLETED',
             endedAt: new Date(),
           },
           include: {
@@ -249,7 +248,7 @@ export class MatchesService {
     }
     const updated = await this.prisma.match.update({
       where: { id: matchId },
-      data: { status: 'PAUSED' as $Enums.MatchStatus },
+      data: { status: 'PAUSED' },
     });
     // Broadcast to both gateway room styles
     this.matchesGateway.broadcastMatchStatusUpdate(matchId, 'PAUSED');
@@ -271,7 +270,7 @@ export class MatchesService {
     }
     const updated = await this.prisma.match.update({
       where: { id: matchId },
-      data: { status: 'IN_PROGRESS' as $Enums.MatchStatus },
+      data: { status: 'IN_PROGRESS' },
     });
     this.matchesGateway.broadcastMatchStatusUpdate(matchId, 'IN_PROGRESS');
     this.matchGateway.broadcastMatchStatusUpdate(matchId, 'IN_PROGRESS');
