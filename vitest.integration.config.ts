@@ -22,10 +22,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
       all: false,
-      include: [
-        'services/api/src/**/*.integration.spec.ts',
-        'services/api/src/__tests__/territories.e2e.spec.ts',
-      ],
+      include: ['services/api/src/territories/territories.controller.ts'],
       exclude: [
         '**/node_modules/**',
         '**/dist/**',

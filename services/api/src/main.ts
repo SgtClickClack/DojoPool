@@ -1,8 +1,8 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { IoAdapter } from '@nestjs/platform-socket.io';
-import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalErrorHandler } from './common/error-handler.middleware';
 import { corsOptions } from './config/cors.config';
@@ -197,6 +197,19 @@ async function bootstrap() {
       standardHeaders: true,
       legacyHeaders: false,
     })
+  );
+  // Stricter limits on auth endpoints to mitigate brute force
+  app.use(
+    '/api/v1/auth/login',
+    rateLimit({ windowMs: 60 * 1000, max: 10, standardHeaders: true })
+  );
+  app.use(
+    '/api/v1/auth/register',
+    rateLimit({ windowMs: 60 * 1000, max: 10, standardHeaders: true })
+  );
+  app.use(
+    '/api/v1/auth/refresh',
+    rateLimit({ windowMs: 60 * 1000, max: 30, standardHeaders: true })
   );
 
   // Global pipes

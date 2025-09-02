@@ -13,7 +13,7 @@ export function middleware(request: NextRequest) {
     'max-age=63072000; includeSubDomains; preload'
   );
   response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'same-origin');
 

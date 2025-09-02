@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 export interface FeatureFlags {
@@ -19,46 +19,47 @@ export interface FeatureFlags {
 export class FeatureFlagsConfig {
   private readonly flags: FeatureFlags;
 
-  constructor(private configService: ConfigService) {
-    const isProduction =
-      this.configService.get<string>('NODE_ENV') === 'production';
+  constructor(@Optional() private configService?: ConfigService) {
+    const get = this.configService?.get.bind(this.configService) as
+      | (<T = any>(key: string) => T | undefined)
+      | undefined;
+    const isProduction = (get?.<string>('NODE_ENV') as string) === 'production';
 
     this.flags = {
       // Simulation and background tasks - disabled by default in production
       ENABLE_SIMULATION:
-        this.configService.get<string>('ENABLE_SIMULATION') === 'true',
+        (get?.<string>('ENABLE_SIMULATION') as string) === 'true',
       SIMULATION_FEATURE_FLAG:
-        this.configService.get<string>('SIMULATION_FEATURE_FLAG') === 'true',
+        (get?.<string>('SIMULATION_FEATURE_FLAG') as string) === 'true',
       BACKGROUND_BROADCASTING:
-        this.configService.get<string>('BACKGROUND_BROADCASTING') === 'true',
+        (get?.<string>('BACKGROUND_BROADCASTING') as string) === 'true',
 
       // AI and game features
       AI_COMMENTARY:
-        this.configService.get<string>('AI_COMMENTARY_ENABLED') === 'true',
-      AI_REFEREE:
-        this.configService.get<string>('AI_REFEREE_ENABLED') === 'true',
+        (get?.<string>('AI_COMMENTARY_ENABLED') as string) === 'true',
+      AI_REFEREE: (get?.<string>('AI_REFEREE_ENABLED') as string) === 'true',
       REAL_TIME_TRACKING:
-        this.configService.get<string>('REAL_TIME_TRACKING_ENABLED') === 'true',
+        (get?.<string>('REAL_TIME_TRACKING_ENABLED') as string) === 'true',
       TERRITORY_CONTROL:
-        this.configService.get<string>('TERRITORY_CONTROL_ENABLED') === 'true',
+        (get?.<string>('TERRITORY_CONTROL_ENABLED') as string) === 'true',
       CHALLENGE_SYSTEM:
-        this.configService.get<string>('CHALLENGE_SYSTEM_ENABLED') === 'true',
+        (get?.<string>('CHALLENGE_SYSTEM_ENABLED') as string) === 'true',
       MATCH_REPLAY:
-        this.configService.get<string>('MATCH_REPLAY_ENABLED') === 'true',
-      ANALYTICS: this.configService.get<string>('ANALYTICS_ENABLED') === 'true',
+        (get?.<string>('MATCH_REPLAY_ENABLED') as string) === 'true',
+      ANALYTICS: (get?.<string>('ANALYTICS_ENABLED') as string) === 'true',
     };
 
     // Override flags for production safety
     if (isProduction) {
       this.flags.ENABLE_SIMULATION =
         this.flags.ENABLE_SIMULATION &&
-        this.configService.get<string>('ENABLE_SIMULATION') === 'true';
+        (get?.<string>('ENABLE_SIMULATION') as string) === 'true';
       this.flags.SIMULATION_FEATURE_FLAG =
         this.flags.SIMULATION_FEATURE_FLAG &&
-        this.configService.get<string>('SIMULATION_FEATURE_FLAG') === 'true';
+        (get?.<string>('SIMULATION_FEATURE_FLAG') as string) === 'true';
       this.flags.BACKGROUND_BROADCASTING =
         this.flags.BACKGROUND_BROADCASTING &&
-        this.configService.get<string>('BACKGROUND_BROADCASTING') === 'true';
+        (get?.<string>('BACKGROUND_BROADCASTING') as string) === 'true';
     }
   }
 
@@ -71,8 +72,10 @@ export class FeatureFlagsConfig {
   }
 
   isSimulationEnabled(): boolean {
-    const isProduction =
-      this.configService.get<string>('NODE_ENV') === 'production';
+    const get = this.configService?.get.bind(this.configService) as
+      | (<T = any>(key: string) => T | undefined)
+      | undefined;
+    const isProduction = (get?.<string>('NODE_ENV') as string) === 'production';
 
     if (isProduction) {
       // In production, require explicit enablement
@@ -84,14 +87,16 @@ export class FeatureFlagsConfig {
   }
 
   isBackgroundBroadcastingEnabled(): boolean {
-    const isProduction =
-      this.configService.get<string>('NODE_ENV') === 'production';
+    const get = this.configService?.get.bind(this.configService) as
+      | (<T = any>(key: string) => T | undefined)
+      | undefined;
+    const isProduction = (get?.<string>('NODE_ENV') as string) === 'production';
 
     if (isProduction) {
       // In production, require explicit enablement
       return (
         this.flags.BACKGROUND_BROADCASTING &&
-        this.configService.get<string>('BACKGROUND_BROADCASTING') === 'true'
+        (get?.<string>('BACKGROUND_BROADCASTING') as string) === 'true'
       );
     }
 
@@ -100,8 +105,10 @@ export class FeatureFlagsConfig {
   }
 
   validateProductionSettings(): void {
-    const isProduction =
-      this.configService.get<string>('NODE_ENV') === 'production';
+    const get = this.configService?.get.bind(this.configService) as
+      | (<T = any>(key: string) => T | undefined)
+      | undefined;
+    const isProduction = (get?.<string>('NODE_ENV') as string) === 'production';
 
     if (isProduction) {
       const warnings: string[] = [];

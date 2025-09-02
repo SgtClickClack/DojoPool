@@ -3,6 +3,7 @@ import {
   Logger,
   OnModuleDestroy,
   OnModuleInit,
+  Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
@@ -25,11 +26,13 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   private readonly defaultTTL = 300; // 5 minutes
   private readonly keyPrefix = 'dojopool:';
 
-  constructor(private configService: ConfigService) {}
+  constructor(@Optional() private configService?: ConfigService) {}
 
   async onModuleInit() {
-    const isProduction =
-      this.configService.get<string>('NODE_ENV') === 'production';
+    const get = this.configService?.get.bind(this.configService) as
+      | (<T = any>(key: string) => T | undefined)
+      | undefined;
+    const isProduction = (get?.<string>('NODE_ENV') as string) === 'production';
 
     // Skip Redis initialization completely in development mode
     if (!isProduction) {
@@ -37,15 +40,15 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    const redisUrl = this.configService.get<string>('REDIS_URL');
+    const redisUrl = get?.<string>('REDIS_URL') as string | undefined;
     if (!redisUrl) {
       this.logger.log('No Redis URL provided, skipping Redis initialization');
       return;
     }
 
-    const redisHost = this.configService.get<string>('REDIS_HOST', 'localhost');
-    const redisPort = this.configService.get<number>('REDIS_PORT', 6379);
-    const redisPassword = this.configService.get<string>('REDIS_PASSWORD');
+    const redisHost = (get?.<string>('REDIS_HOST') as string) || 'localhost';
+    const redisPort = (get?.<number>('REDIS_PORT') as number) ?? 6379;
+    const redisPassword = get?.<string>('REDIS_PASSWORD') as string | undefined;
 
     try {
       if (redisUrl) {
@@ -96,8 +99,11 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   async get<T = any>(key: string, prefix?: string): Promise<T | null> {
     if (!this.redisClient) {
       // Don't log warnings in development mode when Redis is intentionally not available
+      const get = this.configService?.get.bind(this.configService) as
+        | (<T = any>(key: string) => T | undefined)
+        | undefined;
       const isProduction =
-        this.configService.get<string>('NODE_ENV') === 'production';
+        (get?.<string>('NODE_ENV') as string) === 'production';
       if (isProduction) {
         this.logger.warn('Redis not available, returning null');
       }
@@ -134,8 +140,11 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   ): Promise<boolean> {
     if (!this.redisClient) {
       // Don't log warnings in development mode when Redis is intentionally not available
+      const get = this.configService?.get.bind(this.configService) as
+        | (<T = any>(key: string) => T | undefined)
+        | undefined;
       const isProduction =
-        this.configService.get<string>('NODE_ENV') === 'production';
+        (get?.<string>('NODE_ENV') as string) === 'production';
       if (isProduction) {
         this.logger.warn('Redis not available, skipping set operation');
       }

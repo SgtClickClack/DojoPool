@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
 import * as winston from 'winston';
@@ -30,16 +30,18 @@ export class ErrorLoggerService {
   private readonly consoleLogger = new Logger(ErrorLoggerService.name);
   private errorMetrics: ErrorMetrics;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(@Optional() private readonly configService?: ConfigService) {
     this.errorMetrics = this.initializeMetrics();
     this.logger = this.createLogger();
   }
 
   private createLogger(): winston.Logger {
-    const isProduction =
-      this.configService.get<string>('NODE_ENV') === 'production';
-    const logLevel = this.configService.get<string>('LOG_LEVEL') || 'info';
-    const logDir = this.configService.get<string>('LOG_DIR') || 'logs';
+    const get = this.configService?.get.bind(this.configService) as
+      | (<T = any>(key: string) => T | undefined)
+      | undefined;
+    const isProduction = (get?.<string>('NODE_ENV') as string) === 'production';
+    const logLevel = (get?.<string>('LOG_LEVEL') as string) || 'info';
+    const logDir = (get?.<string>('LOG_DIR') as string) || 'logs';
 
     const transports: winston.transport[] = [
       // Console transport for development
