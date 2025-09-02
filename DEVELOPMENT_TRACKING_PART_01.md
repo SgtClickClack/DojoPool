@@ -55,6 +55,35 @@ Expected completion time: 1 hour
 
 ---
 
+### 2025-09-02: Security Remediation — Purge Leaked Artifacts (IN PROGRESS)
+
+Removed built artifacts and accidental env file from repository history locally; prepared safe path for enterprise-protected branches.
+
+**Core Components Implemented:**
+
+- `.next/` fully purged from local git history via history rewrite
+- `.env.local.txt` purged from local git history and untracked
+- `.gitignore` updated to include `.env*.txt`
+- Local repository optimized via `git gc`
+
+**File Paths:**
+
+- `.gitignore` (added `.env*.txt`)
+- Local git history rewritten to remove `.next/**` and `.env.local.txt`
+
+**Integration Points:**
+
+- Enterprise protection blocks force-push to `main`. Created branch `remediate/secret-purge-history` with cleaned history for admin action (set as default or temporarily allow force-push to replace `main`).
+- Secret scanning already enabled (`repo_security.json`). Keys must be rotated.
+
+**Next Priority Task:**
+
+- Rotate Firebase API key and any impacted credentials; coordinate with admin to either:
+  - temporarily allow a protected force-push of cleaned history to `main`, or
+  - switch default branch to `remediate/secret-purge-history` and archive old history.
+
+Expected completion time: 30-60 minutes (admin action required)
+
 ### 2025-09-01: Final Launch Readiness Audit (COMPLETED)
 
 Performed a comprehensive full-stack audit covering architecture/toolchain compliance, security posture, feature consistency, and performance/scalability. No blocking issues found.
