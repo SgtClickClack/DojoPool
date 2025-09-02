@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ArAnalysisService } from '../ar-analysis/ar-analysis.service';
 import {
@@ -43,7 +43,7 @@ export class AiService {
   private readonly config: AiServiceConfig;
 
   constructor(
-    private readonly configService: ConfigService,
+    @Optional() private readonly configService: ConfigService,
     private readonly aiAnalysisService: AiAnalysisService,
     private readonly arAnalysisService: ArAnalysisService
   ) {
@@ -54,25 +54,28 @@ export class AiService {
    * Load AI service configuration from environment
    */
   private loadConfiguration(): AiServiceConfig {
+    const get = this.configService?.get.bind(this.configService) as
+      | (<T = any>(key: string) => T | undefined)
+      | undefined;
+
     return {
       gemini: {
-        apiKey: this.configService.get<string>('GEMINI_API_KEY') || '',
-        model:
-          this.configService.get<string>('GEMINI_MODEL') || 'gemini-1.5-flash',
-        enabled: !!this.configService.get<string>('GEMINI_API_KEY'),
+        apiKey: (get?.<string>('GEMINI_API_KEY') as string) || '',
+        model: (get?.<string>('GEMINI_MODEL') as string) || 'gemini-1.5-flash',
+        enabled: !!(get?.<string>('GEMINI_API_KEY') as string),
       },
       openai: {
-        apiKey: this.configService.get<string>('OPENAI_API_KEY') || '',
-        model: this.configService.get<string>('OPENAI_MODEL') || 'gpt-4',
-        enabled: !!this.configService.get<string>('OPENAI_API_KEY'),
+        apiKey: (get?.<string>('OPENAI_API_KEY') as string) || '',
+        model: (get?.<string>('OPENAI_MODEL') as string) || 'gpt-4',
+        enabled: !!(get?.<string>('OPENAI_API_KEY') as string),
       },
       opencv: {
-        enabled: this.configService.get<boolean>('OPENCV_ENABLED') ?? true,
-        wasmPath: this.configService.get<string>('OPENCV_WASM_PATH'),
+        enabled: (get?.<boolean>('OPENCV_ENABLED') as boolean) ?? true,
+        wasmPath: get?.<string>('OPENCV_WASM_PATH') as string | undefined,
       },
       tensorflow: {
-        enabled: this.configService.get<boolean>('TENSORFLOW_ENABLED') ?? false,
-        modelPath: this.configService.get<string>('TENSORFLOW_MODEL_PATH'),
+        enabled: (get?.<boolean>('TENSORFLOW_ENABLED') as boolean) ?? false,
+        modelPath: get?.<string>('TENSORFLOW_MODEL_PATH') as string | undefined,
       },
     };
   }

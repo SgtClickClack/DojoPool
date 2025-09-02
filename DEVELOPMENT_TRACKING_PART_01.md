@@ -1,3 +1,31 @@
+### 2025-02-01: Final Security Pen Test & Vulnerability Scan
+
+Hardened authentication and HTTP security posture and executed workspace install to enable audits. Added DTO validation, refresh token support, rate limiting, and tightened production CSP.
+
+**Core Components Implemented:**
+
+- DTO validation for `login` and `register`
+- Refresh token issuance + `/auth/refresh`
+- Global + endpoint-specific rate limiting
+- Production CSP tightened; middleware header alignment
+
+**File Paths:**
+
+- `services/api/src/auth/dto/login.dto.ts`
+- `services/api/src/auth/dto/register.dto.ts`
+- `services/api/src/auth/auth.service.ts`
+- `services/api/src/auth/auth.controller.ts`
+- `services/api/src/main.ts`
+- `apps/web/next.config.js`
+- `apps/web/middleware.ts`
+- `SECURITY_PEN_TEST_REPORT.md`
+
+**Next Priority Task:**
+
+- Implement refresh token rotation with Redis blocklist and device-bound tokens; add CI audit step.
+
+Expected completion time: 1 day
+
 ### 2025-09-01: Phase 1 Verification — Backend Unification, Schema Consolidation, Tooling (COMPLETED)
 
 Verified and finalized Phase 1 objectives. Backend is unified on a single NestJS server, Prisma schema is consolidated to a single canonical file, and lint/test tooling is active with 80% coverage thresholds.

@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 export interface MatchAnalysis {
@@ -26,8 +26,8 @@ export class AiAnalysisService {
   private readonly logger = new Logger(AiAnalysisService.name);
   private genAI?: GoogleGenerativeAI;
 
-  constructor(private configService: ConfigService) {
-    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+  constructor(@Optional() private configService?: ConfigService) {
+    const apiKey = this.configService?.get<string>('GEMINI_API_KEY');
     if (!apiKey) {
       this.logger.warn('GEMINI_API_KEY not found in environment variables');
       return;

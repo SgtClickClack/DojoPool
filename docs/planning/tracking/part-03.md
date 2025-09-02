@@ -1,3 +1,30 @@
+## 2025-02-09: Prisma schema pushed to SQLite test DB and integration coverage
+
+Synchronized Prisma schema to the SQLite test database for integration testing and resolved SQLite compatibility by replacing a JSON default on `VenueQuest.requirements` with a string default. Adjusted several NestJS services (`AiAnalysisService`, `AiService`, `FeatureFlagsConfig`, `ErrorLoggerService`, `CacheService`) to tolerate missing `ConfigService` during tests. Re-ran integration tests with coverage; tests passed and coverage report generated.
+
+**Core Components Implemented:**
+
+- Prisma schema push to `packages/prisma/test.db`
+- Prisma Client generation against updated schema
+- SQLite compatibility fix in `schema.prisma` (`VenueQuest.requirements`)
+- Test-safety updates to services using `ConfigService`
+- Integration tests executed with coverage
+
+**File Paths:**
+
+- `packages/prisma/schema.prisma`
+- `services/api/src/matches/ai-analysis.service.ts`
+- `services/api/src/ai/ai.service.ts`
+- `services/api/src/config/feature-flags.config.ts`
+- `services/api/src/monitoring/error-logger.service.ts`
+- `services/api/src/cache/cache.service.ts`
+
+**Next Priority Task:**
+
+Increase integration test coverage beyond smoke tests for territories endpoints and add MSW handlers or seed/mocks as needed to avoid unhandled request warnings. Target ≥80% coverage on integration suite per project rules.
+
+Expected completion time: 2 hours
+
 # DojoPool Development Tracking – Part 03
 
 ## 2025-08-25: Venue Portal – Profile & Specials (Frontend)
