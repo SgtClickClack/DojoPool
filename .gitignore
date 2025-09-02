@@ -96,3 +96,6 @@ build/
 out/
 .next/
 .cache/
+
+# Local env txt variants (do not commit)
+.env*.txt
