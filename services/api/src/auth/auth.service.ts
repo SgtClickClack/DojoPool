@@ -6,6 +6,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import { CacheService } from '../cache/cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -20,7 +22,8 @@ export class AuthService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly cacheService: CacheService
   ) {
     // Validate required environment variables
     if (!this.googleClientId) {
@@ -91,7 +94,10 @@ export class AuthService {
       username: user.username,
       role: user.role,
     });
-    return { user: { id: user.id, email: user.email, username: user.username }, ...tokens };
+    return {
+      user: { id: user.id, email: user.email, username: user.username },
+      ...tokens,
+    };
   }
 
   async getGoogleAuthUrl(): Promise<string> {
@@ -225,19 +231,39 @@ export class AuthService {
 
   async refreshToken(refreshToken: string) {
     try {
+      // Blocklist check (hash the token so we don't store raw token)
+      const hashed = crypto
+        .createHash('sha256')
+        .update(refreshToken)
+        .digest('hex');
+      const blocked = await this.cacheService.exists(hashed, 'auth:blocklist:');
+      if (blocked) {
+        throw new UnauthorizedException('Refresh token has been revoked');
+      }
+
       const decoded: any = await this.jwtService.verifyAsync(refreshToken);
-      const user = await this.prisma.user.findUnique({ where: { id: decoded.sub } });
+      const user = await this.prisma.user.findUnique({
+        where: { id: decoded.sub },
+      });
       if (!user) {
         throw new UnauthorizedException('Invalid refresh token');
       }
-      const payload = { sub: user.id, username: user.username, role: user.role };
+      const payload = {
+        sub: user.id,
+        username: user.username,
+        role: user.role,
+      };
       return this.issueTokens(payload);
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
 
-  private async issueTokens(payload: { sub: string; username: string; role: string }) {
+  private async issueTokens(payload: {
+    sub: string;
+    username: string;
+    role: string;
+  }) {
     const access_token = await this.jwtService.signAsync(payload, {
       expiresIn: process.env.JWT_EXPIRES_IN || '1h',
     });
@@ -245,5 +271,51 @@ export class AuthService {
       expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     });
     return { access_token, refresh_token };
+  }
+
+  async revokeRefreshToken(refreshToken: string) {
+    // Derive TTL from token exp if possible; fallback to configured refresh TTL
+    try {
+      const decoded: any = this.jwtService.decode(refreshToken);
+      const nowSec = Math.floor(Date.now() / 1000);
+      let ttlSec = 0;
+      if (decoded && typeof decoded === 'object' && 'exp' in decoded) {
+        ttlSec = Math.max(0, (decoded as any).exp - nowSec);
+      } else {
+        // Parse configured string like '7d', '1h'
+        const cfg = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+        const m = cfg.match(/^(\d+)([smhd])$/);
+        if (m) {
+          const n = parseInt(m[1], 10);
+          const unit = m[2];
+          const mult =
+            unit === 's' ? 1 : unit === 'm' ? 60 : unit === 'h' ? 3600 : 86400;
+          ttlSec = n * mult;
+        } else {
+          ttlSec = 7 * 24 * 3600;
+        }
+      }
+
+      const hashed = crypto
+        .createHash('sha256')
+        .update(refreshToken)
+        .digest('hex');
+      await this.cacheService.set(hashed, true, {
+        ttl: ttlSec,
+        keyPrefix: 'auth:blocklist:',
+      });
+      return { message: 'Logged out' };
+    } catch {
+      // If decode fails, still attempt to hash and store with default TTL
+      const hashed = crypto
+        .createHash('sha256')
+        .update(refreshToken)
+        .digest('hex');
+      await this.cacheService.set(hashed, true, {
+        ttl: 7 * 24 * 3600,
+        keyPrefix: 'auth:blocklist:',
+      });
+      return { message: 'Logged out' };
+    }
   }
 }

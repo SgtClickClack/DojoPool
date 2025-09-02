@@ -6,11 +6,9 @@ import {
   Query,
   Res,
   UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -45,6 +43,15 @@ export class AuthController {
       throw new UnauthorizedException('Missing refresh token');
     }
     return this.authService.refreshToken(refresh_token);
+  }
+
+  @Post('logout')
+  async logout(@Body() body: { refresh_token: string }) {
+    const { refresh_token } = body || ({} as any);
+    if (!refresh_token) {
+      throw new UnauthorizedException('Missing refresh token');
+    }
+    return this.authService.revokeRefreshToken(refresh_token);
   }
 
   @Get('google')
