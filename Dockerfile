@@ -1,5 +1,5 @@
 # Build stage
-FROM node:20-alpine AS frontend-build
+FROM node:24-alpine AS frontend-build
 ARG SKIP_FRONTEND_BUILD=false
 WORKDIR /app/frontend
 COPY apps/web/package.json ./
