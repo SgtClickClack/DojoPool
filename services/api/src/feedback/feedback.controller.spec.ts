@@ -12,6 +12,7 @@ describe('FeedbackController (e2e)', () => {
   let jwtService: JwtService;
   let userToken: string;
   let adminToken: string;
+  let moderatorToken: string;
 
   const testUser = {
     id: 'test-user-id',
@@ -25,6 +26,14 @@ describe('FeedbackController (e2e)', () => {
     email: 'admin@example.com',
     username: 'admin',
     role: UserRole.ADMIN,
+  };
+
+  const testModerator = {
+    id: 'test-moderator-id',
+    email: 'mod@example.com',
+    username: 'moderator',
+    // Prisma enum may not include MODERATOR in test DB when using sqlite; use raw string in JWT
+    role: 'MODERATOR' as any,
   };
 
   beforeAll(async () => {
@@ -49,6 +58,11 @@ describe('FeedbackController (e2e)', () => {
       username: testAdmin.username,
       role: testAdmin.role,
     });
+    moderatorToken = jwtService.sign({
+      userId: testModerator.id,
+      username: testModerator.username,
+      role: 'MODERATOR',
+    });
 
     // Clean up any existing test data
     await prisma.feedback.deleteMany();
@@ -57,6 +71,101 @@ describe('FeedbackController (e2e)', () => {
     // Create test users
     await prisma.user.create({ data: testUser });
     await prisma.user.create({ data: testAdmin });
+    await prisma.user.create({
+      data: { ...testModerator, role: UserRole.USER },
+    });
+  });
+
+  describe('/feedback/moderation (GET)', () => {
+    beforeAll(async () => {
+      await prisma.feedback.create({
+        data: {
+          userId: testUser.id,
+          message: 'Moderator view feedback',
+          category: FeedbackCategory.TECHNICAL_SUPPORT,
+        },
+      });
+    });
+
+    it('allows moderator to list feedback', () => {
+      return request(app.getHttpServer())
+        .get('/feedback/moderation')
+        .set('Authorization', `Bearer ${moderatorToken}`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.feedback).toBeDefined();
+          expect(res.body.totalCount).toBeGreaterThanOrEqual(1);
+        });
+    });
+
+    it('forbids normal user', () => {
+      return request(app.getHttpServer())
+        .get('/feedback/moderation')
+        .set('Authorization', `Bearer ${userToken}`)
+        .expect(403);
+    });
+  });
+
+  describe('/feedback/moderation/:id (GET)', () => {
+    let modViewId: string;
+    beforeAll(async () => {
+      const item = await prisma.feedback.create({
+        data: {
+          userId: testUser.id,
+          message: 'Moderator detail feedback',
+          category: FeedbackCategory.BUG,
+        },
+      });
+      modViewId = item.id;
+    });
+
+    it('allows moderator to view a single report', () => {
+      return request(app.getHttpServer())
+        .get(`/feedback/moderation/${modViewId}`)
+        .set('Authorization', `Bearer ${moderatorToken}`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.id).toBe(modViewId);
+          expect(res.body.user).toBeDefined();
+        });
+    });
+  });
+
+  describe('/feedback/moderation/:id/status (PUT)', () => {
+    let updateId: string;
+    beforeAll(async () => {
+      const fb = await prisma.feedback.create({
+        data: {
+          userId: testUser.id,
+          message: 'To update by moderator',
+          category: FeedbackCategory.PLAYER_REPORT,
+        },
+      });
+      updateId = fb.id;
+    });
+
+    it('allows moderator to update status and notes', () => {
+      return request(app.getHttpServer())
+        .put(`/feedback/moderation/${updateId}/status`)
+        .set('Authorization', `Bearer ${moderatorToken}`)
+        .send({
+          status: FeedbackStatus.IN_REVIEW,
+          moderatorNotes: 'Looking at it',
+        })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.status).toBe(FeedbackStatus.IN_REVIEW);
+          expect(res.body.moderatorNotes).toBe('Looking at it');
+        });
+    });
+
+    it('forbids normal user to update', () => {
+      return request(app.getHttpServer())
+        .put(`/feedback/moderation/${updateId}/status`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ status: FeedbackStatus.RESOLVED })
+        .expect(403);
+    });
   });
 
   afterAll(async () => {

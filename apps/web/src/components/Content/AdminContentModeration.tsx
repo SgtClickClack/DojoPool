@@ -72,6 +72,9 @@ const contentTypeLabels = {
   [ContentType.TOURNAMENT_HIGHLIGHT]: '🏟️ Tournament',
   [ContentType.VENUE_REVIEW]: '🏢 Venue',
   [ContentType.GENERAL]: '💬 General',
+  [ContentType.EVENT]: '📅 Event',
+  [ContentType.NEWS_ARTICLE]: '📰 News',
+  [ContentType.SYSTEM_MESSAGE]: '📢 System',
 };
 
 const visibilityLabels = {
@@ -517,8 +520,7 @@ export const AdminContentModeration: React.FC<AdminContentModerationProps> = ({
 
               <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" sx={{ mb: 1 }}>
-                  <strong>Creator:</strong> {selectedContent.user.username} (
-                  {selectedContent.user.email})
+                  <strong>Creator:</strong> {selectedContent.user.username}
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 1 }}>
                   <strong>Type:</strong>{' '}

@@ -1,11 +1,11 @@
+import * as APIService from '@/services/APIService';
 import { jest } from '@jest/globals';
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
-import * as APIService from '../../../services/APIService';
 import CMSDashboard from '../CMSDashboard';
 
 // Mock the APIService
-jest.mock('../../../services/APIService', () => ({
+jest.mock('@/services/APIService', () => ({
   getCMSStats: jest.fn(),
 }));
 
@@ -78,6 +78,7 @@ describe('CMSDashboard', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // @ts-ignore - Mock typing issue
     (APIService.getCMSStats as jest.Mock).mockResolvedValue(mockStats);
   });
 
@@ -121,9 +122,7 @@ describe('CMSDashboard', () => {
     const consoleErrorSpy = jest
       .spyOn(console, 'error')
       .mockImplementation(() => {});
-    (APIService.getCMSStats as jest.Mock).mockRejectedValue(
-      new Error('API Error')
-    );
+    (APIService.getCMSStats as any).mockRejectedValue(new Error('API Error'));
 
     render(<CMSDashboard />);
 
@@ -138,7 +137,7 @@ describe('CMSDashboard', () => {
   });
 
   it('displays fallback data when API fails', async () => {
-    (APIService.getCMSStats as jest.Mock).mockRejectedValue(
+    (APIService.getCMSStats as any).mockRejectedValue(
       new Error('Network Error')
     );
 

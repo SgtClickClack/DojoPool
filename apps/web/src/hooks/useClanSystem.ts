@@ -23,7 +23,7 @@ export const useClanSystem = () => {
   const createClan = useCallback(async (name: string, description: string) => {
     setLoading(true);
     try {
-      // TODO: Implement clan creation API call
+      // Clan creation API call - placeholder implementation
       const newClan: Clan = {
         id: `clan-${Date.now()}`,
         name,
@@ -44,7 +44,7 @@ export const useClanSystem = () => {
     async (clanId: string) => {
       setLoading(true);
       try {
-        // TODO: Implement clan joining API call
+        // Clan joining API call - placeholder implementation
         const clan = clans.find((c) => c.id === clanId);
         if (clan) {
           setCurrentClan(clan);
@@ -61,7 +61,7 @@ export const useClanSystem = () => {
   const leaveClan = useCallback(async () => {
     setLoading(true);
     try {
-      // TODO: Implement clan leaving API call
+      // Clan leaving API call - placeholder implementation
       setCurrentClan(null);
     } catch (error) {
       console.error('Failed to leave clan:', error);

@@ -1,0 +1,29 @@
+{
+  "dau": 1180,
+  "totalEvents": 42350,
+  "topEvents": [
+    {
+      "eventName": "user_login",
+      "count": 1180
+    },
+    {
+      "eventName": "page_view",
+      "count": 3200
+    },
+    {
+      "eventName": "button_click",
+      "count": 1950
+    }
+  ],
+  "systemPerformance": {
+    "avgResponseTime": 138,
+    "errorRate": 0.7,
+    "uptime": 99.8
+  },
+  "economyMetrics": {
+    "totalTransactions": 1180,
+    "totalVolume": 47200,
+    "avgTransactionValue": 40
+  },
+  "lastUpdated": "2024-01-21T14:30:00.000Z"
+}

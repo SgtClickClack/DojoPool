@@ -12,7 +12,15 @@ const AuthCallback: React.FC = () => {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const { token, error: urlError } = router.query;
+        const {
+          token,
+          access_token,
+          error: urlError,
+        } = router.query as {
+          token?: string;
+          access_token?: string;
+          error?: string;
+        };
 
         if (urlError) {
           setError('Authentication failed. Please try again.');
@@ -20,9 +28,15 @@ const AuthCallback: React.FC = () => {
           return;
         }
 
-        if (token && typeof token === 'string') {
+        const jwt =
+          typeof access_token === 'string'
+            ? access_token
+            : typeof token === 'string'
+              ? token
+              : undefined;
+        if (jwt) {
           // Set the token in auth context
-          await setToken(token);
+          await setToken(jwt);
 
           // Redirect to home page
           router.push('/');

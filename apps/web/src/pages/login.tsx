@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
-import { Google as GoogleIcon } from '@mui/icons-material';
+import GoogleIcon from '@mui/icons-material/Google';
 import {
   Alert,
   Box,
@@ -57,8 +57,8 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      // Redirect to Google OAuth
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || '/api'}/auth/google`;
+      // Redirect to Google OAuth via Next.js rewrite
+      window.location.href = '/api/auth/google';
     } catch (err) {
       setError('Google sign-in failed. Please try again.');
       setIsGoogleLoading(false);

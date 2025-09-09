@@ -1,0 +1,143 @@
+[
+  {
+    "id": "territory-1",
+    "name": "Downtown Dojo",
+    "venueId": "venue-1",
+    "venue": {
+      "id": "venue-1",
+      "name": "Downtown Billiards",
+      "lat": -27.4698,
+      "lng": 153.0251
+    },
+    "owner": null,
+    "clan": null,
+    "contestedBy": null,
+    "level": 1,
+    "defenseScore": 0,
+    "strategicValue": 5,
+    "resources": {},
+    "status": "UNCLAIMED",
+    "contestDeadline": null,
+    "lastOwnershipChange": null,
+    "lastActivity": "2024-01-01T00:00:00Z",
+    "coordinates": {
+      "lat": -27.4698,
+      "lng": 153.0251
+    },
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "territory-2",
+    "name": "Riverside Pool Hall",
+    "venueId": "venue-2",
+    "venue": {
+      "id": "venue-2",
+      "name": "Riverside Pool Hall",
+      "lat": -27.4758,
+      "lng": 153.0351
+    },
+    "owner": {
+      "id": "player-1",
+      "username": "PoolMaster"
+    },
+    "clan": {
+      "id": "clan-1",
+      "name": "Crimson Dragons",
+      "tag": "CD"
+    },
+    "contestedBy": null,
+    "level": 2,
+    "defenseScore": 8,
+    "strategicValue": 12,
+    "resources": {
+      "gold": 150,
+      "wood": 75
+    },
+    "status": "CLAIMED",
+    "contestDeadline": null,
+    "lastOwnershipChange": "2024-01-15T00:00:00Z",
+    "lastActivity": "2024-01-20T00:00:00Z",
+    "coordinates": {
+      "lat": -27.4758,
+      "lng": 153.0351
+    },
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-20T00:00:00Z"
+  },
+  {
+    "id": "territory-3",
+    "name": "Suburban Cue Club",
+    "venueId": "venue-3",
+    "venue": {
+      "id": "venue-3",
+      "name": "Suburban Cue Club",
+      "lat": -27.4858,
+      "lng": 153.0151
+    },
+    "owner": {
+      "id": "player-2",
+      "username": "EightBallKing"
+    },
+    "clan": null,
+    "contestedBy": {
+      "id": "player-3",
+      "username": "ChallengerX"
+    },
+    "level": 1,
+    "defenseScore": 3,
+    "strategicValue": 8,
+    "resources": {
+      "gold": 50
+    },
+    "status": "CONTESTED",
+    "contestDeadline": "2024-01-25T00:00:00Z",
+    "lastOwnershipChange": "2024-01-10T00:00:00Z",
+    "lastActivity": "2024-01-22T00:00:00Z",
+    "coordinates": {
+      "lat": -27.4858,
+      "lng": 153.0151
+    },
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-22T00:00:00Z"
+  },
+  {
+    "id": "territory-4",
+    "name": "Industrial District Snooker",
+    "venueId": "venue-4",
+    "venue": {
+      "id": "venue-4",
+      "name": "Industrial District Snooker",
+      "lat": -27.4558,
+      "lng": 153.0451
+    },
+    "owner": {
+      "id": "player-4",
+      "username": "SnookerPro"
+    },
+    "clan": {
+      "id": "clan-2",
+      "name": "Blue Storm",
+      "tag": "BS"
+    },
+    "contestedBy": null,
+    "level": 3,
+    "defenseScore": 15,
+    "strategicValue": 20,
+    "resources": {
+      "gold": 300,
+      "wood": 200,
+      "iron": 100
+    },
+    "status": "CLAIMED",
+    "contestDeadline": null,
+    "lastOwnershipChange": "2024-01-05T00:00:00Z",
+    "lastActivity": "2024-01-21T00:00:00Z",
+    "coordinates": {
+      "lat": -27.4558,
+      "lng": 153.0451
+    },
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-21T00:00:00Z"
+  }
+]

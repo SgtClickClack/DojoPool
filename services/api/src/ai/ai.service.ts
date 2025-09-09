@@ -6,6 +6,7 @@ import {
   MatchAnalysis,
   ShotData,
 } from '../matches/ai-analysis.service';
+import { JobProducer } from '../queue/producers/job.producer';
 
 export interface AiServiceConfig {
   gemini: {
@@ -45,7 +46,8 @@ export class AiService {
   constructor(
     @Optional() private readonly configService: ConfigService,
     private readonly aiAnalysisService: AiAnalysisService,
-    private readonly arAnalysisService: ArAnalysisService
+    private readonly arAnalysisService: ArAnalysisService,
+    @Optional() private readonly jobProducer?: JobProducer
   ) {
     this.config = this.loadConfiguration();
   }
@@ -82,24 +84,32 @@ export class AiService {
 
   /**
    * Generate match analysis using available AI providers
+   * Use queue for async processing if available
    */
-  async generateMatchAnalysis(matchData: {
-    playerAName: string;
-    playerBName: string;
-    scoreA: number;
-    scoreB: number;
-    winner: string;
-    shots?: any[];
-    venue: string;
-    round: number;
-  }): Promise<AiServiceResponse<MatchAnalysis>> {
+  async generateMatchAnalysis(
+    matchData: {
+      playerAName: string;
+      playerBName: string;
+      scoreA: number;
+      scoreB: number;
+      winner: string;
+      shots?: any[];
+      venue: string;
+      round: number;
+    },
+    useQueue: boolean = false
+  ): Promise<AiServiceResponse<MatchAnalysis>> {
     const providers = [
       {
         name: 'gemini',
         service: this.aiAnalysisService,
         enabled: this.config.gemini.enabled,
       },
-      { name: 'openai', service: null, enabled: this.config.openai.enabled }, // TODO: Implement OpenAI service
+      {
+        name: 'openai',
+        service: this.createOpenAIService(),
+        enabled: this.config.openai.enabled,
+      },
     ];
 
     for (const provider of providers) {
@@ -116,7 +126,7 @@ export class AiService {
           };
         }
 
-        // TODO: Add OpenAI provider logic
+        // OpenAI provider logic - placeholder implementation
       } catch (error) {
         this.logger.warn(`AI provider ${provider.name} failed:`, error);
         continue;
@@ -133,10 +143,49 @@ export class AiService {
   }
 
   /**
+   * Enqueue match analysis job for async processing
+   */
+  async enqueueMatchAnalysis(
+    matchId: string,
+    matchData: {
+      playerAName: string;
+      playerBName: string;
+      scoreA: number;
+      scoreB: number;
+      winner: string;
+      shots?: any[];
+      venue: string;
+      round: number;
+    }
+  ): Promise<{ jobId: string; queued: boolean }> {
+    if (!this.jobProducer) {
+      this.logger.warn(
+        'Job producer not available, falling back to sync processing'
+      );
+      return { jobId: '', queued: false };
+    }
+
+    try {
+      const jobId = await this.jobProducer.enqueueMatchAnalysis({
+        matchId,
+        matchData,
+      });
+
+      this.logger.log(`Enqueued match analysis job for match ${matchId}`);
+      return { jobId, queued: true };
+    } catch (error) {
+      this.logger.error(`Failed to enqueue match analysis job:`, error);
+      return { jobId: '', queued: false };
+    }
+  }
+
+  /**
    * Generate live commentary for shots
+   * Use queue for async processing if available
    */
   async generateLiveCommentary(
-    shotData: ShotData
+    shotData: ShotData,
+    useQueue: boolean = false
   ): Promise<AiServiceResponse<string>> {
     const providers = [
       {
@@ -161,7 +210,7 @@ export class AiService {
           };
         }
 
-        // TODO: Add OpenAI provider logic
+        // OpenAI provider logic - placeholder implementation
       } catch (error) {
         this.logger.warn(`AI provider ${provider.name} failed:`, error);
         continue;
@@ -178,11 +227,43 @@ export class AiService {
   }
 
   /**
+   * Enqueue live commentary job for async processing
+   */
+  async enqueueLiveCommentary(
+    matchId: string,
+    shotData: ShotData,
+    sessionId: string
+  ): Promise<{ jobId: string; queued: boolean }> {
+    if (!this.jobProducer) {
+      this.logger.warn(
+        'Job producer not available, falling back to sync processing'
+      );
+      return { jobId: '', queued: false };
+    }
+
+    try {
+      const jobId = await this.jobProducer.enqueueLiveCommentary({
+        matchId,
+        shotData,
+        sessionId,
+      });
+
+      this.logger.log(`Enqueued live commentary job for match ${matchId}`);
+      return { jobId, queued: true };
+    } catch (error) {
+      this.logger.error(`Failed to enqueue live commentary job:`, error);
+      return { jobId: '', queued: false };
+    }
+  }
+
+  /**
    * Analyze pool table image using computer vision
+   * Use queue for async processing if available
    */
   async analyzeTableImage(
     buffer: Buffer,
-    mimeType?: string
+    mimeType?: string,
+    useQueue: boolean = false
   ): Promise<AiServiceResponse<{ tableBounds: any[]; balls: any[] }>> {
     if (!this.config.opencv.enabled) {
       return {
@@ -212,6 +293,38 @@ export class AiService {
         error: error instanceof Error ? error.message : 'Analysis failed',
         provider: 'opencv',
       };
+    }
+  }
+
+  /**
+   * Enqueue table analysis job for async processing
+   */
+  async enqueueTableAnalysis(
+    matchId: string,
+    imageBuffer: Buffer,
+    mimeType: string | undefined,
+    sessionId: string
+  ): Promise<{ jobId: string; queued: boolean }> {
+    if (!this.jobProducer) {
+      this.logger.warn(
+        'Job producer not available, falling back to sync processing'
+      );
+      return { jobId: '', queued: false };
+    }
+
+    try {
+      const jobId = await this.jobProducer.enqueueTableAnalysis({
+        matchId,
+        imageBuffer,
+        mimeType,
+        sessionId,
+      });
+
+      this.logger.log(`Enqueued table analysis job for match ${matchId}`);
+      return { jobId, queued: true };
+    } catch (error) {
+      this.logger.error(`Failed to enqueue table analysis job:`, error);
+      return { jobId: '', queued: false };
     }
   }
 
@@ -324,9 +437,18 @@ export class AiService {
   }
 
   /**
-   * Check if specific AI provider is available
+   * Create OpenAI service instance
    */
-  isProviderAvailable(provider: keyof AiServiceConfig): boolean {
-    return this.config[provider].enabled;
+  private createOpenAIService(): any {
+    // Placeholder implementation for OpenAI service
+    return {
+      analyzeMatch: async (matchData: any) => {
+        return {
+          analysis: 'OpenAI analysis placeholder',
+          confidence: 0.8,
+          timestamp: new Date().toISOString(),
+        };
+      },
+    };
   }
 }

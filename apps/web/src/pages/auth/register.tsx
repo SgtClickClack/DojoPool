@@ -1,9 +1,12 @@
 import { useAuth } from '@/hooks/useAuth';
+import referralService from '@/services/referralService';
+import GoogleIcon from '@mui/icons-material/Google';
 import {
   Alert,
   Box,
   Button,
   Container,
+  Divider,
   Link as MuiLink,
   Paper,
   TextField,
@@ -22,14 +25,49 @@ const RegisterPage: React.FC = () => {
     password: '',
     confirmPassword: '',
   });
+  const [referralCode, setReferralCode] = useState('');
+  const [referralCodeValid, setReferralCodeValid] = useState<boolean | null>(
+    null
+  );
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
       router.push('/dashboard');
     }
   }, [user, loading, router]);
+
+  // Handle referral code from URL parameters
+  useEffect(() => {
+    const { ref } = router.query;
+    if (ref && typeof ref === 'string') {
+      setReferralCode(ref);
+      validateReferralCode(ref);
+    }
+  }, [router.query]);
+
+  const validateReferralCode = async (code: string) => {
+    if (!code.trim()) {
+      setReferralCodeValid(null);
+      return;
+    }
+
+    try {
+      const isValid = await referralService.validateReferralCode(code);
+      setReferralCodeValid(isValid);
+    } catch (err) {
+      console.error('Failed to validate referral code:', err);
+      setReferralCodeValid(false);
+    }
+  };
+
+  const handleReferralCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const code = e.target.value;
+    setReferralCode(code);
+    validateReferralCode(code);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -56,7 +94,22 @@ const RegisterPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      await register(formData.username, formData.email, formData.password);
+      const newUser = await register(
+        formData.username,
+        formData.email,
+        formData.password
+      );
+
+      // Process referral code if provided and valid
+      if (referralCode.trim() && referralCodeValid) {
+        try {
+          await referralService.processReferralSignup(referralCode);
+        } catch (referralErr) {
+          console.error('Failed to process referral:', referralErr);
+          // Don't block registration if referral processing fails
+        }
+      }
+
       router.push('/dashboard');
     } catch (err: any) {
       console.error('Registration error:', err);
@@ -79,6 +132,17 @@ const RegisterPage: React.FC = () => {
       }
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    setIsGoogleLoading(true);
+    setError('');
+    try {
+      window.location.href = '/api/auth/google';
+    } catch (err) {
+      setError('Google sign-up failed. Please try again.');
+      setIsGoogleLoading(false);
     }
   };
 
@@ -125,6 +189,31 @@ const RegisterPage: React.FC = () => {
               {error}
             </Alert>
           )}
+
+          <Button
+            fullWidth
+            variant="outlined"
+            startIcon={<GoogleIcon />}
+            onClick={handleGoogleSignUp}
+            disabled={isGoogleLoading}
+            sx={{
+              mb: 3,
+              borderColor: '#4285f4',
+              color: '#4285f4',
+              '&:hover': {
+                borderColor: '#357ae8',
+                backgroundColor: '#f8f9fa',
+              },
+            }}
+          >
+            {isGoogleLoading ? 'Connecting...' : 'Sign up with Google'}
+          </Button>
+
+          <Divider sx={{ mb: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              or
+            </Typography>
+          </Divider>
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
@@ -178,6 +267,36 @@ const RegisterPage: React.FC = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               disabled={isSubmitting}
+            />
+            <TextField
+              margin="normal"
+              fullWidth
+              name="referralCode"
+              label="Referral Code (Optional)"
+              id="referralCode"
+              autoComplete="off"
+              value={referralCode}
+              onChange={handleReferralCodeChange}
+              disabled={isSubmitting}
+              helperText={
+                referralCodeValid === true
+                  ? "✓ Valid referral code - you'll both earn bonus DojoCoins!"
+                  : referralCodeValid === false
+                    ? '✗ Invalid referral code'
+                    : referralCode.trim()
+                      ? 'Checking referral code...'
+                      : 'Enter a referral code to earn bonus DojoCoins'
+              }
+              sx={{
+                '& .MuiFormHelperText-root': {
+                  color:
+                    referralCodeValid === true
+                      ? 'success.main'
+                      : referralCodeValid === false
+                        ? 'error.main'
+                        : 'text.secondary',
+                },
+              }}
             />
             <Button
               type="submit"

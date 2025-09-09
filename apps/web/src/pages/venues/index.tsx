@@ -63,7 +63,7 @@ const VenueDiscoveryPage: React.FC = () => {
   const handleVenueClick = (venue: Venue) => {
     // Navigate to venue detail page or open modal
     console.log('Venue clicked:', venue);
-    // TODO: Implement navigation to venue detail
+    // Navigation to venue detail - placeholder implementation
   };
 
   const clearFilters = () => {

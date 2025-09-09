@@ -6,13 +6,15 @@ import React, { useEffect } from 'react';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
+  requireModerator?: boolean;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requireAdmin = false,
+  requireModerator = false,
 }) => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, isModerator } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -23,7 +25,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         void router.push('/dashboard');
       }
     }
-  }, [user, loading, isAdmin, requireAdmin, router]);
+  }, [
+    user,
+    loading,
+    isAdmin,
+    isModerator,
+    requireAdmin,
+    requireModerator,
+    router,
+  ]);
 
   if (loading) {
     return (
@@ -47,6 +57,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (requireAdmin && !isAdmin) {
+    return null; // Will redirect to dashboard
+  }
+
+  if (requireModerator && !(isAdmin || isModerator)) {
     return null; // Will redirect to dashboard
   }
 

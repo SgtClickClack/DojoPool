@@ -1,0 +1,12 @@
+{
+  "id": "test-user-123",
+  "username": "TestPlayer",
+  "email": "test@example.com",
+  "role": "USER",
+  "profile": {
+    "displayName": "Test Player",
+    "bio": "A test player in the Dojo Pool world",
+    "avatarUrl": "/avatar.jpg",
+    "skillRating": 1500
+  }
+}

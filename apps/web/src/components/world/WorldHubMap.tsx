@@ -9,7 +9,8 @@ import {
   LoadScript,
   Marker,
 } from '@react-google-maps/api';
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import { usePerformanceOptimization } from '@/hooks/usePerformanceOptimization';
 import { ShadowRunModal } from './ShadowRunModal';
 import { ConnectionStatusBar } from './ConnectionStatusBar';
 import { DojoInfoWindow } from './DojoInfoWindow';
@@ -40,8 +41,14 @@ interface WorldHubMapProps {
 }
 
 const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
+  // Performance optimization
+  const { metrics } = usePerformanceOptimization('WorldHubMap', {
+    enableLogging: process.env.NODE_ENV === 'development',
+    logThreshold: 50, // Higher threshold for complex map component
+  });
+
   // Utility function to generate height class
-  const getHeightClass = (heightValue: string | number) => {
+  const getHeightClass = useCallback((heightValue: string | number) => {
     if (typeof heightValue === 'string') {
       if (heightValue === '100%') return 'h100';
       if (heightValue === '100vh') return 'h100vh';
@@ -55,9 +62,9 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
       if (heightValue <= 900) return `h${Math.floor(heightValue / 100) * 100}`;
     }
     return 'h100'; // default fallback
-  };
+  }, []);
 
-  const heightClass = getHeightClass(height);
+  const heightClass = useMemo(() => getHeightClass(height), [getHeightClass, height]);
 
   // Check for required environment variables first
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
@@ -82,6 +89,30 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
   const [shadowRunOpen, setShadowRunOpen] = useState(false);
 
   const { user } = useAuth();
+
+  // Memoized event handlers
+  const handleDojoClick = useCallback((dojo: DojoData) => {
+    setSelectedDojo(dojo);
+    setSelectedPlayer(null);
+  }, []);
+
+  const handlePlayerClick = useCallback((player: PlayerPosition) => {
+    setSelectedPlayer(player);
+    setSelectedDojo(null);
+  }, []);
+
+  const handleCloseInfoWindow = useCallback(() => {
+    setSelectedDojo(null);
+    setSelectedPlayer(null);
+  }, []);
+
+  const handleShadowRunOpen = useCallback(() => {
+    setShadowRunOpen(true);
+  }, []);
+
+  const handleShadowRunClose = useCallback(() => {
+    setShadowRunOpen(false);
+  }, []);
 
   // Add error boundary protection
   if (!React || typeof React.useState !== 'function') {
@@ -121,10 +152,6 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
     setSelectedDojo(null);
   };
 
-  const handleCloseInfoWindow = () => {
-    setSelectedDojo(null);
-    setSelectedPlayer(null);
-  };
 
   const handleChallengeDojo = (dojoId: string) => {
     console.log('Challenging dojo:', dojoId);

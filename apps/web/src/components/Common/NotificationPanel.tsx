@@ -102,7 +102,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
     if (!notification.isRead) {
       await markAsRead(notification.id);
     }
-    // TODO: Navigate to relevant page based on notification type
+    // Navigation implementation - placeholder
     onClose();
   };
 

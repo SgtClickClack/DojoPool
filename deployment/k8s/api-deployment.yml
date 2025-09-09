@@ -1,0 +1,203 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dojopool-api
+  namespace: production
+  labels:
+    app: dojopool-api
+    component: backend
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: dojopool-api
+  template:
+    metadata:
+      labels:
+        app: dojopool-api
+        component: backend
+    spec:
+      containers:
+        - name: api
+          image: dojopool/api:latest
+          ports:
+            - containerPort: 3001
+              name: http
+            - containerPort: 3002
+              name: websocket
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: PORT
+              value: '3001'
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-secrets
+                  key: database-url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-secrets
+                  key: redis-url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-secrets
+                  key: jwt-secret
+            - name: FRONTEND_URL
+              value: 'https://dojopool.com'
+            - name: WS_CORS_ORIGIN
+              value: 'https://dojopool.com'
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-secrets
+                  key: aws-region
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-secrets
+                  key: aws-access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-secrets
+                  key: aws-secret-access-key
+            - name: S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-secrets
+                  key: s3-bucket
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-secrets
+                  key: gemini-api-key
+            - name: MAPBOX_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-secrets
+                  key: mapbox-token
+          resources:
+            requests:
+              memory: '512Mi'
+              cpu: '250m'
+            limits:
+              memory: '1Gi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+          volumeMounts:
+            - name: uploads
+              mountPath: /app/data/uploads
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: dojopool-uploads-pvc
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - dojopool-api
+                topologyKey: kubernetes.io/hostname
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dojopool-api
+  namespace: production
+  labels:
+    app: dojopool-api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: 3001
+      protocol: TCP
+      name: http
+    - port: 3002
+      targetPort: 3002
+      protocol: TCP
+      name: websocket
+  selector:
+    app: dojopool-api
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dojopool-api-ingress
+  namespace: production
+  annotations:
+    kubernetes.io/ingress.class: 'nginx'
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/rate-limit: '10'
+    nginx.ingress.kubernetes.io/rate-limit-window: '1m'
+    cert-manager.io/cluster-issuer: 'letsencrypt-prod'
+spec:
+  tls:
+    - hosts:
+        - api.dojopool.com
+      secretName: dojopool-api-tls
+  rules:
+    - host: api.dojopool.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dojopool-api
+                port:
+                  number: 3001
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dojopool-uploads-pvc
+  namespace: production
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: gp3

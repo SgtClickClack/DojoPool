@@ -1,11 +1,12 @@
-import { ContentVisibility } from '@dojopool/types';
 import {
   IsArray,
   IsDateString,
   IsNotEmpty,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
+  Min,
 } from 'class-validator';
 
 export class CreateEventDto {
@@ -17,39 +18,38 @@ export class CreateEventDto {
   @IsString()
   description?: string;
 
+  @IsNotEmpty()
+  @IsString()
+  eventType: string; // e.g., "TOURNAMENT", "SPECIAL_EVENT", "MAINTENANCE"
+
+  @IsNotEmpty()
+  @IsDateString()
+  startTime: string;
+
   @IsOptional()
   @IsDateString()
-  eventDate?: string;
+  endTime?: string;
 
   @IsOptional()
-  @IsString()
-  location?: string;
+  @IsNumber()
+  @Min(1)
+  priority?: number;
 
   @IsOptional()
-  @IsString()
-  venueId?: string;
-
-  @IsOptional()
-  @IsString()
-  maxAttendees?: string;
-
-  @IsOptional()
-  @IsString()
-  registrationDeadline?: string;
-
-  @IsOptional()
-  @IsString()
-  eventType?: string; // TOURNAMENT, SOCIAL, MAINTENANCE, etc.
+  @IsArray()
+  @IsString({ each: true })
+  targetAudience?: string[];
 
   @IsOptional()
   @IsObject()
-  metadata?: Record<string, any>;
+  rewards?: Record<string, any>;
+
+  @IsOptional()
+  @IsObject()
+  requirements?: Record<string, any>;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
-
-  @IsOptional()
-  visibility?: ContentVisibility;
 }

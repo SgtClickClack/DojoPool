@@ -1,0 +1,91 @@
+{
+  "entries": [
+    {
+      "id": "activity-1",
+      "type": "GAME_COMPLETED",
+      "title": "Victory Achieved!",
+      "description": "TestPlayer defeated CyberNinja in an intense pool match at Neon Arena",
+      "username": "TestPlayer",
+      "userAvatar": "/avatars/testplayer.jpg",
+      "createdAt": "2024-01-15T10:30:00Z",
+      "isPublic": true,
+      "venue": {
+        "id": "venue-1",
+        "name": "Neon Arena"
+      },
+      "match": {
+        "id": "match-1",
+        "winnerId": "test-user-123"
+      }
+    },
+    {
+      "id": "activity-2",
+      "type": "TOURNAMENT_WON",
+      "title": "Tournament Champion!",
+      "description": "TestPlayer won the Cyber Championship tournament with a perfect record",
+      "username": "TestPlayer",
+      "userAvatar": "/avatars/testplayer.jpg",
+      "createdAt": "2024-01-14T16:45:00Z",
+      "isPublic": true,
+      "tournament": {
+        "id": "tournament-1",
+        "name": "Cyber Championship"
+      }
+    },
+    {
+      "id": "activity-3",
+      "type": "TERRITORY_CAPTURED",
+      "title": "New Territory Claimed",
+      "description": "TestPlayer successfully captured the Downtown District territory",
+      "username": "TestPlayer",
+      "userAvatar": "/avatars/testplayer.jpg",
+      "createdAt": "2024-01-13T09:15:00Z",
+      "isPublic": true,
+      "venue": {
+        "id": "venue-2",
+        "name": "Downtown District"
+      }
+    },
+    {
+      "id": "activity-4",
+      "type": "ACHIEVEMENT_EARNED",
+      "title": "Achievement Unlocked!",
+      "description": "TestPlayer earned the 'Pool Master' achievement for winning 100 matches",
+      "username": "TestPlayer",
+      "userAvatar": "/avatars/testplayer.jpg",
+      "createdAt": "2024-01-12T14:20:00Z",
+      "isPublic": true
+    },
+    {
+      "id": "activity-5",
+      "type": "FRIEND_ADDED",
+      "title": "New Friendship",
+      "description": "TestPlayer is now friends with PoolShark99",
+      "username": "TestPlayer",
+      "userAvatar": "/avatars/testplayer.jpg",
+      "createdAt": "2024-01-11T11:30:00Z",
+      "isPublic": false
+    },
+    {
+      "id": "activity-6",
+      "type": "CLAN_JOINED",
+      "title": "Clan Membership",
+      "description": "TestPlayer joined the Neon Knights clan",
+      "username": "TestPlayer",
+      "userAvatar": "/avatars/testplayer.jpg",
+      "createdAt": "2024-01-10T08:45:00Z",
+      "isPublic": true,
+      "clan": {
+        "id": "clan-1",
+        "name": "Neon Knights"
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 6,
+    "hasNext": false,
+    "hasPrev": false
+  }
+}

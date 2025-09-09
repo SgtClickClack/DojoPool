@@ -29,50 +29,20 @@ const nextConfig = {
   outputFileTracing: true,
   // Configure pages directory
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  // Transpile ESM packages that ship untranspiled code to avoid dir import errors
+  transpilePackages: [
+    '@mui/material',
+    '@mui/icons-material',
+    '@emotion/react',
+    '@emotion/styled',
+  ],
 
-  // Webpack optimizations for Windows file handling
+  // Simplified webpack config for debugging
   webpack: (config, { dev, isServer }) => {
-    // Increase file watching limits for Windows
+    // Basic file watching for Windows
     config.watchOptions = {
       poll: 1000,
       aggregateTimeout: 300,
-      ignored: ['**/node_modules', '**/.next', '**/dist'],
-    };
-
-    // Optimize file processing
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            priority: 10,
-          },
-          mui: {
-            test: /[\\/]node_modules[\\/]@mui[\\/]/,
-            name: 'mui',
-            chunks: 'all',
-            priority: 20,
-          },
-        },
-      },
-    };
-
-    // Increase memory limits
-    config.performance = {
-      ...config.performance,
-      maxEntrypointSize: 512000,
-      maxAssetSize: 512000,
-    };
-
-    // Mapbox to Maplibre alias
-    config.resolve = config.resolve || {};
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      'mapbox-gl': 'maplibre-gl',
     };
 
     return config;

@@ -251,4 +251,25 @@ export class UsersService {
       throw err;
     }
   }
+
+  @Cacheable({ ttl: 60, keyPrefix: 'users:me' })
+  async findUserByIdBasic(userId: string): Promise<{
+    id: string;
+    email: string;
+    username: string;
+    isAdmin?: boolean;
+    role?: string;
+  }> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      isAdmin: user.role === 'ADMIN',
+      role: user.role,
+    };
+  }
 }

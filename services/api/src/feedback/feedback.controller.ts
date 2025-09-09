@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { AdminGuard } from '../auth/admin.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ModeratorOrAdminGuard } from '../auth/moderator-or-admin.guard';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { FeedbackFilterDto } from './dto/feedback-filter.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
@@ -71,6 +72,33 @@ export class FeedbackController {
     @Query('limit', ParseIntPipe) limit: number = 20
   ) {
     return this.feedbackService.findAllForAdmin(filters, page, limit);
+  }
+
+  // Moderation endpoints (Admin or Moderator)
+  @Get('moderation')
+  @UseGuards(ModeratorOrAdminGuard)
+  async findAllForModeration(
+    @Query(new ValidationPipe({ transform: true })) filters: FeedbackFilterDto,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 20
+  ) {
+    return this.feedbackService.findAllForAdmin(filters, page, limit);
+  }
+
+  @Get('moderation/:id')
+  @UseGuards(ModeratorOrAdminGuard)
+  async findOneForModeration(@Param('id') id: string) {
+    return this.feedbackService.findOne(id);
+  }
+
+  @Put('moderation/:id/status')
+  @UseGuards(ModeratorOrAdminGuard)
+  async updateStatusForModeration(
+    @Param('id') id: string,
+    @Body(ValidationPipe) updateFeedbackDto: UpdateFeedbackDto,
+    @Request() req: any
+  ) {
+    return this.feedbackService.update(id, updateFeedbackDto, req.user.userId);
   }
 
   @Get('admin/stats')

@@ -20,7 +20,13 @@ import type {
   UpdateFeedbackRequest,
   UserContentListResponse,
   UserFeedbackListResponse,
+  AnalyticsData,
+  RealtimeMetrics,
 } from '@dojopool/types';
+import type {
+  MatchInsights,
+  PlayerInsightsSummary,
+} from '@dojopool/types/src/insights';
 import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 // Create axios instance with default config
@@ -68,9 +74,11 @@ api.interceptors.response.use(
         const response = await api.post('/auth/refresh', {
           refresh_token: refreshToken,
         });
-        const { token } = response.data;
-
-        localStorage.setItem('auth_token', token);
+        const token = response.data.access_token || response.data.token;
+        const newRefresh =
+          response.data.refresh_token || response.data.refreshToken;
+        if (token) localStorage.setItem('auth_token', token);
+        if (newRefresh) localStorage.setItem('refresh_token', newRefresh);
 
         if (originalRequest) {
           originalRequest.headers.Authorization = `Bearer ${token}`;
@@ -581,6 +589,24 @@ export const submitFeedback = async (
   return response.data;
 };
 
+export const uploadFiles = async (
+  formData: FormData
+): Promise<{
+  files: Array<{
+    filename: string;
+    url: string;
+    size: number;
+    mimetype: string;
+  }>;
+}> => {
+  const response = await api.post('/v1/upload/feedback-attachments', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
 export const getMyFeedback = async (
   page: number = 1,
   limit: number = 10
@@ -627,6 +653,36 @@ export const updateFeedback = async (
   updateData: UpdateFeedbackRequest
 ): Promise<Feedback> => {
   const response = await api.put(`/v1/feedback/admin/${id}`, updateData);
+  return response.data;
+};
+
+// Moderation API (Moderator or Admin)
+export const getModerationFeedback = async (
+  filters: FeedbackFilter = {},
+  page: number = 1,
+  limit: number = 20
+): Promise<FeedbackListResponse> => {
+  const response = await api.get('/v1/feedback/moderation', {
+    params: { ...filters, page, limit },
+  });
+  return response.data;
+};
+
+export const getModerationFeedbackById = async (
+  id: string
+): Promise<Feedback> => {
+  const response = await api.get(`/v1/feedback/moderation/${id}`);
+  return response.data;
+};
+
+export const updateModerationFeedbackStatus = async (
+  id: string,
+  updateData: UpdateFeedbackRequest
+): Promise<Feedback> => {
+  const response = await api.put(
+    `/v1/feedback/moderation/${id}/status`,
+    updateData
+  );
   return response.data;
 };
 
@@ -726,6 +782,21 @@ export const getAllContent = async (
   const response = await api.get('/v1/content/admin/all', {
     params: { ...filters, page, limit },
   });
+  return response.data;
+};
+
+// Insights API functions
+export const getMatchInsights = async (
+  matchId: string
+): Promise<MatchInsights> => {
+  const response = await api.get(`/v1/insights/match/${matchId}`);
+  return response.data;
+};
+
+export const getPlayerInsights = async (
+  playerId: string
+): Promise<PlayerInsightsSummary> => {
+  const response = await api.get(`/v1/insights/player/${playerId}`);
   return response.data;
 };
 
@@ -1004,5 +1075,255 @@ export const bulkArchiveContent = async (
   }>;
 }> => {
   const response = await api.post('/cms/bulk-archive', { contentIds });
+  return response.data;
+};
+
+// Analytics API
+
+export const getAnalyticsDashboard = async (
+  startDate: Date,
+  endDate: Date
+): Promise<AnalyticsData> => {
+  const response = await api.get('/analytics/dashboard', {
+    params: {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    },
+  });
+  return response.data;
+};
+
+export const getRealtimeMetrics = async (
+  hours: number = 24
+): Promise<RealtimeMetrics> => {
+  const response = await api.get('/analytics/realtime', {
+    params: { hours },
+  });
+  return response.data;
+};
+
+export const getEngagementData = async (
+  startDate: Date,
+  endDate: Date
+): Promise<{
+  userEngagement: Array<{
+    date: string;
+    activeUsers: number;
+    sessions: number;
+    avgSessionLength: number;
+  }>;
+  dau: number;
+  mau: number;
+}> => {
+  const response = await api.get('/analytics/engagement', {
+    params: {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    },
+  });
+  return response.data;
+};
+
+export const getFeatureUsageData = async (
+  startDate: Date,
+  endDate: Date
+): Promise<{
+  featureUsage: Array<{
+    feature: string;
+    usageCount: number;
+    uniqueUsers: number;
+  }>;
+  topEvents: Array<{ eventName: string; count: number }>;
+}> => {
+  const response = await api.get('/analytics/features', {
+    params: {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    },
+  });
+  return response.data;
+};
+
+export const getPerformanceData = async (
+  startDate: Date,
+  endDate: Date
+): Promise<{
+  systemPerformance: {
+    avgResponseTime: number;
+    errorRate: number;
+    uptime: number;
+  };
+  userEngagement: Array<{
+    date: string;
+    activeUsers: number;
+    sessions: number;
+    avgSessionLength: number;
+  }>;
+}> => {
+  const response = await api.get('/analytics/performance', {
+    params: {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    },
+  });
+  return response.data;
+};
+
+export const getEconomyData = async (
+  startDate: Date,
+  endDate: Date
+): Promise<{
+  economyMetrics: {
+    totalTransactions: number;
+    totalVolume: number;
+    avgTransactionValue: number;
+  };
+  totalUsers: number;
+}> => {
+  const response = await api.get('/analytics/economy', {
+    params: {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    },
+  });
+  return response.data;
+};
+
+// Telemetry API - for sending telemetry events from client
+export const sendTelemetryEvent = async (eventData: {
+  eventName: string;
+  userId?: string;
+  sessionId?: string;
+  data?: Record<string, any>;
+}): Promise<{ status: string }> => {
+  const response = await api.post('/telemetry/event', eventData);
+  return response.data;
+};
+
+export const sendBulkTelemetryEvents = async (
+  events: Array<{
+    eventName: string;
+    userId?: string;
+    sessionId?: string;
+    data?: Record<string, any>;
+  }>
+): Promise<{ status: string; count: number }> => {
+  const response = await api.post('/telemetry/events', events);
+  return response.data;
+};
+
+// Skills API - Player Skill Progression System
+export interface SkillProfile {
+  id: string;
+  skillId: string;
+  skillName: string;
+  skillDescription?: string;
+  category: string;
+  iconUrl?: string;
+  currentLevel: number;
+  currentPoints: number;
+  totalPoints: number;
+  proficiencyScore: number;
+  maxLevel: number;
+  pointsToNextLevel: number;
+  unlockedAt?: string;
+  lastUpdated: string;
+}
+
+export interface SkillProgress {
+  skillId: string;
+  skillName: string;
+  category: string;
+  currentLevel: number;
+  currentPoints: number;
+  proficiencyScore: number;
+  recentPoints: number;
+  lastActivity: string;
+}
+
+export interface SkillCategoryProgress {
+  category: string;
+  totalSkills: number;
+  averageLevel: number;
+  totalPoints: number;
+  highestSkill?: SkillProgress;
+}
+
+export interface SkillPointLog {
+  id: string;
+  skillId: string;
+  skillName: string;
+  points: number;
+  reason: string;
+  matchId?: string;
+  createdAt: string;
+  metadata?: any;
+}
+
+export interface PlayerSkillProfile {
+  playerId: string;
+  username: string;
+  totalSkills: number;
+  averageLevel: number;
+  totalPoints: number;
+  topSkills: SkillProgress[];
+  recentActivity: SkillPointLog[];
+  skillCategories: SkillCategoryProgress[];
+}
+
+export const getPlayerSkillProfile = async (
+  playerId: string
+): Promise<PlayerSkillProfile> => {
+  const response = await api.get(`/v1/skills/player/${playerId}`);
+  return response.data;
+};
+
+export const getMySkillProfile = async (): Promise<PlayerSkillProfile> => {
+  const response = await api.get('/v1/skills/player/me');
+  return response.data;
+};
+
+export const getUserSkillProfiles = async (): Promise<SkillProfile[]> => {
+  const response = await api.get('/v1/skills/me');
+  return response.data;
+};
+
+export const getSkillProfile = async (
+  profileId: string
+): Promise<SkillProfile> => {
+  const response = await api.get(`/v1/skills/profile/${profileId}`);
+  return response.data;
+};
+
+export const calculateSkillPointsForMatch = async (
+  matchId: string
+): Promise<{
+  playerId: string;
+  matchId: string;
+  skillPoints: Array<{
+    skillId: string;
+    skillName: string;
+    category: string;
+    points: number;
+    reason: string;
+    confidence: number;
+    metadata: any;
+  }>;
+  totalPointsAwarded: number;
+  calculationTimestamp: string;
+}> => {
+  const response = await api.post(`/v1/skills/calculate/${matchId}`);
+  return response.data;
+};
+
+export const getSkillsWithAchievements = async (): Promise<{
+  skills: SkillProfile[];
+  linkedAchievements: any[];
+  unifiedProgress: {
+    totalSkillPoints: number;
+    averageProficiency: number;
+  };
+}> => {
+  const response = await api.get('/v1/skills/achievements');
   return response.data;
 };

@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Cacheable } from '../cache/cache.decorator';
+import { CacheInvalidate, VenueCache } from '../cache/edge-cache.decorator';
 import { VenueOwnerGuard } from './venue-owner.guard';
 import { VenuesService } from './venues.service';
 
@@ -27,6 +27,7 @@ export class VenuesController {
 
   @UseGuards(JwtAuthGuard, VenueOwnerGuard)
   @Patch('me')
+  @CacheInvalidate(['venues:detail:*', 'venues:list'])
   async updateMyVenue(@Request() req: any, @Body() data: any) {
     return this.service.updateMyVenue(req.user.sub, data);
   }
@@ -40,6 +41,7 @@ export class VenuesController {
 
   @UseGuards(JwtAuthGuard, VenueOwnerGuard)
   @Post('me/specials')
+  @CacheInvalidate(['venues:specials:*', 'venues:list'])
   async createMySpecial(@Request() req: any, @Body() data: any) {
     return this.service.createMySpecial(req.user.sub, data);
   }
@@ -83,10 +85,7 @@ export class VenuesController {
 
   // Public: list all venues with filters
   @Get()
-  @Cacheable({
-    ttl: 300, // 5 minutes
-    keyPrefix: 'venues:list',
-  })
+  @VenueCache()
   async listVenues(@Request() req: any) {
     const {
       search,
@@ -113,10 +112,7 @@ export class VenuesController {
 
   // Public: get venue by ID
   @Get(':id')
-  @Cacheable({
-    ttl: 600, // 10 minutes
-    keyPrefix: 'venues:detail',
-  })
+  @VenueCache({ ttl: 600, browserMaxAge: 300, edgeMaxAge: 600 })
   async getVenue(@Param('id') id: string) {
     return this.service.getVenue(id);
   }

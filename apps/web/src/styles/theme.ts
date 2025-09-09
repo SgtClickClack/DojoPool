@@ -1,44 +1,42 @@
-import { createTheme } from '@mui/material/styles';
-
-// DojoPool Theme Configuration
-export const theme = createTheme({
+// Cyberpunk Dojo Pool Theme Configuration
+export const theme = {
   palette: {
     mode: 'dark',
     primary: {
-      main: '#1976d2',
-      light: '#42a5f5',
-      dark: '#1565c0',
-      contrastText: '#ffffff',
+      main: '#00d4ff', // Cyber cyan
+      light: '#33e0ff',
+      dark: '#0099cc',
+      contrastText: '#000000',
     },
     secondary: {
-      main: '#dc004e',
-      light: '#ff5983',
-      dark: '#9a0036',
+      main: '#ff6b6b', // Cyber red
+      light: '#ff9999',
+      dark: '#cc5555',
       contrastText: '#ffffff',
     },
     background: {
-      default: '#121212',
-      paper: '#1e1e1e',
+      default: '#0f0f23', // Deep space black
+      paper: '#1a1a2e', // Dark blue-gray
     },
     text: {
       primary: '#ffffff',
-      secondary: '#b3b3b3',
+      secondary: '#b0b0b0',
     },
     error: {
-      main: '#f44336',
+      main: '#ff4444', // Bright cyber red
     },
     warning: {
-      main: '#ff9800',
+      main: '#ffa500', // Cyber orange
     },
     info: {
-      main: '#2196f3',
+      main: '#00d4ff', // Cyber cyan
     },
     success: {
-      main: '#4caf50',
+      main: '#00ff88', // Cyber green
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Roboto", "Orbitron", "Helvetica", "Arial", sans-serif',
     h1: {
       fontSize: '2.5rem',
       fontWeight: 500,
@@ -64,49 +62,27 @@ export const theme = createTheme({
       fontWeight: 500,
     },
   },
-  components: {
-    MuiCssBaseline: {
-      styleOverrides: {
-        body: {
-          scrollbarWidth: 'thin',
-          '&::-webkit-scrollbar': {
-            width: '8px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: '#1e1e1e',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#424242',
-            borderRadius: '4px',
-          },
-          '&::-webkit-scrollbar-thumb:hover': {
-            background: '#555555',
-          },
-        },
-      },
+  // Cyberpunk-specific styling
+  cyberpunk: {
+    gradients: {
+      primary: 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)',
+      secondary: 'linear-gradient(135deg, #ff6b6b 0%, #cc5555 100%)',
+      background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
+      card: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
     },
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          borderRadius: '8px',
-          fontWeight: 500,
-        },
-      },
+    glows: {
+      primary: '0 0 10px rgba(0, 212, 255, 0.5)',
+      secondary: '0 0 10px rgba(255, 107, 107, 0.5)',
+      text: '0 0 5px rgba(0, 212, 255, 0.8)',
     },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundImage: 'none',
-        },
-      },
+    borders: {
+      primary: '1px solid #00d4ff',
+      secondary: '1px solid #ff6b6b',
+      subtle: '1px solid rgba(0, 212, 255, 0.3)',
+    },
+    shadows: {
+      card: '0 4px 20px rgba(0, 212, 255, 0.1)',
+      elevated: '0 8px 30px rgba(0, 212, 255, 0.2)',
     },
   },
-  shape: {
-    borderRadius: 8,
-  },
-  spacing: 8,
-});
-
-// Export for backward compatibility
-export default theme;
+};

@@ -1,0 +1,33 @@
+{
+  "featureUsage": [
+    {
+      "feature": "Matches",
+      "usageCount": 5200,
+      "uniqueUsers": 850
+    },
+    {
+      "feature": "Tournaments",
+      "usageCount": 1800,
+      "uniqueUsers": 420
+    },
+    {
+      "feature": "Avatar Customization",
+      "usageCount": 1200,
+      "uniqueUsers": 680
+    }
+  ],
+  "topEvents": [
+    {
+      "eventName": "user_login",
+      "count": 1250
+    },
+    {
+      "eventName": "page_view",
+      "count": 3800
+    },
+    {
+      "eventName": "button_click",
+      "count": 2100
+    }
+  ]
+}

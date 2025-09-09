@@ -1,11 +1,8 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import {
-  DashboardService,
-  DashboardStats,
-  CdnCostResponse,
-} from './dashboard.service';
+import { DashboardService } from './dashboard.service';
+import { DashboardStats, CdnCostResponse } from '@dojopool/types';
 
 @Controller('dashboard')
 export class DashboardController {

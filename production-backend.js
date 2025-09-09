@@ -78,19 +78,6 @@ class ProductionBackend {
       },
     });
 
-    // Test endpoint
-    this.routes.set('/api/test', {
-      method: 'GET',
-      handler: (req, res) => {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(
-          JSON.stringify({
-            message: 'Production backend is working!',
-            timestamp: new Date().toISOString(),
-          })
-        );
-      },
-    });
 
     // Performance metrics endpoint
     this.routes.set('/api/metrics', {

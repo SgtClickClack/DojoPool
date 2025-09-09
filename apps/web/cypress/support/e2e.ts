@@ -6,6 +6,27 @@ Cypress.Commands.add('login', (email: string, password: string) => {
   cy.get('[data-testid="login-email-input"]').type(email);
   cy.get('[data-testid="login-password-input"]').type(password);
   cy.findByRole('button', { name: 'Sign In' }).click();
+  // Wait for redirect to dashboard or handle login response
+  cy.url().should('not.include', '/login');
+});
+
+// Custom command to logout
+Cypress.Commands.add('logout', () => {
+  cy.findByText(/testuser|admin/i).click();
+  cy.findByText(/Logout/i).click();
+  cy.url().should('include', '/login');
+});
+
+// Custom command to check if user is authenticated
+Cypress.Commands.add('isAuthenticated', () => {
+  cy.get('body').should('not.contain', 'Sign In');
+  cy.get('body').should('contain', 'testuser');
+});
+
+// Custom command to check if user is not authenticated
+Cypress.Commands.add('isNotAuthenticated', () => {
+  cy.get('body').should('contain', 'Sign In');
+  cy.get('body').should('not.contain', 'testuser');
 });
 
 // Custom command to create a game

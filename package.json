@@ -69,6 +69,13 @@
     "env:check": "node scripts/validate-env.mjs",
     "env:check:strict": "node scripts/validate-env.mjs --strict",
     "report:duplicates": "node scripts/report-duplicates.mjs",
+    "live:status": "node scripts/live-service-manager.js status",
+    "live:health": "node scripts/live-service-manager.js health-check",
+    "live:maintenance": "node scripts/live-service-manager.js maintenance",
+    "live:metrics": "node scripts/live-service-manager.js metrics",
+    "live:alerts": "node scripts/live-service-manager.js alerts",
+    "live:backup": "node scripts/live-service-manager.js backup",
+    "live:scale": "node scripts/live-service-manager.js scale",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -199,7 +206,7 @@
     "@tensorflow/tfjs-backend-webgl": "4.22.0",
     "@types/crypto-js": "4.2.2"
   },
-  "packageManager": "yarn@4.9.3",
+  "packageManager": "yarn@4.9.3+sha512.8295ee814f6b253e16f516416481b481a215ed03ef1ae38524d108084872560a9ed75aeb23b91ab64222062ac4149a594150ae538c2a9536fdbcefd4e49b11cc",
   "workspaces": [
     "apps/*",
     "services/*",

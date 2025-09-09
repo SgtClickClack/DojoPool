@@ -7,9 +7,6 @@ import errorReportingService from '@/services/errorReportingService';
 import '@/styles/index.css';
 import '@/styles/mobile-responsive.css';
 import '@/styles/mobile.css';
-import { theme } from '@/styles/theme';
-import { CssBaseline } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
 import type { AppProps } from 'next/app';
 
 // Error handler for GlobalErrorBoundary
@@ -28,19 +25,16 @@ if (typeof window !== 'undefined') {
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <GlobalErrorBoundary onError={handleGlobalError}>
-        <AuthProvider>
-          <ChatProvider>
-            <NotificationProvider>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            </NotificationProvider>
-          </ChatProvider>
-        </AuthProvider>
-      </ErrorBoundary>
-    </ThemeProvider>
+    <GlobalErrorBoundary onError={handleGlobalError}>
+      <AuthProvider>
+        <ChatProvider>
+          <NotificationProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </NotificationProvider>
+        </ChatProvider>
+      </AuthProvider>
+    </GlobalErrorBoundary>
   );
 }

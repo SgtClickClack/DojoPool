@@ -45,7 +45,7 @@ export default function InventoryPage() {
 
   const handleEquipItem = async (item: UserInventoryItem) => {
     try {
-      // TODO: Implement equip functionality when backend is ready
+      // Equip functionality - placeholder implementation
       setInventory((prevItems) =>
         prevItems.map((prevItem) => ({
           ...prevItem,

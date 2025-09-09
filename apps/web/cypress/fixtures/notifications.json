@@ -1,0 +1,58 @@
+{
+  "notifications": [
+    {
+      "id": "notification-1",
+      "type": "challenge_received",
+      "title": "New Challenge!",
+      "message": "CyberNinja has challenged you to a match at Neon Arena",
+      "isRead": false,
+      "createdAt": "2024-01-15T10:30:00Z",
+      "userId": "test-user-123"
+    },
+    {
+      "id": "notification-2",
+      "type": "match_result",
+      "title": "Match Completed",
+      "message": "You won your match against PoolShark99! +50 DojoCoins earned",
+      "isRead": false,
+      "createdAt": "2024-01-14T16:45:00Z",
+      "userId": "test-user-123"
+    },
+    {
+      "id": "notification-3",
+      "type": "tournament_update",
+      "title": "Tournament Starting Soon",
+      "message": "The Cyber Championship tournament begins in 30 minutes",
+      "isRead": true,
+      "createdAt": "2024-01-14T16:15:00Z",
+      "userId": "test-user-123"
+    },
+    {
+      "id": "notification-4",
+      "type": "achievement_unlocked",
+      "title": "Achievement Unlocked!",
+      "message": "Congratulations! You earned the 'Combo Master' achievement",
+      "isRead": true,
+      "createdAt": "2024-01-13T14:20:00Z",
+      "userId": "test-user-123"
+    },
+    {
+      "id": "notification-5",
+      "type": "clan_invite",
+      "title": "Clan Invitation",
+      "message": "You've been invited to join the Elite Pool Players clan",
+      "isRead": false,
+      "createdAt": "2024-01-12T09:15:00Z",
+      "userId": "test-user-123"
+    }
+  ],
+  "totalCount": 5,
+  "unreadCount": 3,
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrev": false
+  }
+}

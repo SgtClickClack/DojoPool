@@ -1,4 +1,4 @@
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 export interface PlayerPosition {
   playerId: string;
@@ -63,11 +63,32 @@ export interface DirectMessageUpdate {
   data: ChatMessage;
 }
 
+export interface ShardRedirectEvent {
+  type: 'redirect_to_shard';
+  data: {
+    shardUrl: string;
+    namespace: string;
+    matchId?: string;
+    venueId?: string;
+  };
+}
+
+export interface ShardRebalanceEvent {
+  type: 'shard_rebalance';
+  data: {
+    newShardId: number;
+    namespace: string;
+    reason: string;
+  };
+}
+
 export type WebSocketEvent =
   | PlayerPositionUpdate
   | DojoStatusUpdate
   | GameUpdate
-  | DirectMessageUpdate;
+  | DirectMessageUpdate
+  | ShardRedirectEvent
+  | ShardRebalanceEvent;
 
 export class WebSocketService {
   private socket: Socket | null = null;
@@ -78,6 +99,18 @@ export class WebSocketService {
   private maxReconnectAttempts: number = 5;
   private reconnectDelay: number = 1000;
   private currentMatchId: string | null = null;
+
+  // Sharding-related properties
+  private currentShardId: number | null = null;
+  private shardReconnectionInProgress: boolean = false;
+  private shardRedirectListeners: Set<
+    (redirect: ShardRedirectEvent['data']) => void
+  > = new Set();
+  private shardRebalanceListeners: Set<
+    (rebalance: ShardRebalanceEvent['data']) => void
+  > = new Set();
+  private geographicRegion: string | null = null;
+  private userLocation: { lat: number; lng: number } | null = null;
 
   constructor(
     private serverUrl: string = process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
@@ -119,6 +152,15 @@ export class WebSocketService {
         // Handle incoming messages
         this.socket.on('message', (data) => {
           this.handleMessage(data);
+        });
+
+        // Handle shard-specific events
+        this.socket.on('redirect_to_shard', (data) => {
+          this.handleShardRedirect(data);
+        });
+
+        this.socket.on('shard_rebalance', (data) => {
+          this.handleShardRebalance(data);
         });
 
         // Handle any incoming event for general message activity
@@ -355,6 +397,270 @@ export class WebSocketService {
     callback: (positions: PlayerPosition[]) => void
   ): () => void {
     return this.subscribe('player_position_update', callback);
+  }
+
+  // Shard event handlers
+  private handleShardRedirect(redirectData: ShardRedirectEvent['data']): void {
+    console.log('Received shard redirect:', redirectData);
+    this.shardReconnectionInProgress = true;
+
+    // Notify listeners
+    this.shardRedirectListeners.forEach((listener) => {
+      try {
+        listener(redirectData);
+      } catch (error) {
+        console.error('Error in shard redirect listener:', error);
+      }
+    });
+
+    // Automatically reconnect to the new shard
+    this.reconnectToShard(redirectData);
+  }
+
+  private handleShardRebalance(
+    rebalanceData: ShardRebalanceEvent['data']
+  ): void {
+    console.log('Received shard rebalance:', rebalanceData);
+    this.currentShardId = rebalanceData.newShardId;
+
+    // Notify listeners
+    this.shardRebalanceListeners.forEach((listener) => {
+      try {
+        listener(rebalanceData);
+      } catch (error) {
+        console.error('Error in shard rebalance listener:', error);
+      }
+    });
+  }
+
+  private async reconnectToShard(
+    redirectData: ShardRedirectEvent['data']
+  ): Promise<void> {
+    try {
+      // Disconnect from current socket
+      if (this.socket) {
+        this.socket.disconnect();
+        this.socket = null;
+        this.isConnected = false;
+      }
+
+      // Wait a brief moment
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Connect to new shard
+      const newServerUrl = redirectData.shardUrl || this.serverUrl;
+      const newNamespace = redirectData.namespace || '/world-map';
+
+      if (redirectData.matchId) {
+        // Reconnect to match namespace
+        await this.connectToMatchOnShard(redirectData.matchId, newServerUrl);
+      } else if (redirectData.venueId) {
+        // Reconnect to world map with geographic region
+        await this.connectToWorldMapOnShard(redirectData.venueId, newServerUrl);
+      } else {
+        // Default world map connection
+        await this.connectToWorldMap(newServerUrl);
+      }
+
+      this.shardReconnectionInProgress = false;
+      console.log('Successfully reconnected to new shard');
+    } catch (error) {
+      console.error('Failed to reconnect to shard:', error);
+      this.shardReconnectionInProgress = false;
+
+      // Fallback to original server
+      this.connect().catch((fallbackError) => {
+        console.error('Fallback connection also failed:', fallbackError);
+      });
+    }
+  }
+
+  private async connectToWorldMapOnShard(
+    venueId: string,
+    serverUrl: string
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        this.socket = io(`${serverUrl}/world-map`, {
+          transports: ['websocket', 'polling'],
+          timeout: 10000,
+        });
+
+        this.socket.on('connect', () => {
+          console.log('Connected to world map shard');
+          this.isConnected = true;
+          this.reconnectAttempts = 0;
+
+          // Join the geographic region
+          this.socket?.emit('join_world_region', { venueId });
+
+          resolve();
+        });
+
+        this.socket.on('disconnect', () => {
+          console.log('Disconnected from world map shard');
+          this.isConnected = false;
+          if (!this.shardReconnectionInProgress) {
+            this.handleReconnect();
+          }
+        });
+
+        this.socket.on('connect_error', (error) => {
+          console.error('World map shard connection error:', error);
+          reject(error);
+        });
+
+        // Set up other event handlers
+        this.setupShardEventHandlers();
+      } catch (error) {
+        console.error('Failed to create world map shard connection:', error);
+        reject(error);
+      }
+    });
+  }
+
+  private async connectToMatchOnShard(
+    matchId: string,
+    serverUrl: string
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        this.socket = io(`${serverUrl}/matches`, {
+          transports: ['websocket', 'polling'],
+          timeout: 10000,
+        });
+
+        this.socket.on('connect', () => {
+          console.log('Connected to matches shard');
+          this.isConnected = true;
+          this.reconnectAttempts = 0;
+          this.currentMatchId = matchId;
+
+          // Join the match room
+          this.socket?.emit('join_match', { matchId });
+
+          resolve();
+        });
+
+        this.socket.on('disconnect', () => {
+          console.log('Disconnected from matches shard');
+          this.isConnected = false;
+          this.currentMatchId = null;
+          if (!this.shardReconnectionInProgress) {
+            this.handleReconnect();
+          }
+        });
+
+        this.socket.on('connect_error', (error) => {
+          console.error('Matches shard connection error:', error);
+          reject(error);
+        });
+
+        // Set up other event handlers
+        this.setupShardEventHandlers();
+      } catch (error) {
+        console.error('Failed to create matches shard connection:', error);
+        reject(error);
+      }
+    });
+  }
+
+  private async connectToWorldMap(serverUrl: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        this.socket = io(`${serverUrl}/world-map`, {
+          transports: ['websocket', 'polling'],
+          timeout: 10000,
+        });
+
+        this.socket.on('connect', () => {
+          console.log('Connected to world map');
+          this.isConnected = true;
+          this.reconnectAttempts = 0;
+          resolve();
+        });
+
+        this.socket.on('disconnect', () => {
+          console.log('Disconnected from world map');
+          this.isConnected = false;
+          if (!this.shardReconnectionInProgress) {
+            this.handleReconnect();
+          }
+        });
+
+        this.socket.on('connect_error', (error) => {
+          console.error('World map connection error:', error);
+          reject(error);
+        });
+
+        this.setupShardEventHandlers();
+      } catch (error) {
+        console.error('Failed to create world map connection:', error);
+        reject(error);
+      }
+    });
+  }
+
+  private setupShardEventHandlers(): void {
+    if (!this.socket) return;
+
+    // Handle shard-specific events
+    this.socket.on('redirect_to_shard', (data) => {
+      this.handleShardRedirect(data);
+    });
+
+    this.socket.on('shard_rebalance', (data) => {
+      this.handleShardRebalance(data);
+    });
+
+    // Handle incoming messages
+    this.socket.on('message', (data) => {
+      this.handleMessage(data);
+    });
+
+    // Handle any incoming event for general message activity
+    this.socket.onAny((eventName, data) => {
+      this.triggerMessageActivity();
+      this.handleMessage({ type: eventName, data });
+    });
+  }
+
+  // Public methods for shard management
+  setUserLocation(lat: number, lng: number): void {
+    this.userLocation = { lat, lng };
+    console.log('User location updated for shard routing:', this.userLocation);
+  }
+
+  setGeographicRegion(venueId: string): void {
+    this.geographicRegion = venueId;
+    console.log('Geographic region set for shard routing:', venueId);
+  }
+
+  getCurrentShardId(): number | null {
+    return this.currentShardId;
+  }
+
+  isShardReconnectionInProgress(): boolean {
+    return this.shardReconnectionInProgress;
+  }
+
+  // Subscribe to shard events
+  subscribeToShardRedirects(
+    callback: (redirect: ShardRedirectEvent['data']) => void
+  ): () => void {
+    this.shardRedirectListeners.add(callback);
+    return () => {
+      this.shardRedirectListeners.delete(callback);
+    };
+  }
+
+  subscribeToShardRebalances(
+    callback: (rebalance: ShardRebalanceEvent['data']) => void
+  ): () => void {
+    this.shardRebalanceListeners.add(callback);
+    return () => {
+      this.shardRebalanceListeners.delete(callback);
+    };
   }
 
   // Method to request player positions

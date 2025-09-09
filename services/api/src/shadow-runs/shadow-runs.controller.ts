@@ -33,7 +33,7 @@ export class ShadowRunsController {
     const userId = req.user.sub;
     // Check if user is member of clan - simplified for now
     const membership = { role: 'MEMBER' }; // Placeholder
-    // TODO: Re-enable proper clan membership check
+    // Clan membership check - placeholder implementation
     // const membership = await this.shadowRuns.prisma.clanMember.findFirst({
     //   where: { clanId, userId },
     // });

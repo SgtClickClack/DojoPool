@@ -72,6 +72,40 @@ const monitoringConfig = {
     notificationChannels: {
       email: process.env.ALERT_EMAIL,
       slack: process.env.SLACK_WEBHOOK_URL,
+      pagerDuty: process.env.PAGERDUTY_INTEGRATION_KEY,
+    },
+  },
+
+  // Live Service Management
+  liveService: {
+    // Service Level Objectives (SLOs)
+    slos: {
+      uptime: 99.9, // 99.9% uptime target
+      responseTime: 2000, // P95 < 2 seconds
+      errorRate: 0.05, // < 5% error rate
+    },
+
+    // Auto-healing configuration
+    autoHealing: {
+      enabled: true,
+      maxRestarts: 3,
+      restartDelay: 30000, // 30 seconds
+      healthCheckGracePeriod: 60000, // 1 minute
+    },
+
+    // Maintenance windows
+    maintenance: {
+      weekly: 'sunday 02:00-04:00 UTC',
+      monthly: 'first-monday 01:00-03:00 UTC',
+      emergency: 'as-needed',
+    },
+
+    // Feature flags for live service management
+    featureFlags: {
+      enableMaintenanceMode: false,
+      enableDebugLogging: false,
+      enablePerformanceMonitoring: true,
+      enableUserFeedbackCollection: true,
     },
   },
 };

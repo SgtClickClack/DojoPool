@@ -18,7 +18,9 @@ export interface AuthResponse {
     username: string;
     isAdmin?: boolean;
   };
-  token: string;
+  access_token?: string;
+  token?: string;
+  refresh_token?: string;
   refreshToken?: string;
 }
 
@@ -27,6 +29,7 @@ export interface User {
   email: string;
   username: string;
   isAdmin?: boolean;
+  role?: string;
 }
 
 class AuthService {
@@ -38,12 +41,10 @@ class AuthService {
       const data = response.data;
 
       // Store tokens in localStorage
-      if (data.token) {
-        localStorage.setItem('auth_token', data.token);
-      }
-      if (data.refreshToken) {
-        localStorage.setItem('refresh_token', data.refreshToken);
-      }
+      const accessToken = data.access_token || data.token;
+      const refreshToken = data.refresh_token || data.refreshToken;
+      if (accessToken) localStorage.setItem('auth_token', accessToken);
+      if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
 
       return data;
     } catch (error) {
@@ -58,12 +59,10 @@ class AuthService {
       const data = response.data;
 
       // Store tokens in localStorage
-      if (data.token) {
-        localStorage.setItem('auth_token', data.token);
-      }
-      if (data.refreshToken) {
-        localStorage.setItem('refresh_token', data.refreshToken);
-      }
+      const accessToken = data.access_token || data.token;
+      const refreshToken = data.refresh_token || data.refreshToken;
+      if (accessToken) localStorage.setItem('auth_token', accessToken);
+      if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
 
       return data;
     } catch (error) {
@@ -122,11 +121,13 @@ class AuthService {
         refresh_token: refreshToken,
       });
 
-      const newToken = response.data.token;
-      if (newToken) {
-        localStorage.setItem('auth_token', newToken);
-        return newToken;
-      }
+      const newAccessToken = response.data.access_token || response.data.token;
+      const newRefreshToken =
+        response.data.refresh_token || response.data.refreshToken;
+      if (newAccessToken) localStorage.setItem('auth_token', newAccessToken);
+      if (newRefreshToken)
+        localStorage.setItem('refresh_token', newRefreshToken);
+      if (newAccessToken) return newAccessToken;
 
       return null;
     } catch (error) {

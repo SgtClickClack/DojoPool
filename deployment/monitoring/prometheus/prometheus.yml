@@ -1,0 +1,116 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+rule_files:
+  - 'alert_rules.yml'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+scrape_configs:
+  # DojoPool API Service
+  - job_name: 'dojopool-api'
+    static_configs:
+      - targets: ['dojopool-api:3001']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'api'
+    # Custom metrics collection
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'http_request_duration_seconds|http_requests_total|nodejs_heap_size_used_bytes|nodejs_heap_size_total_bytes'
+        action: keep
+
+  # DojoPool Web Service
+  - job_name: 'dojopool-web'
+    static_configs:
+      - targets: ['dojopool-web:3000']
+    metrics_path: '/api/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'web'
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'nextjs_http_requests_total|nextjs_http_requests_duration_seconds|nodejs_heap_size_used_bytes'
+        action: keep
+
+  # PostgreSQL Database
+  - job_name: 'dojopool-postgresql'
+    static_configs:
+      - targets: ['dojopool-postgresql:9187']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'pg_stat_activity_count|pg_stat_database_blks_hit|pg_stat_database_blks_read|pg_stat_database_tup_fetched|pg_stat_database_tup_inserted|pg_stat_database_tup_updated|pg_stat_database_tup_deleted'
+        action: keep
+
+  # Redis Cache
+  - job_name: 'dojopool-redis'
+    static_configs:
+      - targets: ['dojopool-redis:9121']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'redis_connected_clients|redis_used_memory_bytes|redis_total_commands_processed|redis_keyspace_hits_total|redis_keyspace_misses_total'
+        action: keep
+
+  # Kubernetes Metrics
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: 'dojopool.*'
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'container_cpu_usage_seconds_total|container_memory_usage_bytes|kube_pod_container_status_restarts_total'
+        action: keep
+
+  # Node Exporter (System Metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  # NGINX Ingress Controller
+  - job_name: 'nginx-ingress'
+    static_configs:
+      - targets: ['nginx-ingress-controller-metrics:10254']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'nginx_ingress_controller_requests|nginx_ingress_controller_request_duration_seconds|nginx_ingress_controller_response_size'
+        action: keep
+
+  # Elasticsearch (if enabled)
+  - job_name: 'dojopool-elasticsearch'
+    static_configs:
+      - targets: ['dojopool-elasticsearch:9200']
+    scrape_interval: 60s
+    scrape_timeout: 30s
+    metrics_path: '/_prometheus/metrics'
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'elasticsearch_cluster_health_status|elasticsearch_jvm_memory_used_bytes|elasticsearch_indices_docs_total'
+        action: keep

@@ -1,15 +1,13 @@
 import NotificationBell from '@/components/Common/NotificationBell';
+import DojoCoinWallet from '@/components/Economy/DojoCoinWallet';
 import { useChat } from '@/contexts/ChatContext';
 import { useAuth } from '@/hooks/useAuth';
-import marketplaceService, { UserBalance } from '@/services/marketplaceService';
-import { AttachMoney as MoneyIcon } from '@mui/icons-material';
 import {
   AppBarProps,
   Avatar,
   Badge,
   Box,
   Button,
-  Chip,
   Menu,
   MenuItem,
   AppBar as MuiAppBar,
@@ -17,7 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 /**
  * DojoPoolAppBar - The main application bar for the DojoPool frontend.
@@ -29,22 +27,7 @@ import React, { useEffect, useState } from 'react';
 const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
   const { user, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [userBalance, setUserBalance] = useState<UserBalance | null>(null);
   const { unreadCount } = useChat();
-
-  useEffect(() => {
-    if (user) {
-      const fetchBalance = async () => {
-        try {
-          const balance = await marketplaceService.getUserBalance();
-          setUserBalance(balance);
-        } catch (error) {
-          console.error('Failed to fetch user balance:', error);
-        }
-      };
-      fetchBalance();
-    }
-  }, [user]);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -95,23 +78,8 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
 
           {user ? (
             <>
-              {/* Currency Display */}
-              {userBalance && (
-                <Chip
-                  icon={<MoneyIcon sx={{ color: '#ffd700' }} />}
-                  label={`${userBalance.dojoCoins.toLocaleString()}`}
-                  variant="outlined"
-                  sx={{
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    borderColor: 'rgba(255,255,255,0.3)',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    '& .MuiChip-label': {
-                      color: 'white',
-                    },
-                  }}
-                />
-              )}
+              {/* DojoCoin Wallet */}
+              <DojoCoinWallet showPurchaseButton={true} compact={true} />
 
               <Button
                 onClick={handleMenu}

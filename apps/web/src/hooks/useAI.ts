@@ -8,6 +8,9 @@ import {
 } from '@/services/aiService';
 import { useCallback, useEffect, useState } from 'react';
 
+// Re-export AiHealthStatus for components that need it
+export type { AiHealthStatus } from '@/services/aiService';
+
 export interface UseAiReturn {
   // Health and status
   healthStatus: AiHealthStatus | null;

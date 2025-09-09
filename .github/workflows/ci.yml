@@ -1,3 +1,40 @@
+name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable Corepack (Yarn v4)
+        run: corepack enable
+
+      - name: Install dependencies (Yarn)
+        run: yarn install --immutable
+
+      - name: Type check (monorepo)
+        run: yarn type-check
+
+      - name: Lint (strict)
+        run: yarn lint:strict
+
+      - name: Unit tests with coverage (80% threshold)
+        run: yarn test:unit:coverage
+
+      - name: Integration tests with coverage (80% threshold)
+        run: yarn test:int:coverage
 name: CI
 
 on:

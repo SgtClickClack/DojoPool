@@ -11,6 +11,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
+  isModerator?: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (
@@ -33,6 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,6 +46,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (currentUser) {
             setUser(currentUser);
             setIsAdmin(currentUser.isAdmin || false);
+            setIsModerator(
+              currentUser.role === 'MODERATOR' || currentUser.isAdmin || false
+            );
           }
         }
       } catch (err) {
@@ -62,6 +67,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.login({ email, password });
       setUser(response.user);
       setIsAdmin(response.user.isAdmin || false);
+      setIsModerator(
+        response.user.role === 'MODERATOR' || response.user.isAdmin || false
+      );
     } catch (err: any) {
       setError(err.message || 'Login failed');
       throw err;
@@ -82,6 +90,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       setUser(response.user);
       setIsAdmin(response.user.isAdmin || false);
+      setIsModerator(
+        response.user.role === 'MODERATOR' || response.user.isAdmin || false
+      );
     } catch (err: any) {
       setError(err.message || 'Registration failed');
       throw err;
@@ -93,6 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await authService.logout();
       setUser(null);
       setIsAdmin(false);
+      setIsModerator(false);
     } catch (err) {
       console.error('Logout error:', err);
       // Force logout even if API call fails
@@ -111,6 +123,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (currentUser) {
         setUser(currentUser);
         setIsAdmin(currentUser.isAdmin || false);
+        setIsModerator(
+          currentUser.role === 'MODERATOR' || currentUser.isAdmin || false
+        );
       }
     } catch (err: any) {
       setError(err.message || 'Token validation failed');
@@ -126,6 +141,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     loading,
     isAdmin,
+    isModerator,
     error,
     login,
     register,

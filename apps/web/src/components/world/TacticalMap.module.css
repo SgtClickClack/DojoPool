@@ -1,0 +1,100 @@
+.mapContainer {
+  position: relative;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(26, 26, 46, 0.9);
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 26, 46, 0.9);
+  border-radius: 8px;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 26, 46, 0.9);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.territoryMarker {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.upgradedTerritory {
+  border: 2px solid #fff;
+}
+
+.territoryMarker:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.territoryLevel {
+  color: #000;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.territoryPopup {
+  min-width: 250px;
+  padding: 12px;
+  background: rgba(26, 26, 46, 0.95);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.territoryPopup h6 {
+  margin: 0 0 8px 0;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .territoryMarker {
+    width: 20px;
+    height: 20px;
+  }
+
+  .territoryLevel {
+    font-size: 10px;
+  }
+
+  .territoryPopup {
+    min-width: 200px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .territoryMarker {
+    width: 18px;
+    height: 18px;
+  }
+
+  .territoryLevel {
+    font-size: 9px;
+  }
+
+  .territoryPopup {
+    min-width: 180px;
+    padding: 6px;
+  }
+}

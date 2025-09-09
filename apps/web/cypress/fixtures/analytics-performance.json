@@ -1,0 +1,21 @@
+{
+  "systemPerformance": {
+    "avgResponseTime": 145,
+    "errorRate": 0.8,
+    "uptime": 99.7
+  },
+  "userEngagement": [
+    {
+      "date": "2024-01-15",
+      "activeUsers": 1100,
+      "sessions": 1350,
+      "avgSessionLength": 1650
+    },
+    {
+      "date": "2024-01-16",
+      "activeUsers": 1180,
+      "sessions": 1420,
+      "avgSessionLength": 1720
+    }
+  ]
+}

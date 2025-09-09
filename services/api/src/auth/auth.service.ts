@@ -9,8 +9,17 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { CacheService } from '../cache/cache.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+
+export interface WebSocketUser {
+  id: string;
+  username: string;
+  email: string;
+  role: string;
+  tokenFamilyId?: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -23,7 +32,8 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly cacheService: CacheService
+    private readonly cacheService: CacheService,
+    private readonly redisService: RedisService
   ) {
     // Validate required environment variables
     if (!this.googleClientId) {
@@ -231,30 +241,80 @@ export class AuthService {
 
   async refreshToken(refreshToken: string) {
     try {
-      // Blocklist check (hash the token so we don't store raw token)
-      const hashed = crypto
+      // Generate token hash for Redis storage
+      const tokenHash = crypto
         .createHash('sha256')
         .update(refreshToken)
         .digest('hex');
-      const blocked = await this.cacheService.exists(hashed, 'auth:blocklist:');
-      if (blocked) {
-        throw new UnauthorizedException('Refresh token has been revoked');
+
+      // Check if token is in blocklist (one-time use)
+      const blocklistKey = `auth:blocklist:${tokenHash}`;
+      const isBlocked = await this.redisService.get(blocklistKey);
+      if (isBlocked) {
+        throw new UnauthorizedException(
+          'Refresh token has been used and is no longer valid'
+        );
       }
 
+      // Verify the JWT token
       const decoded: any = await this.jwtService.verifyAsync(refreshToken);
+
+      // Check if user exists
       const user = await this.prisma.user.findUnique({
         where: { id: decoded.sub },
       });
       if (!user) {
         throw new UnauthorizedException('Invalid refresh token');
       }
+
+      // Generate new token family ID for rotation
+      const tokenFamilyId = crypto.randomUUID();
       const payload = {
         sub: user.id,
         username: user.username,
         role: user.role,
+        tokenFamilyId, // Include family ID in payload for tracking
       };
-      return this.issueTokens(payload);
-    } catch {
+
+      // Issue new tokens
+      const tokens = await this.issueTokens(payload);
+
+      // Block the old refresh token (one-time use)
+      const oldTokenExpiry = decoded.exp
+        ? decoded.exp - Math.floor(Date.now() / 1000)
+        : 7 * 24 * 3600;
+      await this.redisService.set(
+        blocklistKey,
+        'used',
+        Math.max(1, oldTokenExpiry)
+      );
+
+      // Store new refresh token metadata in Redis
+      const newTokenHash = crypto
+        .createHash('sha256')
+        .update(tokens.refresh_token)
+        .digest('hex');
+
+      const metadataKey = `auth:token:${newTokenHash}`;
+      const metadata = JSON.stringify({
+        userId: user.id,
+        tokenFamilyId,
+        createdAt: new Date().toISOString(),
+        userAgent: '', // Could be passed from request headers
+        ipAddress: '', // Could be passed from request
+      });
+
+      // Store with TTL matching refresh token expiry
+      const refreshExpiry = this.parseTokenExpiry(
+        process.env.JWT_REFRESH_EXPIRES_IN || '7d'
+      );
+      await this.redisService.set(metadataKey, metadata, refreshExpiry);
+
+      return tokens;
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
@@ -274,48 +334,150 @@ export class AuthService {
   }
 
   async revokeRefreshToken(refreshToken: string) {
-    // Derive TTL from token exp if possible; fallback to configured refresh TTL
     try {
-      const decoded: any = this.jwtService.decode(refreshToken);
-      const nowSec = Math.floor(Date.now() / 1000);
-      let ttlSec = 0;
-      if (decoded && typeof decoded === 'object' && 'exp' in decoded) {
-        ttlSec = Math.max(0, (decoded as any).exp - nowSec);
-      } else {
-        // Parse configured string like '7d', '1h'
-        const cfg = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
-        const m = cfg.match(/^(\d+)([smhd])$/);
-        if (m) {
-          const n = parseInt(m[1], 10);
-          const unit = m[2];
-          const mult =
-            unit === 's' ? 1 : unit === 'm' ? 60 : unit === 'h' ? 3600 : 86400;
-          ttlSec = n * mult;
-        } else {
-          ttlSec = 7 * 24 * 3600;
+      // Hash the token for Redis storage
+      const tokenHash = crypto
+        .createHash('sha256')
+        .update(refreshToken)
+        .digest('hex');
+
+      // Add to blocklist (one-time use)
+      const blocklistKey = `auth:blocklist:${tokenHash}`;
+
+      // Try to get token expiry from JWT or use default
+      let ttlSec = 7 * 24 * 3600; // Default 7 days
+      try {
+        const decoded: any = this.jwtService.decode(refreshToken);
+        if (decoded && typeof decoded === 'object' && 'exp' in decoded) {
+          const nowSec = Math.floor(Date.now() / 1000);
+          ttlSec = Math.max(1, (decoded as any).exp - nowSec);
         }
+      } catch {
+        // Use default TTL if decode fails
+        ttlSec = this.parseTokenExpiry(
+          process.env.JWT_REFRESH_EXPIRES_IN || '7d'
+        );
       }
 
-      const hashed = crypto
-        .createHash('sha256')
-        .update(refreshToken)
-        .digest('hex');
-      await this.cacheService.set(hashed, true, {
-        ttl: ttlSec,
-        keyPrefix: 'auth:blocklist:',
+      await this.redisService.set(blocklistKey, 'revoked', ttlSec);
+
+      // If token has family ID, revoke entire family (optional - for enhanced security)
+      try {
+        const decoded: any = this.jwtService.decode(refreshToken);
+        if (decoded?.tokenFamilyId) {
+          await this.revokeTokenFamily(decoded.tokenFamilyId, decoded.sub);
+        }
+      } catch {
+        // Ignore if family revocation fails
+      }
+
+      return { message: 'Logged out successfully' };
+    } catch (error) {
+      // If Redis fails, still try to block using cache service as fallback
+      try {
+        const hashed = crypto
+          .createHash('sha256')
+          .update(refreshToken)
+          .digest('hex');
+        await this.cacheService.set(hashed, true, {
+          ttl: 7 * 24 * 3600,
+          keyPrefix: 'auth:blocklist:',
+        });
+      } catch (cacheError) {
+        console.error(
+          'Failed to revoke token in both Redis and cache:',
+          cacheError
+        );
+      }
+      throw new UnauthorizedException('Failed to revoke refresh token');
+    }
+  }
+
+  private async revokeTokenFamily(tokenFamilyId: string, userId: string) {
+    try {
+      // Find all tokens in the same family
+      const familyPattern = `auth:token:*`;
+      const allTokenKeys = await this.redisService.keys(familyPattern);
+
+      for (const key of allTokenKeys) {
+        const metadata = await this.redisService.get(key);
+        if (metadata) {
+          try {
+            const parsed = JSON.parse(metadata);
+            if (
+              parsed.tokenFamilyId === tokenFamilyId &&
+              parsed.userId === userId
+            ) {
+              // Block this token
+              const tokenHash = key.replace('auth:token:', '');
+              const blocklistKey = `auth:blocklist:${tokenHash}`;
+              await this.redisService.set(
+                blocklistKey,
+                'family_revoked',
+                7 * 24 * 3600
+              );
+            }
+          } catch {
+            // Skip invalid metadata
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to revoke token family:', error);
+    }
+  }
+
+  private parseTokenExpiry(expiryString: string): number {
+    const match = expiryString.match(/^(\d+)([smhd])$/);
+    if (!match) {
+      return 7 * 24 * 3600; // Default 7 days
+    }
+
+    const value = parseInt(match[1], 10);
+    const unit = match[2];
+
+    const multipliers = {
+      s: 1,
+      m: 60,
+      h: 3600,
+      d: 86400,
+    };
+
+    return value * (multipliers[unit as keyof typeof multipliers] || 86400);
+  }
+
+  async validateWebSocketToken(token: string) {
+    try {
+      // Check if token is in blocklist
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+      const blocklistKey = `auth:blocklist:${tokenHash}`;
+      const isBlocked = await this.redisService.get(blocklistKey);
+      if (isBlocked) {
+        throw new Error('Token has been revoked');
+      }
+
+      // Verify the JWT token
+      const decoded: any = await this.jwtService.verifyAsync(token);
+
+      // Check if user exists
+      const user = await this.prisma.user.findUnique({
+        where: { id: decoded.sub },
       });
-      return { message: 'Logged out' };
-    } catch {
-      // If decode fails, still attempt to hash and store with default TTL
-      const hashed = crypto
-        .createHash('sha256')
-        .update(refreshToken)
-        .digest('hex');
-      await this.cacheService.set(hashed, true, {
-        ttl: 7 * 24 * 3600,
-        keyPrefix: 'auth:blocklist:',
-      });
-      return { message: 'Logged out' };
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      return {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        tokenFamilyId: decoded.tokenFamilyId,
+      };
+    } catch (error) {
+      throw new Error('Invalid WebSocket authentication token');
     }
   }
 }

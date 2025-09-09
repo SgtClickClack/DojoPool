@@ -1,7 +1,7 @@
 import {
-  getAllFeedback,
   getFeedbackStats,
-  updateFeedback,
+  getModerationFeedback,
+  updateModerationFeedbackStatus,
 } from '@/services/APIService';
 import {
   Feedback,
@@ -11,6 +11,7 @@ import {
   FeedbackPriority,
   FeedbackStats,
   FeedbackStatus,
+  UpdateFeedbackRequest,
 } from '@dojopool/types';
 import {
   Alert,
@@ -40,456 +41,491 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-const statusColors = {
-  [FeedbackStatus.PENDING]: 'warning',
-  [FeedbackStatus.IN_REVIEW]: 'info',
-  [FeedbackStatus.IN_PROGRESS]: 'primary',
-  [FeedbackStatus.RESOLVED]: 'success',
-  [FeedbackStatus.CLOSED]: 'default',
-  [FeedbackStatus.REJECTED]: 'error',
-} as const;
-
-const priorityColors = {
-  [FeedbackPriority.LOW]: 'default',
-  [FeedbackPriority.NORMAL]: 'info',
-  [FeedbackPriority.HIGH]: 'warning',
-  [FeedbackPriority.CRITICAL]: 'error',
-} as const;
-
-const categoryLabels = {
-  [FeedbackCategory.BUG]: '🐛 Bug',
-  [FeedbackCategory.FEATURE_REQUEST]: '💡 Feature',
-  [FeedbackCategory.GENERAL_FEEDBACK]: '💬 Feedback',
-  [FeedbackCategory.VENUE_ISSUE]: '🏢 Venue',
-  [FeedbackCategory.TECHNICAL_SUPPORT]: '🛠️ Support',
-  [FeedbackCategory.UI_UX_IMPROVEMENT]: '🎨 UI/UX',
-  [FeedbackCategory.PERFORMANCE_ISSUE]: '⚡ Performance',
+const statusColors: Record<FeedbackStatus, { bg: string; color: string }> = {
+  [FeedbackStatus.PENDING]: {
+    bg: 'warning.light',
+    color: 'warning.contrastText',
+  },
+  [FeedbackStatus.IN_REVIEW]: { bg: 'info.light', color: 'info.contrastText' },
+  [FeedbackStatus.IN_PROGRESS]: {
+    bg: 'primary.light',
+    color: 'primary.contrastText',
+  },
+  [FeedbackStatus.RESOLVED]: {
+    bg: 'success.light',
+    color: 'success.contrastText',
+  },
+  [FeedbackStatus.CLOSED]: { bg: 'grey.400', color: 'grey.contrastText' },
+  [FeedbackStatus.REJECTED]: { bg: 'error.light', color: 'error.contrastText' },
 };
 
-interface AdminFeedbackDashboardProps {
-  onFeedbackUpdated?: () => void;
-}
+const priorityColors: Record<FeedbackPriority, { bg: string; color: string }> =
+  {
+    [FeedbackPriority.LOW]: {
+      bg: 'success.light',
+      color: 'success.contrastText',
+    },
+    [FeedbackPriority.NORMAL]: { bg: 'info.light', color: 'info.contrastText' },
+    [FeedbackPriority.HIGH]: {
+      bg: 'warning.light',
+      color: 'warning.contrastText',
+    },
+    [FeedbackPriority.CRITICAL]: {
+      bg: 'error.light',
+      color: 'error.contrastText',
+    },
+  };
 
-export const AdminFeedbackDashboard: React.FC<AdminFeedbackDashboardProps> = ({
-  onFeedbackUpdated,
-}) => {
-  const [feedback, setFeedback] = useState<FeedbackListResponse | null>(null);
+const categoryLabels: Record<FeedbackCategory, string> = {
+  [FeedbackCategory.BUG]: 'Bug',
+  [FeedbackCategory.FEATURE_REQUEST]: 'Feature',
+  [FeedbackCategory.GENERAL_FEEDBACK]: 'General',
+  [FeedbackCategory.VENUE_ISSUE]: 'Venue',
+  [FeedbackCategory.TECHNICAL_SUPPORT]: 'Support',
+  [FeedbackCategory.UI_UX_IMPROVEMENT]: 'UI/UX',
+  [FeedbackCategory.PERFORMANCE_ISSUE]: 'Performance',
+};
+
+export const AdminFeedbackDashboard: React.FC = () => {
   const [stats, setStats] = useState<FeedbackStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [list, setList] = useState<FeedbackListResponse | null>(null);
   const [filters, setFilters] = useState<FeedbackFilter>({});
   const [page, setPage] = useState(1);
-  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
-    null
-  );
-  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-  const [updating, setUpdating] = useState(false);
+  const [limit] = useState(20);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const loadFeedback = async () => {
+  const [selected, setSelected] = useState<Feedback | null>(null);
+  const [updateData, setUpdateData] = useState<UpdateFeedbackRequest>({});
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+
+  const totalPages = useMemo(() => list?.pagination?.totalPages ?? 1, [list]);
+
+  const load = async () => {
     try {
       setLoading(true);
-      const [feedbackResponse, statsResponse] = await Promise.all([
-        getAllFeedback(filters, page, 20),
-        getFeedbackStats(),
-      ]);
-      setFeedback(feedbackResponse);
-      setStats(statsResponse);
       setError(null);
+      const [statsRes, listRes] = await Promise.all([
+        getFeedbackStats(),
+        getModerationFeedback(filters, page, limit),
+      ]);
+      setStats(statsRes);
+      setList(listRes);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load feedback');
+      setError(err?.response?.data?.message || 'Failed to load feedback');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadFeedback();
-  }, [filters, page]);
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(filters), page]);
 
-  const handleStatusUpdate = async (
-    id: string,
-    status: FeedbackStatus,
-    adminNotes?: string
-  ) => {
-    setUpdating(true);
+  const openUpdate = (item: Feedback) => {
+    setSelected(item);
+    setUpdateError(null);
+    setUpdateData({
+      status: item.status,
+      priority: item.priority,
+      adminNotes: item.adminNotes ?? '',
+    });
+  };
+
+  const submitUpdate = async () => {
+    if (!selected) return;
     try {
-      const updatedFeedback = await updateFeedback(id, { status, adminNotes });
-      setFeedback((prev) =>
-        prev
-          ? {
-              ...prev,
-              feedback: prev.feedback.map((f) =>
-                f.id === id ? updatedFeedback : f
-              ),
-            }
-          : null
-      );
-      setUpdateDialogOpen(false);
-      setSelectedFeedback(null);
-      onFeedbackUpdated?.();
+      setUpdating(true);
+      setUpdateError(null);
+      await updateModerationFeedbackStatus(selected.id, updateData);
+      setSelected(null);
+      await load();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update feedback');
+      setUpdateError(
+        err?.response?.data?.message || 'Failed to update feedback'
+      );
     } finally {
       setUpdating(false);
     }
   };
 
-  const handlePriorityUpdate = async (
-    id: string,
-    priority: FeedbackPriority
-  ) => {
-    try {
-      const updatedFeedback = await updateFeedback(id, { priority });
-      setFeedback((prev) =>
-        prev
-          ? {
-              ...prev,
-              feedback: prev.feedback.map((f) =>
-                f.id === id ? updatedFeedback : f
-              ),
-            }
-          : null
-      );
-      onFeedbackUpdated?.();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update priority');
-    }
-  };
-
-  if (loading && !feedback) {
-    return (
-      <Box display="flex" justifyContent="center" p={4}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const statCards = [
+    {
+      title: 'Total',
+      value: stats?.total ?? 0,
+      color: 'primary' as const,
+      description: 'All feedback entries',
+    },
+    {
+      title: 'Pending',
+      value: stats?.pending ?? 0,
+      color: 'warning' as const,
+      description: 'Awaiting triage',
+    },
+    {
+      title: 'In Review',
+      value: stats?.inReview ?? 0,
+      color: 'info' as const,
+      description: 'Being evaluated',
+    },
+    {
+      title: 'Resolved',
+      value: stats?.resolved ?? 0,
+      color: 'success' as const,
+      description: 'Closed with fix',
+    },
+  ];
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box>
+      <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>
         Feedback Management Dashboard
       </Typography>
-
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
 
-      {/* Stats Cards */}
-      {stats && (
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
+      {/* Stats */}
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        {statCards.map((s, idx) => (
+          <Grid item xs={12} sm={6} md={3} key={idx}>
+            <Card
+              elevation={1}
+              sx={{
+                height: '100%',
+                borderTop: 3,
+                borderColor: `${s.color}.main`,
+              }}
+            >
               <CardContent>
-                <Typography variant="h6" color="primary">
-                  {stats.total}
+                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                  {s.value}
                 </Typography>
+                <Typography variant="subtitle1">{s.title}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Total Feedback
+                  {s.description}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" color="warning.main">
-                  {stats.pending}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Pending Review
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" color="info.main">
-                  {stats.inReview}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  In Review
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" color="success.main">
-                  {stats.resolved}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Resolved
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      )}
+        ))}
+      </Grid>
 
       {/* Filters */}
       <Paper sx={{ p: 2, mb: 2 }}>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
           Filters
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={filters.status || ''}
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Select
+                label="Status"
+                value={filters.status ?? ''}
+                onChange={(e) =>
+                  setFilters((f) => ({
+                    ...f,
+                    status: (e.target.value as FeedbackStatus) || undefined,
+                  }))
+                }
+              >
+                <MenuItem value="">
+                  <em>Any</em>
+                </MenuItem>
+                {Object.values(FeedbackStatus).map((s) => (
+                  <MenuItem key={s} value={s}>
+                    {s.replace(/_/g, ' ')}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth>
+              <InputLabel>Category</InputLabel>
+              <Select
+                label="Category"
+                value={filters.category ?? ''}
+                onChange={(e) =>
+                  setFilters((f) => ({
+                    ...f,
+                    category: (e.target.value as FeedbackCategory) || undefined,
+                  }))
+                }
+              >
+                <MenuItem value="">
+                  <em>Any</em>
+                </MenuItem>
+                {Object.values(FeedbackCategory).map((c) => (
+                  <MenuItem key={c} value={c}>
+                    {categoryLabels[c]}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth>
+              <InputLabel>Priority</InputLabel>
+              <Select
+                label="Priority"
+                value={filters.priority ?? ''}
+                onChange={(e) =>
+                  setFilters((f) => ({
+                    ...f,
+                    priority: (e.target.value as FeedbackPriority) || undefined,
+                  }))
+                }
+              >
+                <MenuItem value="">
+                  <em>Any</em>
+                </MenuItem>
+                {Object.values(FeedbackPriority).map((p) => (
+                  <MenuItem key={p} value={p}>
+                    {p}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <TextField
+              label="User ID"
+              fullWidth
+              value={filters.userId ?? ''}
               onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  status: (e.target.value as FeedbackStatus) || undefined,
+                setFilters((f) => ({
+                  ...f,
+                  userId: e.target.value || undefined,
                 }))
               }
-              label="Status"
-            >
-              <MenuItem value="">All</MenuItem>
-              {Object.values(FeedbackStatus).map((status) => (
-                <MenuItem key={status} value={status}>
-                  {status.replace('_', ' ')}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Category</InputLabel>
-            <Select
-              value={filters.category || ''}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <TextField
+              label="Date From (YYYY-MM-DD)"
+              fullWidth
+              value={filters.dateFrom ?? ''}
               onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  category: (e.target.value as FeedbackCategory) || undefined,
+                setFilters((f) => ({
+                  ...f,
+                  dateFrom: e.target.value || undefined,
                 }))
               }
-              label="Category"
-            >
-              <MenuItem value="">All</MenuItem>
-              {Object.entries(categoryLabels).map(([value, label]) => (
-                <MenuItem key={value} value={value}>
-                  {label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <TextField
+              label="Date To (YYYY-MM-DD)"
+              fullWidth
+              value={filters.dateTo ?? ''}
+              onChange={(e) =>
+                setFilters((f) => ({
+                  ...f,
+                  dateTo: e.target.value || undefined,
+                }))
+              }
+            />
+          </Grid>
+          <Grid item xs={12} sm={12} md={6}>
+            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+              <Button variant="outlined" onClick={() => setFilters({})}>
+                Clear Filters
+              </Button>
+              <Button variant="contained" onClick={() => setPage(1)}>
+                Apply
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
+      </Paper>
 
-          <Button
-            variant="outlined"
-            onClick={() => setFilters({})}
-            size="small"
-          >
-            Clear Filters
-          </Button>
+      {/* Table */}
+      <Paper>
+        <TableContainer>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Created</TableCell>
+                <TableCell>User</TableCell>
+                <TableCell>Category</TableCell>
+                <TableCell>Message</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Priority</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} align="center">
+                    <CircularProgress size={24} />
+                  </TableCell>
+                </TableRow>
+              ) : list && list.feedback.length > 0 ? (
+                list.feedback.map((f) => (
+                  <TableRow key={f.id} hover>
+                    <TableCell>
+                      {new Date(f.createdAt).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {f.user?.username || f.userId}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {f.user?.email}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip label={categoryLabels[f.category]} size="small" />
+                    </TableCell>
+                    <TableCell sx={{ maxWidth: 360 }}>
+                      <Typography variant="body2" noWrap title={f.message}>
+                        {f.message}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        size="small"
+                        label={f.status.replace(/_/g, ' ')}
+                        sx={{
+                          bgcolor: statusColors[f.status].bg,
+                          color: statusColors[f.status].color,
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        size="small"
+                        label={f.priority}
+                        sx={{
+                          bgcolor: priorityColors[f.priority].bg,
+                          color: priorityColors[f.priority].color,
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="right">
+                      <Button size="small" onClick={() => openUpdate(f)}>
+                        Update
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} align="center">
+                    <Typography variant="body2" color="text.secondary">
+                      No feedback found
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+          <Pagination
+            page={page}
+            count={totalPages}
+            onChange={(_, p) => setPage(p)}
+          />
         </Box>
       </Paper>
 
-      {/* Feedback Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>User</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Message</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Priority</TableCell>
-              <TableCell>Created</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {feedback?.feedback.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>
-                  <Box>
-                    <Typography variant="body2">
-                      {item.user.username}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {item.user.email}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={categoryLabels[item.category]}
-                    size="small"
-                    variant="outlined"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      maxWidth: 300,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {item.message}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={item.status.replace('_', ' ')}
-                    color={statusColors[item.status]}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <FormControl size="small">
-                    <Select
-                      value={item.priority}
-                      onChange={(e) =>
-                        handlePriorityUpdate(
-                          item.id,
-                          e.target.value as FeedbackPriority
-                        )
-                      }
-                      size="small"
-                    >
-                      {Object.values(FeedbackPriority).map((priority) => (
-                        <MenuItem key={priority} value={priority}>
-                          <Chip
-                            label={priority}
-                            color={priorityColors[priority]}
-                            size="small"
-                          />
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="caption">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => {
-                      setSelectedFeedback(item);
-                      setUpdateDialogOpen(true);
-                    }}
-                  >
-                    Update
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Pagination */}
-      {feedback && feedback.pagination.totalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Pagination
-            count={feedback.pagination.totalPages}
-            page={page}
-            onChange={(_, value) => setPage(value)}
-            color="primary"
-          />
-        </Box>
-      )}
-
       {/* Update Dialog */}
       <Dialog
-        open={updateDialogOpen}
-        onClose={() => setUpdateDialogOpen(false)}
-        maxWidth="md"
+        open={!!selected}
+        onClose={() => setSelected(null)}
         fullWidth
+        maxWidth="sm"
       >
         <DialogTitle>Update Feedback</DialogTitle>
         <DialogContent>
-          {selectedFeedback && (
-            <Box sx={{ pt: 2 }}>
-              <Typography variant="h6" gutterBottom>
-                {categoryLabels[selectedFeedback.category]}
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                From: {selectedFeedback.user.username} (
-                {selectedFeedback.user.email})
-              </Typography>
-              <Paper sx={{ p: 2, mb: 2, bgcolor: 'grey.50' }}>
-                <Typography variant="body2">
-                  {selectedFeedback.message}
-                </Typography>
-              </Paper>
-
-              <FormControl fullWidth sx={{ mb: 2 }}>
+          {updateError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {updateError}
+            </Alert>
+          )}
+          <Grid container spacing={2} sx={{ mt: 0 }}>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
                 <InputLabel>Status</InputLabel>
                 <Select
-                  value={selectedFeedback.status}
-                  onChange={(e) =>
-                    setSelectedFeedback((prev) =>
-                      prev
-                        ? {
-                            ...prev,
-                            status: e.target.value as FeedbackStatus,
-                          }
-                        : null
-                    )
-                  }
                   label="Status"
+                  value={updateData.status ?? ''}
+                  onChange={(e) =>
+                    setUpdateData((d) => ({
+                      ...d,
+                      status: e.target.value as FeedbackStatus,
+                    }))
+                  }
                 >
-                  {Object.values(FeedbackStatus).map((status) => (
-                    <MenuItem key={status} value={status}>
-                      {status.replace('_', ' ')}
+                  {Object.values(FeedbackStatus).map((s) => (
+                    <MenuItem key={s} value={s}>
+                      {s.replace(/_/g, ' ')}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Priority</InputLabel>
+                <Select
+                  label="Priority"
+                  value={updateData.priority ?? ''}
+                  onChange={(e) =>
+                    setUpdateData((d) => ({
+                      ...d,
+                      priority: e.target.value as FeedbackPriority,
+                    }))
+                  }
+                >
+                  {Object.values(FeedbackPriority).map((p) => (
+                    <MenuItem key={p} value={p}>
+                      {p}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
               <TextField
                 label="Admin Notes"
                 multiline
-                rows={3}
+                rows={4}
                 fullWidth
-                value={selectedFeedback.adminNotes || ''}
+                value={updateData.adminNotes ?? ''}
                 onChange={(e) =>
-                  setSelectedFeedback((prev) =>
-                    prev
-                      ? {
-                          ...prev,
-                          adminNotes: e.target.value,
-                        }
-                      : null
-                  )
+                  setUpdateData((d) => ({ ...d, adminNotes: e.target.value }))
                 }
-                placeholder="Add internal notes about this feedback..."
               />
-            </Box>
-          )}
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setUpdateDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setSelected(null)} disabled={updating}>
+            Cancel
+          </Button>
           <Button
-            onClick={() =>
-              selectedFeedback &&
-              handleStatusUpdate(
-                selectedFeedback.id,
-                selectedFeedback.status,
-                selectedFeedback.adminNotes
-              )
-            }
             variant="contained"
+            onClick={submitUpdate}
             disabled={updating}
+            startIcon={updating ? <CircularProgress size={18} /> : null}
           >
-            {updating ? <CircularProgress size={20} /> : 'Update'}
+            {updating ? 'Saving...' : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>
     </Box>
   );
 };
+
+export default AdminFeedbackDashboard;

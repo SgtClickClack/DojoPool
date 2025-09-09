@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ownership-1",
+    "userId": "user-1",
+    "assetId": "hair-1",
+    "asset": {
+      "id": "hair-1",
+      "name": "Cool Hair",
+      "description": "A stylish haircut",
+      "type": "HAIR",
+      "rarity": "UNCOMMON",
+      "assetUrl2D": "https://example.com/hair-1.png",
+      "thumbnailUrl": "https://example.com/hair-1-thumb.png",
+      "price": 50,
+      "isPremium": false,
+      "isActive": true,
+      "statBonuses": { "luck": 5 },
+      "tags": ["stylish", "modern"],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    "acquiredAt": "2024-01-10T00:00:00.000Z",
+    "acquiredVia": "purchase",
+    "isEquipped": true
+  },
+  {
+    "id": "ownership-2",
+    "userId": "user-1",
+    "assetId": "shirt-1",
+    "asset": {
+      "id": "shirt-1",
+      "name": "Cyber Shirt",
+      "description": "A futuristic shirt",
+      "type": "CLOTHES_TOP",
+      "rarity": "RARE",
+      "assetUrl2D": "https://example.com/shirt-1.png",
+      "thumbnailUrl": "https://example.com/shirt-1-thumb.png",
+      "price": 100,
+      "isPremium": false,
+      "isActive": true,
+      "statBonuses": { "skill": 10 },
+      "tags": ["cyberpunk", "futuristic"],
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    "acquiredAt": "2024-01-12T00:00:00.000Z",
+    "acquiredVia": "reward",
+    "isEquipped": false
+  }
+]

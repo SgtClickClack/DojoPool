@@ -1,5 +1,46 @@
 # DojoPool: Revolutionizing Pool Gaming
 
+## Grand Strategic Plan (Phased)
+
+| Phase   | Focus                 | Key Objectives                            | Status        |
+| :------ | :-------------------- | :---------------------------------------- | :------------ |
+| Phase 1 | Core Platform         | Foundational Gameplay, Social, & Security | ✅ Complete   |
+| Phase 2 | Live Operations       | Stability, Analytics, & Monetization      | 🗓️ Next Steps |
+| Phase 3 | Community & Ecosystem | User-Generated Content & Social Growth    | 🔮 Future     |
+| Phase 4 | The Living World      | Immersive Gameplay & Long-Term Vision     | 🌌 Vision     |
+
+### Phase 1: Core Platform (Complete)
+
+- Tactical Map: Territory control, clan wars, functional economy
+- Dojo Duels: PvP matchmaking, real-time gameplay, global ranking
+- Community Nexus: Social features (chat, friends), clan management portal
+- Player Expression: Customization, marketplace, emotes, sponsorships
+- Live Operations: Event system and analytics dashboard
+- Launch Readiness: Security, performance, documentation
+
+### Phase 2: Post-Launch Operations & Growth (Immediate)
+
+- User Feedback & Reporting System: In-app capture, admin triage, notifications — COMPLETE
+- Advanced Analytics Dashboard: Behavior, funnels, feature usage (admin)
+- Seasonal Battle Pass: Seasonal score integration, free/premium rewards
+- Performance & Load Testing: Continuous monitoring and validation
+
+### Phase 3: Community & Ecosystem (Future)
+
+- Player-Created Content: Cosmetic submissions with royalties
+- Community Voting: Design voting and social mechanics
+- Social & Creator Hub: Highlights, avatars, achievements feed
+- Live Streaming & Spectator Mode: Watch duels/tournaments with viewer rewards
+
+### Phase 4: The Living World (Vision)
+
+- Living World Map: Real-time strategic map homepage
+- Immersive First-Person View: Avatar navigation in social hubs
+- AI-Powered Match Analysis: Coaching, insights, predictions
+- NFT & Blockchain Integration: Asset ownership and trading
+
+---
+
 ## Vision
 
 DojoPool is an innovative platform that transforms traditional pool gaming into an immersive, tech-enhanced experience by bridging physical and digital gameplay. It combines real-world pool venues with advanced technology, creating a unique social gaming ecosystem.

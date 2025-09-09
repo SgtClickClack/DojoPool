@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Cacheable } from '../cache/cache.decorator';
+import { CacheInvalidate, ClanCache } from '../cache/edge-cache.decorator';
 import { ClansService } from './clans.service';
 import { CreateClanDto } from './dto/create-clan.dto';
 import { UpgradeDojoDto } from './dto/upgrade-dojo.dto';
@@ -22,6 +22,7 @@ export class ClansController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
+  @CacheInvalidate(['clans:list'])
   async createClan(
     @Body() createClanDto: CreateClanDto,
     @Request() req: any
@@ -34,25 +35,20 @@ export class ClansController {
   }
 
   @Get()
-  @Cacheable({
-    ttl: 300, // 5 minutes
-    keyPrefix: 'clans:list',
-  })
+  @ClanCache()
   async getAllClans(): Promise<any[]> {
     return this.clansService.getAllClans();
   }
 
   @Get(':clanId')
-  @Cacheable({
-    ttl: 600, // 10 minutes
-    keyPrefix: 'clans:detail',
-  })
+  @ClanCache({ ttl: 600, browserMaxAge: 300, edgeMaxAge: 600 })
   async getClanById(@Param('clanId') clanId: string): Promise<any> {
     return this.clansService.getClanById(clanId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post(':clanId/join')
+  @CacheInvalidate(['clans:detail:*', 'clans:list'])
   async joinClan(
     @Param('clanId') clanId: string,
     @Request() req: any
@@ -63,6 +59,7 @@ export class ClansController {
   @UseGuards(JwtAuthGuard)
   @Delete(':clanId/leave')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @CacheInvalidate(['clans:detail:*', 'clans:list'])
   async leaveClan(
     @Param('clanId') clanId: string,
     @Request() req: any

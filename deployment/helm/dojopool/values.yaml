@@ -1,0 +1,273 @@
+# Default values for dojopool helm chart
+global:
+  imageRegistry: ''
+  imagePullSecrets: []
+  storageClass: 'gp3'
+
+# API service configuration
+api:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: dojopool/api
+    tag: 'latest'
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3001
+    websocketPort: 3002
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - dojopool-api
+            topologyKey: kubernetes.io/hostname
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+# Web service configuration
+web:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: dojopool/web
+    tag: 'latest'
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+  resources:
+    limits:
+      cpu: 200m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - dojopool-web
+            topologyKey: kubernetes.io/hostname
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: 'change-me-in-production'
+    username: 'dojo_user'
+    password: 'change-me-in-production'
+    database: 'dojopool'
+  architecture: standalone
+  primary:
+    persistence:
+      enabled: true
+      size: 50Gi
+      storageClass: gp3
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+    nodeSelector: {}
+    tolerations: []
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Redis configuration
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  architecture: standalone
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: gp3
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    nodeSelector: {}
+    tolerations: []
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: 'nginx'
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/force-ssl-redirect: 'true'
+    cert-manager.io/cluster-issuer: 'letsencrypt-prod'
+    nginx.ingress.kubernetes.io/rate-limit: '100'
+    nginx.ingress.kubernetes.io/rate-limit-window: '1m'
+  hosts:
+    - host: dojopool.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: dojopool-web
+              port:
+                number: 3000
+    - host: api.dojopool.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: dojopool-api
+              port:
+                number: 3001
+  tls:
+    - secretName: dojopool-web-tls
+      hosts:
+        - dojopool.com
+    - secretName: dojopool-api-tls
+      hosts:
+        - api.dojopool.com
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+      scrapeTimeout: 10s
+  grafana:
+    enabled: true
+    adminPassword: 'admin'
+    dashboards:
+      enabled: true
+    datasources:
+      enabled: true
+
+# Logging configuration
+logging:
+  enabled: true
+  elasticsearch:
+    enabled: true
+    replicas: 1
+    persistence:
+      enabled: true
+      size: 50Gi
+      storageClass: gp3
+  kibana:
+    enabled: true
+  fluentbit:
+    enabled: true
+    config:
+      inputs: |
+        [INPUT]
+            Name              tail
+            Path              /var/log/containers/*dojopool*.log
+            Parser            docker
+            Tag               dojopool.*
+            Refresh_Interval  5
+      filters: |
+        [FILTER]
+            Name                kubernetes
+            Match               dojopool.*
+            Kube_URL            https://kubernetes.default.svc:443
+            Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+      outputs: |
+        [OUTPUT]
+            Name  es
+            Match dojopool.*
+            Host  dojopool-elasticsearch
+            Port  9200
+            Index dojopool
+
+# Backup configuration
+backup:
+  enabled: true
+  schedule: '0 2 * * *' # Daily at 2 AM
+  retention: 30 # Keep backups for 30 days
+  database:
+    enabled: true
+    s3:
+      bucket: 'dojopool-backups'
+      region: 'us-east-1'
+  redis:
+    enabled: true
+    s3:
+      bucket: 'dojopool-redis-backups'
+      region: 'us-east-1'
+
+# Security configuration
+security:
+  networkPolicy:
+    enabled: true
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
+    runAsNonRoot: true
+    runAsUser: 1001
+  containerSecurityContext:
+    enabled: true
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  secrets:
+    enabled: true
+    # Secrets should be created separately using sealed-secrets or external-secrets
+
+# Environment configuration
+environment: production
+config:
+  jwtSecret: 'change-me-in-production'
+  databaseUrl: 'postgresql://dojo_user:password@dojopool-postgresql:5432/dojopool'
+  redisUrl: 'redis://dojopool-redis:6379'
+  frontendUrl: 'https://dojopool.com'
+  apiUrl: 'https://api.dojopool.com'

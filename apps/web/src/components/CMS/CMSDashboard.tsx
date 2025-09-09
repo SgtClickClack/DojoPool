@@ -9,9 +9,11 @@ import {
 } from '@mui/icons-material';
 import { Alert, Box, Card, CardContent, Grid, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import AssetBundleManagement from './AssetBundleManagement';
 import CMSTabs from './CMSTabs';
 import EventManagement from './EventManagement';
 import NewsManagement from './NewsManagement';
+import PromotionManagement from './PromotionManagement';
 import SystemMessageManagement from './SystemMessageManagement';
 
 // CMSStats interface is now imported from APIService
@@ -26,6 +28,7 @@ const CMSDashboard: React.FC = () => {
     pendingContent: 0,
     totalViews: 0,
     totalLikes: 0,
+    totalShares: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -203,6 +206,8 @@ const CMSDashboard: React.FC = () => {
             <li>View moderation statistics</li>
           </Box>
         </Box>
+        <PromotionManagement />
+        <AssetBundleManagement />
       </CMSTabs>
     </Box>
   );

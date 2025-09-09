@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -9,6 +9,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { WebSocketJwtGuard } from '../auth/websocket-jwt.guard';
+import { WebSocketRateLimitGuard } from '../auth/websocket-rate-limit.guard';
 import { corsOptions } from '../config/cors.config';
 import { AiAnalysisService, ShotData } from './ai-analysis.service';
 
@@ -16,6 +18,7 @@ import { AiAnalysisService, ShotData } from './ai-analysis.service';
   cors: corsOptions,
   namespace: '/match',
 })
+@UseGuards(WebSocketJwtGuard, WebSocketRateLimitGuard)
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server!: Server;

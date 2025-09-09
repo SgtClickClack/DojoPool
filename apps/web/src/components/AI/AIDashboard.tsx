@@ -54,13 +54,13 @@ const AIDashboard: React.FC<AIDashboardProps> = ({ isOpen, onClose }) => {
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <span className="font-medium text-white capitalize">
-              {provider}
+              {String(provider)}
             </span>
             <div className="flex items-center space-x-1">
               {config.enabled && (
                 <span className="text-xs text-green-400">Enabled</span>
               )}
-              {config.configured && (
+              {'configured' in config && config.configured && (
                 <span className="text-xs text-blue-400">Configured</span>
               )}
             </div>

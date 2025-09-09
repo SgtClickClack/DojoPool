@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { CacheModule } from '../cache/cache.module';
-import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { CommunityController } from './community.controller';
 import { CommunityService } from './community.service';
@@ -9,6 +9,7 @@ import { CommunityService } from './community.service';
 @Module({
   imports: [
     CacheModule,
+    NotificationsModule,
     MulterModule.register({
       dest: './uploads/cosmetic-items',
       limits: {
@@ -34,7 +35,7 @@ import { CommunityService } from './community.service';
     }),
   ],
   controllers: [CommunityController],
-  providers: [CommunityService, PrismaService, NotificationsService],
+  providers: [CommunityService, PrismaService],
   exports: [CommunityService],
 })
 export class CommunityModule {}

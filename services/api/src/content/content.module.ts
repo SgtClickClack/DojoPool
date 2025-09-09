@@ -1,15 +1,18 @@
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { CacheModule } from '../cache/cache.module';
-import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { CmsController } from './cms.controller';
 import { ContentController } from './content.controller';
 import { ContentService } from './content.service';
+import { LOMSController } from './loms.controller';
+import { LOMSService } from './loms.service';
 
 @Module({
   imports: [
     CacheModule,
+    NotificationsModule,
     MulterModule.register({
       dest: './uploads/content',
       limits: {
@@ -35,8 +38,8 @@ import { ContentService } from './content.service';
       },
     }),
   ],
-  controllers: [ContentController, CmsController],
-  providers: [ContentService, PrismaService, NotificationsService],
-  exports: [ContentService],
+  controllers: [ContentController, CmsController, LOMSController],
+  providers: [ContentService, LOMSService, PrismaService],
+  exports: [ContentService, LOMSService],
 })
 export class ContentModule {}

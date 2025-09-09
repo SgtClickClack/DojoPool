@@ -15,7 +15,10 @@ export default defineConfig({
       'services/api/src/**/*.e2e.spec.ts',
       'services/api/src/**/*.integration.spec.ts',
     ],
-    include: ['services/api/src/cache/cache.helper.spec.ts'],
+    include: [
+      'services/api/src/cache/cache.helper.spec.ts',
+      'services/api/src/insights/**/*.spec.ts',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

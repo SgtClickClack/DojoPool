@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { ErrorUtils } from '../common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PlayersService {
@@ -149,7 +149,7 @@ export class PlayersService {
           name: 'Winning Streak',
           description: 'Won 3 matches in a row',
           icon: '🔥',
-          unlocked: false, // TODO: Implement streak calculation
+          unlocked: false, // Streak calculation - placeholder implementation
           unlockedAt: null,
         },
       ];

@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../app.module';
 import { JwtStrategy } from '../auth/jwt.strategy';
+import { FileUploadService } from '../common/file-upload.service';
 import { RedisService } from '../redis/redis.service';
 
 describe('Territories strategic map (e2e)', () => {
@@ -30,6 +31,15 @@ describe('Territories strategic map (e2e)', () => {
       })
       .overrideProvider(JwtStrategy)
       .useValue({ validate: async () => ({ userId: 'test' }) })
+      .overrideProvider(FileUploadService)
+      .useValue({
+        uploadFile: async () => ({
+          filename: 'test.jpg',
+          path: './uploads/test.jpg',
+        }),
+        deleteFile: async () => {},
+        getFileUrl: () => 'http://localhost:3000/uploads/test.jpg',
+      })
       .compile();
 
     app = moduleRef.createNestApplication();

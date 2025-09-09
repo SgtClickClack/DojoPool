@@ -1,0 +1,8 @@
+{
+  "economyMetrics": {
+    "totalTransactions": 1250,
+    "totalVolume": 50000,
+    "avgTransactionValue": 40
+  },
+  "totalUsers": 8500
+}

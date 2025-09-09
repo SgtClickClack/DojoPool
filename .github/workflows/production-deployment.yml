@@ -1,0 +1,351 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [main, production]
+  pull_request:
+    branches: [main, production]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      skip_tests:
+        description: 'Skip test execution'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '18'
+  DOCKER_REGISTRY: 'dojopool'
+  AWS_REGION: 'us-east-1'
+
+jobs:
+  # Security and Quality Checks
+  security-scan:
+    name: Security & Quality Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run security audit
+        run: yarn audit --audit-level high
+        continue-on-error: true
+
+      - name: Run ESLint
+        run: yarn lint
+
+      - name: Run TypeScript check
+        run: yarn type-check
+
+      - name: Run tests with coverage
+        run: yarn test:ci
+        env:
+          CI: true
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+          fail_ci_if_error: false
+
+  # Backend Build and Test
+  backend-build:
+    name: Backend Build & Test
+    runs-on: ubuntu-latest
+    needs: security-scan
+    if: ${{ !inputs.skip_tests || inputs.skip_tests == 'false' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: |
+          cd services/api
+          yarn install --frozen-lockfile
+
+      - name: Run backend tests
+        run: |
+          cd services/api
+          yarn test:cov
+
+      - name: Build backend
+        run: |
+          cd services/api
+          yarn build
+
+      - name: Upload backend build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-build
+          path: services/api/dist/
+          retention-days: 7
+
+  # Frontend Build and Test
+  frontend-build:
+    name: Frontend Build & Test
+    runs-on: ubuntu-latest
+    needs: security-scan
+    if: ${{ !inputs.skip_tests || inputs.skip_tests == 'false' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: |
+          cd apps/web
+          yarn install --frozen-lockfile
+
+      - name: Run frontend tests
+        run: |
+          cd apps/web
+          yarn test:ci
+
+      - name: Build frontend
+        run: |
+          cd apps/web
+          yarn build
+
+      - name: Upload frontend build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: apps/web/.next/
+          retention-days: 7
+
+  # Database Migration Check
+  database-migration:
+    name: Database Migration Check
+    runs-on: ubuntu-latest
+    needs: [backend-build]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check database migrations
+        run: |
+          cd services/api
+          yarn prisma generate
+          yarn prisma validate
+
+      - name: Generate migration plan
+        run: |
+          cd services/api
+          yarn prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > migration-plan.sql
+        continue-on-error: true
+
+  # Docker Build
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: [backend-build, frontend-build, database-migration]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    strategy:
+      matrix:
+        service: [api, web]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./deployment/docker/Dockerfile.${{ matrix.service }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # Infrastructure Deployment
+  infrastructure-deploy:
+    name: Infrastructure Deployment
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment:
+      name: production
+      url: https://dojopool.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to Kubernetes
+        run: |
+          # Update kubeconfig
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name dojopool-prod
+
+          # Deploy using Helm
+          helm upgrade --install dojopool ./deployment/helm/dojopool \
+            --namespace production \
+            --set image.tag=${{ github.sha }} \
+            --set environment=production \
+            --wait \
+            --timeout=15m
+
+      - name: Run database migrations
+        run: |
+          # Run Prisma migrations in production
+          kubectl exec -n production deployment/dojopool-api -- yarn prisma migrate deploy
+
+      - name: Health check
+        run: |
+          # Wait for services to be healthy
+          kubectl wait --for=condition=available --timeout=300s deployment/dojopool-api -n production
+          kubectl wait --for=condition=available --timeout=300s deployment/dojopool-web -n production
+
+          # Run health checks
+          curl -f https://api.dojopool.com/health || exit 1
+          curl -f https://dojopool.com || exit 1
+
+  # Post-deployment verification
+  verification:
+    name: Post-deployment Verification
+    runs-on: ubuntu-latest
+    needs: [infrastructure-deploy]
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    steps:
+      - name: Health check verification
+        run: |
+          # API health check
+          curl -f https://api.dojopool.com/health
+          curl -f https://api.dojopool.com/api/v1/health
+
+          # Web health check
+          curl -f https://dojopool.com
+          curl -f https://dojopool.com/api/health
+
+      - name: Database connectivity check
+        run: |
+          # Verify database connections
+          kubectl exec -n production deployment/dojopool-api -- node -e "
+            const { PrismaClient } = require('@prisma/client');
+            const prisma = new PrismaClient();
+            prisma.\$connect().then(() => {
+              console.log('Database connected successfully');
+              process.exit(0);
+            }).catch((e) => {
+              console.error('Database connection failed:', e);
+              process.exit(1);
+            });
+          "
+
+      - name: WebSocket connectivity check
+        run: |
+          # Test WebSocket connections
+          timeout 10s websocat ws://api.dojopool.com/world || echo "WebSocket check completed"
+
+      - name: Performance check
+        run: |
+          # Basic performance check
+          curl -w "@curl-format.txt" -o /dev/null -s https://dojopool.com
+
+      - name: Notify deployment success
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: '🚀 DojoPool production deployment completed successfully!'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify deployment failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: '❌ DojoPool production deployment failed!'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Rollback job (manual trigger)
+  rollback:
+    name: Rollback Deployment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.rollback == 'true'
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Rollback to previous version
+        run: |
+          # Rollback Helm release
+          helm rollback dojopool 0 --namespace production
+
+          # Verify rollback
+          kubectl wait --for=condition=available --timeout=300s deployment/dojopool-api -n production
+          kubectl wait --for=condition=available --timeout=300s deployment/dojopool-web -n production

@@ -1,12 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
+import { PerformanceMonitoringService } from '../monitoring/performance-monitoring.service';
+import { EnhancedCacheService } from '../cache/enhanced-cache.service';
 
 @Controller()
 export class HealthController {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
+    private readonly performanceMonitoring: PerformanceMonitoringService,
+    private readonly enhancedCache: EnhancedCacheService
   ) {}
 
   @Get('health')
@@ -78,6 +82,22 @@ export class HealthController {
       console.warn('Failed to get Redis info:', error);
     }
 
+    // Get enhanced cache stats
+    let cacheStats = {};
+    try {
+      cacheStats = await this.enhancedCache.getStats();
+    } catch (error) {
+      console.warn('Failed to get cache stats:', error);
+    }
+
+    // Get performance monitoring stats
+    let performanceStats = {};
+    try {
+      performanceStats = this.performanceMonitoring.getStats();
+    } catch (error) {
+      console.warn('Failed to get performance stats:', error);
+    }
+
     return {
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
@@ -98,6 +118,8 @@ export class HealthController {
         connections: dbConnections,
       },
       redis: redisInfo,
+      cache: cacheStats,
+      performance: performanceStats,
       system: {
         version: process.version,
         platform: process.platform,

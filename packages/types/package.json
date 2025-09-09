@@ -3,9 +3,28 @@
   "private": true,
   "version": "0.0.0",
   "packageManager": "yarn@4.9.3",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/socket.io-client": "^1.4.36",
+    "js-yaml": "^4.1.0",
+    "socket.io-client": "^4.8.1",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@nestjs/swagger": "^11.2.0",
+    "swagger-ui-express": "^5.0.1"
   }
 }

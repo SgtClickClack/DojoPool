@@ -24,10 +24,28 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     // Validate production requirements before initialization
     this.validateProductionRequirements();
 
-    if (this.isProduction) {
-      await this.initializeRedisClients();
+    // Check if Redis is configured (either production or development with Redis URL)
+    const redisUrl = this.configService.get<string>('REDIS_URL');
+    const redisHost = this.configService.get<string>('REDIS_HOST');
+
+    // Only attempt Redis connection if explicitly configured
+    if (redisUrl || redisHost || this.isProduction) {
+      try {
+        await this.initializeRedisClients();
+      } catch (error) {
+        this.logger.error('Failed to initialize Redis clients:', error);
+        this.logger.warn(
+          'Redis is not available - application will continue with reduced functionality'
+        );
+        // Don't throw error - allow application to continue without Redis
+      }
     } else {
-      this.logger.log('Skipping Redis initialization in development mode');
+      this.logger.log(
+        'Skipping Redis initialization - no Redis configuration found'
+      );
+      this.logger.log(
+        'To enable Redis in development, set REDIS_URL or REDIS_HOST in your .env file'
+      );
     }
   }
 
@@ -177,6 +195,188 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     } catch (error) {
       this.logger.error('Redis ping failed:', error);
       return false;
+    }
+  }
+
+  // Basic Redis operations for queue management
+  async get(key: string): Promise<string | null> {
+    if (!this.isProduction) {
+      return null; // In development, return null (no Redis available)
+    }
+    if (!this.pubClient) return null;
+    try {
+      return await this.pubClient.get(key);
+    } catch (error) {
+      this.logger.error(`Redis GET failed for key ${key}:`, error);
+      return null;
+    }
+  }
+
+  async set(key: string, value: string, ttl?: number): Promise<boolean> {
+    if (!this.isProduction) {
+      return true; // In development, pretend it worked
+    }
+    if (!this.pubClient) return false;
+    try {
+      if (ttl) {
+        await this.pubClient.setex(key, ttl, value);
+      } else {
+        await this.pubClient.set(key, value);
+      }
+      return true;
+    } catch (error) {
+      this.logger.error(`Redis SET failed for key ${key}:`, error);
+      return false;
+    }
+  }
+
+  async del(key: string): Promise<boolean> {
+    if (!this.isProduction) {
+      return true; // In development, pretend it worked
+    }
+    if (!this.pubClient) return false;
+    try {
+      await this.pubClient.del(key);
+      return true;
+    } catch (error) {
+      this.logger.error(`Redis DEL failed for key ${key}:`, error);
+      return false;
+    }
+  }
+
+  async keys(pattern: string): Promise<string[]> {
+    if (!this.isProduction) {
+      return []; // In development, return empty array
+    }
+    if (!this.pubClient) return [];
+    try {
+      return await this.pubClient.keys(pattern);
+    } catch (error) {
+      this.logger.error(`Redis KEYS failed for pattern ${pattern}:`, error);
+      return [];
+    }
+  }
+
+  async ttl(key: string): Promise<number> {
+    if (!this.isProduction) {
+      return -1; // In development, return -1 (key doesn't exist)
+    }
+    if (!this.pubClient) return -1;
+    try {
+      return await this.pubClient.ttl(key);
+    } catch (error) {
+      this.logger.error(`Redis TTL failed for key ${key}:`, error);
+      return -1;
+    }
+  }
+
+  async zadd(key: string, score: number, member: string): Promise<boolean> {
+    if (!this.isProduction) {
+      return true; // In development, pretend it worked
+    }
+    if (!this.pubClient) return false;
+    try {
+      await this.pubClient.zadd(key, score, member);
+      return true;
+    } catch (error) {
+      this.logger.error(`Redis ZADD failed for key ${key}:`, error);
+      return false;
+    }
+  }
+
+  async zrem(key: string, member: string): Promise<boolean> {
+    if (!this.isProduction) {
+      return true; // In development, pretend it worked
+    }
+    if (!this.pubClient) return false;
+    try {
+      await this.pubClient.zrem(key, member);
+      return true;
+    } catch (error) {
+      this.logger.error(`Redis ZREM failed for key ${key}:`, error);
+      return false;
+    }
+  }
+
+  async zrevrange(key: string, start: number, stop: number): Promise<string[]> {
+    if (!this.isProduction) {
+      return []; // In development, return empty array
+    }
+    if (!this.pubClient) return [];
+    try {
+      return await this.pubClient.zrevrange(key, start, stop);
+    } catch (error) {
+      this.logger.error(`Redis ZREVRANGE failed for key ${key}:`, error);
+      return [];
+    }
+  }
+
+  async zcard(key: string): Promise<number> {
+    if (!this.isProduction) {
+      return 0; // In development, return 0
+    }
+    if (!this.pubClient) return 0;
+    try {
+      return await this.pubClient.zcard(key);
+    } catch (error) {
+      this.logger.error(`Redis ZCARD failed for key ${key}:`, error);
+      return 0;
+    }
+  }
+
+  async zrange(key: string, start: number, stop: number): Promise<string[]> {
+    if (!this.isProduction) {
+      return []; // In development, return empty array
+    }
+    if (!this.pubClient) return [];
+    try {
+      return await this.pubClient.zrange(key, start, stop);
+    } catch (error) {
+      this.logger.error(`Redis ZRANGE failed for key ${key}:`, error);
+      return [];
+    }
+  }
+
+  async zrangebyscore(
+    key: string,
+    min: number,
+    max: number
+  ): Promise<string[]> {
+    if (!this.isProduction) {
+      return []; // In development, return empty array
+    }
+    if (!this.pubClient) return [];
+    try {
+      return await this.pubClient.zrangebyscore(key, min, max);
+    } catch (error) {
+      this.logger.error(`Redis ZRANGEBYSCORE failed for key ${key}:`, error);
+      return [];
+    }
+  }
+
+  async zrank(key: string, member: string): Promise<number | null> {
+    if (!this.isProduction) {
+      return null; // In development, return null
+    }
+    if (!this.pubClient) return null;
+    try {
+      return await this.pubClient.zrank(key, member);
+    } catch (error) {
+      this.logger.error(`Redis ZRANK failed for key ${key}:`, error);
+      return null;
+    }
+  }
+
+  async zcount(key: string, min: number, max: number): Promise<number> {
+    if (!this.isProduction) {
+      return 0; // In development, return 0
+    }
+    if (!this.pubClient) return 0;
+    try {
+      return await this.pubClient.zcount(key, min, max);
+    } catch (error) {
+      this.logger.error(`Redis ZCOUNT failed for key ${key}:`, error);
+      return 0;
     }
   }
 

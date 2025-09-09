@@ -2,11 +2,11 @@
 
 import {
   ArrowDownIcon,
+  ArrowTrendingUpIcon,
   ArrowUpIcon,
   ClockIcon,
   CurrencyDollarIcon,
   StarIcon,
-  TrendingUpIcon,
   TrophyIcon,
   UsersIcon,
 } from '@heroicons/react/24/outline';
@@ -243,7 +243,7 @@ const VenueAnalytics: React.FC<VenueAnalyticsProps> = ({ analyticsData }) => {
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     {metric.value}
                   </p>
-                  {metric.change !== null && (
+                  {metric.change !== null && ChangeIcon && (
                     <div
                       className={`flex items-center space-x-1 mt-1 ${getChangeColor(metric.change)}`}
                     >
@@ -363,7 +363,7 @@ const VenueAnalytics: React.FC<VenueAnalyticsProps> = ({ analyticsData }) => {
                   {data.players.newThisPeriod}
                 </p>
               </div>
-              <TrendingUpIcon className="w-8 h-8 text-green-500" />
+              <ArrowTrendingUpIcon className="w-8 h-8 text-green-500" />
             </div>
 
             <div className="p-4 bg-gray-50 rounded-lg">

@@ -102,6 +102,26 @@ Retrieve a specific feedback item submitted by the authenticated user.
 
 ### Delete My Feedback
 
+## Moderation Endpoints
+
+All endpoints require JWT and role `MODERATOR` or `ADMIN`.
+
+Base path: `/api/v1/feedback/moderation`
+
+- GET `/` — List feedback with pagination and filters (status, category, priority, userId, dateFrom, dateTo)
+- GET `/:id` — Get single feedback including `user` and `resolver`
+- PUT `/:id/status` — Update status/priority/notes. Body:
+
+```json
+{
+  "status": "PENDING | IN_REVIEW | IN_PROGRESS | RESOLVED | CLOSED | REJECTED",
+  "priority": "LOW | NORMAL | HIGH | CRITICAL",
+  "moderatorNotes": "string"
+}
+```
+
+Responses mirror admin endpoints and include `user` and optional `resolver`.
+
 **DELETE** `/api/v1/feedback/my/:id`
 
 Delete a feedback item submitted by the authenticated user.

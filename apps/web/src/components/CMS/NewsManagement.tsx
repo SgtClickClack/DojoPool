@@ -483,7 +483,6 @@ const NewsManagement: React.FC = () => {
           onClose={handleCloseDialog}
           maxWidth="lg"
           fullWidth
-          maxHeight="90vh"
         >
           <DialogTitle>
             {previewMode

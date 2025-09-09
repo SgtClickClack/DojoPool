@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ErrorLoggerService } from './error-logger.service';
+import { PrismaModule } from '../prisma/prisma.module';
+import { DatabasePerformanceService } from './database-performance.service';
 import { MonitoringController } from './monitoring.controller';
+import { SlowQueryLoggerService } from './slow-query-logger.service';
 
 @Module({
+  imports: [PrismaModule],
   controllers: [MonitoringController],
-  providers: [ErrorLoggerService],
-  exports: [ErrorLoggerService],
+  providers: [DatabasePerformanceService, SlowQueryLoggerService],
+  exports: [DatabasePerformanceService, SlowQueryLoggerService],
 })
 export class MonitoringModule {}

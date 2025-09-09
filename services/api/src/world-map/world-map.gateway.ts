@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -9,6 +9,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { WebSocketJwtGuard } from '../auth/websocket-jwt.guard';
+import { WebSocketRateLimitGuard } from '../auth/websocket-rate-limit.guard';
 import { corsOptions } from '../config/cors.config';
 import { FeatureFlagsConfig } from '../config/feature-flags.config';
 import { SOCKET_NAMESPACES } from '../config/sockets.config';
@@ -52,6 +54,7 @@ interface GameEvent {
   cors: corsOptions,
   namespace: SOCKET_NAMESPACES.WORLD_MAP,
 })
+@UseGuards(WebSocketJwtGuard, WebSocketRateLimitGuard)
 export class WorldMapGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {

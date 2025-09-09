@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -6,6 +6,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { WebSocketJwtGuard } from '../auth/websocket-jwt.guard';
+import { WebSocketRateLimitGuard } from '../auth/websocket-rate-limit.guard';
 import { corsOptions } from '../config/cors.config';
 import { SOCKET_NAMESPACES } from '../config/sockets.config';
 
@@ -13,6 +15,7 @@ import { SOCKET_NAMESPACES } from '../config/sockets.config';
   cors: corsOptions,
   namespace: SOCKET_NAMESPACES.NOTIFICATIONS,
 })
+@UseGuards(WebSocketJwtGuard, WebSocketRateLimitGuard)
 export class NotificationsGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
@@ -21,27 +24,22 @@ export class NotificationsGateway
 
   private readonly logger = new Logger(NotificationsGateway.name);
 
-  private getUserIdFromSocket(client: Socket): string | undefined {
-    const headers = client.handshake.headers as Record<string, any>;
-    const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as
-      | string
-      | undefined;
-    const fromAuth = (client.handshake.auth &&
-      (client.handshake.auth as any).userId) as string | undefined;
-    return fromHeader || fromAuth;
-  }
-
   handleConnection(client: Socket) {
-    const userId = this.getUserIdFromSocket(client);
-    if (userId) {
+    try {
+      const user = WebSocketJwtGuard.getUserFromSocket(client);
+      const userId = user.id;
+
+      // Join user's private notifications room
       client.join(userId);
       this.logger.log(
-        `Client ${client.id} joined notifications room ${userId}`
+        `Authenticated client ${client.id} joined notifications room ${userId} for user ${user.username}`
       );
-    } else {
-      this.logger.warn(
-        `Client ${client.id} connected without x-user-id/auth.userId; cannot join notifications room`
+    } catch (error) {
+      this.logger.error(
+        `Failed to get authenticated user for client ${client.id}:`,
+        error
       );
+      // Client should already be disconnected by the guard
     }
   }
 

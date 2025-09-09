@@ -49,6 +49,9 @@ const contentTypeDescriptions = {
   [ContentType.TOURNAMENT_HIGHLIGHT]: 'Share tournament moments and highlights',
   [ContentType.VENUE_REVIEW]: 'Review and share venue experiences',
   [ContentType.GENERAL]: 'Share any other content with the community',
+  [ContentType.EVENT]: 'Share information about upcoming events',
+  [ContentType.NEWS_ARTICLE]: 'Share news and announcements',
+  [ContentType.SYSTEM_MESSAGE]: 'Share system announcements',
 };
 
 const visibilityLabels = {

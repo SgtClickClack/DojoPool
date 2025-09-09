@@ -1,54 +1,57 @@
-# DojoPool Roadmap (Updated)
+## Dojo Pool Grand Strategic Plan
 
-## Phase 1: Core Platform & MVP
+| Phase   | Focus                 | Key Objectives                            | Status        |
+| :------ | :-------------------- | :---------------------------------------- | :------------ |
+| Phase 1 | Core Platform         | Foundational Gameplay, Social, & Security | ✅ Complete   |
+| Phase 2 | Live Operations       | Stability, Analytics, & Monetization      | 🗓️ Next Steps |
+| Phase 3 | Community & Ecosystem | User-Generated Content & Social Growth    | 🔮 Future     |
+| Phase 4 | The Living World      | Immersive Gameplay & Long-Term Vision     | 🌌 Vision     |
 
-- User authentication & onboarding
-- Avatar system (basic)
-- Pool game tracking (AI camera integration)
-- Venue registration & QR check-in
-- Basic wallet (DojoCoin, NFT support)
-- Social features (friends, clans, messaging)
-- Tournament system (creation, brackets, live updates)
-- Initial deployment (staging)
+### Phase 1: Core Platform (Complete)
 
-## Phase 2: Narrative & Territory Expansion
+- Tactical Map: Strategic territory control, clan wars, functional economy
+- Dojo Duels: PvP matchmaking, real-time gameplay, global ranking
+- Community Nexus: Social features (chat, friends), clan management portal
+- Player Expression: Customization, marketplace, emotes, sponsorships
+- Live Operations: Dynamic event system and analytics admin dashboard
+- Launch Readiness: Security-hardened, performant, documented codebase
 
-- Narrative-driven avatar progression (story arcs, evolution)
-- World map with Dojo venues (territory control, live status)
-- Territory battle system (claim/defend Dojos)
-- Clan system (formation, wars, bonuses)
-- Pool God mythology (AI Umpire, Commentator, Fluke God mechanics)
-- NFT-backed territory & asset trading
-- In-app cutscenes and story events
-- Advanced wallet (cross-chain, hardware integration)
-- Production deployment
+### Phase 2: Post-Launch Operations & Growth (Immediate)
 
-Tooling Update (Phase 2): Pre-commit automation for formatting and linting using Prettier, Husky, and lint-staged to maintain consistent code quality across the monorepo.
+- User Feedback & Reporting System: In-app feedback capture, admin triage, notifications
+- Advanced Analytics Dashboard: Behavior, funnel, and feature usage analytics
+- Seasonal Battle Pass: Seasonal score integration with free/premium tiers
+- Performance & Load Testing: Continuous monitoring and scaling validation
 
-## Phase 3: Venue & Economy Systems
+Current focus — Feedback System: Completed end-to-end
 
-- Venue management portal (profile, specials, tournaments, NFT trophies)
-- Passive income for territory holders
-- Venue leaderboard & Dojo Master system
-- Marketplace for NFTs, Dojo trading, rare items
-- Clan-wide events and bonuses
-- Real-time analytics for venues
-- Full mobile support
+- Backend: Protected endpoints, Prisma model, admin/user notifications, admin filters/stats
+- Frontend: Feedback form, admin feedback dashboard with updates and caching
 
-## Phase 4: Global Scaling & Live Ops
+Next priority tasks
 
-- Global map and scaling (multi-region support)
-- Franchise/partner onboarding
-- Live ops: seasonal events, new Pool Gods, story expansions
-- Advanced AI commentary and referee features
-- AR/VR integration (optional)
-- Ongoing performance, security, and compliance
-- Continuous deployment & monitoring
+- Advanced Analytics Dashboard (admin)
+- Seasonal Battle Pass (free/premium tracks)
+- Ongoing performance/load testing
+
+### Phase 3: Community & Ecosystem (Future)
+
+- Player-Created Content: Cosmetic item submissions with creator royalties
+- Community Voting System: Voting on submitted designs to guide approvals
+- Social & Creator Hub: Social feed for highlights, avatars, and achievements
+- Live Streaming & Spectator Mode: Watch live duels/tournaments with rewards
+
+### Phase 4: The Living World (Vision)
+
+- Living World Map: Real-time strategic map as the homepage (territories, clans, live matches)
+- Immersive First-Person View: GTA-style avatar navigation and social hubs
+- AI-Powered Match Analysis: Coaching, post-match insights, predictive analytics
+- NFT & Blockchain Integration: Asset ownership and trading with real-world value
 
 ---
 
-**Deployment Milestones:**
+Deployment Milestones
 
-- Staging: End of Phase 1
-- Production: End of Phase 2
+- Staging: End of Phase 1 (done)
+- Production: Phase 2 delivery (rolling)
 - Global/Franchise: End of Phase 4

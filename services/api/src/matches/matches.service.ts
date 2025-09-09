@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { MatchUtils } from '../common';
 import { PrismaService } from '../prisma/prisma.service';
+import { SkillsService } from '../skills/skills.service';
 import { AiAnalysisService } from './ai-analysis.service';
 import { MatchGateway } from './match.gateway';
 import { MatchesGateway } from './matches.gateway';
@@ -13,7 +14,9 @@ export class MatchesService {
     private prisma: PrismaService,
     private aiAnalysisService: AiAnalysisService,
     private matchesGateway: MatchesGateway,
-    private matchGateway: MatchGateway
+    private matchGateway: MatchGateway,
+    @Inject(forwardRef(() => SkillsService))
+    private skillsService: SkillsService
   ) {}
 
   async getMatchById(matchId: string): Promise<any> {
@@ -228,9 +231,98 @@ export class MatchesService {
         },
       });
 
+      // Generate MatchAnalysis record for skill calculation
+      await this.generateMatchAnalysisRecord(match, analysis);
+
       this.logger.log('AI analysis generated and stored for match:', match.id);
     } catch (error) {
       this.logger.error('Failed to generate and store AI analysis:', error);
+    }
+  }
+
+  private async generateMatchAnalysisRecord(
+    match: any,
+    analysis: any
+  ): Promise<void> {
+    try {
+      // Create or update MatchAnalysis record
+      await this.prisma.matchAnalysis.upsert({
+        where: { matchId: match.id },
+        update: {
+          keyMoments: analysis.data.keyMoments || [],
+          strategicInsights: analysis.data.strategicInsights || [],
+          playerPerformanceA: analysis.data.playerPerformance?.playerA || '',
+          playerPerformanceB: analysis.data.playerPerformance?.playerB || '',
+          overallAssessment: analysis.data.overallAssessment || '',
+          recommendations: analysis.data.recommendations || [],
+          provider: analysis.provider || 'gemini',
+          fallback: !!analysis.fallback,
+        },
+        create: {
+          matchId: match.id,
+          keyMoments: analysis.data.keyMoments || [],
+          strategicInsights: analysis.data.strategicInsights || [],
+          playerPerformanceA: analysis.data.playerPerformance?.playerA || '',
+          playerPerformanceB: analysis.data.playerPerformance?.playerB || '',
+          overallAssessment: analysis.data.overallAssessment || '',
+          recommendations: analysis.data.recommendations || [],
+          provider: analysis.provider || 'gemini',
+          fallback: !!analysis.fallback,
+        },
+      });
+
+      // Trigger skill point calculation for both players asynchronously
+      this.calculateSkillsForMatch(match.id, match.playerAId).catch((error) => {
+        this.logger.error(
+          `Failed to calculate skills for player A ${match.playerAId} in match ${match.id}:`,
+          error
+        );
+      });
+
+      this.calculateSkillsForMatch(match.id, match.playerBId).catch((error) => {
+        this.logger.error(
+          `Failed to calculate skills for player B ${match.playerBId} in match ${match.id}:`,
+          error
+        );
+      });
+
+      this.logger.log(
+        'MatchAnalysis record created and skill calculation triggered for match:',
+        match.id
+      );
+    } catch (error) {
+      this.logger.error('Failed to generate MatchAnalysis record:', error);
+    }
+  }
+
+  private async calculateSkillsForMatch(
+    matchId: string,
+    playerId: string
+  ): Promise<void> {
+    try {
+      // Check if MatchAnalysis exists before calculating skills
+      const matchAnalysis = await this.prisma.matchAnalysis.findUnique({
+        where: { matchId },
+      });
+
+      if (!matchAnalysis) {
+        this.logger.warn(
+          `MatchAnalysis not found for match ${matchId}, skipping skill calculation`
+        );
+        return;
+      }
+
+      // Calculate skill points using the SkillsService
+      await this.skillsService.calculateSkillPointsForMatch(matchId, playerId);
+
+      this.logger.log(
+        `Skill points calculated for player ${playerId} in match ${matchId}`
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to calculate skills for player ${playerId} in match ${matchId}:`,
+        error
+      );
     }
   }
 

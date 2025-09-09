@@ -43,6 +43,18 @@ export class UsersController {
     return this.usersService.findAllUsers();
   }
 
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getMe(
+    @Req()
+    req: ExpressRequest & {
+      user: { userId?: string; sub?: string; id?: string };
+    }
+  ) {
+    const userId = (req.user.userId || req.user.sub || req.user.id) as string;
+    return this.usersService.findUserByIdBasic(userId);
+  }
+
   @Patch('me')
   @UseGuards(JwtAuthGuard)
   async updateProfile(

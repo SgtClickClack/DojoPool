@@ -1,30 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-
-export interface DashboardStats {
-  dojoCoinBalance: number;
-  matches: {
-    wins: number;
-    losses: number;
-    total: number;
-  };
-  tournaments: {
-    joined: number;
-  };
-}
-
-export interface CdnCostBreakdownDay {
-  date: string; // YYYY-MM-DD
-  gb: number; // bandwidth in GB
-  cost: number; // cost in USD for the day
-}
-
-export interface CdnCostResponse {
-  period: string; // e.g., "Last 30 Days"
-  totalBandwidthGB: number;
-  totalCostUSD: number;
-  dailyBreakdown: CdnCostBreakdownDay[];
-}
+import { DashboardStats, CdnCostResponse } from '@dojopool/types';
 
 @Injectable()
 export class DashboardService {

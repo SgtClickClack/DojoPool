@@ -7,7 +7,8 @@ import {
   Chip,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import { usePerformanceOptimization } from '@/hooks/usePerformanceOptimization';
 
 export interface InventoryItem {
   id: string;
@@ -45,29 +46,44 @@ const getRarityColor = (rarity: string) => {
 
 export const InventoryItemCard: React.FC<InventoryItemCardProps> = React.memo(
   ({ item, onEquip, onUnequip, showEquipButton = true }) => {
+    // Performance optimization
+    const { metrics } = usePerformanceOptimization('InventoryItemCard', {
+      enableLogging: process.env.NODE_ENV === 'development',
+      logThreshold: 16,
+    });
+
     const [isHovered, setIsHovered] = useState(false);
 
-    const handleEquip = () => {
-      if (item.equipped && onUnequip) {
+    // Memoized values
+    const rarityColor = useMemo(() => getRarityColor(item.rarity), [item.rarity]);
+    const isEquipped = useMemo(() => item.equipped || false, [item.equipped]);
+    const cardStyles = useMemo(() => ({
+      maxWidth: 300,
+      position: 'relative' as const,
+      transition: 'transform 0.2s',
+      transform: isHovered ? 'translateY(-4px)' : 'none',
+      border: isEquipped ? '2px solid #4caf50' : '1px solid #e0e0e0',
+    }), [isHovered, isEquipped]);
+
+    // Memoized event handlers
+    const handleEquip = useCallback(() => {
+      if (isEquipped && onUnequip) {
         onUnequip(item.id);
-      } else if (!item.equipped && onEquip) {
+      } else if (!isEquipped && onEquip) {
         onEquip(item.id);
       }
-    };
+    }, [isEquipped, onUnequip, onEquip, item.id]);
+
+    const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+    const handleMouseLeave = useCallback(() => setIsHovered(false), []);
 
     return (
       <Card
-        sx={{
-          maxWidth: 300,
-          position: 'relative',
-          transition: 'transform 0.2s',
-          transform: isHovered ? 'translateY(-4px)' : 'none',
-          border: item.equipped ? '2px solid #4caf50' : '1px solid #e0e0e0',
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        sx={cardStyles}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        {item.equipped && (
+        {isEquipped && (
           <Box
             sx={{
               position: 'absolute',
@@ -110,8 +126,8 @@ export const InventoryItemCard: React.FC<InventoryItemCardProps> = React.memo(
               variant="outlined"
               sx={{
                 fontSize: '0.7rem',
-                borderColor: getRarityColor(item.rarity),
-                color: getRarityColor(item.rarity),
+                borderColor: rarityColor,
+                color: rarityColor,
               }}
             />
             <Chip
@@ -134,13 +150,13 @@ export const InventoryItemCard: React.FC<InventoryItemCardProps> = React.memo(
 
           {showEquipButton && (onEquip || onUnequip) && (
             <Button
-              variant={item.equipped ? 'outlined' : 'contained'}
-              color={item.equipped ? 'secondary' : 'primary'}
+              variant={isEquipped ? 'outlined' : 'contained'}
+              color={isEquipped ? 'secondary' : 'primary'}
               size="small"
               onClick={handleEquip}
               fullWidth
             >
-              {item.equipped ? 'Unequip' : 'Equip'}
+              {isEquipped ? 'Unequip' : 'Equip'}
             </Button>
           )}
         </CardContent>

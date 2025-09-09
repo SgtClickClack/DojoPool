@@ -40,7 +40,25 @@ const CMSTabs: React.FC<CMSTabsProps> = ({ value, onChange, children }) => {
     'News Articles',
     'System Messages',
     'Content Moderation',
+    'Promotions',
+    'Asset Bundles',
   ];
+
+  // Ensure we have the right number of children
+  const childrenArray = React.Children.toArray(children);
+  const expectedChildren = tabLabels.length;
+  const actualChildren = childrenArray.length;
+
+  // If we don't have enough children, add empty boxes
+  while (childrenArray.length < expectedChildren) {
+    childrenArray.push(
+      <Box sx={{ p: 3 }}>
+        <Typography variant="body1" color="text.secondary">
+          Component not yet implemented
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -66,7 +84,7 @@ const CMSTabs: React.FC<CMSTabsProps> = ({ value, onChange, children }) => {
         </Tabs>
       </Box>
 
-      {children.map((child, index) => (
+      {childrenArray.map((child, index) => (
         <TabPanel key={index} value={value} index={index}>
           {child}
         </TabPanel>

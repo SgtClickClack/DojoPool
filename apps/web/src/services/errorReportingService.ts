@@ -27,8 +27,22 @@ class ErrorReportingService {
   private isOnline: boolean = true;
 
   constructor() {
-    this.baseUrl =
-      process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '/api';
+    const envBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+    // Normalize: use Next.js rewrite '/api' by default.
+    // If an absolute URL is provided and misses '/api/v1', append it.
+    if (!envBase) {
+      this.baseUrl = '/api';
+    } else if (/^https?:\/\//i.test(envBase)) {
+      if (/\/api\/v1$/i.test(envBase)) {
+        this.baseUrl = envBase;
+      } else if (/\/api$/i.test(envBase)) {
+        this.baseUrl = `${envBase}/v1`;
+      } else {
+        this.baseUrl = `${envBase}/api/v1`;
+      }
+    } else {
+      this.baseUrl = '/api';
+    }
 
     // Listen for online/offline events
     if (typeof window !== 'undefined') {
@@ -43,6 +57,76 @@ class ErrorReportingService {
     }
   }
 
+  // Safely convert arbitrary values to short strings for messages
+  private safeToString(value: unknown): string {
+    try {
+      if (value instanceof Error) {
+        return `${value.name}: ${value.message}`;
+      }
+      if (typeof value === 'bigint') {
+        return value.toString();
+      }
+      if (typeof value === 'function') {
+        return '[Function]';
+      }
+      if (typeof value === 'symbol') {
+        return value.toString();
+      }
+      if (typeof value === 'object') {
+        return '[Object]';
+      }
+      return String(value);
+    } catch {
+      return '[Unserializable]';
+    }
+  }
+
+  // Safely serialize arbitrary structures (handles BigInt, circular refs, Promises, Errors)
+  private safeSerialize<T = any>(value: T, maxDepth: number = 3): any {
+    const seen = new WeakSet<object>();
+
+    const helper = (val: any, depth: number): any => {
+      if (depth > maxDepth) return '[MaxDepth]';
+      const t = typeof val;
+      if (val === null || t === 'undefined') return val;
+      if (t === 'string' || t === 'number' || t === 'boolean') return val;
+      if (t === 'bigint') return val.toString();
+      if (t === 'symbol') return val.toString();
+      if (t === 'function') return '[Function]';
+      if (val instanceof Error) {
+        return {
+          name: val.name,
+          message: val.message,
+          stack: val.stack,
+        };
+      }
+      if (typeof Promise !== 'undefined' && val instanceof Promise) {
+        return '[Promise]';
+      }
+      if (Array.isArray(val)) {
+        if (seen.has(val)) return '[Circular]';
+        seen.add(val);
+        return val.map((item) => helper(item, depth + 1));
+      }
+      if (t === 'object') {
+        if (seen.has(val)) return '[Circular]';
+        seen.add(val);
+        const out: Record<string, any> = {};
+        for (const key of Object.keys(val)) {
+          try {
+            out[key] = helper((val as any)[key], depth + 1);
+          } catch {
+            out[key] = '[Unserializable]';
+          }
+        }
+        return out;
+      }
+      return '[Unknown]';
+    };
+
+    return helper(value, 0);
+  }
+
   /**
    * Report an error to the backend
    */
@@ -55,6 +139,13 @@ class ErrorReportingService {
           success: false,
           error: 'Offline - error queued for retry',
         };
+      }
+
+      // Ensure additionalData is JSON-safe
+      if (errorReport.additionalData) {
+        errorReport.additionalData = this.safeSerialize(
+          errorReport.additionalData
+        );
       }
 
       const response = await fetch(`${this.baseUrl}/errors/report`, {
@@ -97,7 +188,7 @@ class ErrorReportingService {
     const errorReport: ErrorReport = {
       message: error.message,
       stack: error.stack,
-      componentStack: errorInfo.componentStack,
+      componentStack: errorInfo.componentStack || undefined,
       errorId: `react_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
@@ -109,7 +200,7 @@ class ErrorReportingService {
       userId: this.getUserId(),
       sessionId: this.getSessionId(),
       additionalData: {
-        componentStack: errorInfo.componentStack,
+        componentStack: errorInfo.componentStack || undefined,
         ...additionalData,
       },
     };
@@ -245,23 +336,37 @@ class ErrorReportingService {
   setupGlobalHandlers(): void {
     // Handle unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
-      this.reportJavaScriptError(
-        new Error(`Unhandled promise rejection: ${event.reason}`),
-        {
-          reason: event.reason,
-          promise: event.promise,
-        }
-      );
+      try {
+        const reasonSummary = this.safeToString((event as any).reason);
+        const reasonSerialized = this.safeSerialize((event as any).reason);
+        this.reportJavaScriptError(
+          new Error(`Unhandled promise rejection: ${reasonSummary}`),
+          {
+            reason: reasonSerialized,
+            // Avoid attaching raw Promise which is not serializable and may create cycles
+            // promise: '[Promise]'
+          }
+        );
+      } catch (handlerError) {
+        // Last-resort logging; do not throw from handler
+        // eslint-disable-next-line no-console
+        console.error('Unhandledrejection handler failed:', handlerError);
+      }
     });
 
     // Handle global JavaScript errors
     window.addEventListener('error', (event) => {
-      this.reportJavaScriptError(new Error(event.message), {
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno,
-        error: event.error,
-      });
+      try {
+        this.reportJavaScriptError(new Error(event.message), {
+          filename: event.filename,
+          lineno: event.lineno,
+          colno: event.colno,
+          error: this.safeSerialize(event.error),
+        });
+      } catch (handlerError) {
+        // eslint-disable-next-line no-console
+        console.error('Global error handler failed:', handlerError);
+      }
     });
 
     // Handle performance issues
@@ -285,11 +390,17 @@ class ErrorReportingService {
         // Monitor large layout shifts
         const layoutObserver = new PerformanceObserver((list) => {
           for (const entry of list.getEntries()) {
-            if (entry.value > 0.1) {
+            const layoutEntry = entry as any; // LayoutShiftEntry type
+            if (layoutEntry.value > 0.1) {
               // Layout shifts > 10%
-              this.reportPerformanceIssue('layout-shift', entry.value, 0.1, {
-                sources: entry.sources,
-              });
+              this.reportPerformanceIssue(
+                'layout-shift',
+                layoutEntry.value,
+                0.1,
+                {
+                  sources: layoutEntry.sources,
+                }
+              );
             }
           }
         });

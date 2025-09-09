@@ -6,6 +6,7 @@ This index lists all development tracking files in order. Use the navigation lin
 2. [DEVELOPMENT_TRACKING_PART_02.md](./DEVELOPMENT_TRACKING_PART_02.md)
 3. [DEVELOPMENT_TRACKING_PART_03.md](./DEVELOPMENT_TRACKING_PART_03.md)
 4. [AUDIT_2025_08_30.md](./AUDIT_2025_08_30.md)
+5. [AUDIT_2025_09_02.md](./AUDIT_2025_09_02.md)
 
 **Original file:** DEVELOPMENT_TRACKING_CONSOLIDATED.md (now superseded by these parts)
 

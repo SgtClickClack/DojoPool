@@ -54,6 +54,9 @@ const contentTypeLabels = {
   [ContentType.TOURNAMENT_HIGHLIGHT]: '🏟️ Tournament',
   [ContentType.VENUE_REVIEW]: '🏢 Venue Review',
   [ContentType.GENERAL]: '💬 General',
+  [ContentType.EVENT]: '📅 Event',
+  [ContentType.NEWS_ARTICLE]: '📰 News',
+  [ContentType.SYSTEM_MESSAGE]: '📢 System',
 };
 
 const visibilityLabels = {

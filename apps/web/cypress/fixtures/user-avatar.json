@@ -1,0 +1,22 @@
+{
+  "id": "avatar-1",
+  "userId": "user-1",
+  "user": {
+    "id": "user-1",
+    "username": "TestUser",
+    "profile": {
+      "avatarUrl": "https://example.com/avatar.jpg",
+      "displayName": "Test User Display"
+    }
+  },
+  "configuration": {
+    "hair": "hair-1",
+    "clothesTop": "shirt-1"
+  },
+  "skinTone": "#F5DEB3",
+  "bodyType": "athletic",
+  "height": 1.0,
+  "unlockedFeatures": ["basic_customization"],
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-15T00:00:00.000Z"
+}

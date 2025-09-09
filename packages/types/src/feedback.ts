@@ -6,6 +6,7 @@ export enum FeedbackCategory {
   TECHNICAL_SUPPORT = 'TECHNICAL_SUPPORT',
   UI_UX_IMPROVEMENT = 'UI_UX_IMPROVEMENT',
   PERFORMANCE_ISSUE = 'PERFORMANCE_ISSUE',
+  PLAYER_REPORT = 'PLAYER_REPORT',
 }
 
 export enum FeedbackStatus {
@@ -32,6 +33,8 @@ export interface Feedback {
   status: FeedbackStatus;
   priority: FeedbackPriority;
   adminNotes?: string;
+  moderatorNotes?: string;
+  attachments: string[];
   createdAt: string;
   updatedAt: string;
   resolvedAt?: string;
@@ -51,6 +54,7 @@ export interface CreateFeedbackRequest {
   message: string;
   category: FeedbackCategory;
   additionalContext?: string;
+  attachments?: string[];
 }
 
 export interface UpdateFeedbackRequest {
