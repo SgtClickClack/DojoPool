@@ -1,0 +1,335 @@
+name: Chaos Testing Suite
+
+on:
+  # Manual trigger for chaos testing
+  workflow_dispatch:
+    inputs:
+      intensity:
+        description: 'Chaos test intensity (low/medium/high)'
+        required: false
+        default: 'medium'
+        type: choice
+        options:
+          - low
+          - medium
+          - high
+      experiments:
+        description: 'Specific experiments to run (leave empty for all)'
+        required: false
+        default: 'all'
+        type: string
+      duration:
+        description: 'Test duration in seconds (default: 300)'
+        required: false
+        default: '300'
+        type: string
+
+  # Run chaos tests on pull requests to main (with safety measures)
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'services/api/**'
+      - 'services/api/scripts/chaos-testing-suite.js'
+    types: [opened, synchronize, reopened]
+
+  # Scheduled chaos testing (weekly on Sunday at 3 AM UTC)
+  schedule:
+    - cron: '0 3 * * 0'
+
+  # Allow manual trigger from other workflows
+  workflow_call:
+    inputs:
+      intensity:
+        description: 'Chaos test intensity'
+        type: string
+        default: 'medium'
+      experiments:
+        description: 'Experiments to run'
+        type: string
+        default: 'all'
+      duration:
+        description: 'Test duration'
+        type: string
+        default: '300'
+
+jobs:
+  chaos-testing:
+    name: Chaos Testing Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Only run chaos tests on PRs if they include chaos-testing related files
+    # or when manually triggered/scheduled
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_call' ||
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.changed_files, 'chaos-testing-suite.js'))
+
+    services:
+      # PostgreSQL for multi-region simulation
+      postgres-us-east:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: dojopool_user
+          POSTGRES_PASSWORD: chaos_test_password
+          POSTGRES_DB: dojopool
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      postgres-eu-west:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: dojopool_user
+          POSTGRES_PASSWORD: chaos_test_password
+          POSTGRES_DB: dojopool
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      postgres-asia-pacific:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: dojopool_user
+          POSTGRES_PASSWORD: chaos_test_password
+          POSTGRES_DB: dojopool
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      # Redis for caching, sessions, and job queues
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      # BullMQ monitoring (optional)
+      redis-commander:
+        image: rediscommander/redis-commander:latest
+        environment:
+          - REDIS_HOSTS=local:redis:6379:0
+        ports:
+          - 8081:8081
+        depends_on:
+          - redis
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install dependencies
+        run: |
+          cd services/api
+          yarn install --frozen-lockfile
+
+      - name: Setup test databases
+        run: |
+          # Wait for databases to be healthy
+          echo "Waiting for databases to be ready..."
+          sleep 30
+
+          # Create test schema and tables
+          echo "Setting up test databases..."
+          docker exec $(docker ps -q --filter ancestor=postgres:14-alpine | head -1) psql -U dojopool_user -d dojopool -c "CREATE TABLE IF NOT EXISTS health_check (id SERIAL PRIMARY KEY, status VARCHAR(50), timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"
+
+          # Insert baseline data
+          docker exec $(docker ps -q --filter ancestor=postgres:14-alpine | head -1) psql -U dojopool_user -d dojopool -c "INSERT INTO health_check (status) VALUES ('healthy');"
+
+      - name: Build API service
+        run: |
+          cd services/api
+          yarn build
+
+      - name: Start API service for chaos testing
+        run: |
+          cd services/api
+          # Set environment variables for chaos testing
+          export NODE_ENV=development
+          export PORT=3002
+          export DATABASE_URL="postgresql://dojopool_user:chaos_test_password@localhost:5432/dojopool"
+          export REDIS_URL="redis://localhost:6379"
+          export JWT_SECRET="chaos-testing-jwt-secret-key-for-ci-cd"
+          export API_BASE_URL="http://localhost:3002"
+
+          # Start the API server in background
+          yarn start:prod &
+          API_PID=$!
+
+          # Wait for API to be ready
+          echo "Waiting for API to start..."
+          for i in {1..30}; do
+            if curl -s http://localhost:3002/api/v1/health > /dev/null; then
+              echo "✅ API is ready"
+              break
+            fi
+            echo "Waiting for API... ($i/30)"
+            sleep 5
+          done
+
+          # Store PID for cleanup
+          echo $API_PID > /tmp/api_pid
+
+      - name: Verify test environment
+        run: |
+          echo "🔍 Verifying test environment..."
+
+          # Check API health
+          curl -f http://localhost:3002/api/v1/health || (echo "❌ API not healthy" && exit 1)
+
+          # Check database connections
+          docker exec $(docker ps -q --filter ancestor=postgres:14-alpine | head -1) psql -U dojopool_user -d dojopool -c "SELECT 1;" || (echo "❌ Database not accessible" && exit 1)
+
+          # Check Redis connection
+          docker exec $(docker ps -q --filter ancestor=redis:7-alpine) redis-cli ping || (echo "❌ Redis not accessible" && exit 1)
+
+          echo "✅ Test environment verified"
+
+      - name: Run Chaos Testing Suite
+        id: chaos-test
+        run: |
+          cd services/api
+
+          # Get input parameters
+          INTENSITY="${{ github.event.inputs.intensity || inputs.intensity || 'medium' }}"
+          EXPERIMENTS="${{ github.event.inputs.experiments || inputs.experiments || 'all' }}"
+          DURATION="${{ github.event.inputs.duration || inputs.duration || '300' }}"
+
+          echo "🧪 Running chaos tests with:"
+          echo "   Intensity: $INTENSITY"
+          echo "   Experiments: $EXPERIMENTS"
+          echo "   Duration: $DURATION seconds"
+
+          # Run chaos testing suite
+          node scripts/chaos-testing-suite.js \
+            --$EXPERIMENTS \
+            --intensity=$INTENSITY \
+            --duration=$DURATION \
+            --verbose
+
+          # Store exit code for conditional steps
+          echo "chaos_exit_code=$?" >> $GITHUB_OUTPUT
+
+      - name: Upload chaos test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaos-testing-results-${{ github.run_id }}
+          path: |
+            chaos-testing-results-*.json
+            services/api/logs/
+          retention-days: 30
+
+      - name: Generate test report
+        if: always()
+        run: |
+          # Find the latest chaos test results file
+          LATEST_RESULTS=$(ls -t chaos-testing-results-*.json | head -1)
+
+          if [ -f "$LATEST_RESULTS" ]; then
+            echo "## Chaos Testing Results 📊" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Extract key metrics from JSON
+            TOTAL_TIME=$(jq '.totalTime' "$LATEST_RESULTS" 2>/dev/null || echo "N/A")
+            TESTS_PASSED=$(jq '.experiments | map(select(.success == true)) | length' "$LATEST_RESULTS" 2>/dev/null || echo "N/A")
+            TESTS_FAILED=$(jq '.experiments | map(select(.success == false)) | length' "$LATEST_RESULTS" 2>/dev/null || echo "N/A")
+            OVERALL_SUCCESS=$(jq '.overallSuccess' "$LATEST_RESULTS" 2>/dev/null || echo "false")
+
+            echo "⏱️ **Total Duration:** ${TOTAL_TIME} seconds" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **Tests Passed:** ${TESTS_PASSED}" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Tests Failed:** ${TESTS_FAILED}" >> $GITHUB_STEP_SUMMARY
+            echo "📈 **Overall Success:** $([ "$OVERALL_SUCCESS" = "true" ] && echo '✅ PASSED' || echo '❌ FAILED')" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Show experiment details
+            echo "### Experiment Details 🔬" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            jq -r '.experiments[] | "- **\(.name | ascii_upcase | sub("-"; " "))** \(.success | if . then "✅ PASSED" else "❌ FAILED" end) (\(.endTime - .startTime | floor)s)"' "$LATEST_RESULTS" >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "No experiment details available" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Chaos Testing Results 📊" >> $GITHUB_STEP_SUMMARY
+            echo "❌ No test results file found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Fail pipeline on chaos test failure
+        if: steps.chaos-test.outputs.chaos_exit_code != 0
+        run: |
+          echo "❌ Chaos testing failed with exit code ${{ steps.chaos-test.outputs.chaos_exit_code }}"
+          echo "🔍 Check the uploaded artifacts for detailed test results"
+          exit 1
+
+      - name: Cleanup test environment
+        if: always()
+        run: |
+          # Stop API server
+          if [ -f /tmp/api_pid ]; then
+            API_PID=$(cat /tmp/api_pid)
+            kill $API_PID 2>/dev/null || true
+            rm -f /tmp/api_pid
+          fi
+
+          # Clean up any remaining processes
+          pkill -f "node.*main.js" || true
+
+          echo "🧹 Test environment cleanup completed"
+
+  notify-chaos-results:
+    needs: chaos-testing
+    runs-on: ubuntu-latest
+    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+
+    steps:
+      - name: Notify Slack on chaos test results
+        uses: 8398a7/action-slack@v3.15.0
+        with:
+          status: ${{ needs.chaos-testing.result }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+          custom_payload: |
+            {
+              "attachments": [{
+                "color": "${{ needs.chaos-testing.result == 'success' && 'good' || 'danger' }}",
+                "title": "Chaos Testing ${{ needs.chaos-testing.result == 'success' && 'PASSED ✅' || 'FAILED ❌' }}",
+                "fields": [
+                  {
+                    "title": "Trigger",
+                    "value": "${{ github.event_name }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Duration",
+                    "value": "${{ github.event.job.duration }}",
+                    "short": true
+                  }
+                ]
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,0 +1,369 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "DojoPool User Behavior Telemetry",
+    "tags": ["dojopool", "telemetry", "user-behavior", "analytics"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Real-Time User Activity",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(dojopool_user_activity_total[5m]) * 60",
+            "legendFormat": "Activities/min"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 10
+                },
+                {
+                  "color": "red",
+                  "value": 50
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Active Users by Time",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_active_users_current",
+            "legendFormat": "Currently Active"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "New User Registrations (24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "increase(dojopool_users_registered_total[24h])",
+            "legendFormat": "New Users"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "none"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Average Session Duration",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_avg_session_duration_minutes",
+            "legendFormat": "Avg Session (min)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "m",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 5
+                },
+                {
+                  "color": "green",
+                  "value": 15
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "User Activity Heatmap",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "rate(dojopool_user_activity_total[5m])",
+            "legendFormat": "Activity Rate"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        }
+      },
+      {
+        "id": 6,
+        "title": "User Engagement by Hour",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "increase(dojopool_user_activity_total[1h])",
+            "legendFormat": "Activities per hour"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        }
+      },
+      {
+        "id": 7,
+        "title": "User Journey Completion Rates",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "dojopool_journey_completion_rate{step=\"signup\"}",
+            "legendFormat": "Signup"
+          },
+          {
+            "expr": "dojopool_journey_completion_rate{step=\"onboarding\"}",
+            "legendFormat": "Onboarding"
+          },
+          {
+            "expr": "dojopool_journey_completion_rate{step=\"first_game\"}",
+            "legendFormat": "First Game"
+          },
+          {
+            "expr": "dojopool_journey_completion_rate{step=\"returning\"}",
+            "legendFormat": "Returning User"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 14
+        }
+      },
+      {
+        "id": 8,
+        "title": "Top User Actions",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, rate(dojopool_user_action_total[5m]))",
+            "legendFormat": "{{action}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "id": 9,
+        "title": "User Segmentation",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "dojopool_user_segment_total",
+            "legendFormat": "{{segment}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 22
+        }
+      },
+      {
+        "id": 10,
+        "title": "Feature Adoption Over Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"venue_checkin\"}[5m]) * 60",
+            "legendFormat": "Venue Check-ins"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"tournament_join\"}[5m]) * 60",
+            "legendFormat": "Tournament Joins"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"social_interaction\"}[5m]) * 60",
+            "legendFormat": "Social Interactions"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"marketplace\"}[5m]) * 60",
+            "legendFormat": "Marketplace Usage"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 30
+        }
+      },
+      {
+        "id": 11,
+        "title": "User Retention Trends",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "dojopool_user_retention_1d",
+            "legendFormat": "Day 1 Retention"
+          },
+          {
+            "expr": "dojopool_user_retention_7d",
+            "legendFormat": "Day 7 Retention"
+          },
+          {
+            "expr": "dojopool_user_retention_30d",
+            "legendFormat": "Day 30 Retention"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 38
+        }
+      },
+      {
+        "id": 12,
+        "title": "Geographic User Distribution",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, dojopool_users_by_region)",
+            "legendFormat": "{{region}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 38
+        }
+      },
+      {
+        "id": 13,
+        "title": "Device and Browser Analytics",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, dojopool_user_device_total)",
+            "legendFormat": "{{device_type}} - {{browser}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 46
+        }
+      },
+      {
+        "id": 14,
+        "title": "Error and Friction Points",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_user_error_total[5m]) * 60",
+            "legendFormat": "User Errors"
+          },
+          {
+            "expr": "rate(dojopool_user_friction_total{type=\"onboarding_dropoff\"}[5m]) * 60",
+            "legendFormat": "Onboarding Drop-offs"
+          },
+          {
+            "expr": "rate(dojopool_user_friction_total{type=\"feature_confusion\"}[5m]) * 60",
+            "legendFormat": "Feature Confusion"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 46
+        }
+      }
+    ],
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

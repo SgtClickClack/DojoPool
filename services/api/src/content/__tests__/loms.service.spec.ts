@@ -1,5 +1,5 @@
+import { ContentType } from '@dojopool/types';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ContentType } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LOMSService } from '../loms.service';
 

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@dojopool/prisma';
 
 const prisma = new PrismaClient();
 
@@ -12,7 +12,7 @@ async function main() {
     create: {
       email: 'player1@dojopool.com',
       username: 'player1',
-      passwordHash: 'hashed_password_123',
+      password: 'hashed_password_123',
       role: 'USER',
     },
   });
@@ -23,7 +23,7 @@ async function main() {
     create: {
       email: 'player2@dojopool.com',
       username: 'player2',
-      passwordHash: 'hashed_password_123',
+      password: 'hashed_password_123',
       role: 'USER',
     },
   });
@@ -34,7 +34,7 @@ async function main() {
     create: {
       email: 'player3@dojopool.com',
       username: 'player3',
-      passwordHash: 'hashed_password_123',
+      password: 'hashed_password_123',
       role: 'USER',
     },
   });
@@ -45,7 +45,7 @@ async function main() {
     create: {
       email: 'player4@dojopool.com',
       username: 'player4',
-      passwordHash: 'hashed_password_123',
+      password: 'hashed_password_123',
       role: 'USER',
     },
   });
@@ -58,6 +58,8 @@ async function main() {
       id: 'test-venue-1',
       name: 'Test Pool Hall',
       description: 'A test venue for development',
+      latitude: 40.7128,
+      longitude: -74.006,
       lat: 40.7128,
       lng: -74.006,
       address: '123 Test Street, Test City',
@@ -74,8 +76,9 @@ async function main() {
       name: 'Test Tournament',
       startTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
       startDate: new Date(),
-      status: 'REGISTRATION',
+      status: 'REGISTRATION_OPEN',
       venueId: venue.id,
+      organizerId: user1.id,
     },
   });
 

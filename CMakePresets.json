@@ -1,0 +1,204 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default Configuration",
+      "description": "Default build configuration for DojoPool",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+        "BUILD_TESTING": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug Build",
+      "description": "Debug build with full symbols and no optimizations",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+        "BUILD_TESTING": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release Build",
+      "description": "Optimized release build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+        "BUILD_TESTING": "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "OFF"
+      }
+    },
+    {
+      "name": "relwithdebinfo",
+      "displayName": "Release with Debug Info",
+      "description": "Optimized build with debug symbols",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/relwithdebinfo",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+        "BUILD_TESTING": "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "clang",
+      "displayName": "Clang Build",
+      "description": "Build with Clang compiler",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/clang",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+        "BUILD_TESTING": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "gcc",
+      "displayName": "GCC Build",
+      "description": "Build with GCC compiler",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/gcc",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+        "BUILD_TESTING": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "msvc",
+      "displayName": "MSVC Build",
+      "description": "Build with Microsoft Visual C++",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/build/msvc",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+        "BUILD_TESTING": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "emscripten",
+      "displayName": "Emscripten WebAssembly",
+      "description": "Build for WebAssembly using Emscripten",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/wasm",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+        "BUILD_TESTING": "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "OFF"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "$env{EMSDK}",
+        "rhs": ""
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "jobs": 0
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "jobs": 0
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "jobs": 0
+    },
+    {
+      "name": "relwithdebinfo",
+      "configurePreset": "relwithdebinfo",
+      "jobs": 0
+    },
+    {
+      "name": "clang",
+      "configurePreset": "clang",
+      "jobs": 0
+    },
+    {
+      "name": "gcc",
+      "configurePreset": "gcc",
+      "jobs": 0
+    },
+    {
+      "name": "msvc",
+      "configurePreset": "msvc",
+      "jobs": 0
+    },
+    {
+      "name": "emscripten",
+      "configurePreset": "emscripten",
+      "jobs": 0
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": false
+      }
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "default",
+      "configurePreset": "release",
+      "generators": ["TGZ", "ZIP"],
+      "variables": {
+        "CPACK_PACKAGE_NAME": "DojoPool",
+        "CPACK_PACKAGE_VERSION": "1.0.0",
+        "CPACK_PACKAGE_DESCRIPTION_SUMMARY": "DojoPool Physics Engine",
+        "CPACK_PACKAGE_VENDOR": "DojoPool Team",
+        "CPACK_PACKAGE_CONTACT": "contact@dojopool.com"
+      }
+    }
+  ]
+}

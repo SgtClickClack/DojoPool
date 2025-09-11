@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dojopool-pgbouncer
+  namespace: staging
+  labels:
+    app: dojopool-pgbouncer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dojopool-pgbouncer
+  template:
+    metadata:
+      labels:
+        app: dojopool-pgbouncer
+    spec:
+      containers:
+        - name: pgbouncer
+          image: brainsam/pgbouncer:1.18
+          ports:
+            - containerPort: 6432
+              name: pgbouncer
+          env:
+            - name: DATABASES
+              value: 'dojopool_primary=host=dojopool-postgres-service port=5432 dbname=dojopool_staging,dojopool_replica=host=dojopool-postgres-replica-service port=5432 dbname=dojopool_staging'
+            - name: PGBOUNCER_AUTH_TYPE
+              value: 'md5'
+            - name: PGBOUNCER_ADMIN_USERS
+              value: 'pgbouncer_admin'
+            - name: PGBOUNCER_STATS_USERS
+              value: 'pgbouncer_stats'
+            - name: PGBOUNCER_POOL_MODE
+              value: 'transaction'
+            - name: PGBOUNCER_MAX_CLIENT_CONN
+              value: '1000'
+            - name: PGBOUNCER_DEFAULT_POOL_SIZE
+              value: '20'
+            - name: PGBOUNCER_MIN_POOL_SIZE
+              value: '5'
+            - name: PGBOUNCER_RESERVE_POOL_SIZE
+              value: '5'
+            - name: PGBOUNCER_MAX_DB_CONNECTIONS
+              value: '50'
+            - name: PGBOUNCER_MAX_USER_CONNECTIONS
+              value: '100'
+          volumeMounts:
+            - name: pgbouncer-config
+              mountPath: /etc/pgbouncer
+          resources:
+            requests:
+              memory: '128Mi'
+              cpu: '100m'
+            limits:
+              memory: '256Mi'
+              cpu: '200m'
+          livenessProbe:
+            tcpSocket:
+              port: 6432
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 6432
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: pgbouncer-config
+          configMap:
+            name: dojopool-pgbouncer-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dojopool-pgbouncer-config
+  namespace: staging
+data:
+  pgbouncer.ini: |
+    [databases]
+    dojopool_primary = host=dojopool-postgres-service port=5432 dbname=dojopool_staging
+    dojopool_replica = host=dojopool-postgres-replica-service port=5432 dbname=dojopool_staging
+
+    [pgbouncer]
+    logfile = /var/log/pgbouncer/pgbouncer.log
+    pidfile = /var/run/pgbouncer/pgbouncer.pid
+    listen_addr = 0.0.0.0
+    listen_port = 6432
+    unix_socket_dir = /tmp
+    unix_socket_mode = 0777
+    user = postgres
+    auth_type = md5
+    auth_file = /etc/pgbouncer/userlist.txt
+    admin_users = pgbouncer_admin
+    stats_users = pgbouncer_stats
+
+    ; Connection pooling
+    pool_mode = transaction
+    max_client_conn = 1000
+    default_pool_size = 20
+    min_pool_size = 5
+    reserve_pool_size = 5
+    max_db_connections = 50
+    max_user_connections = 100
+
+    ; Timeouts
+    server_reset_query = DISCARD ALL
+    server_reset_query_always = 0
+    server_check_delay = 30
+    server_check_query = select 1
+    server_fast_close = 0
+    client_fast_close = 0
+
+    ; Logging
+    syslog = 1
+    syslog_ident = pgbouncer
+    syslog_facility = local0
+    log_connections = 1
+    log_disconnections = 1
+    log_pooler_errors = 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dojopool-pgbouncer-service
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: dojopool-pgbouncer
+  ports:
+    - port: 6432
+      targetPort: 6432
+      name: pgbouncer
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dojopool-pgbouncer-secret
+  namespace: staging
+type: Opaque
+data:
+  userlist.txt: |
+    "pgbouncer_admin" "md5_password_hash_here"
+    "pgbouncer_stats" "md5_password_hash_here"

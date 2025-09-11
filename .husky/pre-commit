@@ -1,1 +1,18 @@
-npx lint-staged -c lint-staged.config.cjs
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+changed_files=$(git diff --cached --name-only)
+
+block_files='DEVELOPMENT_TRACKING.md DEVELOPMENT_TRACKING_PART_01.md DEVELOPMENT_TRACKING_PART_02.md DojoPoolCombined/DEVELOPMENT_TRACKING.md'
+
+for f in $changed_files; do
+  case " $block_files " in
+    *" $f "*)
+      echo "❌ Commit blocked: legacy tracking file '$f' must not be edited."
+      echo "➡️  Move content into docs/milestones/ or docs/planning/tracking/"
+      exit 1
+      ;;
+  esac
+done
+
+exit 0

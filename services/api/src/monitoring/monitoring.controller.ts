@@ -1,12 +1,14 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, Query, Param } from '@nestjs/common';
 import { DatabasePerformanceService } from './database-performance.service';
 import { SlowQueryLoggerService } from './slow-query-logger.service';
+import { SchemaEvolutionService } from '../database/schema-evolution.service';
 
 @Controller('monitoring')
 export class MonitoringController {
   constructor(
     private databasePerformance: DatabasePerformanceService,
-    private slowQueryLogger: SlowQueryLoggerService
+    private slowQueryLogger: SlowQueryLoggerService,
+    private schemaEvolution: SchemaEvolutionService
   ) {}
 
   @Get('health')
@@ -48,5 +50,35 @@ export class MonitoringController {
   async resetMetrics() {
     await this.databasePerformance.resetMetrics();
     return { message: 'Metrics reset successfully' };
+  }
+
+  @Get('schema-evolution')
+  async getSchemaEvolutionReport(@Query('days') days = '30') {
+    const daysToAnalyze = parseInt(days, 10);
+    return this.schemaEvolution.generateEvolutionReport(daysToAnalyze);
+  }
+
+  @Get('schema-optimizations')
+  async getSchemaOptimizations() {
+    return this.schemaEvolution.getOptimizations();
+  }
+
+  @Post('schema-optimization/:id/implement')
+  async markOptimizationImplemented(@Param('id') optimizationId: string) {
+    await this.schemaEvolution.markOptimizationImplemented(optimizationId);
+    return { message: 'Optimization marked as implemented' };
+  }
+
+  @Get('schema-evolution/export')
+  async exportSchemaEvolutionReport(@Query('days') days = '30') {
+    const daysToAnalyze = parseInt(days, 10);
+    const reportJson = await this.schemaEvolution.exportReport(daysToAnalyze);
+
+    // Return as downloadable JSON
+    return {
+      filename: `schema-evolution-report-${new Date().toISOString().split('T')[0]}.json`,
+      content: reportJson,
+      contentType: 'application/json'
+    };
   }
 }

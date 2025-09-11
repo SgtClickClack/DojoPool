@@ -42,8 +42,8 @@ const RegisterPage: React.FC = () => {
 
     try {
       await register(email, password, name);
-      // Redirect to dashboard on successful registration
-      router.push('/dashboard');
+      // New users always go through onboarding
+      router.push('/onboarding');
     } catch (err) {
       // Error is already handled by the context
       console.error('Registration error:', err);

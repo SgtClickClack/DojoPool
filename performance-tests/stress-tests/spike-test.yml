@@ -1,0 +1,71 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    # Normal load
+    - duration: 60
+      arrivalRate: 10
+      name: 'Normal baseline'
+    # Sudden spike
+    - duration: 30
+      arrivalRate: 500
+      name: 'Traffic spike'
+    # Recovery period
+    - duration: 120
+      arrivalRate: 20
+      name: 'Post-spike recovery'
+    # Another spike
+    - duration: 15
+      arrivalRate: 800
+      name: 'Second spike'
+    # Final recovery
+    - duration: 180
+      arrivalRate: 5
+      name: 'Final recovery'
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+  plugins:
+    metrics-by-endpoint: {}
+    expect: {}
+
+scenarios:
+  - name: 'Dashboard Spike Test'
+    weight: 50
+    flow:
+      - get:
+          url: '/api/dashboard/stats'
+          expect:
+            - statusCode: 200
+      - think: 0.5
+      - get:
+          url: '/api/activity/global?limit=10'
+      - think: 0.3
+
+  - name: 'Authentication Spike'
+    weight: 30
+    flow:
+      - post:
+          url: '/api/auth/login'
+          json:
+            email: 'spike-test-{{ $randomInt }}@test.com'
+            password: 'testpassword123'
+          expect:
+            - statusCode: [200, 401]
+      - think: 0.2
+
+  - name: 'Tournament Spike'
+    weight: 20
+    flow:
+      - get:
+          url: '/api/tournaments?page=1&limit=20'
+          expect:
+            - statusCode: 200
+      - think: 0.1
+      - post:
+          url: '/api/tournaments/register'
+          json:
+            tournamentId: 'spike-tournament-{{ $randomInt % 10 }}'
+            userId: '{{ $randomInt }}'
+          expect:
+            - statusCode: [200, 400, 409]
+      - think: 0.5

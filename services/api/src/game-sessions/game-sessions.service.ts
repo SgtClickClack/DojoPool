@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { GameSession } from '@prisma/client';
+import { GameSession } from '@dojopool/prisma';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface CreateGameSessionDto {

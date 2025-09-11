@@ -86,6 +86,7 @@ const categoryLabels: Record<FeedbackCategory, string> = {
   [FeedbackCategory.TECHNICAL_SUPPORT]: 'Support',
   [FeedbackCategory.UI_UX_IMPROVEMENT]: 'UI/UX',
   [FeedbackCategory.PERFORMANCE_ISSUE]: 'Performance',
+  [FeedbackCategory.PLAYER_REPORT]: 'Player Report',
 };
 
 export const AdminFeedbackDashboard: React.FC = () => {

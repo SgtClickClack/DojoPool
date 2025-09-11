@@ -1,0 +1,303 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "DojoPool Staging Business Metrics",
+    "tags": ["dojopool", "staging", "business", "kpi", "analytics"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Registered Users",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_users_total",
+            "legendFormat": "Total Users"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Active Users (24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_active_users_24h",
+            "legendFormat": "24h Active Users"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Total Matches Played",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_matches_total",
+            "legendFormat": "Total Matches"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Revenue (24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_revenue_24h",
+            "legendFormat": "24h Revenue"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "User Registration Trend",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_users_total[1h]) * 3600",
+            "legendFormat": "Registrations/hour"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        }
+      },
+      {
+        "id": 6,
+        "title": "Match Activity",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_matches_started_total[5m]) * 60",
+            "legendFormat": "Matches Started/min"
+          },
+          {
+            "expr": "rate(dojopool_matches_completed_total[5m]) * 60",
+            "legendFormat": "Matches Completed/min"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        }
+      },
+      {
+        "id": 7,
+        "title": "User Engagement by Feature",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"tournament\"}[5m]) * 60",
+            "legendFormat": "Tournament Usage/min"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"social\"}[5m]) * 60",
+            "legendFormat": "Social Features/min"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"marketplace\"}[5m]) * 60",
+            "legendFormat": "Marketplace Usage/min"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"geolocation\"}[5m]) * 60",
+            "legendFormat": "Geolocation Usage/min"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 14
+        }
+      },
+      {
+        "id": 8,
+        "title": "DojoCoin Transactions",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_dojocoin_transactions_total[5m]) * 60",
+            "legendFormat": "Transactions/min"
+          },
+          {
+            "expr": "rate(dojopool_dojocoin_volume_total[5m]) * 60",
+            "legendFormat": "DojoCoin Volume/min"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "id": 9,
+        "title": "Venue Check-ins",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_venue_checkins_total[5m]) * 60",
+            "legendFormat": "Check-ins/min"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 22
+        }
+      },
+      {
+        "id": 10,
+        "title": "User Retention (7-day)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_user_retention_7d * 100",
+            "legendFormat": "7-day Retention %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 0,
+          "y": 30
+        }
+      },
+      {
+        "id": 11,
+        "title": "Average Session Duration",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_avg_session_duration_minutes",
+            "legendFormat": "Avg Session (min)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "m"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 8,
+          "x": 8,
+          "y": 30
+        }
+      },
+      {
+        "id": 12,
+        "title": "Conversion Funnel",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "dojopool_funnel_visitors_total",
+            "legendFormat": "Visitors"
+          },
+          {
+            "expr": "dojopool_funnel_registrations_total",
+            "legendFormat": "Registrations"
+          },
+          {
+            "expr": "dojopool_funnel_first_match_total",
+            "legendFormat": "First Match"
+          },
+          {
+            "expr": "dojopool_funnel_returning_users_total",
+            "legendFormat": "Returning Users"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 30
+        }
+      },
+      {
+        "id": 13,
+        "title": "Top Venues by Activity",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, dojopool_venue_activity_total)",
+            "legendFormat": "{{venue_name}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 38
+        }
+      },
+      {
+        "id": 14,
+        "title": "Player Skill Distribution",
+        "type": "histogram",
+        "targets": [
+          {
+            "expr": "dojopool_player_skill_ratings_bucket",
+            "legendFormat": "Skill Level {{le}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 38
+        }
+      }
+    ],
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "5m",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

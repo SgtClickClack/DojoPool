@@ -1,0 +1,147 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    # Gradual ramp-up
+    - duration: 120
+      arrivalRate: 1
+      rampTo: 50
+      name: 'Ramp-up phase'
+    # Sustained high load
+    - duration: 300
+      arrivalRate: 50
+      name: 'Sustained stress'
+    # Burst testing
+    - duration: 60
+      arrivalRate: 200
+      name: 'Burst stress test'
+    # Recovery phase
+    - duration: 120
+      arrivalRate: 10
+      name: 'Recovery phase'
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+      Authorization: 'Bearer {{ $processEnvironment.JWT_TOKEN }}'
+  plugins:
+    metrics-by-endpoint: {}
+    expect: {}
+
+scenarios:
+  - name: 'User Authentication Stress'
+    weight: 10
+    flow:
+      - post:
+          url: '/api/auth/login'
+          json:
+            email: 'stress-test-user-{{ $randomInt }}@test.com'
+            password: 'testpassword123'
+          expect:
+            - statusCode: [200, 401]
+          capture:
+            - json: '$.token'
+              as: 'authToken'
+      - think: 1
+
+  - name: 'Tournament Registration Stress'
+    weight: 25
+    flow:
+      - post:
+          url: '/api/tournaments/register'
+          json:
+            tournamentId: 'stress-test-tournament-{{ $randomInt }}'
+            userId: '{{ $randomInt }}'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: [200, 400, 409]
+      - think: 2
+
+  - name: 'Match Creation Stress'
+    weight: 20
+    flow:
+      - post:
+          url: '/api/matches/create'
+          json:
+            player1Id: '{{ $randomInt }}'
+            player2Id: '{{ $randomInt + 1 }}'
+            venueId: 'venue-{{ $randomInt % 10 }}'
+            gameMode: 'RANKED'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: [200, 400]
+      - think: 1
+
+  - name: 'Inventory Operations Stress'
+    weight: 15
+    flow:
+      - get:
+          url: '/api/inventory/items?userId={{ $randomInt }}'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: 200
+      - think: 1
+      - post:
+          url: '/api/inventory/equip'
+          json:
+            userId: '{{ $randomInt }}'
+            itemId: 'item-{{ $randomInt }}'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: [200, 400]
+      - think: 2
+
+  - name: 'Analytics Data Stress'
+    weight: 15
+    flow:
+      - post:
+          url: '/api/analytics/track'
+          json:
+            event: 'stress_test_event'
+            userId: '{{ $randomInt }}'
+            metadata:
+              timestamp: '{{ $isoTimestamp }}'
+              userAgent: '{{ $randomString }}'
+              sessionId: '{{ $randomString }}'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: 200
+      - think: 1
+
+  - name: 'Notification System Stress'
+    weight: 10
+    flow:
+      - get:
+          url: '/api/notifications?userId={{ $randomInt }}&limit=50'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: 200
+      - think: 1
+      - post:
+          url: '/api/notifications/mark-read'
+          json:
+            notificationIds:
+              ['notif-{{ $randomInt }}', 'notif-{{ $randomInt + 1 }}']
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: [200, 400]
+      - think: 2
+
+  - name: 'File Upload Stress'
+    weight: 5
+    flow:
+      - post:
+          url: '/api/upload/avatar'
+          formData:
+            file: 'fake-file-content-for-stress-test-{{ $randomString }}'
+            userId: '{{ $randomInt }}'
+          headers:
+            Authorization: 'Bearer {{ authToken }}'
+          expect:
+            - statusCode: [200, 400, 413]
+      - think: 3

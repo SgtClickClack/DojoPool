@@ -114,12 +114,24 @@ export class TerritoriesService {
       const previousOwnerId = territory?.ownerId ?? null;
 
       if (!territory) {
+        // Get venue location for territory coordinates
+        const venue = await this.prisma.venue.findUnique({
+          where: { id: venueId },
+          select: { latitude: true, longitude: true },
+        });
+
+        if (!venue) {
+          throw new Error('Venue not found');
+        }
+
         // Create new territory
         territory = await this.prisma.territory.create({
           data: {
             name: `Territory of ${venueId}`,
             venueId,
             ownerId: winnerId,
+            latitude: venue.latitude,
+            longitude: venue.longitude,
           },
         });
       } else {
@@ -264,8 +276,9 @@ export class TerritoriesService {
     const event = await this.prisma.territoryEvent.create({
       data: {
         territoryId,
-        type: 'CLAIM',
-        metadata: JSON.stringify({
+        eventType: 'SCOUT',
+        type: 'SCOUT',
+        data: JSON.stringify({
           action: 'SCOUT',
           by: playerId,
           at: new Date().toISOString(),
@@ -310,7 +323,7 @@ export class TerritoriesService {
 
       // Update venue controlling clan if player belongs to one
       const playerClan = await this.getUserClan(playerId);
-      if (playerClan) {
+      if (playerClan && territory.venueId) {
         await this.prisma.venue.update({
           where: { id: territory.venueId },
           data: { controllingClanId: playerClan.id },
@@ -321,8 +334,9 @@ export class TerritoriesService {
       await this.prisma.territoryEvent.create({
         data: {
           territoryId,
+          eventType: 'CLAIM',
           type: 'CLAIM',
-          metadata: JSON.stringify({
+          data: JSON.stringify({
             action: 'CLAIM',
             by: playerId,
             at: new Date().toISOString(),
@@ -393,8 +407,9 @@ export class TerritoriesService {
       const event = await this.prisma.territoryEvent.create({
         data: {
           territoryId,
+          eventType: 'CHALLENGE',
           type: 'CHALLENGE',
-          metadata: JSON.stringify({
+          data: JSON.stringify({
             action: 'CHALLENGE',
             challengerId,
             defenderId: territory.ownerId,
@@ -540,8 +555,9 @@ export class TerritoriesService {
           await this.prisma.territoryEvent.create({
             data: {
               territoryId: territory.id,
+              eventType: 'DECAY_COMPLETE',
               type: 'DECAY_COMPLETE',
-              metadata: JSON.stringify({
+              data: JSON.stringify({
                 action: 'DECAY_COMPLETE',
                 previousOwnerId: territory.ownerId,
                 daysSinceChange,
@@ -567,8 +583,9 @@ export class TerritoriesService {
             await this.prisma.territoryEvent.create({
               data: {
                 territoryId: territory.id,
+                eventType: 'DECAY_WARNING',
                 type: 'DECAY_WARNING',
-                metadata: JSON.stringify({
+                data: JSON.stringify({
                   action: 'DECAY_WARNING',
                   defenseScore: newDefenseScore,
                   daysSinceChange,
@@ -636,8 +653,9 @@ export class TerritoriesService {
         await this.prisma.territoryEvent.create({
           data: {
             territoryId: territory.id,
+            eventType: 'CONTEST_END',
             type: 'CONTEST_END',
-            metadata: JSON.stringify({
+            data: JSON.stringify({
               action: 'CONTEST_EXPIRED',
               winnerId: territory.ownerId,
               loserId: territory.contestedById,

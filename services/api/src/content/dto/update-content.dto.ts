@@ -1,4 +1,4 @@
-import { ContentVisibility } from '@prisma/client';
+import { ContentVisibility } from '@dojopool/types';
 import {
   IsArray,
   IsEnum,

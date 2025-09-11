@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import type { Friendship, User } from '@prisma/client';
+import type { Friendship, User } from '@dojopool/prisma';
 
 import { randomUUID } from 'node:crypto';
 import { NotificationTemplatesService } from '../notifications/notification-templates.service';

@@ -233,6 +233,98 @@ class AnalyticsService {
   getConnectionState(): EventSource['readyState'] | null {
     return this.eventSource?.readyState ?? null;
   }
+
+  /**
+   * Track custom events for user behavior analytics
+   */
+  async trackEvent(eventName: string, properties: Record<string, any> = {}) {
+    try {
+      const eventData = {
+        event: eventName,
+        properties: {
+          ...properties,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          url: window.location.href,
+          sessionId: this.getSessionId(),
+        },
+      };
+
+      const token = localStorage.getItem('auth_token');
+      await fetch('/api/analytics/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify(eventData),
+      });
+    } catch (error) {
+      console.error('Failed to track event:', error);
+    }
+  }
+
+  /**
+   * Get or create session ID for tracking
+   */
+  private getSessionId(): string {
+    let sessionId = localStorage.getItem('analytics_session_id');
+    if (!sessionId) {
+      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('analytics_session_id', sessionId);
+    }
+    return sessionId;
+  }
+
+  /**
+   * Track page views
+   */
+  trackPageView(pageName: string, properties: Record<string, any> = {}) {
+    this.trackEvent('page_view', {
+      page: pageName,
+      ...properties,
+    });
+  }
+
+  /**
+   * Track user interactions
+   */
+  trackInteraction(
+    interactionType: string,
+    element: string,
+    properties: Record<string, any> = {}
+  ) {
+    this.trackEvent('user_interaction', {
+      interaction_type: interactionType,
+      element,
+      ...properties,
+    });
+  }
+
+  /**
+   * Track game events
+   */
+  trackGameEvent(eventType: string, gameData: Record<string, any>) {
+    this.trackEvent('game_event', {
+      event_type: eventType,
+      ...gameData,
+    });
+  }
+
+  /**
+   * Track conversion events
+   */
+  trackConversion(
+    conversionType: string,
+    value?: number,
+    properties: Record<string, any> = {}
+  ) {
+    this.trackEvent('conversion', {
+      conversion_type: conversionType,
+      value,
+      ...properties,
+    });
+  }
 }
 
 // Export singleton instance

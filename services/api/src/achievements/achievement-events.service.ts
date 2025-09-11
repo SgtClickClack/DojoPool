@@ -36,7 +36,7 @@ export class AchievementEventsService implements OnModuleInit {
 
       if (unlockedAchievements.length > 0) {
         this.logger.log(
-          `Achievements unlocked for user ${userId} on venue check-in: ${unlockedAchievements.map((a) => a.name).join(', ')}`
+          `Achievements unlocked for user ${userId} on venue check-in: ${unlockedAchievements.map((a) => a.achievementId).join(', ')}`
         );
       }
     } catch (error) {
@@ -84,7 +84,7 @@ export class AchievementEventsService implements OnModuleInit {
 
         if (unlockedAchievements.length > 0) {
           this.logger.log(
-            `Win achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.name).join(', ')}`
+            `Win achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.achievementId).join(', ')}`
           );
         }
       }
@@ -137,7 +137,7 @@ export class AchievementEventsService implements OnModuleInit {
 
       if (unlockedAchievements.length > 0) {
         this.logger.log(
-          `Territory achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.name).join(', ')}`
+          `Territory achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.achievementId).join(', ')}`
         );
       }
     } catch (error) {
@@ -177,7 +177,7 @@ export class AchievementEventsService implements OnModuleInit {
 
       if (unlockedAchievements.length > 0) {
         this.logger.log(
-          `Trading achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.name).join(', ')}`
+          `Trading achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.achievementId).join(', ')}`
         );
       }
     } catch (error) {
@@ -209,7 +209,7 @@ export class AchievementEventsService implements OnModuleInit {
 
       if (unlockedAchievements.length > 0) {
         this.logger.log(
-          `Clan achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.name).join(', ')}`
+          `Clan achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.achievementId).join(', ')}`
         );
       }
     } catch (error) {
@@ -250,7 +250,7 @@ export class AchievementEventsService implements OnModuleInit {
 
         if (unlockedAchievements.length > 0) {
           this.logger.log(
-            `Tournament achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.name).join(', ')}`
+            `Tournament achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.achievementId).join(', ')}`
           );
         }
       }
@@ -309,7 +309,7 @@ export class AchievementEventsService implements OnModuleInit {
       // For now, we'll use a simplified approach
       const recentCheckIns = await this.prisma.checkIn.findMany({
         where: { userId },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { checkedInAt: 'desc' },
         take: 30, // Last 30 days
       });
 
@@ -340,7 +340,7 @@ export class AchievementEventsService implements OnModuleInit {
         where: {
           OR: [{ playerAId: userId }, { playerBId: userId }],
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { startedAt: 'desc' },
         take: 20, // Check last 20 matches
       });
 
@@ -373,17 +373,20 @@ export class AchievementEventsService implements OnModuleInit {
   private async resetWinStreak(userId: string) {
     try {
       // Reset the win streak progress
-      await this.prisma.userAchievement.updateMany({
-        where: {
-          userId,
-          achievement: {
-            criteriaType: 'WIN_STREAK',
-          },
-        },
-        data: {
-          progress: 0,
-        },
-      });
+      // Note: Achievement filtering by criteriaType needs to be implemented
+      // when the Achievement model is available in the schema
+      // For now, we'll skip this reset to get the server running
+      // await this.prisma.userAchievement.updateMany({
+      //   where: {
+      //     userId,
+      //     achievement: {
+      //       criteriaType: 'WIN_STREAK',
+      //     },
+      //   },
+      //   data: {
+      //     progress: 0,
+      //   },
+      // });
     } catch (error) {
       this.logger.error(
         `Failed to reset win streak for user ${userId}:`,
@@ -491,7 +494,7 @@ export class AchievementEventsService implements OnModuleInit {
 
       if (unlockedAchievements.length > 0) {
         this.logger.log(
-          `First game achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.name).join(', ')}`
+          `First game achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.achievementId).join(', ')}`
         );
       }
     } catch (error) {
@@ -516,7 +519,7 @@ export class AchievementEventsService implements OnModuleInit {
 
       if (unlockedAchievements.length > 0) {
         this.logger.log(
-          `Social achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.name).join(', ')}`
+          `Social achievements unlocked for user ${userId}: ${unlockedAchievements.map((a) => a.achievementId).join(', ')}`
         );
       }
     } catch (error) {

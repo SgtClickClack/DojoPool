@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dojo Pool - Territory Wars</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .territory-owned {
+        fill: #10b981;
+        stroke: #059669;
+      }
+      .territory-neutral {
+        fill: #6b7280;
+        stroke: #4b5563;
+      }
+      .territory-contested {
+        fill: #f59e0b;
+        stroke: #d97706;
+      }
+      .territory-enemy {
+        fill: #ef4444;
+        stroke: #dc2626;
+      }
+      .territory-owned:hover {
+        fill: #34d399;
+      }
+      .territory-neutral:hover {
+        fill: #9ca3af;
+      }
+      .territory-contested:hover {
+        fill: #fbbf24;
+      }
+      .territory-enemy:hover {
+        fill: #f87171;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 p-4">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="text-2xl font-bold text-green-400">⚔️ Dojo Pool</div>
+          <div class="text-lg text-gray-300">Territory Wars</div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-sm text-gray-400">
+            <span class="text-green-400">●</span> Online
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto p-4">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Map Section -->
+        <div class="lg:col-span-3 bg-gray-800 rounded-lg p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold">Strategic Map</h2>
+            <div class="flex space-x-4 text-sm">
+              <div class="flex items-center space-x-2">
+                <div class="w-4 h-4 bg-green-500 rounded"></div>
+                <span>Your Territory</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-4 h-4 bg-red-500 rounded"></div>
+                <span>Enemy Territory</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-4 h-4 bg-gray-500 rounded"></div>
+                <span>Neutral</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Map Container -->
+          <div
+            id="map-container"
+            class="bg-gray-700 rounded-lg overflow-hidden"
+          >
+            <svg
+              id="territory-map"
+              viewBox="0 0 800 600"
+              class="w-full h-auto max-h-96"
+            >
+              <!-- Map will be rendered here -->
+            </svg>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <!-- Territory Details -->
+          <div id="territory-details" class="bg-gray-800 rounded-lg p-6 hidden">
+            <h3 class="text-lg font-bold mb-4" id="territory-name">
+              Select a Territory
+            </h3>
+            <div class="space-y-3 text-sm">
+              <div>
+                <strong>Status:</strong>
+                <span id="territory-status">Neutral</span>
+              </div>
+              <div>
+                <strong>Owner:</strong>
+                <span id="territory-owner">Unclaimed</span>
+              </div>
+              <div>
+                <strong>Clan:</strong> <span id="territory-clan">None</span>
+              </div>
+              <div>
+                <strong>Defense:</strong> <span id="territory-defense">0</span>
+              </div>
+              <div>
+                <strong>Resources:</strong>
+                <div class="ml-4 mt-1">
+                  <div>Gold: <span id="territory-gold">0</span></div>
+                  <div>Wood: <span id="territory-wood">0</span></div>
+                  <div>Iron: <span id="territory-iron">0</span></div>
+                </div>
+              </div>
+            </div>
+            <button
+              id="claim-btn"
+              class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 disabled:bg-gray-600 disabled:cursor-not-allowed"
+            >
+              Claim Territory
+            </button>
+          </div>
+
+          <!-- Claim Form -->
+          <div id="claim-form" class="bg-gray-800 rounded-lg p-6 hidden">
+            <h3 class="text-lg font-bold mb-4">Claim Territory</h3>
+            <form id="territory-claim-form" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium mb-1">Player ID</label>
+                <input
+                  type="text"
+                  id="player-id"
+                  class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                  placeholder="Enter your Player ID"
+                  required
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1"
+                  >Match ID (Optional)</label
+                >
+                <input
+                  type="text"
+                  id="match-id"
+                  class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                  placeholder="Enter match ID for verification"
+                />
+              </div>
+              <button
+                type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Submit Claim
+              </button>
+              <button
+                type="button"
+                id="cancel-claim"
+                class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+
+          <!-- Status Messages -->
+          <div id="status-message" class="bg-gray-800 rounded-lg p-6 hidden">
+            <div class="flex items-center space-x-2">
+              <div id="status-icon">⚡</div>
+              <div id="status-text">Loading...</div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="bg-gray-800 rounded-lg p-6">
+            <h3 class="text-lg font-bold mb-4">Recent Activity</h3>
+            <div id="activity-list" class="space-y-2 text-sm">
+              <div class="text-gray-400">No recent activity</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // Mock data for demonstration
+      const mockTerritories = [
+        {
+          id: 'territory-1',
+          name: 'The Jade Tiger',
+          coordinates: { lat: 40.7128, lng: -74.006 },
+          status: 'UNCLAIMED',
+          owner: null,
+          clan: null,
+          level: 1,
+          defenseScore: 5,
+          strategicValue: 8,
+          resources: { gold: 100, wood: 50, iron: 25 },
+          venue: { name: 'The Jade Tiger Pool Hall' },
+        },
+        {
+          id: 'territory-2',
+          name: 'Crimson Dragon',
+          coordinates: { lat: 40.7589, lng: -73.9851 },
+          status: 'CLAIMED',
+          owner: { username: 'PoolMaster' },
+          clan: { name: 'Red Dragons', tag: 'RD' },
+          level: 3,
+          defenseScore: 15,
+          strategicValue: 12,
+          resources: { gold: 300, wood: 150, iron: 75 },
+          venue: { name: 'Crimson Dragon Billiards' },
+        },
+        {
+          id: 'territory-3',
+          name: 'Silent Fox',
+          coordinates: { lat: 40.7505, lng: -73.9934 },
+          status: 'CONTESTED',
+          owner: { username: 'TrickShot' },
+          clan: { name: 'Silent Foxes', tag: 'SF' },
+          contestedBy: { username: 'ChallengerX' },
+          level: 2,
+          defenseScore: 8,
+          strategicValue: 6,
+          resources: { gold: 200, wood: 100, iron: 50 },
+          venue: { name: 'Silent Fox Pool Club' },
+        },
+      ];
+
+      let currentUser = { id: 'player-123', username: 'TestPlayer' };
+      let selectedTerritory = null;
+
+      // API Client Functions
+      class TerritoryAPI {
+        static async fetchTerritories() {
+          // Simulate API delay
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          return mockTerritories;
+        }
+
+        static async getTerritoryDetails(territoryId) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          return mockTerritories.find((t) => t.id === territoryId);
+        }
+
+        static async claimTerritory(territoryId, playerId) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+
+          const territory = mockTerritories.find((t) => t.id === territoryId);
+          if (!territory) {
+            throw new Error('Territory not found');
+          }
+
+          if (territory.status !== 'UNCLAIMED') {
+            throw new Error('Territory is already claimed');
+          }
+
+          // Simulate successful claim
+          territory.status = 'CLAIMED';
+          territory.owner = { username: currentUser.username };
+
+          return {
+            success: true,
+            territory: territory,
+            message: 'Territory claimed successfully!',
+          };
+        }
+
+        static async challengeTerritory(territoryId, challengerId) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+
+          const territory = mockTerritories.find((t) => t.id === territoryId);
+          if (!territory) {
+            throw new Error('Territory not found');
+          }
+
+          return {
+            success: true,
+            challengeId: 'challenge-' + Date.now(),
+            territory: territory,
+            message: 'Challenge issued successfully!',
+          };
+        }
+      }
+
+      // UI Functions
+      function showStatus(message, type = 'info', duration = 3000) {
+        const statusDiv = document.getElementById('status-message');
+        const statusIcon = document.getElementById('status-icon');
+        const statusText = document.getElementById('status-text');
+
+        statusDiv.classList.remove('hidden');
+
+        // Set icon and color based on type
+        switch (type) {
+          case 'success':
+            statusIcon.textContent = '✅';
+            statusDiv.className = 'bg-green-800 rounded-lg p-6';
+            break;
+          case 'error':
+            statusIcon.textContent = '❌';
+            statusDiv.className = 'bg-red-800 rounded-lg p-6';
+            break;
+          case 'warning':
+            statusIcon.textContent = '⚠️';
+            statusDiv.className = 'bg-yellow-800 rounded-lg p-6';
+            break;
+          default:
+            statusIcon.textContent = 'ℹ️';
+            statusDiv.className = 'bg-blue-800 rounded-lg p-6';
+        }
+
+        statusText.textContent = message;
+
+        if (duration > 0) {
+          setTimeout(() => {
+            statusDiv.classList.add('hidden');
+          }, duration);
+        }
+      }
+
+      function renderMap(territories) {
+        const svg = document.getElementById('territory-map');
+        svg.innerHTML = '';
+
+        // Create a simple grid of territories
+        const cols = 3;
+        const rows = 2;
+        const width = 800;
+        const height = 600;
+        const territoryWidth = width / cols;
+        const territoryHeight = height / rows;
+
+        territories.forEach((territory, index) => {
+          const col = index % cols;
+          const row = Math.floor(index / cols);
+          const x = col * territoryWidth + 50;
+          const y = row * territoryHeight + 50;
+
+          const rect = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'rect'
+          );
+          rect.setAttribute('x', x);
+          rect.setAttribute('y', y);
+          rect.setAttribute('width', territoryWidth - 100);
+          rect.setAttribute('height', territoryHeight - 100);
+          rect.setAttribute('rx', 10);
+
+          // Set class based on status
+          let className = 'territory-neutral';
+          if (
+            territory.owner &&
+            territory.owner.username === currentUser.username
+          ) {
+            className = 'territory-owned';
+          } else if (territory.status === 'CLAIMED') {
+            className = 'territory-enemy';
+          } else if (territory.status === 'CONTESTED') {
+            className = 'territory-contested';
+          }
+
+          rect.setAttribute(
+            'class',
+            `${className} cursor-pointer transition-all duration-200`
+          );
+          rect.setAttribute('data-territory-id', territory.id);
+
+          // Add click event
+          rect.addEventListener('click', () => selectTerritory(territory.id));
+
+          // Add text label
+          const text = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'text'
+          );
+          text.setAttribute('x', x + (territoryWidth - 100) / 2);
+          text.setAttribute('y', y + (territoryHeight - 100) / 2 + 5);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute(
+            'class',
+            'fill-white text-sm font-bold pointer-events-none'
+          );
+          text.textContent = territory.name;
+
+          svg.appendChild(rect);
+          svg.appendChild(text);
+        });
+      }
+
+      function selectTerritory(territoryId) {
+        TerritoryAPI.getTerritoryDetails(territoryId)
+          .then((territory) => {
+            selectedTerritory = territory;
+
+            // Update territory details
+            document.getElementById('territory-name').textContent =
+              territory.name;
+            document.getElementById('territory-status').textContent =
+              territory.status;
+            document.getElementById('territory-owner').textContent =
+              territory.owner ? territory.owner.username : 'Unclaimed';
+            document.getElementById('territory-clan').textContent =
+              territory.clan
+                ? `${territory.clan.name} (${territory.clan.tag})`
+                : 'None';
+            document.getElementById('territory-defense').textContent =
+              territory.defenseScore;
+            document.getElementById('territory-gold').textContent =
+              territory.resources.gold;
+            document.getElementById('territory-wood').textContent =
+              territory.resources.wood;
+            document.getElementById('territory-iron').textContent =
+              territory.resources.iron;
+
+            // Show/hide claim button
+            const claimBtn = document.getElementById('claim-btn');
+            if (territory.status === 'UNCLAIMED') {
+              claimBtn.classList.remove(
+                'disabled:bg-gray-600',
+                'disabled:cursor-not-allowed'
+              );
+              claimBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            } else {
+              claimBtn.classList.add(
+                'disabled:bg-gray-600',
+                'disabled:cursor-not-allowed'
+              );
+              claimBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            }
+
+            // Show territory details
+            document
+              .getElementById('territory-details')
+              .classList.remove('hidden');
+          })
+          .catch((error) => {
+            showStatus(
+              'Failed to load territory details: ' + error.message,
+              'error'
+            );
+          });
+      }
+
+      function showClaimForm() {
+        document.getElementById('claim-form').classList.remove('hidden');
+        document.getElementById('territory-details').classList.add('hidden');
+      }
+
+      function hideClaimForm() {
+        document.getElementById('claim-form').classList.add('hidden');
+        document.getElementById('territory-details').classList.remove('hidden');
+      }
+
+      // Event Listeners
+      document.getElementById('claim-btn').addEventListener('click', () => {
+        if (selectedTerritory && selectedTerritory.status === 'UNCLAIMED') {
+          showClaimForm();
+        } else {
+          showStatus('This territory cannot be claimed', 'warning');
+        }
+      });
+
+      document
+        .getElementById('cancel-claim')
+        .addEventListener('click', hideClaimForm);
+
+      document
+        .getElementById('territory-claim-form')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const playerId = document.getElementById('player-id').value;
+          const matchId = document.getElementById('match-id').value;
+
+          if (!playerId) {
+            showStatus('Please enter your Player ID', 'error');
+            return;
+          }
+
+          showStatus('Submitting claim...', 'info', 0);
+
+          try {
+            const result = await TerritoryAPI.claimTerritory(
+              selectedTerritory.id,
+              playerId
+            );
+
+            showStatus(result.message, 'success');
+            hideClaimForm();
+
+            // Refresh map and territory details
+            const territories = await TerritoryAPI.fetchTerritories();
+            renderMap(territories);
+            selectTerritory(selectedTerritory.id);
+
+            // Add to activity
+            addActivity(
+              `Territory "${selectedTerritory.name}" claimed by ${currentUser.username}`
+            );
+          } catch (error) {
+            showStatus('Claim failed: ' + error.message, 'error');
+          }
+        });
+
+      function addActivity(message) {
+        const activityList = document.getElementById('activity-list');
+        const activityItem = document.createElement('div');
+        activityItem.className = 'text-gray-300';
+        activityItem.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+
+        if (
+          activityList.firstChild &&
+          activityList.firstChild.textContent.includes('No recent activity')
+        ) {
+          activityList.innerHTML = '';
+        }
+
+        activityList.insertBefore(activityItem, activityList.firstChild);
+      }
+
+      // Initialize app
+      async function initApp() {
+        try {
+          showStatus('Loading territories...', 'info', 0);
+
+          const territories = await TerritoryAPI.fetchTerritories();
+          renderMap(territories);
+
+          document.getElementById('status-message').classList.add('hidden');
+          showStatus('Territories loaded successfully!', 'success');
+
+          // Add some sample activity
+          addActivity('System initialized');
+          addActivity('Territory map updated');
+        } catch (error) {
+          showStatus('Failed to load territories: ' + error.message, 'error');
+        }
+      }
+
+      // Start the app
+      document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+  </body>
+</html>

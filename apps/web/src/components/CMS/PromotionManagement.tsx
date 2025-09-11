@@ -210,7 +210,7 @@ const PromotionManagement: React.FC = () => {
       endTime: promotion.endTime,
       targetUsers: promotion.targetUsers,
       applicableItems: promotion.applicableItems,
-      tags: JSON.parse(promotion.content.tags || '[]'),
+      tags: promotion.content.tags || [],
     });
     setDialogOpen(true);
   };

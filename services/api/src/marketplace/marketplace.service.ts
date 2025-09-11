@@ -52,7 +52,7 @@ export class MarketplaceService {
    */
   async buyItem(userId: string, itemId: string) {
     return this.prisma.$transaction(async (tx) => {
-      const item = await tx.marketplaceItem.findUnique({
+      const item = await tx.item.findUnique({
         where: { id: itemId },
       });
       if (!item) throw new NotFoundException('Item not found');
@@ -76,7 +76,7 @@ export class MarketplaceService {
       const inventoryItem = await tx.userInventoryItem.create({
         data: {
           userId,
-          marketplaceItemId: item.id,
+          itemId: item.id,
         },
       });
 
@@ -210,13 +210,14 @@ export class MarketplaceService {
         throw new ForbiddenException('Buyer is not a member of this clan');
       }
 
-      // Get clan wallet
-      const clanWallet = await tx.clanWallet.findUnique({
-        where: { clanId: data.clanId },
+      // Check clan balance (using clan.dojoCoinBalance)
+      const clan = await tx.clan.findUnique({
+        where: { id: data.clanId },
+        select: { dojoCoinBalance: true },
       });
 
-      if (!clanWallet || clanWallet.balance < listing.price) {
-        throw new BadRequestException('Clan wallet has insufficient funds');
+      if (!clan || clan.dojoCoinBalance < listing.price) {
+        throw new BadRequestException('Clan has insufficient DojoCoins');
       }
 
       // Transfer asset ownership
@@ -232,13 +233,12 @@ export class MarketplaceService {
         });
       }
 
-      // Update clan wallet balance
-      const newBalance = clanWallet.balance - listing.price;
-      await tx.clanWallet.update({
-        where: { clanId: data.clanId },
+      // Update clan balance
+      const newBalance = clan.dojoCoinBalance - listing.price;
+      await tx.clan.update({
+        where: { id: data.clanId },
         data: {
-          balance: newBalance,
-          totalWithdrawals: { increment: listing.price },
+          dojoCoinBalance: newBalance,
         },
       });
 
@@ -249,21 +249,14 @@ export class MarketplaceService {
           userId: data.buyerId,
           type: 'MARKETPLACE_PURCHASE',
           amount: -listing.price,
-          description: `Purchased ${listing.assetType} from clan marketplace`,
-          balanceAfter: newBalance,
-          metadata: {
-            listingId: listing.id,
-            assetId: listing.assetId,
-            assetType: listing.assetType,
-            sellerId: listing.sellerId,
-          },
+          sellerId: listing.sellerId,
         },
       });
 
       // Deactivate listing
       await tx.listing.update({
         where: { id: data.listingId },
-        data: { isActive: false },
+        data: { status: 'sold' },
       });
 
       return {
@@ -307,31 +300,29 @@ export class MarketplaceService {
         throw new BadRequestException('Insufficient DojoCoins');
       }
 
-      // Get or create clan wallet
-      let clanWallet = await tx.clanWallet.findUnique({
-        where: { clanId: data.clanId },
+      // Get clan balance
+      const clan = await tx.clan.findUnique({
+        where: { id: data.clanId },
+        select: { dojoCoinBalance: true },
       });
 
-      if (!clanWallet) {
-        clanWallet = await tx.clanWallet.create({
-          data: { clanId: data.clanId },
-        });
+      if (!clan) {
+        throw new NotFoundException('Clan not found');
       }
 
       // Update balances
       const newUserBalance = user.dojoCoinBalance - data.amount;
-      const newClanBalance = clanWallet.balance + data.amount;
+      const newClanBalance = clan.dojoCoinBalance + data.amount;
 
       await tx.user.update({
         where: { id: data.userId },
         data: { dojoCoinBalance: newUserBalance },
       });
 
-      await tx.clanWallet.update({
-        where: { clanId: data.clanId },
+      await tx.clan.update({
+        where: { id: data.clanId },
         data: {
-          balance: newClanBalance,
-          totalDeposits: { increment: data.amount },
+          dojoCoinBalance: newClanBalance,
         },
       });
 
@@ -342,8 +333,7 @@ export class MarketplaceService {
           userId: data.userId,
           type: 'DEPOSIT',
           amount: data.amount,
-          description: `Deposited ${data.amount} DojoCoins to clan wallet`,
-          balanceAfter: newClanBalance,
+          targetUserId: null,
         },
       });
 
@@ -385,28 +375,28 @@ export class MarketplaceService {
         );
       }
 
-      // Get clan wallet
-      const clanWallet = await tx.clanWallet.findUnique({
-        where: { clanId: data.clanId },
+      // Get clan balance
+      const clan = await tx.clan.findUnique({
+        where: { id: data.clanId },
+        select: { dojoCoinBalance: true },
       });
 
-      if (!clanWallet || clanWallet.balance < data.amount) {
-        throw new BadRequestException('Clan wallet has insufficient funds');
+      if (!clan || clan.dojoCoinBalance < data.amount) {
+        throw new BadRequestException('Clan has insufficient DojoCoins');
       }
 
       // Update balances
-      const newClanBalance = clanWallet.balance - data.amount;
+      const newClanBalance = clan.dojoCoinBalance - data.amount;
 
       await tx.user.update({
         where: { id: data.userId },
         data: { dojoCoinBalance: { increment: data.amount } },
       });
 
-      await tx.clanWallet.update({
-        where: { clanId: data.clanId },
+      await tx.clan.update({
+        where: { id: data.clanId },
         data: {
-          balance: newClanBalance,
-          totalWithdrawals: { increment: data.amount },
+          dojoCoinBalance: newClanBalance,
         },
       });
 
@@ -417,8 +407,7 @@ export class MarketplaceService {
           userId: data.userId,
           type: 'WITHDRAWAL',
           amount: -data.amount,
-          description: `Withdrew ${data.amount} DojoCoins from clan wallet`,
-          balanceAfter: newClanBalance,
+          targetUserId: data.userId,
         },
       });
 
@@ -433,50 +422,24 @@ export class MarketplaceService {
    * Get clan wallet details
    */
   async getClanWallet(clanId: string) {
-    const clanWallet = await this.prisma.clanWallet.findUnique({
-      where: { clanId },
-      include: {
-        clan: {
+    const clan = await this.prisma.clan.findUnique({
+      where: { id: clanId },
+      select: {
+        id: true,
+        name: true,
+        tag: true,
+        dojoCoinBalance: true,
+        leader: {
           select: {
             id: true,
-            name: true,
-            tag: true,
-            leader: {
-              select: {
-                id: true,
-                username: true,
-              },
-            },
+            username: true,
           },
         },
       },
     });
 
-    if (!clanWallet) {
-      // Return default wallet info if none exists
-      const clan = await this.prisma.clan.findUnique({
-        where: { clanId },
-        select: {
-          id: true,
-          name: true,
-          tag: true,
-          leader: {
-            select: {
-              id: true,
-              username: true,
-            },
-          },
-        },
-      });
-
-      return {
-        clanId,
-        balance: 0,
-        totalDeposits: 0,
-        totalWithdrawals: 0,
-        clan,
-        transactions: [],
-      };
+    if (!clan) {
+      throw new NotFoundException('Clan not found');
     }
 
     const transactions = await this.prisma.clanTransaction.findMany({
@@ -495,7 +458,11 @@ export class MarketplaceService {
     });
 
     return {
-      ...clanWallet,
+      clanId: clan.id,
+      balance: clan.dojoCoinBalance,
+      totalDeposits: 0, // Would need to be calculated from transactions
+      totalWithdrawals: 0, // Would need to be calculated from transactions
+      clan,
       transactions,
     };
   }

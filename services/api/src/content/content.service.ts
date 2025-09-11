@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Content, ContentStatus, ContentVisibility } from '@prisma/client';
+import { Content, ContentStatus, ContentVisibility } from '@dojopool/prisma';
 import * as DOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import {

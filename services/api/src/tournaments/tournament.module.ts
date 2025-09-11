@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
 import { CacheModule } from '../cache/cache.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisModule } from '../redis/redis.module';
@@ -8,7 +9,7 @@ import { TournamentController } from './tournament.controller';
 import { TournamentService } from './tournament.service';
 
 @Module({
-  imports: [CacheModule, RedisModule],
+  imports: [CacheModule, RedisModule, AuthModule],
   controllers: [TournamentController],
   providers: [
     TournamentService,

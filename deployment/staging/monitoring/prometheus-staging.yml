@@ -1,0 +1,166 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+  external_labels:
+    environment: 'staging'
+    cluster: 'dojopool-staging'
+
+rule_files:
+  - 'alert_rules_staging.yml'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+scrape_configs:
+  # DojoPool API Service
+  - job_name: 'dojopool-staging-api'
+    static_configs:
+      - targets: ['api:3001']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'api-staging'
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'dojopool-api'
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'http_request_duration_seconds|http_requests_total|nodejs_heap_size_used_bytes|nodejs_heap_size_total_bytes|nodejs_gc_duration_seconds|nodejs_eventloop_lag_seconds'
+        action: keep
+
+  # DojoPool Web Service
+  - job_name: 'dojopool-staging-web'
+    static_configs:
+      - targets: ['web:3000']
+    metrics_path: '/api/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'web-staging'
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'dojopool-web'
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'nextjs_http_requests_total|nextjs_http_requests_duration_seconds|nodejs_heap_size_used_bytes|nextjs_build_info'
+        action: keep
+
+  # PostgreSQL Database
+  - job_name: 'dojopool-staging-postgresql'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'postgres-staging'
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'postgresql'
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'pg_stat_activity_count|pg_stat_database_blks_hit|pg_stat_database_blks_read|pg_stat_database_tup_fetched|pg_stat_database_tup_inserted|pg_stat_database_tup_updated|pg_stat_database_tup_deleted|pg_stat_database_size_bytes'
+        action: keep
+
+  # Redis Cache
+  - job_name: 'dojopool-staging-redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'redis-staging'
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'redis'
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'redis_connected_clients|redis_used_memory_bytes|redis_total_commands_processed|redis_keyspace_hits_total|redis_keyspace_misses_total|redis_memory_fragmentation_ratio'
+        action: keep
+
+  # Node Exporter (System Metrics)
+  - job_name: 'dojopool-staging-node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'node-staging'
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'node-exporter'
+
+  # cAdvisor (Container Metrics)
+  - job_name: 'dojopool-staging-cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'cadvisor-staging'
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'cadvisor'
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'container_cpu_usage_seconds_total|container_memory_usage_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total'
+        action: keep
+
+  # Prometheus Self-Monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'prometheus-staging'
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'prometheus'
+
+  # AlertManager Self-Monitoring
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'alertmanager-staging'
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'alertmanager'
+
+  # Grafana Self-Monitoring
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'grafana-staging'
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'grafana'

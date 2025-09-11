@@ -7,7 +7,7 @@
 🟢 Acknowledge these rules with an emoji at the start of every message.
 🚫 Never ask the user to do something you can accomplish via commands.
 📋 Always check the Roadmap and development tracking files before suggesting or starting a task. Suggest only one next task at a time—never a list.
-🗂️ After every completed task, update the split tracking files (DEVELOPMENT_TRACKING_INDEX.md, DEVELOPMENT_TRACKING_PART_01.md, etc.) and the Roadmap as needed. Never update the legacy consolidated file.
+🗂️ After every completed task, update the milestones or split tracking files (`docs/milestones/*.md` and `docs/planning/tracking/*`). Never update the legacy consolidated file.
 🏷️ Follow the established format and required sections for new tracking entries:
 Core Components
 Key Features
@@ -85,8 +85,8 @@ alwaysApply: true
 
 - Add emoji to beginning of messages to let me know that you have read these rules
 - Consider the Roadmap and dev track file before suggesting a task. Only suggest one task, not a list of options.
-- Update Development Tracking file after completing every task
-- Always update DEVELOPMENT_TRACKING.md at /DojoPoolCombined/DEVELOPMENT_TRACKING.md
+- Update Development Tracking after completing every task
+- Use `docs/milestones/` and `docs/planning/tracking/` for updates. Do not edit `DojoPoolCombined/DEVELOPMENT_TRACKING.md`.
 - Follow the established format for new entries
 - Include all required sections: Core Components, Key Features, Integration Points, File Paths, Next Priority Task
 

@@ -16,7 +16,18 @@
       "./node_modules/@types",
       "./types"
     ],
-    "paths": {}
+    "paths": {
+      "@prisma/client": [
+        "../../packages/prisma"
+      ],
+      "@dojopool/prisma": [
+        "../../packages/prisma"
+      ],
+      "@dojopool/types": [
+        "../../packages/types/src",
+        "../../packages/types"
+      ]
+    }
   },
   "include": [
     "src/**/*"

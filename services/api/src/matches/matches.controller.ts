@@ -1,10 +1,30 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MatchesService } from './matches.service';
 
 interface FinalizeMatchDto {
   winnerId: string;
   scoreA: number;
   scoreB: number;
+}
+
+interface ReportMatchDto {
+  playerAId: string;
+  playerBId: string;
+  winnerId: string;
+  scoreA: number;
+  scoreB: number;
+  venueId?: string;
+  tableId?: string;
 }
 
 @Controller('matches')
@@ -39,5 +59,13 @@ export class MatchesController {
   async resume(@Param('id') id: string) {
     // In a full implementation, you would update match status in DB and broadcast via gateway
     return { matchId: id, status: 'resumed', ok: true };
+  }
+
+  // Report match result endpoint
+  @Post('report')
+  @UseGuards(JwtAuthGuard)
+  async reportMatch(@Body() reportData: ReportMatchDto, @Request() req: any) {
+    const reporterId = req.user.id; // Extract user ID from JWT token
+    return this.matchesService.reportMatch(reportData, reporterId);
   }
 }

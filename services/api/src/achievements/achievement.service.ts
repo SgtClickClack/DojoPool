@@ -2,9 +2,8 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   Achievement,
   AchievementCategory,
-  AchievementStatus,
   UserAchievement,
-} from '@prisma/client';
+} from '@dojopool/prisma';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface AchievementCriteria {
@@ -18,7 +17,7 @@ export interface AchievementProgress {
   userId: string;
   currentProgress: number;
   maxProgress: number;
-  status: AchievementStatus;
+  status: string;
   unlockedAt?: Date;
   claimedAt?: Date;
 }
@@ -33,45 +32,45 @@ export class AchievementService {
    * Get all achievements with user's progress
    */
   async getUserAchievements(userId: string): Promise<AchievementProgress[]> {
-    const userAchievements = await this.prisma.userAchievement.findMany({
-      where: { userId },
+    // Get all active achievements with user's progress
+    const achievements = await this.prisma.achievement.findMany({
+      where: { isActive: true },
       include: {
-        achievement: true,
-        reward: true,
+        userAchievements: {
+          where: { userId },
+        },
       },
     });
 
-    // Get all achievements to include locked ones
-    const allAchievements = await this.prisma.achievement.findMany({
-      where: { isActive: true },
-    });
-
-    // Combine user achievements with all achievements
     const achievementProgress: AchievementProgress[] = [];
 
-    for (const achievement of allAchievements) {
-      const userAchievement = userAchievements.find(
-        (ua) => ua.achievementId === achievement.id
-      );
+    for (const achievement of achievements) {
+      const userAchievement = achievement.userAchievements[0];
 
       if (userAchievement) {
+        // User has progress on this achievement
         achievementProgress.push({
           achievementId: achievement.id,
           userId,
           currentProgress: userAchievement.progress,
-          maxProgress: userAchievement.progressMax,
-          status: userAchievement.status,
+          maxProgress: achievement.criteriaValue,
+          status:
+            userAchievement.progress >= achievement.criteriaValue
+              ? 'unlocked'
+              : 'in_progress',
           unlockedAt: userAchievement.unlockedAt || undefined,
-          claimedAt: userAchievement.claimedAt || undefined,
+          claimedAt: userAchievement.rewardClaimed
+            ? userAchievement.unlockedAt
+            : undefined,
         });
       } else {
-        // Achievement not started yet
+        // User hasn't started this achievement
         achievementProgress.push({
           achievementId: achievement.id,
           userId,
           currentProgress: 0,
           maxProgress: achievement.criteriaValue,
-          status: AchievementStatus.LOCKED,
+          status: 'locked',
         });
       }
     }
@@ -86,34 +85,30 @@ export class AchievementService {
     userId: string,
     achievementId: string
   ): Promise<AchievementProgress | null> {
-    const userAchievement = await this.prisma.userAchievement.findUnique({
-      where: {
-        userId_achievementId: {
-          userId,
-          achievementId,
-        },
-      },
+    // Get achievement with user's progress
+    const achievement = await this.prisma.achievement.findUnique({
+      where: { id: achievementId },
       include: {
-        achievement: true,
-        reward: true,
+        userAchievements: {
+          where: { userId },
+        },
       },
     });
 
+    if (!achievement) {
+      return null; // Achievement doesn't exist
+    }
+
+    const userAchievement = achievement.userAchievements[0];
+
     if (!userAchievement) {
-      const achievement = await this.prisma.achievement.findUnique({
-        where: { id: achievementId },
-      });
-
-      if (!achievement) {
-        throw new NotFoundException('Achievement not found');
-      }
-
+      // User hasn't started this achievement
       return {
         achievementId,
         userId,
         currentProgress: 0,
         maxProgress: achievement.criteriaValue,
-        status: AchievementStatus.LOCKED,
+        status: 'locked',
       };
     }
 
@@ -121,10 +116,15 @@ export class AchievementService {
       achievementId,
       userId,
       currentProgress: userAchievement.progress,
-      maxProgress: userAchievement.progressMax,
-      status: userAchievement.status,
+      maxProgress: achievement.criteriaValue,
+      status:
+        userAchievement.progress >= achievement.criteriaValue
+          ? 'unlocked'
+          : 'in_progress',
       unlockedAt: userAchievement.unlockedAt || undefined,
-      claimedAt: userAchievement.claimedAt || undefined,
+      claimedAt: userAchievement.rewardClaimed
+        ? userAchievement.unlockedAt
+        : undefined,
     };
   }
 
@@ -136,34 +136,44 @@ export class AchievementService {
     criteriaType: string,
     value: number = 1,
     metadata?: Record<string, any>
-  ): Promise<Achievement[]> {
-    // Find all achievements that match this criteria type
-    const relevantAchievements = await this.prisma.achievement.findMany({
+  ): Promise<UserAchievement[]> {
+    // Find achievements that match the criteria type
+    const achievements = await this.prisma.achievement.findMany({
       where: {
         criteriaType,
         isActive: true,
       },
     });
 
-    const unlockedAchievements: Achievement[] = [];
+    const unlockedAchievements: UserAchievement[] = [];
 
-    for (const achievement of relevantAchievements) {
-      try {
-        const wasUnlocked = await this.updateSingleAchievementProgress(
-          userId,
-          achievement,
-          value,
-          metadata
-        );
+    for (const achievement of achievements) {
+      // Check if metadata matches (if provided)
+      if (metadata && achievement.criteriaMetadata) {
+        const achievementMetadata =
+          typeof achievement.criteriaMetadata === 'object'
+            ? achievement.criteriaMetadata
+            : JSON.parse(achievement.criteriaMetadata as string);
 
-        if (wasUnlocked) {
-          unlockedAchievements.push(achievement);
+        if (!this.checkAdditionalCriteria(metadata, achievementMetadata)) {
+          continue; // Skip this achievement if metadata doesn't match
         }
-      } catch (error) {
-        this.logger.error(
-          `Failed to update progress for achievement ${achievement.id}:`,
-          error
-        );
+      }
+
+      // Update or create user achievement progress
+      const updatedAchievement = await this.updateSingleAchievementProgress(
+        userId,
+        achievement.id,
+        value,
+        metadata
+      );
+
+      // Check if achievement was unlocked
+      if (
+        updatedAchievement &&
+        updatedAchievement.progress >= achievement.criteriaValue
+      ) {
+        unlockedAchievements.push(updatedAchievement);
       }
     }
 
@@ -175,54 +185,72 @@ export class AchievementService {
    */
   private async updateSingleAchievementProgress(
     userId: string,
-    achievement: Achievement,
+    achievementId: string,
     incrementValue: number,
     metadata?: Record<string, any>
-  ): Promise<boolean> {
-    // Check if additional criteria are met (from metadata)
-    if (metadata && achievement.criteriaMetadata) {
-      const criteriaMetadata = JSON.parse(
-        achievement.criteriaMetadata as string
-      );
-      if (!this.checkAdditionalCriteria(metadata, criteriaMetadata)) {
-        return false;
-      }
+  ): Promise<UserAchievement | null> {
+    // Get the achievement to check criteria value
+    const achievement = await this.prisma.achievement.findUnique({
+      where: { id: achievementId },
+    });
+
+    if (!achievement) {
+      this.logger.warn(`Achievement ${achievementId} not found`);
+      return null;
     }
 
-    const userAchievement = await this.prisma.userAchievement.upsert({
+    // Find existing user achievement or create new one
+    const existingAchievement = await this.prisma.userAchievement.findUnique({
       where: {
         userId_achievementId: {
           userId,
-          achievementId: achievement.id,
+          achievementId,
         },
-      },
-      update: {
-        progress: {
-          increment: incrementValue,
-        },
-      },
-      create: {
-        userId,
-        achievementId: achievement.id,
-        progressMax: achievement.criteriaValue,
-        progress: incrementValue,
-      },
-      include: {
-        achievement: true,
       },
     });
 
-    // Check if achievement should be unlocked
-    const shouldUnlock =
-      userAchievement.progress >= userAchievement.progressMax &&
-      userAchievement.status === AchievementStatus.LOCKED;
+    let updatedAchievement: UserAchievement;
+    let newProgress: number;
 
-    if (shouldUnlock) {
-      await this.unlockAchievement(userId, achievement.id);
-      return true;
+    if (existingAchievement) {
+      // Update existing achievement
+      newProgress = existingAchievement.progress + incrementValue;
+      updatedAchievement = await this.prisma.userAchievement.update({
+        where: { id: existingAchievement.id },
+        data: {
+          progress: newProgress,
+          unlockedAt:
+            newProgress >= achievement.criteriaValue &&
+            !existingAchievement.unlockedAt
+              ? new Date()
+              : existingAchievement.unlockedAt,
+        },
+      });
+    } else {
+      // Create new achievement
+      newProgress = incrementValue;
+      updatedAchievement = await this.prisma.userAchievement.create({
+        data: {
+          userId,
+          achievementId,
+          progress: newProgress,
+          unlockedAt:
+            newProgress >= achievement.criteriaValue ? new Date() : null,
+        },
+      });
     }
 
-    return false;
+    // Log achievement unlock
+    if (
+      newProgress >= achievement.criteriaValue &&
+      (!existingAchievement || !existingAchievement.unlockedAt)
+    ) {
+      this.logger.log(
+        `Achievement unlocked: ${achievement.key} for user ${userId}`
+      );
+    }
+
+    return updatedAchievement;
   }
 
   /**
@@ -232,6 +260,21 @@ export class AchievementService {
     userId: string,
     achievementId: string
   ): Promise<UserAchievement> {
+    // Find the achievement first
+    const userAchievement = await this.prisma.userAchievement.findUnique({
+      where: {
+        userId_achievementId: {
+          userId,
+          achievementId,
+        },
+      },
+    });
+
+    if (!userAchievement) {
+      throw new NotFoundException('User achievement not found');
+    }
+
+    // Update the achievement
     const unlockedAchievement = await this.prisma.userAchievement.update({
       where: {
         userId_achievementId: {
@@ -240,17 +283,12 @@ export class AchievementService {
         },
       },
       data: {
-        status: AchievementStatus.UNLOCKED,
         unlockedAt: new Date(),
-      },
-      include: {
-        achievement: true,
-        reward: true,
       },
     });
 
     this.logger.log(
-      `Achievement unlocked: ${unlockedAchievement.achievement.name} for user ${userId}`
+      `Achievement unlocked: ${achievementId} for user ${userId}`
     );
 
     return unlockedAchievement;
@@ -296,9 +334,7 @@ export class AchievementService {
         iconUrl: data.iconUrl,
         criteriaType: data.criteriaType,
         criteriaValue: data.criteriaValue,
-        criteriaMetadata: data.criteriaMetadata
-          ? JSON.stringify(data.criteriaMetadata)
-          : '{}',
+        criteriaMetadata: data.criteriaMetadata || {},
         rewardId: data.rewardId,
         isHidden: data.isHidden || false,
       },
@@ -318,10 +354,62 @@ export class AchievementService {
         isActive: true,
         ...(includeHidden ? {} : { isHidden: false }),
       },
-      include: {
-        reward: true,
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  /**
+   * Get all achievements
+   */
+  async getAllAchievements(
+    includeHidden: boolean = false
+  ): Promise<Achievement[]> {
+    return this.prisma.achievement.findMany({
+      where: {
+        isActive: true,
+        ...(includeHidden ? {} : { isHidden: false }),
       },
       orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  /**
+   * Update an achievement
+   */
+  async updateAchievement(
+    id: string,
+    data: Partial<{
+      name: string;
+      description: string;
+      category: AchievementCategory;
+      iconUrl: string;
+      criteriaType: string;
+      criteriaValue: number;
+      criteriaMetadata: Record<string, any>;
+      rewardId: string;
+      isHidden: boolean;
+      isActive: boolean;
+    }>
+  ): Promise<Achievement> {
+    return this.prisma.achievement.update({
+      where: { id },
+      data: {
+        ...data,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Delete an achievement (soft delete by setting isActive to false)
+   */
+  async deleteAchievement(id: string): Promise<Achievement> {
+    return this.prisma.achievement.update({
+      where: { id },
+      data: {
+        isActive: false,
+        updatedAt: new Date(),
+      },
     });
   }
 
@@ -337,17 +425,14 @@ export class AchievementService {
       this.prisma.achievement.count({ where: { isActive: true } }),
       this.prisma.userAchievement.findMany({
         where: { userId },
-        select: {
-          status: true,
-          rewardClaimed: true,
+        include: {
+          achievement: true,
         },
       }),
     ]);
 
     const unlockedAchievements = userAchievements.filter(
-      (ua) =>
-        ua.status === AchievementStatus.UNLOCKED ||
-        ua.status === AchievementStatus.CLAIMED
+      (ua) => ua.unlockedAt !== null // Check if achievement is unlocked
     ).length;
 
     const claimedRewards = userAchievements.filter(
@@ -368,6 +453,20 @@ export class AchievementService {
     userId: string,
     achievementId: string
   ): Promise<UserAchievement> {
+    // Find the achievement first
+    const userAchievement = await this.prisma.userAchievement.findUnique({
+      where: {
+        userId_achievementId: {
+          userId,
+          achievementId,
+        },
+      },
+    });
+
+    if (!userAchievement) {
+      throw new NotFoundException('User achievement not found');
+    }
+
     return this.prisma.userAchievement.update({
       where: {
         userId_achievementId: {
@@ -377,9 +476,7 @@ export class AchievementService {
       },
       data: {
         progress: 0,
-        status: AchievementStatus.LOCKED,
         unlockedAt: null,
-        claimedAt: null,
         rewardClaimed: false,
       },
     });

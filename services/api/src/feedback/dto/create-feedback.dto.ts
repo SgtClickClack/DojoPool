@@ -1,33 +1,16 @@
-import { FeedbackCategory } from '@prisma/client';
-import {
-  ArrayMaxSize,
-  IsArray,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUrl,
-  MaxLength,
-} from 'class-validator';
+import { FeedbackCategory } from '@dojopool/types';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateFeedbackDto {
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(2000)
-  message: string;
-
   @IsNotEmpty()
   @IsEnum(FeedbackCategory)
   category: FeedbackCategory;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  @MaxLength(500)
-  additionalContext?: string;
+  message!: string;
 
   @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(5, 'Maximum 5 attachments allowed')
-  @IsUrl({}, { each: true })
-  attachments?: string[];
+  @IsString()
+  additionalContext?: string;
 }

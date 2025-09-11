@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AiModule } from '../ai/ai.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JobProducer } from '../queue/producers/job.producer';
+import { QueueModule } from '../queue/queue.module';
 import { RedisModule } from '../redis/redis.module';
 import { InsightsController } from './insights.controller';
 import { InsightsService } from './insights.service';
@@ -9,7 +10,7 @@ import { MatchAnalysisQueueService } from './match-analysis-queue.service';
 import { MatchAnalysisProcessor } from './match-analysis.processor';
 
 @Module({
-  imports: [PrismaModule, AiModule, RedisModule],
+  imports: [PrismaModule, AiModule, RedisModule, QueueModule],
   providers: [
     InsightsService,
     MatchAnalysisQueueService,

@@ -72,7 +72,7 @@ export class AuthController {
     }
   }
 
-  @Post('register')
+  @Post('signup')
   @ApiOperation({
     summary: 'User registration',
     description: 'Create a new user account with email, username, and password',

@@ -64,14 +64,18 @@ export class MatchAnalysisProcessor {
         winner: match.winnerId === match.playerAId ? 'Player A' : 'Player B',
         shots: [],
         venue: match.venue?.name || 'Unknown',
-        round: match.round ?? 1,
+        round: match.roundNumber ?? 1,
       });
+
+      if (!aiResponse.data) {
+        throw new Error(`AI analysis failed for match ${matchId}`);
+      }
 
       // Store analysis in database
       const analysis = await this.prisma.matchAnalysis.create({
         data: {
           matchId,
-          playerId: match.winnerId, // Store winner's analysis
+          userId: match.winnerId ?? match.playerAId, // Store winner's analysis, fallback to player A
           provider: aiResponse.provider || 'gemini',
           fallback: !!aiResponse.fallback,
           keyMoments: aiResponse.data.keyMoments,
@@ -80,11 +84,6 @@ export class MatchAnalysisProcessor {
           playerPerformanceB: aiResponse.data.playerPerformance.playerB,
           overallAssessment: aiResponse.data.overallAssessment,
           recommendations: aiResponse.data.recommendations,
-          metadata: {
-            processingTime: Date.now() - job.createdAt,
-            jobId: jobId,
-            priority: job.priority,
-          },
         },
       });
 
@@ -120,7 +119,7 @@ export class MatchAnalysisProcessor {
 
     // Check database
     const existing = await this.prisma.matchAnalysis.findUnique({
-      where: { matchId },
+      where: { id: matchId },
     });
 
     if (existing) {

@@ -19,7 +19,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserRole } from '@prisma/client';
 import type { Request as ExpressRequest } from 'express';
 import { Observable, interval, map, startWith } from 'rxjs';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -121,7 +120,7 @@ export class TelemetryController {
 @ApiTags('Analytics')
 @Controller('analytics')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.ADMIN)
+@Roles('ADMIN')
 @ApiBearerAuth('JWT-auth')
 export class AnalyticsController {
   constructor(private readonly telemetryService: TelemetryService) {}

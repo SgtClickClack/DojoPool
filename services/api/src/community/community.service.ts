@@ -8,7 +8,7 @@ import {
   CommunityCosmeticItem,
   CosmeticCategory,
   SubmissionStatus,
-} from '@prisma/client';
+} from '@dojopool/prisma';
 import {
   CacheKey,
   CacheWriteThrough,

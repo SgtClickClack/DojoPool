@@ -19,6 +19,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import {
   ArcElement,
   BarElement,
@@ -48,6 +49,7 @@ ChartJS.register(
 );
 
 export const AnalyticsDashboard: React.FC = () => {
+  const theme = useTheme();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -169,15 +171,15 @@ export const AnalyticsDashboard: React.FC = () => {
       {
         label: 'Active Users',
         data: data.userEngagement.map((d) => d.activeUsers),
-        borderColor: '#00d4ff',
-        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+        borderColor: theme.palette.primary.main,
+        backgroundColor: theme.palette.primary.main + '20', // 20 = 12.5% opacity
         tension: 0.4,
       },
       {
         label: 'Sessions',
         data: data.userEngagement.map((d) => d.sessions),
-        borderColor: '#ff6b6b',
-        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+        borderColor: theme.palette.secondary.main,
+        backgroundColor: theme.palette.secondary.main + '20', // 20 = 12.5% opacity
         tension: 0.4,
       },
     ],
@@ -190,13 +192,13 @@ export const AnalyticsDashboard: React.FC = () => {
         label: 'Event Count',
         data: data.topEvents.map((e) => e.count),
         backgroundColor: [
-          '#00d4ff',
-          '#ff6b6b',
-          '#00ff88',
-          '#ffa500',
-          '#9c27b0',
+          theme.palette.primary.main,
+          theme.palette.secondary.main,
+          theme.palette.success.main,
+          theme.palette.warning.main,
+          theme.palette.info.main,
         ],
-        borderColor: '#1a1a2e',
+        borderColor: theme.palette.background.paper,
         borderWidth: 2,
       },
     ],
@@ -208,15 +210,15 @@ export const AnalyticsDashboard: React.FC = () => {
       {
         label: 'Usage Count',
         data: data.featureUsage.map((f) => f.usageCount),
-        backgroundColor: '#00d4ff',
-        borderColor: '#0099cc',
+        backgroundColor: theme.palette.primary.main,
+        borderColor: theme.palette.primary.dark,
         borderWidth: 1,
       },
       {
         label: 'Unique Users',
         data: data.featureUsage.map((f) => f.uniqueUsers),
-        backgroundColor: '#ff6b6b',
-        borderColor: '#cc5555',
+        backgroundColor: theme.palette.secondary.main,
+        borderColor: theme.palette.secondary.dark,
         borderWidth: 1,
       },
     ],
@@ -284,10 +286,12 @@ export const AnalyticsDashboard: React.FC = () => {
                 width: 12,
                 height: 12,
                 borderRadius: '50%',
-                backgroundColor: isConnected ? '#00ff88' : '#ff6b6b',
+                backgroundColor: isConnected
+                  ? theme.palette.success.main
+                  : theme.palette.error.main,
                 boxShadow: isConnected
-                  ? '0 0 10px rgba(0, 255, 136, 0.5)'
-                  : '0 0 10px rgba(255, 107, 107, 0.5)',
+                  ? `0 0 10px ${theme.palette.success.main}80`
+                  : `0 0 10px ${theme.palette.error.main}80`,
                 animation: isConnected ? 'pulse 2s infinite' : 'none',
                 '@keyframes pulse': {
                   '0%': { opacity: 1 },
@@ -317,20 +321,23 @@ export const AnalyticsDashboard: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
-              border: '1px solid #00d4ff',
+              background: theme.cyberpunk.gradients.card,
+              border: `1px solid ${theme.palette.primary.main}`,
             }}
           >
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <PeopleIcon sx={{ color: '#00d4ff', mr: 1 }} />
-                <Typography variant="h6" sx={{ color: '#00d4ff' }}>
+                <PeopleIcon sx={{ color: theme.palette.primary.main, mr: 1 }} />
+                <Typography
+                  variant="h6"
+                  sx={{ color: theme.palette.primary.main }}
+                >
                   Daily Active Users
                 </Typography>
               </Box>
               <Typography
                 variant="h3"
-                sx={{ color: '#ffffff', fontWeight: 'bold' }}
+                sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}
               >
                 {data.dau.toLocaleString()}
               </Typography>
@@ -341,20 +348,25 @@ export const AnalyticsDashboard: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
-              border: '1px solid #ff6b6b',
+              background: theme.cyberpunk.gradients.card,
+              border: `1px solid ${theme.palette.secondary.main}`,
             }}
           >
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <TrendingUpIcon sx={{ color: '#ff6b6b', mr: 1 }} />
-                <Typography variant="h6" sx={{ color: '#ff6b6b' }}>
+                <TrendingUpIcon
+                  sx={{ color: theme.palette.secondary.main, mr: 1 }}
+                />
+                <Typography
+                  variant="h6"
+                  sx={{ color: theme.palette.secondary.main }}
+                >
                   Monthly Active Users
                 </Typography>
               </Box>
               <Typography
                 variant="h3"
-                sx={{ color: '#ffffff', fontWeight: 'bold' }}
+                sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}
               >
                 {data.mau.toLocaleString()}
               </Typography>
@@ -365,20 +377,25 @@ export const AnalyticsDashboard: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
-              border: '1px solid #00ff88',
+              background: theme.cyberpunk.gradients.card,
+              border: `1px solid ${theme.palette.success.main}`,
             }}
           >
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <AssessmentIcon sx={{ color: '#00ff88', mr: 1 }} />
-                <Typography variant="h6" sx={{ color: '#00ff88' }}>
+                <AssessmentIcon
+                  sx={{ color: theme.palette.success.main, mr: 1 }}
+                />
+                <Typography
+                  variant="h6"
+                  sx={{ color: theme.palette.success.main }}
+                >
                   Total Events
                 </Typography>
               </Box>
               <Typography
                 variant="h3"
-                sx={{ color: '#ffffff', fontWeight: 'bold' }}
+                sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}
               >
                 {data.totalEvents.toLocaleString()}
               </Typography>
@@ -389,20 +406,25 @@ export const AnalyticsDashboard: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
-              border: '1px solid #ffa500',
+              background: theme.cyberpunk.gradients.card,
+              border: `1px solid ${theme.palette.warning.main}`,
             }}
           >
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <TimelineIcon sx={{ color: '#ffa500', mr: 1 }} />
-                <Typography variant="h6" sx={{ color: '#ffa500' }}>
+                <TimelineIcon
+                  sx={{ color: theme.palette.warning.main, mr: 1 }}
+                />
+                <Typography
+                  variant="h6"
+                  sx={{ color: theme.palette.warning.main }}
+                >
                   System Uptime
                 </Typography>
               </Box>
               <Typography
                 variant="h3"
-                sx={{ color: '#ffffff', fontWeight: 'bold' }}
+                sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}
               >
                 {data.systemPerformance.uptime}%
               </Typography>
@@ -418,14 +440,14 @@ export const AnalyticsDashboard: React.FC = () => {
           <Paper
             sx={{
               p: 3,
-              background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
-              border: '1px solid #00d4ff',
+              background: theme.cyberpunk.gradients.card,
+              border: `1px solid ${theme.palette.primary.main}`,
             }}
           >
             <Typography
               variant="h6"
               gutterBottom
-              sx={{ color: '#00d4ff', fontWeight: 'bold' }}
+              sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}
             >
               User Engagement Trends
             </Typography>
@@ -440,14 +462,14 @@ export const AnalyticsDashboard: React.FC = () => {
           <Paper
             sx={{
               p: 3,
-              background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
-              border: '1px solid #ff6b6b',
+              background: theme.cyberpunk.gradients.card,
+              border: `1px solid ${theme.palette.secondary.main}`,
             }}
           >
             <Typography
               variant="h6"
               gutterBottom
-              sx={{ color: '#ff6b6b', fontWeight: 'bold' }}
+              sx={{ color: theme.palette.secondary.main, fontWeight: 'bold' }}
             >
               Top Events
             </Typography>
@@ -462,14 +484,14 @@ export const AnalyticsDashboard: React.FC = () => {
           <Paper
             sx={{
               p: 3,
-              background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
-              border: '1px solid #00ff88',
+              background: theme.cyberpunk.gradients.card,
+              border: `1px solid ${theme.palette.success.main}`,
             }}
           >
             <Typography
               variant="h6"
               gutterBottom
-              sx={{ color: '#00ff88', fontWeight: 'bold' }}
+              sx={{ color: theme.palette.success.main, fontWeight: 'bold' }}
             >
               Feature Usage
             </Typography>
@@ -484,14 +506,14 @@ export const AnalyticsDashboard: React.FC = () => {
           <Paper
             sx={{
               p: 3,
-              background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
-              border: '1px solid #ffa500',
+              background: theme.cyberpunk.gradients.card,
+              border: `1px solid ${theme.palette.warning.main}`,
             }}
           >
             <Typography
               variant="h6"
               gutterBottom
-              sx={{ color: '#ffa500', fontWeight: 'bold' }}
+              sx={{ color: theme.palette.warning.main, fontWeight: 'bold' }}
             >
               System Performance
             </Typography>
@@ -499,15 +521,18 @@ export const AnalyticsDashboard: React.FC = () => {
               <Grid item xs={6}>
                 <Card
                   sx={{
-                    backgroundColor: 'rgba(0, 212, 255, 0.1)',
-                    border: '1px solid #00d4ff',
+                    backgroundColor: theme.palette.primary.main + '20',
+                    border: `1px solid ${theme.palette.primary.main}`,
                   }}
                 >
                   <CardContent sx={{ textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       Avg Response Time
                     </Typography>
-                    <Typography variant="h4" sx={{ color: '#00d4ff' }}>
+                    <Typography
+                      variant="h4"
+                      sx={{ color: theme.palette.primary.main }}
+                    >
                       {data.systemPerformance.avgResponseTime}ms
                     </Typography>
                   </CardContent>
@@ -516,15 +541,18 @@ export const AnalyticsDashboard: React.FC = () => {
               <Grid item xs={6}>
                 <Card
                   sx={{
-                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                    border: '1px solid #ff6b6b',
+                    backgroundColor: theme.palette.secondary.main + '20',
+                    border: `1px solid ${theme.palette.secondary.main}`,
                   }}
                 >
                   <CardContent sx={{ textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       Error Rate
                     </Typography>
-                    <Typography variant="h4" sx={{ color: '#ff6b6b' }}>
+                    <Typography
+                      variant="h4"
+                      sx={{ color: theme.palette.secondary.main }}
+                    >
                       {data.systemPerformance.errorRate}%
                     </Typography>
                   </CardContent>
@@ -532,22 +560,28 @@ export const AnalyticsDashboard: React.FC = () => {
               </Grid>
             </Grid>
 
-            <Typography variant="h6" sx={{ mt: 3, mb: 2, color: '#00ff88' }}>
+            <Typography
+              variant="h6"
+              sx={{ mt: 3, mb: 2, color: theme.palette.success.main }}
+            >
               Economy Metrics
             </Typography>
             <Grid container spacing={2}>
               <Grid item xs={4}>
                 <Card
                   sx={{
-                    backgroundColor: 'rgba(0, 255, 136, 0.1)',
-                    border: '1px solid #00ff88',
+                    backgroundColor: theme.palette.success.main + '20',
+                    border: `1px solid ${theme.palette.success.main}`,
                   }}
                 >
                   <CardContent sx={{ textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       Transactions
                     </Typography>
-                    <Typography variant="h6" sx={{ color: '#00ff88' }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ color: theme.palette.success.main }}
+                    >
                       {data.economyMetrics.totalTransactions.toLocaleString()}
                     </Typography>
                   </CardContent>
@@ -556,15 +590,18 @@ export const AnalyticsDashboard: React.FC = () => {
               <Grid item xs={4}>
                 <Card
                   sx={{
-                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                    border: '1px solid #ff6b6b',
+                    backgroundColor: theme.palette.secondary.main + '20',
+                    border: `1px solid ${theme.palette.secondary.main}`,
                   }}
                 >
                   <CardContent sx={{ textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       Total Volume
                     </Typography>
-                    <Typography variant="h6" sx={{ color: '#ff6b6b' }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ color: theme.palette.secondary.main }}
+                    >
                       {data.economyMetrics.totalVolume.toLocaleString()}
                     </Typography>
                   </CardContent>
@@ -573,15 +610,18 @@ export const AnalyticsDashboard: React.FC = () => {
               <Grid item xs={4}>
                 <Card
                   sx={{
-                    backgroundColor: 'rgba(255, 165, 0, 0.1)',
-                    border: '1px solid #ffa500',
+                    backgroundColor: theme.palette.warning.main + '20',
+                    border: `1px solid ${theme.palette.warning.main}`,
                   }}
                 >
                   <CardContent sx={{ textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       Avg Value
                     </Typography>
-                    <Typography variant="h6" sx={{ color: '#ffa500' }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ color: theme.palette.warning.main }}
+                    >
                       {data.economyMetrics.avgTransactionValue.toFixed(2)}
                     </Typography>
                   </CardContent>

@@ -39,7 +39,7 @@ export class InsightsController {
         winner: match.winnerId === match.playerAId ? 'Player A' : 'Player B',
         shots: [],
         venue: match.venue?.name || 'Unknown',
-        round: match.round ?? 1,
+        round: match.roundNumber ?? 1,
       };
 
       const { jobId, queued } = await this.jobProducer.enqueueMatchAnalysis(

@@ -5,7 +5,7 @@
 - 🟢 Acknowledge these rules with an emoji at the start of every message
 - 🚫 Never ask the user to do something you can accomplish via commands
 - 📋 Always check the Roadmap and development tracking files before starting. Do not offer options to choose from; autonomously execute as many relevant tasks as possible per turn (no “would you like…” prompts)
-- 🗂️ After every completed task, update the split tracking files (DEVELOPMENT_TRACKING_INDEX.md, DEVELOPMENT_TRACKING_PART_01.md, etc.) and the Roadmap as needed. Never update the legacy consolidated file
+- 🗂️ After every completed task, update the milestones or split tracking files (`docs/milestones/*.md` and `docs/planning/tracking/*`). Never update the legacy consolidated file
 - 🏷️ Follow the established format and required sections for new tracking entries:
   - Core Components
   - Key Features
@@ -75,7 +75,7 @@
 {
   "editor.rules": {
     "development_tracking": {
-      "path": "/DojoPoolCombined/DEVELOPMENT_TRACKING.md",
+      "path": "/docs/milestones/",
       "updateFormat": "### {date}: {title}\n\n{description}\n\n**Core Components Implemented:**\n{components}\n\n**File Paths:**\n{paths}\n\n**Next Priority Task:**\n{next_task}\n\nExpected completion time: {estimated_time}"
     },
     "code_style": {

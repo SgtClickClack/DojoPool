@@ -1,0 +1,127 @@
+global:
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'alerts-staging@dojopool.com'
+  smtp_auth_username: 'alerts-staging@dojopool.com'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 5s
+      repeat_interval: 5m
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      group_wait: 10s
+      repeat_interval: 30m
+    - match:
+        severity: info
+      receiver: 'info-alerts'
+      group_wait: 30s
+      repeat_interval: 2h
+
+receivers:
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://localhost:5001/'
+
+  - name: 'critical-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#alerts-critical'
+        username: 'DojoPool Staging Alert'
+        icon_emoji: ':fire:'
+        title: '🚨 CRITICAL ALERT: {{ .GroupLabels.alertname }}'
+        title_link: 'http://localhost:3002/d/dojopool-staging-overview'
+        text: |
+          *Environment:* Staging
+          *Cluster:* {{ .GroupLabels.cluster }}
+          *Service:* {{ .GroupLabels.service }}
+
+          {{ range .Alerts }}
+          *🚨 Alert:* {{ .Annotations.summary }}
+          *📝 Description:* {{ .Annotations.description }}
+          *🔥 Severity:* {{ .Labels.severity }}
+          *🖥️ Instance:* {{ .Labels.instance }}
+          *⏰ Started:* {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+          *📊 Value:* {{ .Value }}
+          ---
+          {{ end }}
+          <http://localhost:3002|View Grafana> | <http://localhost:9090|View Prometheus>
+        send_resolved: true
+        color: 'danger'
+    pagerduty_configs:
+      - routing_key: '${PAGERDUTY_INTEGRATION_KEY}'
+        severity: 'critical'
+        description: 'CRITICAL: {{ .GroupLabels.alertname }} - {{ .CommonAnnotations.summary }}'
+        component: '{{ .GroupLabels.service }}'
+        group: '{{ .GroupLabels.cluster }}'
+        class: 'staging'
+    email_configs:
+      - to: 'alerts-staging@dojopool.com,dev-team@dojopool.com'
+        subject: '🚨 CRITICAL STAGING ALERT: {{ .GroupLabels.alertname }}'
+        body: |
+          Environment: Staging
+          Cluster: {{ .GroupLabels.cluster }}
+          Service: {{ .GroupLabels.service }}
+
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Instance: {{ .Labels.instance }}
+          Started: {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+          Value: {{ .Value }}
+          ---
+          {{ end }}
+
+          View Grafana: http://localhost:3002
+          View Prometheus: http://localhost:9090
+          View AlertManager: http://localhost:9093
+
+  - name: 'warning-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#alerts-warning'
+        title: '⚠️ Warning Alert: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Service:* {{ .Labels.service }}
+          *Instance:* {{ .Labels.instance }}
+          *Started:* {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+        send_resolved: true
+
+  - name: 'info-alerts'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '#alerts-info'
+        title: 'ℹ️ Info Alert: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Service:* {{ .Labels.service }}
+          *Instance:* {{ .Labels.instance }}
+          *Started:* {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+        send_resolved: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']

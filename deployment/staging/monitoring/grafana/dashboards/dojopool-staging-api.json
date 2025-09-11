@@ -1,0 +1,313 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "DojoPool Staging API Service",
+    "tags": ["dojopool", "staging", "api", "service"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "API Service Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"dojopool-staging-api\"}",
+            "legendFormat": "API Status"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "DOWN",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "UP",
+                    "color": "green"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Total Requests",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "increase(http_requests_total{job=\"dojopool-staging-api\"}[1h])",
+            "legendFormat": "Requests (1h)"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Average Response Time",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(http_request_duration_seconds_sum{job=\"dojopool-staging-api\"}[5m]) / rate(http_request_duration_seconds_count{job=\"dojopool-staging-api\"}[5m])",
+            "legendFormat": "Avg Response Time"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Error Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=\"dojopool-staging-api\", status=~\"5..\"}[5m]) / rate(http_requests_total{job=\"dojopool-staging-api\"}[5m]) * 100",
+            "legendFormat": "Error Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 1
+                },
+                {
+                  "color": "red",
+                  "value": 5
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "Request Rate by Method",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=\"dojopool-staging-api\"}[5m])",
+            "legendFormat": "{{method}} {{status}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "id": 6,
+        "title": "Response Time Distribution",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"dojopool-staging-api\"}[5m]))",
+            "legendFormat": "50th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"dojopool-staging-api\"}[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job=\"dojopool-staging-api\"}[5m]))",
+            "legendFormat": "99th percentile"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 4
+        }
+      },
+      {
+        "id": 7,
+        "title": "HTTP Status Codes",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=\"dojopool-staging-api\", status=\"200\"}[5m])",
+            "legendFormat": "200 OK"
+          },
+          {
+            "expr": "rate(http_requests_total{job=\"dojopool-staging-api\", status=\"201\"}[5m])",
+            "legendFormat": "201 Created"
+          },
+          {
+            "expr": "rate(http_requests_total{job=\"dojopool-staging-api\", status=\"400\"}[5m])",
+            "legendFormat": "400 Bad Request"
+          },
+          {
+            "expr": "rate(http_requests_total{job=\"dojopool-staging-api\", status=\"404\"}[5m])",
+            "legendFormat": "404 Not Found"
+          },
+          {
+            "expr": "rate(http_requests_total{job=\"dojopool-staging-api\", status=\"500\"}[5m])",
+            "legendFormat": "500 Internal Error"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 12
+        }
+      },
+      {
+        "id": 8,
+        "title": "Node.js Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "nodejs_heap_size_used_bytes{job=\"dojopool-staging-api\"} / 1024 / 1024",
+            "legendFormat": "Heap Used (MB)"
+          },
+          {
+            "expr": "nodejs_heap_size_total_bytes{job=\"dojopool-staging-api\"} / 1024 / 1024",
+            "legendFormat": "Heap Total (MB)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "MB"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        }
+      },
+      {
+        "id": 9,
+        "title": "Node.js Event Loop Lag",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "nodejs_eventloop_lag_seconds{job=\"dojopool-staging-api\"}",
+            "legendFormat": "Event Loop Lag"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        }
+      },
+      {
+        "id": 10,
+        "title": "Garbage Collection Duration",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(nodejs_gc_duration_seconds_sum{job=\"dojopool-staging-api\"}[5m]) / rate(nodejs_gc_duration_seconds_count{job=\"dojopool-staging-api\"}[5m])",
+            "legendFormat": "Avg GC Duration"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 28
+        }
+      },
+      {
+        "id": 11,
+        "title": "Request Rate by Endpoint",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, rate(http_requests_total{job=\"dojopool-staging-api\"}[5m]))",
+            "legendFormat": "{{route}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 28
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

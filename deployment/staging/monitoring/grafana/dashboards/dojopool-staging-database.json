@@ -1,0 +1,316 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "DojoPool Staging Database Performance",
+    "tags": ["dojopool", "staging", "database", "postgresql", "redis"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "PostgreSQL Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "pg_up",
+            "legendFormat": "PostgreSQL Status"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "DOWN",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "UP",
+                    "color": "green"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Active Connections",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "pg_stat_activity_count{datname=\"dojopool_staging\"}",
+            "legendFormat": "Active Connections"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Redis Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "redis_up",
+            "legendFormat": "Redis Status"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "DOWN",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "UP",
+                    "color": "green"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Redis Connected Clients",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "redis_connected_clients",
+            "legendFormat": "Connected Clients"
+          }
+        ],
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "PostgreSQL Query Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(pg_stat_database_tup_fetched{datname=\"dojopool_staging\"}[5m])",
+            "legendFormat": "Rows Fetched/sec"
+          },
+          {
+            "expr": "rate(pg_stat_database_tup_inserted{datname=\"dojopool_staging\"}[5m])",
+            "legendFormat": "Rows Inserted/sec"
+          },
+          {
+            "expr": "rate(pg_stat_database_tup_updated{datname=\"dojopool_staging\"}[5m])",
+            "legendFormat": "Rows Updated/sec"
+          },
+          {
+            "expr": "rate(pg_stat_database_tup_deleted{datname=\"dojopool_staging\"}[5m])",
+            "legendFormat": "Rows Deleted/sec"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "id": 6,
+        "title": "PostgreSQL Buffer Cache Hit Ratio",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "pg_stat_database_blks_hit{datname=\"dojopool_staging\"} / (pg_stat_database_blks_hit{datname=\"dojopool_staging\"} + pg_stat_database_blks_read{datname=\"dojopool_staging\"}) * 100",
+            "legendFormat": "Cache Hit Ratio %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 95
+                },
+                {
+                  "color": "green",
+                  "value": 99
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 4
+        }
+      },
+      {
+        "id": 7,
+        "title": "PostgreSQL Database Size",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "pg_stat_database_size_bytes{datname=\"dojopool_staging\"} / 1024 / 1024 / 1024",
+            "legendFormat": "Database Size (GB)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "GB"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 12
+        }
+      },
+      {
+        "id": 8,
+        "title": "PostgreSQL Active Connections by State",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "pg_stat_activity_count{datname=\"dojopool_staging\"}",
+            "legendFormat": "Total Connections"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 12
+        }
+      },
+      {
+        "id": 9,
+        "title": "Redis Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "redis_used_memory_bytes / 1024 / 1024",
+            "legendFormat": "Used Memory (MB)"
+          },
+          {
+            "expr": "redis_memory_fragmentation_ratio",
+            "legendFormat": "Memory Fragmentation"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        }
+      },
+      {
+        "id": 10,
+        "title": "Redis Cache Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(redis_keyspace_hits_total[5m])",
+            "legendFormat": "Cache Hits/sec"
+          },
+          {
+            "expr": "rate(redis_keyspace_misses_total[5m])",
+            "legendFormat": "Cache Misses/sec"
+          },
+          {
+            "expr": "rate(redis_total_commands_processed[5m])",
+            "legendFormat": "Commands/sec"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        }
+      },
+      {
+        "id": 11,
+        "title": "Redis Cache Hit Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total) * 100",
+            "legendFormat": "Cache Hit Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 80
+                },
+                {
+                  "color": "green",
+                  "value": 95
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 28
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

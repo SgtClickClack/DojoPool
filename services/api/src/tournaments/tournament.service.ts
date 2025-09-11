@@ -1,14 +1,15 @@
 import {
+  ActivityType,
+  BracketStatus,
+  ParticipantStatus,
+  TournamentStatus,
+} from '@dojopool/prisma';
+import {
   BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  BracketStatus,
-  ParticipantStatus,
-  TournamentStatus,
-} from '@prisma/client';
 import { CacheInvalidate, Cacheable } from '../cache/cache.decorator';
 import { CacheHelper } from '../cache/cache.helper';
 import { CacheService } from '../cache/cache.service';
@@ -37,25 +38,23 @@ export class TournamentService {
         name: createTournamentDto.name,
         description: createTournamentDto.description,
         eventId: createTournamentDto.eventId,
-        venueId: createTournamentDto.venueId,
-        startTime: new Date(createTournamentDto.startTime),
+        venueId: createTournamentDto.venueId || '',
+        startDate: new Date(createTournamentDto.startDate),
         endTime: createTournamentDto.endTime
           ? new Date(createTournamentDto.endTime)
           : null,
         maxPlayers: createTournamentDto.maxParticipants || 16,
+        currentPlayers: 0,
+        currentParticipants: 0,
         entryFee: createTournamentDto.entryFee || 0,
         prizePool: createTournamentDto.prizePool || 0,
         format: createTournamentDto.format || 'SINGLE_ELIMINATION',
         rules: JSON.stringify(createTournamentDto.rules || {}),
-        createdBy: adminId,
+        organizerId: adminId,
       },
       include: {
         venue: true,
-        event: {
-          include: {
-            content: true,
-          },
-        },
+        event: true,
         participants: {
           include: {
             user: {
@@ -65,9 +64,31 @@ export class TournamentService {
                 profile: {
                   select: {
                     avatarUrl: true,
-                    skillRating: true,
                   },
                 },
+              },
+            },
+          },
+        },
+        bracket: true,
+        matches: {
+          include: {
+            playerA: {
+              select: {
+                id: true,
+                username: true,
+              },
+            },
+            playerB: {
+              select: {
+                id: true,
+                username: true,
+              },
+            },
+            winner: {
+              select: {
+                id: true,
+                username: true,
               },
             },
           },
@@ -114,11 +135,7 @@ export class TournamentService {
         where,
         include: {
           venue: true,
-          event: {
-            include: {
-              content: true,
-            },
-          },
+          event: true,
           participants: {
             include: {
               user: {
@@ -128,7 +145,6 @@ export class TournamentService {
                   profile: {
                     select: {
                       avatarUrl: true,
-                      skillRating: true,
                     },
                   },
                 },
@@ -142,7 +158,7 @@ export class TournamentService {
             },
           },
         },
-        orderBy: { startTime: 'asc' },
+        orderBy: { startDate: 'asc' },
         skip,
         take: limit,
       }),
@@ -177,11 +193,7 @@ export class TournamentService {
       where: { id },
       include: {
         venue: true,
-        event: {
-          include: {
-            content: true,
-          },
-        },
+        event: true,
         participants: {
           include: {
             user: {
@@ -191,7 +203,6 @@ export class TournamentService {
                 profile: {
                   select: {
                     avatarUrl: true,
-                    skillRating: true,
                   },
                 },
               },
@@ -208,7 +219,6 @@ export class TournamentService {
                 profile: {
                   select: {
                     avatarUrl: true,
-                    skillRating: true,
                   },
                 },
               },
@@ -220,7 +230,6 @@ export class TournamentService {
                 profile: {
                   select: {
                     avatarUrl: true,
-                    skillRating: true,
                   },
                 },
               },
@@ -232,7 +241,7 @@ export class TournamentService {
               },
             },
           },
-          orderBy: [{ bracketRound: 'asc' }, { bracketMatch: 'asc' }],
+          orderBy: { startedAt: 'asc' },
         },
         bracket: true,
         _count: {
@@ -279,8 +288,8 @@ export class TournamentService {
         ...(updateTournamentDto.description && {
           description: updateTournamentDto.description,
         }),
-        ...(updateTournamentDto.startTime && {
-          startTime: new Date(updateTournamentDto.startTime),
+        ...(updateTournamentDto.startDate && {
+          startDate: new Date(updateTournamentDto.startDate),
         }),
         ...(updateTournamentDto.endTime && {
           endTime: updateTournamentDto.endTime
@@ -309,11 +318,7 @@ export class TournamentService {
       },
       include: {
         venue: true,
-        event: {
-          include: {
-            content: true,
-          },
-        },
+        event: true,
         participants: {
           include: {
             user: {
@@ -323,7 +328,6 @@ export class TournamentService {
                 profile: {
                   select: {
                     avatarUrl: true,
-                    skillRating: true,
                   },
                 },
               },
@@ -371,7 +375,7 @@ export class TournamentService {
     // Check if tournament allows registration
     if (
       tournament.status !== TournamentStatus.UPCOMING &&
-      tournament.status !== TournamentStatus.REGISTRATION
+      tournament.status !== TournamentStatus.REGISTRATION_OPEN
     ) {
       throw new BadRequestException('Tournament registration is not open');
     }
@@ -447,9 +451,9 @@ export class TournamentService {
             profile: {
               select: {
                 avatarUrl: true,
-                skillRating: true,
               },
             },
+            skillRating: true,
           },
         },
         tournament: {
@@ -486,7 +490,7 @@ export class TournamentService {
     // Check if tournament allows leaving
     if (
       tournament.status !== TournamentStatus.UPCOMING &&
-      tournament.status !== TournamentStatus.REGISTRATION
+      tournament.status !== TournamentStatus.REGISTRATION_OPEN
     ) {
       throw new BadRequestException('Cannot leave tournament that has started');
     }
@@ -594,7 +598,7 @@ export class TournamentService {
               },
             },
           },
-          orderBy: [{ bracketRound: 'asc' }, { bracketMatch: 'asc' }],
+          orderBy: { startedAt: 'asc' },
         },
       },
     });
@@ -635,17 +639,13 @@ export class TournamentService {
       throw new BadRequestException('Tournament needs at least 2 participants');
     }
 
-    // Sort participants by skill rating for seeding
-    const sortedParticipants = tournament.participants
-      .sort(
-        (a, b) =>
-          (b.user.profile?.skillRating || 0) -
-          (a.user.profile?.skillRating || 0)
-      )
-      .map((participant, index) => ({
+    // Assign seeds to participants (no skill rating sorting)
+    const sortedParticipants = tournament.participants.map(
+      (participant, index) => ({
         ...participant,
         seed: index + 1,
-      }));
+      })
+    );
 
     // Update participant seeds
     await Promise.all(
@@ -670,7 +670,7 @@ export class TournamentService {
         structure: JSON.stringify(bracketStructure),
         currentRound: 1,
         totalRounds: bracketStructure.totalRounds,
-        status: BracketStatus.GENERATED,
+        status: BracketStatus.NOT_STARTED,
         updatedAt: new Date(),
       },
       create: {
@@ -678,7 +678,7 @@ export class TournamentService {
         structure: JSON.stringify(bracketStructure),
         currentRound: 1,
         totalRounds: bracketStructure.totalRounds,
-        status: BracketStatus.GENERATED,
+        status: BracketStatus.NOT_STARTED,
       },
     });
 
@@ -700,7 +700,33 @@ export class TournamentService {
     'tournaments:bracket:*',
   ])
   async startTournament(tournamentId: string, adminId: string) {
-    const tournament = await this.findOne(tournamentId);
+    const tournament = await this.prisma.tournament.findUnique({
+      where: { id: tournamentId },
+      include: {
+        venue: true,
+        event: true,
+        participants: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                profile: {
+                  select: {
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        bracket: true,
+      },
+    });
+
+    if (!tournament) {
+      throw new NotFoundException('Tournament not found');
+    }
 
     if (tournament.status !== TournamentStatus.UPCOMING) {
       throw new BadRequestException('Tournament cannot be started');
@@ -722,7 +748,7 @@ export class TournamentService {
       where: { id: tournamentId },
       data: {
         status: TournamentStatus.IN_PROGRESS,
-        startTime: new Date(),
+        startDate: new Date(),
       },
     });
 
@@ -782,8 +808,6 @@ export class TournamentService {
               playerAId: participants[i].userId,
               playerBId: participants[i + 1].userId,
               isRanked: true,
-              bracketRound: round,
-              bracketMatch: Math.floor(i / 2) + 1,
             },
           });
           matches.push(match);
@@ -806,7 +830,34 @@ export class TournamentService {
     'tournaments:bracket:*',
   ])
   async advanceTournamentRound(tournamentId: string, adminId: string) {
-    const tournament = await this.findOne(tournamentId);
+    const tournament = await this.prisma.tournament.findUnique({
+      where: { id: tournamentId },
+      include: {
+        venue: true,
+        event: true,
+        participants: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                profile: {
+                  select: {
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        bracket: true,
+        matches: true,
+      },
+    });
+
+    if (!tournament) {
+      throw new NotFoundException('Tournament not found');
+    }
 
     if (tournament.status !== TournamentStatus.IN_PROGRESS) {
       throw new BadRequestException('Tournament is not in progress');
@@ -825,21 +876,18 @@ export class TournamentService {
       return { success: true, completed: true };
     }
 
-    // Check if current round is complete
-    const currentRoundMatches = tournament.matches.filter(
-      (match) => match.bracketRound === currentRound
+    // Check if tournament has pending matches
+    const pendingMatches = tournament.matches.filter(
+      (match) => match.status !== 'COMPLETED'
     );
 
-    const completedMatches = currentRoundMatches.filter(
-      (match) => match.status === 'COMPLETED'
-    );
-
-    if (completedMatches.length !== currentRoundMatches.length) {
-      throw new BadRequestException('Current round is not complete');
+    if (pendingMatches.length > 0) {
+      throw new BadRequestException('Tournament has pending matches');
     }
 
     // Generate next round matches
-    const winners = completedMatches
+    const winners = tournament.matches
+      .filter((match) => match.status === 'COMPLETED')
       .map((match) => match.winnerId)
       .filter(Boolean);
     await this.generateRoundMatches(
@@ -868,48 +916,65 @@ export class TournamentService {
   private async completeTournament(tournamentId: string) {
     const tournament = await this.findOne(tournamentId);
 
-    // Find the winner
-    const finalMatches = tournament.matches.filter(
-      (match) => match.bracketRound === tournament.bracket?.totalRounds
+    // Find the winner from completed matches
+    const completedMatches = tournament.matches.filter(
+      (match) => match.status === 'COMPLETED'
     );
 
-    if (finalMatches.length === 1 && finalMatches[0].winnerId) {
-      const winnerId = finalMatches[0].winnerId;
+    if (completedMatches.length > 0) {
+      // For simplicity, take the last completed match winner
+      const finalMatch = completedMatches[completedMatches.length - 1];
+      if (finalMatch.winnerId) {
+        const winnerId = finalMatch.winnerId;
 
-      // Update tournament status
-      await this.prisma.tournament.update({
-        where: { id: tournamentId },
-        data: {
-          status: TournamentStatus.COMPLETED,
-          endTime: new Date(),
-        },
-      });
-
-      // Update bracket status
-      if (tournament.bracket) {
-        await this.prisma.bracket.update({
-          where: { tournamentId },
+        // Update tournament status
+        await this.prisma.tournament.update({
+          where: { id: tournamentId },
           data: {
-            status: BracketStatus.COMPLETED,
+            status: TournamentStatus.COMPLETED,
+            endTime: new Date(),
           },
         });
-      }
 
-      // Award prizes (simplified - in real implementation, distribute prize pool)
-      if (tournament.prizePool > 0) {
-        await this.prisma.user.update({
-          where: { id: winnerId },
-          data: {
-            dojoCoinBalance: {
-              increment: tournament.prizePool,
+        // Update bracket status
+        if (tournament.bracket) {
+          await this.prisma.bracket.update({
+            where: { tournamentId },
+            data: {
+              status: BracketStatus.COMPLETED,
             },
+          });
+        }
+
+        // Award prizes (simplified - in real implementation, distribute prize pool)
+        if (tournament.prizePool > 0) {
+          await this.prisma.user.update({
+            where: { id: winnerId },
+            data: {
+              dojoCoinBalance: {
+                increment: tournament.prizePool,
+              },
+            },
+          });
+        }
+
+        // Create activity feed event for tournament win
+        await this.prisma.activity.create({
+          data: {
+            userId: winnerId,
+            type: ActivityType.TOURNAMENT_WIN,
+            details: JSON.stringify({
+              tournamentName: tournament.name,
+              tournamentId: tournament.id,
+              prizePool: tournament.prizePool,
+            }),
           },
         });
-      }
 
-      this.logger.log(
-        `Tournament ${tournamentId} completed. Winner: ${winnerId}`
-      );
+        this.logger.log(
+          `Tournament ${tournamentId} completed. Winner: ${winnerId}`
+        );
+      }
     }
   }
 

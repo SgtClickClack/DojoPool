@@ -1,4 +1,4 @@
-import { ContentStatus } from '@prisma/client';
+import { ContentStatus } from '@dojopool/types';
 import {
   IsEnum,
   IsNotEmpty,

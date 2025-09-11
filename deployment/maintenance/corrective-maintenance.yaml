@@ -1,0 +1,233 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dojopool-corrective-maintenance
+  namespace: default
+data:
+  corrective-maintenance-procedures.json: |
+    {
+      "corrective_maintenance": {
+        "incident_response": {
+          "severity_levels": {
+            "p0_critical": {
+              "description": "Complete system outage or data loss",
+              "response_time": "15m",
+              "resolution_time": "4h",
+              "communication": ["all_channels", "status_page", "sms"],
+              "stakeholders": ["engineering", "product", "executives"],
+              "post_mortem": "required"
+            },
+            "p1_high": {
+              "description": "Major functionality broken or degraded",
+              "response_time": "30m",
+              "resolution_time": "12h",
+              "communication": ["slack", "email", "status_page"],
+              "stakeholders": ["engineering", "product"],
+              "post_mortem": "required"
+            },
+            "p2_medium": {
+              "description": "Minor functionality issues or performance degradation",
+              "response_time": "2h",
+              "resolution_time": "24h",
+              "communication": ["slack", "internal"],
+              "stakeholders": ["engineering"],
+              "post_mortem": "optional"
+            },
+            "p3_low": {
+              "description": "Cosmetic issues or minor bugs",
+              "response_time": "24h",
+              "resolution_time": "72h",
+              "communication": ["slack"],
+              "stakeholders": ["engineering"],
+              "post_mortem": "none"
+            }
+          },
+          "escalation_matrix": {
+            "level1_engineer": "15m_unresolved",
+            "level2_engineer": "1h_unresolved",
+            "engineering_manager": "2h_unresolved",
+            "engineering_director": "4h_unresolved",
+            "vp_engineering": "8h_unresolved"
+          },
+          "communication_templates": {
+            "initial_response": "We've detected an issue and are investigating. Updates every 30 minutes.",
+            "resolution_update": "Issue identified. Resolution in progress. ETA: {time}",
+            "resolution_complete": "Issue resolved. Full details in post-mortem report.",
+            "rollback_initiated": "Initiating rollback to previous stable version."
+          }
+        },
+        "bug_fix_process": {
+          "triage": {
+            "criteria": ["severity", "user_impact", "frequency", "reproducibility"],
+            "priority_matrix": {
+              "critical_path": "p0",
+              "user_facing": "p1",
+              "background_process": "p2",
+              "nice_to_have": "p3"
+            },
+            "assignment_rules": {
+              "api_issues": "backend_team",
+              "ui_issues": "frontend_team",
+              "database_issues": "data_team",
+              "infrastructure_issues": "platform_team"
+            }
+          },
+          "fix_implementation": {
+            "code_review_required": true,
+            "test_coverage_minimum": "80%",
+            "documentation_update": true,
+            "changelog_entry": true,
+            "rollback_plan": true
+          },
+          "validation": {
+            "unit_tests": true,
+            "integration_tests": true,
+            "performance_tests": true,
+            "security_tests": true,
+            "user_acceptance_tests": "p0_p1_only"
+          },
+          "deployment": {
+            "staging_deployment": true,
+            "canary_deployment": "p0_p1",
+            "production_deployment": true,
+            "monitoring_period": "24h",
+            "rollback_criteria": "error_rate > 5% or performance_degradation > 10%"
+          }
+        },
+        "hotfix_process": {
+          "eligibility_criteria": {
+            "severity": "p0_p1_only",
+            "scope": "single_service",
+            "complexity": "low",
+            "risk_assessment": "minimal_impact"
+          },
+          "approval_process": {
+            "technical_review": "lead_engineer",
+            "security_review": "security_team",
+            "business_approval": "product_manager",
+            "emergency_approval": "vp_engineering"
+          },
+          "deployment_procedure": {
+            "environment": "production_direct",
+            "testing": "smoke_tests_only",
+            "rollback_plan": "immediate",
+            "monitoring": "enhanced_1h",
+            "communication": "minimal_internal"
+          }
+        }
+      }
+    }
+
+  preventive-maintenance-procedures.json: |
+    {
+      "preventive_maintenance": {
+        "database_maintenance": {
+          "vacuum_operations": {
+            "schedule": "weekly",
+            "tables": ["user_events", "game_sessions", "tournament_matches"],
+            "monitoring": {
+              "disk_usage": true,
+              "query_performance": true,
+              "table_bloat": true
+            }
+          },
+          "index_maintenance": {
+            "schedule": "monthly",
+            "operations": ["reindex", "analyze"],
+            "monitoring": {
+              "index_usage": true,
+              "index_bloat": true,
+              "query_plans": true
+            }
+          },
+          "partition_management": {
+            "schedule": "daily",
+            "operations": ["create_partitions", "drop_old_partitions"],
+            "retention_policy": {
+              "user_events": "90d",
+              "game_sessions": "180d",
+              "audit_logs": "365d"
+            }
+          }
+        },
+        "application_maintenance": {
+          "dependency_updates": {
+            "schedule": "weekly",
+            "scope": ["security_patches", "bug_fixes", "minor_versions"],
+            "testing": {
+              "compatibility_tests": true,
+              "performance_tests": true,
+              "integration_tests": true
+            }
+          },
+          "code_quality": {
+            "schedule": "monthly",
+            "activities": [
+              "code_reviews",
+              "static_analysis",
+              "performance_profiling",
+              "security_scanning"
+            ],
+            "targets": {
+              "code_coverage": "> 80%",
+              "cyclomatic_complexity": "< 10",
+              "technical_debt": "reduce_5%"
+            }
+          },
+          "cache_optimization": {
+            "schedule": "weekly",
+            "activities": [
+              "cache_invalidation",
+              "memory_cleanup",
+              "connection_pool_reset"
+            ]
+          }
+        },
+        "infrastructure_maintenance": {
+          "kubernetes_maintenance": {
+            "schedule": "monthly",
+            "activities": [
+              "cluster_upgrades",
+              "node_maintenance",
+              "network_policy_updates",
+              "resource_quota_adjustments"
+            ]
+          },
+          "monitoring_maintenance": {
+            "schedule": "weekly",
+            "activities": [
+              "log_rotation",
+              "metric_cleanup",
+              "alert_rule_updates",
+              "dashboard_optimization"
+            ]
+          },
+          "backup_verification": {
+            "schedule": "daily",
+            "activities": [
+              "backup_integrity_checks",
+              "restore_testing",
+              "retention_policy_enforcement"
+            ]
+          }
+        },
+        "security_maintenance": {
+          "access_review": {
+            "schedule": "quarterly",
+            "activities": [
+              "permission_audits",
+              "access_log_reviews",
+              "role_cleanup"
+            ]
+          },
+          "security_assessment": {
+            "schedule": "monthly",
+            "activities": [
+              "vulnerability_scanning",
+              "penetration_testing",
+              "configuration_reviews"
+            ]
+          }
+        }
+      }
+    }

@@ -51,12 +51,23 @@ export class VenuesService {
       throw new NotFoundException('Venue not found');
     }
 
+    // Get the next table number for this venue
+    const existingTables = await this.prisma.table.findMany({
+      where: { venueId },
+      select: { tableNumber: true },
+      orderBy: { tableNumber: 'desc' },
+      take: 1,
+    });
+
+    const nextTableNumber =
+      existingTables.length > 0 ? existingTables[0].tableNumber + 1 : 1;
+
     await this.prisma.table.create({
       data: {
         venueId,
-        // Remove tableNumber as it doesn't exist in schema
+        tableNumber: nextTableNumber,
         name: data.name,
-        status: (data.status ?? 'AVAILABLE') as any,
+        status: (data.status ?? 'available') as any,
       },
     });
 
@@ -301,7 +312,8 @@ export class VenuesService {
       data: {
         userId,
         venueId,
-        // Remove dojoName as it doesn't exist in schema
+        latitude: venue.lat,
+        longitude: venue.lng,
       },
     });
 
@@ -395,11 +407,11 @@ export class VenuesService {
     return this.prisma.venueSpecial.create({
       data: {
         venueId: venue.id,
+        name: title || 'Special Offer',
         title,
         description:
           typeof data?.description === 'string' ? data.description : undefined,
         type: 'SPECIAL',
-        // Remove startDate as it doesn't exist in schema
         validUntil: validUntil as Date,
       },
     });
@@ -480,9 +492,12 @@ export class VenuesService {
     const quest = await this.prisma.venueQuest.create({
       data: {
         venueId: venue.id,
+        name: title || 'Quest',
         title,
         description:
           typeof data?.description === 'string' ? data.description : undefined,
+        type: 'QUEST',
+        requirements: data?.requirements || {},
         rewardDojoCoins: reward,
         isActive: data?.isActive === false ? false : true,
       },

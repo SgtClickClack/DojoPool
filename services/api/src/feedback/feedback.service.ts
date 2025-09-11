@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Feedback, FeedbackStatus } from '@prisma/client';
+import { Feedback, FeedbackStatus } from '@dojopool/prisma';
 import {
   CacheKey,
   CacheWriteThrough,

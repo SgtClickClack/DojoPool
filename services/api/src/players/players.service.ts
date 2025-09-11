@@ -45,7 +45,7 @@ export class PlayersService {
               },
             },
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { joinedAt: 'desc' },
         });
 
       // Get match history
@@ -79,7 +79,7 @@ export class PlayersService {
             },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { startedAt: 'desc' },
       });
 
       // Calculate statistics
@@ -130,7 +130,7 @@ export class PlayersService {
                     );
                   }
                   return false;
-                })?.createdAt
+                })?.startedAt
               : null,
         },
         {
@@ -141,7 +141,7 @@ export class PlayersService {
           unlocked: tournamentParticipations.length > 0,
           unlockedAt:
             tournamentParticipations.length > 0
-              ? tournamentParticipations[0].createdAt
+              ? tournamentParticipations[0].joinedAt
               : null,
         },
         {

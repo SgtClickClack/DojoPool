@@ -4,6 +4,7 @@ import type {
   NotificationResponse,
 } from '@/types/notification';
 import type {
+  AnalyticsData,
   Content,
   ContentFilter,
   ContentLikeResponse,
@@ -16,12 +17,11 @@ import type {
   FeedbackListResponse,
   FeedbackStats,
   ModerateContentRequest,
+  RealtimeMetrics,
   UpdateContentRequest,
   UpdateFeedbackRequest,
   UserContentListResponse,
   UserFeedbackListResponse,
-  AnalyticsData,
-  RealtimeMetrics,
 } from '@dojopool/types';
 import type {
   MatchInsights,
@@ -31,7 +31,9 @@ import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 // Create axios instance with default config
 const apiBaseUrl =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '/api';
+  (process.env.NEXT_PUBLIC_API_URL
+    ? process.env.NEXT_PUBLIC_API_URL.trim().replace(/\/$/, '')
+    : undefined) || '/api';
 
 const api: AxiosInstance = axios.create({
   baseURL: apiBaseUrl,
@@ -478,6 +480,70 @@ export const resumeMatch = async (
   matchId: string
 ): Promise<{ status: string }> => {
   const response = await api.post(`/v1/matches/${matchId}/resume`);
+  return response.data;
+};
+
+// Match Reporting API functions
+export interface ReportMatchData {
+  playerAId: string;
+  playerBId: string;
+  winnerId: string;
+  scoreA: number;
+  scoreB: number;
+  venueId?: string;
+  tableId?: string;
+}
+
+export interface MatchResult {
+  id: string;
+  winnerId: string;
+  loserId: string;
+  scoreA: number;
+  scoreB: number;
+  playerAStats: {
+    totalWins: number;
+    totalLosses: number;
+    winStreak: number;
+    longestWinStreak: number;
+    totalMatches: number;
+  };
+  playerBStats: {
+    totalWins: number;
+    totalLosses: number;
+    winStreak: number;
+    longestWinStreak: number;
+    totalMatches: number;
+  };
+}
+
+export const reportMatch = async (
+  reportData: ReportMatchData
+): Promise<MatchResult> => {
+  const response = await api.post('/v1/matches/report', reportData);
+  return response.data;
+};
+
+// User Statistics API functions
+export interface UserStatistics {
+  id: string;
+  username: string;
+  totalWins: number;
+  totalLosses: number;
+  winStreak: number;
+  longestWinStreak: number;
+  totalMatches: number;
+  winRate: number;
+}
+
+export const getUserStatistics = async (
+  userId: string
+): Promise<UserStatistics> => {
+  const response = await api.get(`/v1/users/${userId}/statistics`);
+  return response.data;
+};
+
+export const getMyStatistics = async (): Promise<UserStatistics> => {
+  const response = await api.get('/v1/users/me/statistics');
   return response.data;
 };
 

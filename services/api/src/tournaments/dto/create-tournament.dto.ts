@@ -12,7 +12,7 @@ import {
 export class CreateTournamentDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
@@ -28,7 +28,7 @@ export class CreateTournamentDto {
 
   @IsNotEmpty()
   @IsDateString()
-  startTime: string;
+  startDate!: string;
 
   @IsOptional()
   @IsDateString()

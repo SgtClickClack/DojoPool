@@ -1,0 +1,166 @@
+groups:
+  - name: dojopool-staging-critical
+    rules:
+      # Service Down Alerts
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'Service {{ $labels.instance }} is down'
+          description: 'Service {{ $labels.instance }} has been down for more than 1 minute.'
+
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'High error rate on {{ $labels.instance }}'
+          description: 'Error rate is {{ $value }} errors per second on {{ $labels.instance }}'
+
+      # Database Connection Failures
+      - alert: DatabaseDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'PostgreSQL database is down'
+          description: 'PostgreSQL database on {{ $labels.instance }} is not responding'
+
+      # Redis Connection Failures
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'Redis cache is down'
+          description: 'Redis cache on {{ $labels.instance }} is not responding'
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'High memory usage on {{ $labels.instance }}'
+          description: 'Memory usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}'
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'High CPU usage on {{ $labels.instance }}'
+          description: 'CPU usage is {{ $value }}% on {{ $labels.instance }}'
+
+      # Disk Space Critical
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'Disk space critical on {{ $labels.instance }}'
+          description: 'Only {{ $value | humanizePercentage }} disk space left on {{ $labels.instance }}'
+
+  - name: dojopool-staging-warning
+    rules:
+      # High Response Time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'High response time on {{ $labels.instance }}'
+          description: '95th percentile response time is {{ $value }}s on {{ $labels.instance }}'
+
+      # High Memory Usage Warning
+      - alert: HighMemoryUsageWarning
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.8
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'High memory usage warning on {{ $labels.instance }}'
+          description: 'Memory usage is {{ $value | humanizePercentage }} on {{ $labels.instance }}'
+
+      # High CPU Usage Warning
+      - alert: HighCPUUsageWarning
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'High CPU usage warning on {{ $labels.instance }}'
+          description: 'CPU usage is {{ $value }}% on {{ $labels.instance }}'
+
+      # Disk Space Warning
+      - alert: DiskSpaceWarning
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Disk space warning on {{ $labels.instance }}'
+          description: 'Only {{ $value | humanizePercentage }} disk space left on {{ $labels.instance }}'
+
+      # High Error Rate Warning
+      - alert: HighErrorRateWarning
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'High error rate warning on {{ $labels.instance }}'
+          description: 'Error rate is {{ $value }} errors per second on {{ $labels.instance }}'
+
+      # Container Restart
+      - alert: ContainerRestart
+        expr: increase(container_start_time_seconds[1h]) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Container {{ $labels.name }} restarted'
+          description: 'Container {{ $labels.name }} has restarted {{ $value }} times in the last hour'
+
+  - name: dojopool-staging-info
+    rules:
+      # Service Health Check
+      - alert: ServiceHealthCheck
+        expr: up == 1
+        for: 0m
+        labels:
+          severity: info
+        annotations:
+          summary: 'Service {{ $labels.instance }} is healthy'
+          description: 'Service {{ $labels.instance }} is running normally'
+
+      # Database Health Check
+      - alert: DatabaseHealthCheck
+        expr: pg_up == 1
+        for: 0m
+        labels:
+          severity: info
+        annotations:
+          summary: 'PostgreSQL database is healthy'
+          description: 'PostgreSQL database on {{ $labels.instance }} is running normally'
+
+      # Redis Health Check
+      - alert: RedisHealthCheck
+        expr: redis_up == 1
+        for: 0m
+        labels:
+          severity: info
+        annotations:
+          summary: 'Redis cache is healthy'
+          description: 'Redis cache on {{ $labels.instance }} is running normally'

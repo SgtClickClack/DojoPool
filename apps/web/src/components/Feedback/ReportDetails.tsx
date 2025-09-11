@@ -2,11 +2,7 @@ import {
   getModerationFeedbackById,
   updateModerationFeedbackStatus,
 } from '@/services/APIService';
-import type {
-  Feedback,
-  FeedbackPriority,
-  FeedbackStatus,
-} from '@dojopool/types';
+import type { Feedback } from '@dojopool/types';
 import {
   Alert,
   Box,
@@ -25,6 +21,23 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+
+// Define enums locally
+enum FeedbackStatus {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  IN_REVIEW = 'IN_REVIEW',
+  RESOLVED = 'RESOLVED',
+  CLOSED = 'CLOSED',
+  DISMISSED = 'DISMISSED',
+}
+
+enum FeedbackPriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  CRITICAL = 'CRITICAL',
+}
 
 interface ReportDetailsProps {
   id: string;
@@ -46,8 +59,8 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ id, open, onClose }) => {
         setError(null);
         const item = await getModerationFeedbackById(id);
         setReport(item);
-        setStatus(item.status);
-        setPriority(item.priority);
+        setStatus(item.status as any as FeedbackStatus);
+        setPriority(item.priority as any as FeedbackPriority);
         setModeratorNotes(item.moderatorNotes || '');
       } catch (err: any) {
         setError(err?.response?.data?.message || 'Failed to load report');
@@ -57,13 +70,12 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ id, open, onClose }) => {
   }, [id, open]);
 
   const save = async () => {
-    if (!report) return;
+    if (!report || !status) return;
     try {
       setSaving(true);
       await updateModerationFeedbackStatus(report.id, {
-        status: status as FeedbackStatus,
-        priority: priority as FeedbackPriority,
-        moderatorNotes,
+        status: status as any,
+        priority: priority as any,
       });
       onClose();
     } catch (err: any) {

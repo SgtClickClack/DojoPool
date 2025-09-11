@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AchievementCategory, RewardType } from '@prisma/client';
+import { AchievementCategory, RewardType } from '@dojopool/prisma';
 import { AchievementService } from './achievement.service';
 import { RewardService } from './reward.service';
 

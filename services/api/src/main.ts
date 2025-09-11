@@ -2,6 +2,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Queue } from 'bullmq';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -161,6 +162,8 @@ async function bootstrap() {
   // Validate environment variables before starting
   validateEnvironment();
 
+  const port = process.env.PORT || 3002;
+
   const app = await NestFactory.create(AppModule);
 
   // Apply global error handler
@@ -288,11 +291,6 @@ async function bootstrap() {
         name: 'MIT',
         url: 'https://opensource.org/licenses/MIT',
       },
-      'x-logo': {
-        url: 'https://dojopool.com/logo.png',
-        backgroundColor: '#1a1a2e',
-        altText: 'DojoPool Logo',
-      },
     };
 
     SwaggerModule.setup('api/docs', app, document, {
@@ -308,11 +306,11 @@ async function bootstrap() {
           theme: 'arta',
         },
         tryItOutEnabled: true,
-        requestInterceptor: (req) => {
+        requestInterceptor: (req: any) => {
           // Add any custom request interceptors if needed
           return req;
         },
-        responseInterceptor: (res) => {
+        responseInterceptor: (res: any) => {
           // Add any custom response interceptors if needed
           return res;
         },
@@ -345,7 +343,7 @@ async function bootstrap() {
         queueService.getQueue('ai-analysis'),
         queueService.getQueue('batch-updates'),
         queueService.getQueue('analytics-processing'),
-      ].filter(Boolean); // Filter out undefined queues
+      ].filter((queue): queue is Queue => queue !== undefined); // Filter out undefined queues
 
       if (queues.length > 0) {
         const serverAdapter = setupBullBoard(queues);
@@ -363,10 +361,12 @@ async function bootstrap() {
       console.log('ℹ️ Bull Board not configured: QueueService not available');
     }
   } catch (error) {
-    console.log('ℹ️ Bull Board setup skipped:', error.message);
+    console.log(
+      'ℹ️ Bull Board setup skipped:',
+      error instanceof Error ? error.message : String(error)
+    );
   }
 
-  const port = process.env.PORT || 3002;
   await app.listen(port);
 
   console.log(`✅ DojoPool API listening on http://localhost:${port}`);

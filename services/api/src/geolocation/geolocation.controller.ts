@@ -23,17 +23,46 @@ import {
 import { GeolocationService } from './geolocation.service';
 
 @Controller('api/v1/location')
-@UseGuards(JwtAuthGuard)
 export class GeolocationController {
   private readonly logger = new Logger(GeolocationController.name);
 
   constructor(private readonly geolocationService: GeolocationService) {}
 
   /**
+   * Get suggested language based on IP and Accept-Language header.
+   * This endpoint is public and does not require authentication.
+   * GET /api/v1/location/language
+   */
+  @Get('language')
+  getSuggestedLanguage(
+    @Ip() ipAddress: string,
+    @Headers('accept-language') acceptLanguageHeader?: string
+  ) {
+    try {
+      const language = this.geolocationService.getPreferredLanguage(
+        ipAddress,
+        acceptLanguageHeader
+      );
+      return {
+        success: true,
+        data: { language },
+        message: 'Suggested language retrieved successfully.',
+      };
+    } catch (error) {
+      this.logger.error(`Failed to get suggested language`, error);
+      throw new HttpException(
+        { success: false, message: 'Failed to get suggested language' },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  /**
    * Update player location
    * POST /api/v1/location/update
    */
   @Post('update')
+  @UseGuards(JwtAuthGuard)
   async updateLocation(
     @Body() locationData: LocationUpdateDto,
     @Request() req: any,
@@ -74,6 +103,7 @@ export class GeolocationController {
    * GET /api/v1/location/nearby-players
    */
   @Get('nearby-players')
+  @UseGuards(JwtAuthGuard)
   async getNearbyPlayers(
     @Query() query: NearbyPlayersDto,
     @Request() req: any
@@ -117,6 +147,7 @@ export class GeolocationController {
    * POST /api/v1/location/privacy
    */
   @Post('privacy')
+  @UseGuards(JwtAuthGuard)
   async updatePrivacySettings(
     @Body() settings: LocationPrivacySettingsDto,
     @Request() req: any
@@ -152,6 +183,7 @@ export class GeolocationController {
    * GET /api/v1/location/me
    */
   @Get('me')
+  @UseGuards(JwtAuthGuard)
   async getMyLocation(@Request() req: any) {
     try {
       const location = await this.geolocationService.getPlayerLocation(
@@ -187,6 +219,7 @@ export class GeolocationController {
    * GET /api/v1/location/stats
    */
   @Get('stats')
+  @UseGuards(JwtAuthGuard)
   async getLocationStats(
     @Request() req: any
   ): Promise<{ success: boolean; data: LocationStatsDto }> {

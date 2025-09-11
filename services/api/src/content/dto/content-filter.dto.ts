@@ -1,4 +1,4 @@
-import { ContentStatus, ContentType, ContentVisibility } from '@prisma/client';
+import { ContentStatus, ContentType, ContentVisibility } from '@dojopool/types';
 import { Transform } from 'class-transformer';
 import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
 

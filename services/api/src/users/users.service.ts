@@ -1,3 +1,4 @@
+import type { Prisma, User } from '@dojopool/prisma';
 import {
   BadRequestException,
   Injectable,
@@ -5,7 +6,6 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
-import type { Prisma, User } from '@prisma/client';
 import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
 import { CacheInvalidate, Cacheable } from '../cache/cache.decorator';
@@ -13,6 +13,14 @@ import { CacheService } from '../cache/cache.service';
 import { ErrorUtils } from '../common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+
+// Type for uploaded file
+interface UploadedFile {
+  buffer?: Buffer;
+  mimetype?: string;
+  size?: number;
+  path?: string;
+}
 
 // Simple in-memory fallback store when DB is unavailable
 interface FallbackUser extends Omit<User, 'id'> {
@@ -55,18 +63,53 @@ export class UsersService {
       );
       const user: FallbackUser = {
         id: this.idCounter++,
-        email: (data as any).email,
-        username: (data as any).username,
-        passwordHash: (data as any).passwordHash,
+        email: data.email,
+        username: data.username,
+        password: data.password,
         role: 'USER',
         isBanned: false,
         dojoCoinBalance: 0,
+        totalWins: 0,
+        totalLosses: 0,
+        winStreak: 0,
+        longestWinStreak: 0,
+        totalMatches: 0,
+        skillRating: 0,
+        attributes: null,
+        avatarUrl: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
       this.fallbackUsers.push(user);
       return user as unknown as User;
     }
+  }
+
+  async getLeaderboard(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const users = await this.prisma.user.findMany({
+      skip,
+      take: limit,
+      orderBy: [
+        {
+          dojoCoinBalance: 'desc',
+        },
+        {
+          createdAt: 'desc',
+        },
+      ],
+      select: {
+        id: true,
+        username: true,
+        dojoCoinBalance: true,
+        profile: {
+          select: {
+            avatarUrl: true,
+          },
+        },
+      },
+    });
+    return users;
   }
 
   @Cacheable({
@@ -149,7 +192,7 @@ export class UsersService {
 
   async uploadAvatar(
     userId: string,
-    file: any
+    file: UploadedFile
   ): Promise<{ avatarUrl: string }> {
     if (!file) {
       throw new BadRequestException('No file uploaded');
@@ -213,7 +256,7 @@ export class UsersService {
           // Fallback to path-based upload if buffer is unavailable
           // This branch should be rare when using memory storage
           cloudinary.uploader
-            .upload((file as any).path, {
+            .upload(file.path!, {
               folder,
               resource_type: 'image',
               overwrite: true,
@@ -270,6 +313,48 @@ export class UsersService {
       username: user.username,
       isAdmin: user.role === 'ADMIN',
       role: user.role,
+    };
+  }
+
+  async getUserStatistics(userId: string): Promise<{
+    id: string;
+    username: string;
+    totalWins: number;
+    totalLosses: number;
+    winStreak: number;
+    longestWinStreak: number;
+    totalMatches: number;
+    winRate: number;
+  }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        totalWins: true,
+        totalLosses: true,
+        winStreak: true,
+        longestWinStreak: true,
+        totalMatches: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const winRate =
+      user.totalMatches > 0 ? (user.totalWins / user.totalMatches) * 100 : 0;
+
+    return {
+      id: user.id,
+      username: user.username,
+      totalWins: user.totalWins,
+      totalLosses: user.totalLosses,
+      winStreak: user.winStreak,
+      longestWinStreak: user.longestWinStreak,
+      totalMatches: user.totalMatches,
+      winRate: Math.round(winRate * 100) / 100, // Round to 2 decimal places
     };
   }
 }

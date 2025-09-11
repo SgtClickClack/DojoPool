@@ -1,3 +1,16 @@
+// Prisma Database Schema for DojoPool
+// This schema defines the complete data model for the DojoPool platform
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./node_modules/.prisma/client"
+}
+
 enum UserRole {
   USER
   VENUE_ADMIN
@@ -5,17 +18,100 @@ enum UserRole {
   ADMIN
 }
 
+enum TradeStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum AchievementCategory {
+  GAMEPLAY
+  SOCIAL
+  PROGRESSION
+  SPECIAL
+  TOURNAMENT
+  VENUE
+}
+
+enum BracketStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  PENDING
+}
+
+enum ParticipantStatus {
+  REGISTERED
+  CONFIRMED
+  WITHDRAWN
+  DISQUALIFIED
+}
+
+enum TournamentStatus {
+  UPCOMING
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ActivityType {
+  MATCH_WIN
+  TOURNAMENT_WIN
+  TERRITORY_CLAIM
+  ACHIEVEMENT_UNLOCKED
+}
+
+enum ItemType {
+  CUE
+  CHALK
+  TABLE_FELT
+  ACCESSORY
+}
+
+enum ProductType {
+  CONSUMABLE
+  NON_CONSUMABLE
+  SUBSCRIPTION
+}
+
+// Skill categories used by the SkillsService and throughout the platform
+enum SkillCategory {
+  AIMING_ACCURACY
+  POSITIONING
+  DEFENSIVE_PLAY
+  OFFENSIVE_STRATEGY
+  BANKING_SHOTS
+  BREAK_SHOTS
+  SAFETY_PLAY
+  CONSISTENCY
+  MENTAL_GAME
+  PHYSICAL_STAMINA
+}
+
 // Policy-Based Access Control Schema Extensions
 model Policy {
-  id          String   @id @default(uuid())
-  name        String   @unique
+  id          String       @id @default(uuid())
+  name        String       @unique
   description String?
   effect      PolicyEffect
-  conditions  Json     // Flexible JSON structure for policy conditions
-  priority    Int      @default(1) // Higher priority policies are evaluated first
-  isEnabled   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  conditions  String?
+  priority    Int          @default(1) // Higher priority policies are evaluated first
+  isEnabled   Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   // Relationships
   policyAssignments PolicyAssignment[]
@@ -30,17 +126,18 @@ enum PolicyEffect {
 }
 
 model PolicyAssignment {
-  id       String @id @default(uuid())
+  id       String  @id @default(uuid())
   policyId String
   userId   String?
   roleId   String?
   groupId  String?
 
   policy Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id])
 
   // Flexible assignment types
   assignmentType AssignmentType
-  conditions     Json? // Additional conditions for assignment
+  conditions     String? // Additional conditions for assignment
 
   createdAt DateTime @default(now())
 
@@ -55,97 +152,16 @@ enum AssignmentType {
 }
 
 model PolicyEvaluation {
-  id        String @id @default(uuid())
-  policyId  String
-  userId    String
-  resource  String // Resource being accessed (e.g., "match:123", "territory:456")
-  action    String // Action being performed (e.g., "read", "update", "delete")
-  decision  PolicyDecision
-  reason    String?
-
-  // Context information for debugging and auditing
-  context   Json // User attributes, resource attributes, environmental context
-  evaluatedAt DateTime @default(now())
-
-  policy Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
-
-  @@index([userId, resource, action])
-  @@index([evaluatedAt])
-}
-
-enum PolicyDecision {
-  ALLOW
-  DENY
-  NOT_APPLICABLE
-}
-
-enum UserRole {
-  USER
-  VENUE_ADMIN
-  MODERATOR
-  ADMIN
-}
-
-// Policy-Based Access Control Schema Extensions
-model Policy {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  effect      PolicyEffect
-  conditions  Json     // Flexible JSON structure for policy conditions
-  priority    Int      @default(1) // Higher priority policies are evaluated first
-  isEnabled   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relationships
-  policyAssignments PolicyAssignment[]
-  policyEvaluations PolicyEvaluation[]
-
-  @@index([priority, isEnabled])
-}
-
-enum PolicyEffect {
-  ALLOW
-  DENY
-}
-
-model PolicyAssignment {
-  id       String @id @default(uuid())
+  id       String         @id @default(uuid())
   policyId String
-  userId   String?
-  roleId   String?
-  groupId  String?
-
-  policy Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
-
-  // Flexible assignment types
-  assignmentType AssignmentType
-  conditions     Json? // Additional conditions for assignment
-
-  createdAt DateTime @default(now())
-
-  @@unique([policyId, userId, roleId, groupId, assignmentType])
-}
-
-enum AssignmentType {
-  USER
-  ROLE
-  GROUP
-  ATTRIBUTE_BASED
-}
-
-model PolicyEvaluation {
-  id        String @id @default(uuid())
-  policyId  String
-  userId    String
-  resource  String // Resource being accessed (e.g., "match:123", "territory:456")
-  action    String // Action being performed (e.g., "read", "update", "delete")
-  decision  PolicyDecision
-  reason    String?
+  userId   String
+  resource String // Resource being accessed (e.g., "match:123", "territory:456")
+  action   String // Action being performed (e.g., "read", "update", "delete")
+  decision PolicyDecision
+  reason   String?
 
   // Context information for debugging and auditing
-  context   Json // User attributes, resource attributes, environmental context
+  context     String?
   evaluatedAt DateTime @default(now())
 
   policy Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
@@ -155,25 +171,25 @@ model PolicyEvaluation {
 }
 
 enum PolicyDecision {
-  DENY
   ALLOW
+  DENY
   NOT_APPLICABLE
 }
 
 // User Groups for more complex role management
 model UserGroup {
-  id          String @id @default(uuid())
-  name        String @unique
+  id          String   @id @default(uuid())
+  name        String   @unique
   description String?
-  isActive    Boolean @default(true)
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  members     UserGroupMember[]
+  members UserGroupMember[]
 }
 
 model UserGroupMember {
-  id       String @id @default(uuid())
+  id       String   @id @default(uuid())
   groupId  String
   userId   String
   joinedAt DateTime @default(now())
@@ -184,79 +200,891 @@ model UserGroupMember {
   @@unique([groupId, userId])
 }
 
+// Core Models
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  displayName String?
+  avatarUrl   String?
+  bio         String?
+  location    String?
+  website     String?
+  lat         Float?
+  lng         Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserSettings {
+  id       String  @id @default(uuid())
+  userId   String  @unique
+  theme    String  @default("cyberpunk")
+  language String  @default("en")
+  timezone String  @default("UTC")
+  privacy  String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Wallet {
+  id       String @id @default(uuid())
+  userId   String
+  address  String @unique
+  balance  Float  @default(0)
+  currency String @default("ETH")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserNFT {
+  id              String   @id @default(uuid())
+  userId          String
+  tokenId         String
+  contractAddress String
+  metadata        String?
+  acquiredAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Achievement {
+  id               String              @id @default(uuid())
+  key              String              @unique
+  name             String
+  description      String?
+  category         AchievementCategory
+  iconUrl          String?
+  criteriaType     String
+  criteriaValue    Int
+  criteriaMetadata String?
+  rewardId         String?
+  isHidden         Boolean             @default(false)
+  isActive         Boolean             @default(true)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  // Relations
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String    @id @default(uuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime?
+  progress      Int       @default(0)
+  rewardClaimed Boolean   @default(false)
+
+  user        User        @relation("UserAchievements", fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+model Clan {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  leaderId        String
+  description     String?
+  tag             String?
+  level           Int      @default(1)
+  status          String   @default("active")
+  dojoCoinBalance Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  leader      User         @relation("ClanLeader", fields: [leaderId], references: [id])
+  members     ClanMember[]
+  territories Territory[]  @relation("TerritoryClan")
+  listings    Listing[]
+}
+
+model ClanMember {
+  id       String   @id @default(uuid())
+  clanId   String
+  userId   String
+  role     String   @default("member")
+  status   String   @default("active")
+  joinedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clan Clan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+
+  @@unique([clanId, userId])
+}
+
+model Territory {
+  id                  String    @id @default(uuid())
+  name                String    @unique
+  ownerId             String?
+  latitude            Float
+  longitude           Float
+  radius              Float     @default(100)
+  level               Int       @default(1)
+  description         String?
+  resources           String?
+  resourceRate        String?
+  lastTickAt          DateTime?
+  status              String    @default("UNCLAIMED")
+  defenseScore        Int       @default(0)
+  lastOwnershipChange DateTime?
+  contestedById       String?
+  clanId              String?
+  venueId             String?
+  strategicValue      Int       @default(1)
+  contestDeadline     DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  owner           User?            @relation("TerritoryOwner", fields: [ownerId], references: [id])
+  contestants     User[]           @relation("TerritoryContestant")
+  contestedBy     User?            @relation("TerritoryContestantBy", fields: [contestedById], references: [id])
+  clan            Clan?            @relation("TerritoryClan", fields: [clanId], references: [id])
+  venue           Venue?           @relation("TerritoryVenue", fields: [venueId], references: [id])
+  territoryEvents TerritoryEvent[]
+}
+
+model TerritoryEvent {
+  id          String   @id @default(uuid())
+  territoryId String
+  userId      String?
+  eventType   String
+  type        String?
+  data        String?
+  timestamp   DateTime @default(now())
+
+  territory Territory @relation(fields: [territoryId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id])
+}
+
+model CheckIn {
+  id          String   @id @default(uuid())
+  userId      String
+  venueId     String
+  latitude    Float
+  longitude   Float
+  checkedInAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  venue Venue @relation(fields: [venueId], references: [id], onDelete: Cascade)
+}
+
+model Challenge {
+  id           String    @id @default(uuid())
+  challengerId String
+  defenderId   String
+  status       String    @default("pending")
+  stake        Float     @default(0)
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  challenger User @relation("ChallengeChallenger", fields: [challengerId], references: [id])
+  defender   User @relation("ChallengeDefender", fields: [defenderId], references: [id])
+}
+
+model Match {
+  id           String      @id @default(uuid())
+  playerAId    String
+  playerBId    String
+  winnerId     String?
+  scoreA       Int         @default(0)
+  scoreB       Int         @default(0)
+  status       MatchStatus @default(IN_PROGRESS)
+  isRanked     Boolean     @default(false)
+  eloChangeA   Int         @default(0)
+  eloChangeB   Int         @default(0)
+  startedAt    DateTime    @default(now())
+  endedAt      DateTime?
+  tournamentId String?
+  bracketId    String?
+  roundNumber  Int?
+  matchInRound Int?
+  tableId      String?
+  venueId      String?
+
+  playerA    User        @relation("PlayerA", fields: [playerAId], references: [id])
+  playerB    User        @relation("PlayerB", fields: [playerBId], references: [id])
+  winner     User?       @relation("MatchWinner", fields: [winnerId], references: [id])
+  tournament Tournament? @relation(fields: [tournamentId], references: [id])
+  bracket    Bracket?    @relation(fields: [bracketId], references: [id])
+  table      Table?      @relation(fields: [tableId], references: [id])
+  venue      Venue?      @relation(fields: [venueId], references: [id])
+  analysis   MatchAnalysis?
+}
+
+enum TournamentType {
+  PUBLIC
+  PRIVATE
+  INVITE_ONLY
+}
+
+model Tournament {
+  id                   String           @id @default(uuid())
+  name                 String
+  description          String?
+  venueId              String
+  organizerId          String
+  status               TournamentStatus @default(UPCOMING)
+  type                 TournamentType   @default(PUBLIC)
+  format               String           @default("single_elimination")
+  maxPlayers           Int              @default(16)
+  currentPlayers       Int              @default(0)
+  currentParticipants  Int              @default(0)
+  entryFee             Float            @default(0)
+  prizePool            Float            @default(0)
+  startTime            DateTime?
+  checkInPeriodMinutes Int              @default(30)
+  endTime              DateTime?
+  startDate            DateTime
+  endDate              DateTime?
+  isSponsored          Boolean          @default(false)
+  eventId              String?
+  rules                String?
+  sponsorBannerUrl     String?
+  createdBy            String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  venue        Venue                   @relation(fields: [venueId], references: [id])
+  organizer    User                    @relation("TournamentOrganizer", fields: [organizerId], references: [id])
+  participants TournamentParticipant[]
+  matches      Match[]
+  bracket      Bracket?
+  event        Content?                @relation(fields: [eventId], references: [id])
+}
+
+model Bracket {
+  id           String        @id @default(uuid())
+  tournamentId String        @unique
+  totalRounds  Int           @default(4)
+  currentRound Int           @default(1)
+  status       BracketStatus @default(NOT_STARTED)
+  structure    String?
+  bracketData  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  matches    Match[]
+}
+
+model TournamentParticipant {
+  id           String            @id @default(uuid())
+  tournamentId String
+  userId       String
+  status       ParticipantStatus @default(REGISTERED)
+  seed         Int?
+  checkedInAt  DateTime?
+  rank         Int?
+  joinedAt     DateTime          @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, userId])
+}
+
+model Table {
+  id          String   @id @default(uuid())
+  venueId     String
+  tableNumber Int
+  name        String?
+  status      String   @default("available")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  venue   Venue   @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  matches Match[]
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  userId      String
+  type        String
+  amount      Float
+  description String?
+  productId   String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  recipientId String
+  type        String
+  title       String
+  message     String
+  payload     String?
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  resource  String
+  details   String?
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Venue {
+  id                String   @id @default(uuid())
+  name              String
+  address           String
+  latitude          Float
+  longitude         Float
+  lat               Float // Computed field for latitude
+  lng               Float // Computed field for longitude
+  ownerId           String
+  description       String?
+  status            String   @default("active")
+  photos            String?
+  controllingClanId String?
+  incomeModifier    Float    @default(1.0)
+  rating            Float    @default(0)
+  features          String?
+  createdAt         DateTime @default(now())
+
+  owner        User           @relation(fields: [ownerId], references: [id])
+  tables       Table[]
+  checkIns     CheckIn[]
+  gameSessions GameSession[]
+  dojoCheckIns DojoCheckIn[]
+  tournaments  Tournament[]
+  specials     VenueSpecial[]
+  quests       VenueQuest[]
+  territories  Territory[]    @relation("TerritoryVenue")
+  matches      Match[]
+}
+
+model Friendship {
+  id          String   @id @default(uuid())
+  requesterId String
+  addresseeId String
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+
+  requester User @relation("FriendshipRequester", fields: [requesterId], references: [id])
+  addressee User @relation("FriendshipAddressee", fields: [addresseeId], references: [id])
+
+  @@unique([requesterId, addresseeId])
+}
+
+model DirectMessage {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  content    String
+  sentAt     DateTime @default(now())
+
+  sender   User @relation("MessageSender", fields: [senderId], references: [id])
+  receiver User @relation("MessageReceiver", fields: [receiverId], references: [id])
+}
+
+model ActivityEvent {
+  id           String   @id @default(uuid())
+  userId       String
+  type         String
+  data         String?
+  message      String?
+  timestamp    DateTime @default(now())
+  createdAt    DateTime @default(now())
+  matchId      String?
+  venueId      String?
+  tournamentId String?
+  clanId       String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GameSession {
+  id        String    @id @default(uuid())
+  userId    String
+  venueId   String?
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  venue Venue? @relation(fields: [venueId], references: [id])
+}
+
+model ShadowRun {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  data      String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DojoCheckIn {
+  id          String   @id @default(uuid())
+  userId      String
+  venueId     String
+  latitude    Float
+  longitude   Float
+  checkedInAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  venue Venue @relation(fields: [venueId], references: [id], onDelete: Cascade)
+}
+
+model UserInventoryItem {
+  id         String   @id @default(uuid())
+  userId     String
+  itemId     String
+  quantity   Int      @default(1)
+  acquiredAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id])
+}
+
+model Feedback {
+  id         String    @id @default(uuid())
+  userId     String
+  type       String
+  subject    String
+  message    String
+  status     String    @default("open")
+  resolverId String?
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resolver User? @relation("FeedbackResolver", fields: [resolverId], references: [id])
+}
+
+model Content {
+  id          String    @id @default(uuid())
+  userId      String
+  type        String
+  title       String
+  content     String
+  status      String    @default("published")
+  moderatorId String?
+  moderatedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moderator        User?        @relation("ContentModerator", fields: [moderatorId], references: [id])
+  // Tournament event relations
+  tournamentEvents Tournament[]
+}
+
+model ContentLike {
+  id        String   @id @default(uuid())
+  userId    String
+  contentId String
+  likedAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ContentShare {
+  id         String   @id @default(uuid())
+  userId     String
+  contentId  String
+  receiverId String
+  sharedAt   DateTime @default(now())
+
+  sharer   User @relation("ContentSharer", fields: [userId], references: [id])
+  receiver User @relation("ContentShareReceiver", fields: [receiverId], references: [id])
+}
+
+model MatchAnalysis {
+  id                   String    @id @default(uuid())
+  matchId              String    @unique
+  provider             String
+  fallback             Boolean   @default(false)
+  keyMoments           Json?
+  strategicInsights    Json?
+  playerPerformanceA   Json?
+  playerPerformanceB   Json?
+  overallAssessment    Json?
+  recommendations      Json?
+  analysis             String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  userId               String
+
+  match                Match     @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CommunityCosmeticItem {
+  id         String    @id @default(uuid())
+  name       String
+  type       String
+  rarity     String    @default("common")
+  price      Float
+  creatorId  String
+  reviewerId String?
+  status     String    @default("pending")
+  reviewedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  creator  User  @relation(fields: [creatorId], references: [id])
+  reviewer User? @relation("CosmeticItemReviewer", fields: [reviewerId], references: [id])
+}
+
+model CosmeticItemLike {
+  id      String   @id @default(uuid())
+  userId  String
+  itemId  String
+  likedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Avatar {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  baseModel      String
+  customizations String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserAvatarAsset {
+  id         String   @id @default(uuid())
+  userId     String
+  assetId    String
+  equipped   Boolean  @default(false)
+  acquiredAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, assetId])
+}
+
+model TelemetryEvent {
+  id          String    @id @default(uuid())
+  userId      String
+  eventType   String
+  eventName   String?
+  sessionId   String?
+  data        String?
+  processed   Boolean   @default(false)
+  processedAt DateTime?
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Referral {
+  id            String   @id @default(uuid())
+  inviterId     String
+  inviteeId     String
+  code          String   @unique
+  status        String   @default("pending")
+  rewardClaimed Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  inviter User @relation("ReferralInviter", fields: [inviterId], references: [id])
+  invitee User @relation("ReferralInvitee", fields: [inviteeId], references: [id])
+}
+
+model ClanTransaction {
+  id        String   @id @default(uuid())
+  userId    String
+  clanId    String
+  type      String
+  amount    Float
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Trade {
+  id             String      @id @default(uuid())
+  proposerId     String
+  recipientId    String
+  status         TradeStatus @default(PENDING)
+  message        String?
+  proposerItems  String?
+  recipientItems String?
+  proposerCoins  Float       @default(0)
+  recipientCoins Float       @default(0)
+  expiresAt      DateTime?
+  respondedAt    DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  proposer  User @relation("TradeProposer", fields: [proposerId], references: [id])
+  recipient User @relation("TradeRecipient", fields: [recipientId], references: [id])
+}
+
+model Listing {
+  id        String   @id @default(uuid())
+  sellerId  String
+  itemType  String
+  itemId    String
+  price     Float
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  clanId    String?
+
+  seller    User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  clan      Clan?    @relation(fields: [clanId], references: [id])
+}
+
+model SkillProfile {
+  id           String   @id @default(uuid())
+  userId       String
+  skillType    String
+  level        Int      @default(1)
+  experience   Int      @default(0)
+  totalPoints  Int      @default(0)
+  currentLevel Int      @default(1)
+  updatedAt    DateTime @updatedAt
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skillPointLogs SkillPointLog[]
+  skill          Skill?          @relation(fields: [skillId], references: [id])
+  skillId        String?
+
+  @@unique([userId, skillType])
+}
+
+model PlayerLocation {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  latitude  Float
+  longitude Float
+  accuracy  Float?
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WorldEvent {
+  id        String   @id @default(uuid())
+  userId    String
+  eventType String
+  data      String?
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Skill Progression System Models
+model Skill {
+  id                   String   @id @default(uuid())
+  name                 String   @unique
+  description          String?
+  category             String
+  maxLevel             Int      @default(10)
+  baseExperience       Int      @default(100)
+  experienceMultiplier Float    @default(1.5)
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relations
+  skillPointLogs SkillPointLog[]
+  skillProfiles  SkillProfile[]
+}
+
+model SkillPointLog {
+  id             String   @id @default(uuid())
+  userId         String
+  skillId        String
+  skillProfileId String
+  points         Int
+  reason         String
+  timestamp      DateTime @default(now())
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill        Skill        @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  skillProfile SkillProfile @relation(fields: [skillProfileId], references: [id], onDelete: Cascade)
+
+  @@index([userId, skillId])
+  @@index([timestamp])
+}
+
+model Season {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(false)
+  rewards   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // Enhanced User model with PBAC attributes
 model User {
-  id            String                 @id @default(uuid())
-  email         String                 @unique
-  username      String                 @unique
-  passwordHash  String
-  role          UserRole               @default(USER)
-  isBanned      Boolean                @default(false)
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  role      UserRole @default(USER)
+  isBanned  Boolean  @default(false)
+
+  // Match Statistics
+  totalWins        Int @default(0)
+  totalLosses      Int @default(0)
+  winStreak        Int @default(0)
+  longestWinStreak Int @default(0)
+  totalMatches     Int @default(0)
+  skillRating      Int @default(1200)
 
   // PBAC Extensions
-  attributes    Json?                  // Flexible user attributes for policy evaluation
-  groups        UserGroupMember[]
+  attributes        String? // Flexible user attributes for policy evaluation
+  groups            UserGroupMember[]
   policyAssignments PolicyAssignment[]
 
-  profile       Profile?
-  settings      UserSettings?
-  wallets       Wallet[]
-  nfts          UserNFT[]
-  achievements  UserAchievement[] @relation("UserAchievements")
-  memberships   ClanMember[]
-  territories   Territory[]            @relation("TerritoryOwner")
-  contestedTerritories Territory[]     @relation("TerritoryContestant")
-  checkIns      CheckIn[]
-  challengesAsChallenger Challenge[]   @relation("ChallengeChallenger")
-  challengesAsDefender   Challenge[]   @relation("ChallengeDefender")
-  ledClans      Clan[]                 @relation("ClanLeader")
-  matchesAsPlayerA Match[]             @relation("PlayerA")
-  matchesAsPlayerB Match[]             @relation("PlayerB")
-  tournaments   TournamentParticipant[]
-  transactions  Transaction[]
-  notifications Notification[]
-  auditLogs     AuditLog[]
-  venues        Venue[]
-  friendshipsAsRequester Friendship[] @relation("FriendshipRequester")
-  friendshipsAsAddressee Friendship[] @relation("FriendshipAddressee")
-  sentMessages  DirectMessage[]        @relation("MessageSender")
-  receivedMessages DirectMessage[]     @relation("MessageReceiver")
-  activityEvents ActivityEvent[]
-  gameSessions  GameSession[]
-  shadowRuns    ShadowRun[]
-  dojoCheckIns  DojoCheckIn[]
-  inventoryItems UserInventoryItem[]
-  feedback      Feedback[]
-  resolvedFeedback Feedback[]         @relation("FeedbackResolver")
-  content        Content[]
-  moderatedContent Content[]          @relation("ContentModerator")
-  contentLikes   ContentLike[]
-  sharedContent  ContentShare[]       @relation("ContentSharer")
-  receivedShares ContentShare[]       @relation("ContentShareReceiver")
-  matchAnalyses  MatchAnalysis[]
-  communityItems CommunityCosmeticItem[]
-  reviewedItems  CommunityCosmeticItem[] @relation("CosmeticItemReviewer")
-  cosmeticLikes  CosmeticItemLike[]
+  profile                Profile?
+  settings               UserSettings?
+  wallets                Wallet[]
+  nfts                   UserNFT[]
+  achievements           UserAchievement[]       @relation("UserAchievements")
+  memberships            ClanMember[]
+  territories            Territory[]             @relation("TerritoryOwner")
+  contestedTerritories   Territory[]             @relation("TerritoryContestant")
+  contestedByTerritories Territory[]             @relation("TerritoryContestantBy")
+  checkIns               CheckIn[]
+  challengesAsChallenger Challenge[]             @relation("ChallengeChallenger")
+  challengesAsDefender   Challenge[]             @relation("ChallengeDefender")
+  ledClans               Clan[]                  @relation("ClanLeader")
+  organizedTournaments   Tournament[]            @relation("TournamentOrganizer")
+  matchesAsPlayerA       Match[]                 @relation("PlayerA")
+  matchesAsPlayerB       Match[]                 @relation("PlayerB")
+  matchesWon             Match[]                 @relation("MatchWinner")
+  tournaments            TournamentParticipant[]
+  transactions           Transaction[]
+  notifications          Notification[]
+  auditLogs              AuditLog[]
+  venues                 Venue[]
+  friendshipsAsRequester Friendship[]            @relation("FriendshipRequester")
+  friendshipsAsAddressee Friendship[]            @relation("FriendshipAddressee")
+  sentMessages           DirectMessage[]         @relation("MessageSender")
+  receivedMessages       DirectMessage[]         @relation("MessageReceiver")
+  activityEvents         ActivityEvent[]
+  gameSessions           GameSession[]
+  shadowRuns             ShadowRun[]
+  dojoCheckIns           DojoCheckIn[]
+  inventoryItems         UserInventoryItem[]
+  feedback               Feedback[]
+  resolvedFeedback       Feedback[]              @relation("FeedbackResolver")
+  content                Content[]
+  moderatedContent       Content[]               @relation("ContentModerator")
+  contentLikes           ContentLike[]
+  sharedContent          ContentShare[]          @relation("ContentSharer")
+  receivedShares         ContentShare[]          @relation("ContentShareReceiver")
+  matchAnalyses          MatchAnalysis[]
+  communityItems         CommunityCosmeticItem[]
+  reviewedItems          CommunityCosmeticItem[] @relation("CosmeticItemReviewer")
+  cosmeticLikes          CosmeticItemLike[]
   // Avatar system relations
-  avatar         Avatar?
-  avatarAssets   UserAvatarAsset[]
+  avatar                 Avatar?
+  avatarAssets           UserAvatarAsset[]
+  avatarUrl              String?
   // Telemetry relations
-  telemetryEvents TelemetryEvent[]
+  telemetryEvents        TelemetryEvent[]
   // Referral system relations
-  referralsSent  Referral[]            @relation("ReferralInviter")
-  referralsReceived Referral[]         @relation("ReferralInvitee")
+  referralsSent          Referral[]              @relation("ReferralInviter")
+  referralsReceived      Referral[]              @relation("ReferralInvitee")
   // Clan marketplace and trading relations
-  clanTransactions ClanTransaction[]
-  tradesProposed   Trade[]              @relation("TradeProposer")
-  tradesReceived   Trade[]              @relation("TradeRecipient")
-  listings         Listing[]
+  clanTransactions       ClanTransaction[]
+  tradesProposed         Trade[]                 @relation("TradeProposer")
+  tradesReceived         Trade[]                 @relation("TradeRecipient")
+  listings               Listing[]
   // Achievement and rewards relations are handled via achievements field
   // Skill progression system relations
-  skillProfiles    SkillProfile[]
+  skillProfiles          SkillProfile[]
+  skillPointLogs         SkillPointLog[]
   // 3D World & Geolocation system relations
-  playerLocation   PlayerLocation?
-  worldEvents      WorldEvent[]
-  dojoCoinBalance Int                  @default(0)
-  createdAt     DateTime               @default(now())
-  updatedAt     DateTime               @updatedAt
+  playerLocation         PlayerLocation?
+  worldEvents            WorldEvent[]
+  // Territory system relations
+  territoryEvents        TerritoryEvent[]
+  activities             Activity[]
+  dojoCoinBalance        Int                     @default(0)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+}
+
+// Additional Venue Models
+model VenueSpecial {
+  id          String    @id @default(uuid())
+  venueId     String
+  name        String
+  title       String?
+  description String?
+  type        String
+  discount    Float     @default(0)
+  isActive    Boolean   @default(true)
+  validFrom   DateTime?
+  validUntil  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  venue Venue @relation(fields: [venueId], references: [id], onDelete: Cascade)
+}
+
+model VenueQuest {
+  id              String   @id @default(uuid())
+  venueId         String
+  name            String
+  title           String?
+  description     String?
+  type            String
+  rewardCoins     Int      @default(0)
+  rewardDojoCoins Int      @default(0)
+  rewardItems     String?
+  requirements    String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  venue Venue @relation(fields: [venueId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id        String      @id @default(uuid())
+  userId    String
+  type      ActivityType
+  details   String?
+  createdAt DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+}
+
+model Item {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  price       Int
+  type        ItemType
+  productType ProductType
+  imageUrl    String?
+  isUnique    Boolean     @default(false)
+  isAvailable Boolean     @default(true)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  inventoryItems UserInventoryItem[]
 }

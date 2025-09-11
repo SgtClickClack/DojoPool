@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Trade, TradeStatus } from '@prisma/client';
+import { Trade, TradeStatus } from '@dojopool/prisma';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface TradeProposal {

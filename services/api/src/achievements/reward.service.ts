@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { AchievementStatus, Reward, RewardType } from '@prisma/client';
+import { AchievementStatus, Reward, RewardType } from '@dojopool/prisma';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface RewardClaimResult {

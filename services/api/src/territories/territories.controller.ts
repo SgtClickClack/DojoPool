@@ -7,7 +7,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -97,14 +96,14 @@ export class TerritoriesController {
 
   @Post('/process-decay')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.MODERATOR)
+  @Roles('ADMIN', 'MODERATOR')
   async processTerritoryDecay() {
     return this.territoriesService.processTerritoryDecay();
   }
 
   @Post('/resolve-expired-contests')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.MODERATOR)
+  @Roles('ADMIN', 'MODERATOR')
   async resolveExpiredContests() {
     return this.territoriesService.resolveExpiredContests();
   }

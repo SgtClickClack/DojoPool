@@ -13,7 +13,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isModerator?: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (usernameOrEmail: string, password: string) => Promise<boolean>;
   register: (
     email: string,
     password: string,
@@ -22,6 +22,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   setToken: (token: string) => Promise<void>;
   clearError: () => void;
+  refetchUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,18 +62,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (usernameOrEmail: string, password: string) => {
     try {
       setError(null);
-      const response = await authService.login({ email, password });
+      const response = await authService.login({ usernameOrEmail, password });
       setUser(response.user);
       setIsAdmin(response.user.isAdmin || false);
       setIsModerator(
         response.user.role === 'MODERATOR' || response.user.isAdmin || false
       );
+      return true;
     } catch (err: any) {
       setError(err.message || 'Login failed');
-      throw err;
+      return false;
     }
   };
 
@@ -133,6 +135,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const refetchUser = async () => {
+    try {
+      if (authService.isAuthenticated()) {
+        const currentUser = await authService.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to refetch user:', err);
+    }
+  };
+
   const clearError = () => {
     setError(null);
   };
@@ -148,6 +163,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     setToken,
     clearError,
+    refetchUser,
   };
 
   return React.createElement(AuthContext.Provider, { value }, children);

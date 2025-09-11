@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3002';
+const withNextIntl = require('next-intl/plugin')();
 
-const nextConfig = {
+module.exports = withNextIntl({
+  // Your existing Next.js configuration ...
   eslint: {
     // Speed up CI builds and avoid ESLint ESM config issues during build
     ignoreDuringBuilds: true,
@@ -29,20 +32,48 @@ const nextConfig = {
   outputFileTracing: true,
   // Configure pages directory
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  i18n: {
+    locales: ['en', 'de'],
+    defaultLocale: 'en',
+  },
   // Transpile ESM packages that ship untranspiled code to avoid dir import errors
   transpilePackages: [
     '@mui/material',
     '@mui/icons-material',
     '@emotion/react',
     '@emotion/styled',
+    '@mui/lab',
+    '@mui/system',
+    '@mui/x-date-pickers',
   ],
 
   // Simplified webpack config for debugging
   webpack: (config, { dev, isServer }) => {
     // Basic file watching for Windows
     config.watchOptions = {
-      poll: 1000,
+      poll: 2000,
       aggregateTimeout: 300,
+      ignored: [
+        '**/node_modules/**',
+        '**/.yarn/**',
+        '**/.git/**',
+        '**/*.map',
+        '**/*.db',
+        '**/packages/prisma/**',
+      ],
+    };
+
+    // Fix for Material-UI ESM imports and monorepo packages
+    config.resolve = {
+      ...config.resolve,
+      alias: {
+        ...config.resolve?.alias,
+        '@dojopool/shared': path.resolve(
+          __dirname,
+          '../../packages/shared/src'
+        ),
+        '@dojopool/types': path.resolve(__dirname, '../../packages/types/src'),
+      },
     };
 
     return config;
@@ -137,6 +168,4 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-};
-
-module.exports = nextConfig;
+});

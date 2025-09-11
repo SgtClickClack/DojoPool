@@ -40,6 +40,14 @@
 - **Blockchain Integration**: Dojo Coin (ERC-20), multi-chain wallets, NFT trophies.
 - **Real-time Communication**: WebSocket support for live matches and chat.
 
+### Matches Module & WebSocket Security
+
+The `MatchesModule` provides real-time communication capabilities for live matches using WebSockets. It includes a robust authorization layer to ensure that only authenticated and participating players can access match data and events.
+
+- **Authorization**: The `MatchesGateway` uses `MatchesService` to verify that any user attempting to join a match room or send match updates is a legitimate participant. This prevents unauthorized access and manipulation of match data.
+- **Real-time Events**: The gateway handles events like joining/leaving matches, sending messages, and broadcasting match state updates to all participants.
+- **Rate Limiting**: WebSocket endpoints are protected against abuse with rate limiting.
+
 ---
 
 ## 💻 Tech Stack
@@ -348,3 +356,21 @@ Our frontend uses the standard Double Submit Cookie pattern for CSRF protection 
 - Ensure the frontend includes the `X-CSRF-Token` header and requests are sent with `credentials: 'include'`; the API CORS config allows credentials and the custom header.
 
 This approach aligns with a stateless JWT setup and avoids server-side CSRF state. For additional hardening, consider SameSite/Lax cookies and HTTPS-only environments in production.
+
+## Prisma/SQLite Json Type Issue
+
+When using Prisma with a SQLite database, the `Json` data type is not natively supported and can cause migration failures. The recommended workaround is to use the `String` type instead and handle JSON serialization and deserialization at the application level.
+
+For example, a field in your `schema.prisma` defined as:
+
+```prisma
+data Json?
+```
+
+Should be changed to:
+
+```prisma
+data String?
+```
+
+Your application code will then be responsible for parsing this string as JSON when reading from the database and stringifying it before writing.

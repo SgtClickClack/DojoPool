@@ -28,6 +28,7 @@ const categoryLabels = {
   [FeedbackCategory.TECHNICAL_SUPPORT]: '🛠️ Technical Support',
   [FeedbackCategory.UI_UX_IMPROVEMENT]: '🎨 UI/UX Improvement',
   [FeedbackCategory.PERFORMANCE_ISSUE]: '⚡ Performance Issue',
+  [FeedbackCategory.PLAYER_REPORT]: '👤 Player Report',
 };
 
 const categoryDescriptions = {
@@ -42,6 +43,7 @@ const categoryDescriptions = {
     'Suggest improvements to the user interface',
   [FeedbackCategory.PERFORMANCE_ISSUE]:
     'Report slow loading or performance issues',
+  [FeedbackCategory.PLAYER_REPORT]: 'Report issues with other players',
 };
 
 export const FeedbackForm: React.FC<FeedbackFormProps> = ({

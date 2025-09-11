@@ -16,10 +16,16 @@ class DevTrackingValidator {
       'planning',
       'tracking'
     );
+    this.milestonesDir = path.join(this.projectRoot, 'docs', 'milestones');
     this.legacyFiles = [
       path.join(this.projectRoot, 'DEVELOPMENT_TRACKING_PART_03.md'),
       path.join(this.projectRoot, 'DEVELOPMENT_TRACKING_PART_04.md'),
       path.join(this.projectRoot, 'docs', 'DEVELOPMENT_TRACKING.md'),
+      path.join(
+        this.projectRoot,
+        'DojoPoolCombined',
+        'DEVELOPMENT_TRACKING.md'
+      ),
     ];
   }
 
@@ -33,6 +39,14 @@ class DevTrackingValidator {
           (item.startsWith('part-') || item === 'index.md')
         ) {
           files[item] = path.join(this.correctTrackingDir, item);
+        }
+      });
+    }
+    if (fs.existsSync(this.milestonesDir)) {
+      const items = fs.readdirSync(this.milestonesDir);
+      items.forEach((item) => {
+        if (item.endsWith('.md')) {
+          files[`milestones/${item}`] = path.join(this.milestonesDir, item);
         }
       });
     }

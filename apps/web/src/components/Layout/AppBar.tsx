@@ -1,5 +1,7 @@
 import NotificationBell from '@/components/Common/NotificationBell';
+import WebSocketStatus from '@/components/Common/WebSocketStatus';
 import DojoCoinWallet from '@/components/Economy/DojoCoinWallet';
+import LanguageSwitcher from '@/components/Language/LanguageSwitcher';
 import { useChat } from '@/contexts/ChatContext';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -52,6 +54,8 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <LanguageSwitcher />
+          <WebSocketStatus compact />
           <Link href="/">
             <Button color="inherit">World Map</Button>
           </Link>
@@ -61,8 +65,17 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
           <Link href="/clan-wars">
             <Button color="inherit">Clan Wars</Button>
           </Link>
+          <Link href="/battle-pass">
+            <Button color="inherit">Battle Pass</Button>
+          </Link>
+          <Link href="/websocket-demo">
+            <Button color="inherit">Live Demo</Button>
+          </Link>
           <Link href="/marketplace">
             <Button color="inherit">Marketplace</Button>
+          </Link>
+          <Link href="/store">
+            <Button color="inherit">Store</Button>
           </Link>
           <Link href="/messages">
             <Button color="inherit">
@@ -139,18 +152,8 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
                   variant="contained"
                   sx={{
                     mr: 1,
-                    backgroundColor: '#1976d2',
-                    color: 'white',
-                    fontWeight: 600,
                     px: 3,
                     py: 1,
-                    borderRadius: 2,
-                    '&:hover': {
-                      backgroundColor: '#1565c0',
-                      transform: 'translateY(-1px)',
-                      boxShadow: '0 4px 8px rgba(25, 118, 210, 0.3)',
-                    },
-                    transition: 'all 0.2s ease-in-out',
                   }}
                 >
                   Sign Up

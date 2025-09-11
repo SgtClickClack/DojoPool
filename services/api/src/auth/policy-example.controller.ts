@@ -8,7 +8,6 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
 import { UsePolicy, UsePolicyWith } from './policy.decorator';
 import { PolicyGuard } from './policy.guard';
 import { Roles, RolesGuard } from './roles.decorator';
@@ -31,7 +30,7 @@ export class PolicyExampleController {
    * This uses only the existing RBAC system
    */
   @Get('territories/simple')
-  @Roles(UserRole.USER)
+  @Roles('USER')
   getTerritoriesSimple() {
     this.logger.log('Access granted via RBAC: USER role');
     return {
@@ -45,7 +44,7 @@ export class PolicyExampleController {
    * This uses the PolicyGuard but falls back to RBAC if no policies apply
    */
   @Get('territories/enhanced')
-  @Roles(UserRole.USER)
+  @Roles('USER')
   @UsePolicy() // Enable policy evaluation alongside RBAC
   getTerritoriesEnhanced() {
     this.logger.log('Access granted via enhanced RBAC + PBAC');
@@ -61,7 +60,7 @@ export class PolicyExampleController {
    * This requires the user to be within 100 meters of the territory
    */
   @Get('territories/:id/geographic')
-  @Roles(UserRole.USER)
+  @Roles('USER')
   @UsePolicyWith('clan-leader-territory-edit-geographic')
   getTerritoryGeographic(@Param('id') territoryId: string) {
     this.logger.log(
@@ -83,7 +82,7 @@ export class PolicyExampleController {
    * Venue admins can only modify settings during business hours
    */
   @Put('venues/:id/business-hours')
-  @Roles(UserRole.VENUE_ADMIN)
+  @Roles('VENUE_ADMIN')
   @UsePolicyWith('venue-admin-business-hours')
   updateVenueBusinessHours(
     @Param('id') venueId: string,
@@ -108,7 +107,7 @@ export class PolicyExampleController {
    * Only match participants can view detailed match information
    */
   @Get('matches/:id/detailed')
-  @Roles(UserRole.USER)
+  @Roles('USER')
   @UsePolicyWith('match-participant-only')
   getMatchDetailed(@Param('id') matchId: string) {
     this.logger.log(`Detailed match ${matchId} accessed via contextual policy`);
@@ -134,7 +133,7 @@ export class PolicyExampleController {
    * Admins can only access from approved IP addresses
    */
   @Get('admin/restricted')
-  @Roles(UserRole.ADMIN)
+  @Roles('ADMIN')
   @UsePolicyWith('admin-ip-restriction')
   getAdminRestricted() {
     this.logger.log('Admin access granted via IP restriction policy');
@@ -152,7 +151,7 @@ export class PolicyExampleController {
    * Example 7: Premium Feature Policy - Subscription-based access
    */
   @Get('premium/features')
-  @Roles(UserRole.USER)
+  @Roles('USER')
   @UsePolicyWith('premium-feature-access')
   getPremiumFeatures() {
     this.logger.log('Premium features accessed via subscription policy');
@@ -173,7 +172,7 @@ export class PolicyExampleController {
    * This endpoint requires multiple policies to pass
    */
   @Post('tournaments/:id/manage')
-  @Roles(UserRole.USER)
+  @Roles('USER')
   @UsePolicy() // Evaluate all applicable policies
   manageTournament(
     @Param('id') tournamentId: string,
@@ -199,7 +198,7 @@ export class PolicyExampleController {
    * Moderators can access content moderation features
    */
   @Put('content/:id/moderate')
-  @Roles(UserRole.MODERATOR)
+  @Roles('MODERATOR')
   @UsePolicyWith('moderator-content-moderation')
   moderateContent(@Param('id') contentId: string, @Body() moderationData: any) {
     this.logger.log(`Content ${contentId} moderated via moderator policy`);
@@ -220,7 +219,7 @@ export class PolicyExampleController {
    * This demonstrates how to gradually roll out PBAC features
    */
   @Get('beta/features')
-  @Roles(UserRole.USER)
+  @Roles('USER')
   @UsePolicy() // Only enable PBAC for beta users
   getBetaFeatures() {
     // In production, this would check a feature flag

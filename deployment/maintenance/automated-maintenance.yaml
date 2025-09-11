@@ -1,0 +1,286 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dojopool-daily-maintenance
+  namespace: default
+spec:
+  schedule: '0 2 * * *' # Every day at 2:00 AM UTC
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: dojopool-maintenance-sa
+          containers:
+            - name: maintenance-runner
+              image: dojopool/maintenance-runner:latest
+              env:
+                - name: MAINTENANCE_TYPE
+                  value: 'daily'
+                - name: MAINTENANCE_CONFIG
+                  valueFrom:
+                    configMapKeyRef:
+                      name: dojopool-maintenance-schedule
+                      key: maintenance-windows.json
+              volumeMounts:
+                - name: maintenance-logs
+                  mountPath: /var/log/maintenance
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting daily maintenance routine..."
+                  # Log maintenance start
+                  echo "$(date): Daily maintenance started" >> /var/log/maintenance/daily.log
+
+                  # Database maintenance
+                  echo "Running database vacuum..." >> /var/log/maintenance/daily.log
+                  # Vacuum analyze large tables
+                  psql -h dojopool-postgres-service -U postgres -d dojopool_production -c "VACUUM ANALYZE user_events;" || echo "Vacuum failed" >> /var/log/maintenance/daily.log
+
+                  # Cache cleanup
+                  echo "Cleaning application caches..." >> /var/log/maintenance/daily.log
+                  # Redis cache cleanup commands would go here
+
+                  # Log rotation
+                  echo "Rotating application logs..." >> /var/log/maintenance/daily.log
+                  # Log rotation commands
+
+                  # Security scans
+                  echo "Running security scans..." >> /var/log/maintenance/daily.log
+                  # Trivy container scans
+                  trivy image --format json dojopool/api:latest > /var/log/maintenance/security-scan.json || echo "Security scan failed" >> /var/log/maintenance/daily.log
+
+                  echo "$(date): Daily maintenance completed" >> /var/log/maintenance/daily.log
+          restartPolicy: OnFailure
+          volumes:
+            - name: maintenance-logs
+              persistentVolumeClaim:
+                claimName: dojopool-maintenance-logs-pvc
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dojopool-weekly-maintenance
+  namespace: default
+spec:
+  schedule: '0 2 * * 1' # Every Monday at 2:00 AM UTC
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: dojopool-maintenance-sa
+          containers:
+            - name: maintenance-runner
+              image: dojopool/maintenance-runner:latest
+              env:
+                - name: MAINTENANCE_TYPE
+                  value: 'weekly'
+              volumeMounts:
+                - name: maintenance-logs
+                  mountPath: /var/log/maintenance
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting weekly maintenance routine..."
+                  echo "$(date): Weekly maintenance started" >> /var/log/maintenance/weekly.log
+
+                  # Deep database maintenance
+                  echo "Running deep database maintenance..." >> /var/log/maintenance/weekly.log
+                  psql -h dojopool-postgres-service -U postgres -d dojopool_production -c "REINDEX DATABASE dojopool_production;" || echo "Reindex failed" >> /var/log/maintenance/weekly.log
+
+                  # Dependency updates
+                  echo "Checking for dependency updates..." >> /var/log/maintenance/weekly.log
+                  # Snyk dependency checks
+                  snyk test --json > /var/log/maintenance/dependency-check.json || echo "Dependency check failed" >> /var/log/maintenance/weekly.log
+
+                  # Performance optimization
+                  echo "Running performance optimizations..." >> /var/log/maintenance/weekly.log
+                  # Database query optimization
+                  # Application performance profiling
+
+                  echo "$(date): Weekly maintenance completed" >> /var/log/maintenance/weekly.log
+          restartPolicy: OnFailure
+          volumes:
+            - name: maintenance-logs
+              persistentVolumeClaim:
+                claimName: dojopool-maintenance-logs-pvc
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dojopool-security-scan
+  namespace: default
+spec:
+  schedule: '0 */6 * * *' # Every 6 hours
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: dojopool-maintenance-sa
+          containers:
+            - name: security-scanner
+              image: dojopool/security-scanner:latest
+              env:
+                - name: SCAN_TYPE
+                  value: 'full'
+                - name: ALERT_WEBHOOK
+                  value: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+              volumeMounts:
+                - name: security-reports
+                  mountPath: /var/reports
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting security vulnerability scan..."
+                  echo "$(date): Security scan started" >> /var/reports/security-scan.log
+
+                  # Container image scanning
+                  trivy image --format json --output /var/reports/container-scan.json dojopool/api:latest
+                  trivy image --format json --output /var/reports/web-scan.json dojopool/web:latest
+
+                  # Infrastructure scanning
+                  trivy config --format json --output /var/reports/infra-scan.json ./kubernetes/
+
+                  # Dependency scanning
+                  snyk test --json --output /var/reports/dependency-scan.json
+
+                  # Check for critical vulnerabilities
+                  CRITICAL_COUNT=$(jq '.Results[].Vulnerabilities[] | select(.Severity == "CRITICAL") | .VulnerabilityID' /var/reports/container-scan.json | wc -l)
+
+                  if [ "$CRITICAL_COUNT" -gt 0 ]; then
+                    echo "CRITICAL VULNERABILITIES FOUND: $CRITICAL_COUNT" >> /var/reports/security-scan.log
+                    # Send alert to Slack
+                    curl -X POST -H 'Content-type: application/json' \
+                      --data "{\"text\":\"🚨 CRITICAL SECURITY VULNERABILITIES DETECTED: $CRITICAL_COUNT\"}" \
+                      $ALERT_WEBHOOK
+                  fi
+
+                  echo "$(date): Security scan completed" >> /var/reports/security-scan.log
+          restartPolicy: OnFailure
+          volumes:
+            - name: security-reports
+              persistentVolumeClaim:
+                claimName: dojopool-security-reports-pvc
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dojopool-backup-verification
+  namespace: default
+spec:
+  schedule: '0 3 * * *' # Every day at 3:00 AM UTC
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: dojopool-maintenance-sa
+          containers:
+            - name: backup-verifier
+              image: dojopool/backup-verifier:latest
+              env:
+                - name: BACKUP_BUCKET
+                  value: 's3://dojopool-backups/'
+                - name: VERIFICATION_TYPE
+                  value: 'full'
+              volumeMounts:
+                - name: backup-logs
+                  mountPath: /var/log/backups
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting backup verification..."
+                  echo "$(date): Backup verification started" >> /var/log/backups/verification.log
+
+                  # List recent backups
+                  aws s3 ls s3://dojopool-backups/database/full/ --recursive | tail -5 > /tmp/recent_backups.txt
+
+                  # Verify backup integrity
+                  while IFS= read -r line; do
+                    BACKUP_FILE=$(echo "$line" | awk '{print $4}')
+                    echo "Verifying backup: $BACKUP_FILE" >> /var/log/backups/verification.log
+
+                    # Download and verify backup
+                    aws s3 cp "s3://dojopool-backups/database/full/$BACKUP_FILE" /tmp/backup.sql.gz
+                    gunzip /tmp/backup.sql.gz
+
+                    # Basic integrity check
+                    if head -1 /tmp/backup.sql | grep -q "PostgreSQL database dump"; then
+                      echo "✓ Backup $BACKUP_FILE is valid" >> /var/log/backups/verification.log
+                    else
+                      echo "✗ Backup $BACKUP_FILE is corrupted" >> /var/log/backups/verification.log
+                      # Send alert
+                    fi
+
+                    rm -f /tmp/backup.sql
+                  done < /tmp/recent_backups.txt
+
+                  echo "$(date): Backup verification completed" >> /var/log/backups/verification.log
+          restartPolicy: OnFailure
+          volumes:
+            - name: backup-logs
+              persistentVolumeClaim:
+                claimName: dojopool-maintenance-logs-pvc
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dojopool-maintenance-sa
+  namespace: default
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dojopool-maintenance-role
+rules:
+  - apiGroups: ['batch']
+    resources: ['jobs', 'cronjobs']
+    verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+  - apiGroups: ['apps']
+    resources: ['deployments', 'statefulsets']
+    verbs: ['get', 'list', 'watch', 'update', 'patch']
+  - apiGroups: ['']
+    resources: ['pods', 'services', 'configmaps', 'secrets']
+    verbs: ['get', 'list', 'watch']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dojopool-maintenance-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dojopool-maintenance-role
+subjects:
+  - kind: ServiceAccount
+    name: dojopool-maintenance-sa
+    namespace: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dojopool-maintenance-logs-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: standard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dojopool-security-reports-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard

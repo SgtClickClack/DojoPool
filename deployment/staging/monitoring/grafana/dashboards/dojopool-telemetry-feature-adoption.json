@@ -1,0 +1,359 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "DojoPool Feature Adoption & Usage Analytics",
+    "tags": ["dojopool", "telemetry", "feature-adoption", "analytics"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Feature Usage Leaderboard",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(15, rate(dojopool_feature_usage_total[1h]))",
+            "legendFormat": "{{feature}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Feature Adoption Rate",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "dojopool_feature_adoption_rate",
+            "legendFormat": "{{feature}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "max": 100
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Core Features Usage Trends",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"venue_checkin\"}[5m]) * 60",
+            "legendFormat": "Venue Check-ins"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"game_start\"}[5m]) * 60",
+            "legendFormat": "Games Started"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"tournament_join\"}[5m]) * 60",
+            "legendFormat": "Tournament Joins"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"social_interaction\"}[5m]) * 60",
+            "legendFormat": "Social Interactions"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Feature Engagement by User Segment",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "dojopool_feature_segment_usage",
+            "legendFormat": "{{segment}} - {{feature}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 5,
+        "title": "Time to First Use (TTFU)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(dojopool_time_to_first_use_bucket[5m]))",
+            "legendFormat": "Median TTFU"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(dojopool_time_to_first_use_bucket[5m]))",
+            "legendFormat": "95th percentile TTFU"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      },
+      {
+        "id": 6,
+        "title": "Feature Discovery Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_feature_discovery_total[5m]) * 60",
+            "legendFormat": "Features Discovered/min"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 24
+        }
+      },
+      {
+        "id": 7,
+        "title": "Feature Stickiness",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "dojopool_feature_stickiness_rate",
+            "legendFormat": "{{feature}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 24
+        }
+      },
+      {
+        "id": 8,
+        "title": "Feature Usage by Time of Day",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "increase(dojopool_feature_usage_total[1h])",
+            "legendFormat": "{{feature}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 32
+        }
+      },
+      {
+        "id": 9,
+        "title": "Feature Performance Score",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "dojopool_feature_performance_score",
+            "legendFormat": "{{feature}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 60
+                },
+                {
+                  "color": "green",
+                  "value": 80
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 40
+        }
+      },
+      {
+        "id": 10,
+        "title": "Feature Drop-off Analysis",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_feature_dropoff_total[5m]) * 60",
+            "legendFormat": "{{feature}} drop-offs"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 40
+        }
+      },
+      {
+        "id": 11,
+        "title": "Feature Usage by Device Type",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "dojopool_feature_device_usage",
+            "legendFormat": "{{device_type}} - {{feature}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 48
+        }
+      },
+      {
+        "id": 12,
+        "title": "Feature Friction Points",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, rate(dojopool_feature_friction_total[5m]))",
+            "legendFormat": "{{feature}} - {{friction_type}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 48
+        }
+      },
+      {
+        "id": 13,
+        "title": "Advanced Feature Adoption",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"advanced_filters\"}[5m]) * 60",
+            "legendFormat": "Advanced Filters"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"custom_avatars\"}[5m]) * 60",
+            "legendFormat": "Custom Avatars"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"analytics_dashboard\"}[5m]) * 60",
+            "legendFormat": "Analytics Dashboard"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{feature=\"social_features\"}[5m]) * 60",
+            "legendFormat": "Social Features"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 56
+        }
+      },
+      {
+        "id": 14,
+        "title": "Feature Satisfaction Scores",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "dojopool_feature_satisfaction_score",
+            "legendFormat": "{{feature}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 3
+                },
+                {
+                  "color": "green",
+                  "value": 4
+                }
+              ]
+            },
+            "max": 5
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 64
+        }
+      }
+    ],
+    "time": {
+      "from": "now-7d",
+      "to": "now"
+    },
+    "refresh": "5m",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

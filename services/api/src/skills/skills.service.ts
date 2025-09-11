@@ -1,5 +1,5 @@
+import { SkillCategory } from '@dojopool/prisma';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { SkillCategory } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   MatchAnalysisContextDto,
@@ -58,7 +58,7 @@ export class SkillsService {
     const recentActivity = await this.prisma.skillPointLog.findMany({
       where: { skillProfile: { userId: playerId } },
       include: { skillProfile: { include: { skill: true } } },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { timestamp: 'desc' },
       take: 10,
     });
 
@@ -119,16 +119,10 @@ export class SkillsService {
     playerId: string
   ): Promise<SkillPointCalculationDto> {
     // Get match analysis
-    const matchAnalysis = await this.prisma.matchAnalysis.findUnique({
+    const matchAnalysis = await this.prisma.matchAnalysis.findFirst({
       where: { matchId },
       include: {
-        match: {
-          include: {
-            playerA: { select: { id: true, username: true } },
-            playerB: { select: { id: true, username: true } },
-            venue: { select: { name: true } },
-          },
-        },
+        user: { select: { id: true, username: true } },
       },
     });
 
@@ -136,31 +130,34 @@ export class SkillsService {
       throw new NotFoundException('Match analysis not found');
     }
 
+    // Get match data
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+      include: {
+        playerA: { select: { id: true, username: true } },
+        playerB: { select: { id: true, username: true } },
+        venue: { select: { name: true } },
+      },
+    });
+
+    if (!match) {
+      throw new NotFoundException('Match not found');
+    }
+
     // Determine if player won
-    const isWinner = matchAnalysis.match.winnerId === playerId;
+    const isWinner = match.winnerId === playerId;
 
     // Create analysis context
     const context: MatchAnalysisContextDto = {
       matchId,
       playerId,
-      isWinner,
-      score:
-        playerId === matchAnalysis.match.playerAId
-          ? matchAnalysis.match.scoreA
-          : matchAnalysis.match.scoreB,
-      opponentScore:
-        playerId === matchAnalysis.match.playerAId
-          ? matchAnalysis.match.scoreB
-          : matchAnalysis.match.scoreA,
-      venueName: matchAnalysis.match.venue?.name,
-      keyMoments: matchAnalysis.keyMoments,
-      strategicInsights: matchAnalysis.strategicInsights,
-      playerPerformance:
-        playerId === matchAnalysis.match.playerAId
-          ? matchAnalysis.playerPerformanceA || ''
-          : matchAnalysis.playerPerformanceB || '',
-      overallAssessment: matchAnalysis.overallAssessment || '',
-      recommendations: matchAnalysis.recommendations,
+      analysis: matchAnalysis.analysis || '',
+      keyMoments: [], // These fields don't exist in current schema
+      strategicInsights: [],
+      playerPerformanceA: '',
+      playerPerformanceB: '',
+      overallAssessment: '',
+      recommendations: [],
     };
 
     // Calculate skill points based on analysis
@@ -398,9 +395,9 @@ export class SkillsService {
       // Find or create skill profile
       let skillProfile = await this.prisma.skillProfile.findUnique({
         where: {
-          userId_skillId: {
+          userId_skillType: {
             userId: context.playerId,
-            skillId: skill.id,
+            skillType: skill.category, // Use skill category as skillType
           },
         },
       });
@@ -409,8 +406,8 @@ export class SkillsService {
         skillProfile = await this.prisma.skillProfile.create({
           data: {
             userId: context.playerId,
+            skillType: skill.category,
             skillId: skill.id,
-            unlockedAt: new Date(),
           },
         });
       }
@@ -419,12 +416,8 @@ export class SkillsService {
       const updatedProfile = await this.prisma.skillProfile.update({
         where: { id: skillProfile.id },
         data: {
-          currentPoints: { increment: point.points },
+          experience: { increment: point.points },
           totalPoints: { increment: point.points },
-          proficiencyScore: this.calculateProficiencyScore(
-            skillProfile.totalPoints + point.points,
-            skill
-          ),
           currentLevel: this.calculateLevel(
             skillProfile.totalPoints + point.points,
             skill
@@ -436,11 +429,11 @@ export class SkillsService {
       // Create skill point log
       await this.prisma.skillPointLog.create({
         data: {
+          userId: skillProfile.userId,
+          skillId: skill.id,
           skillProfileId: skillProfile.id,
           points: point.points,
           reason: point.reason,
-          matchId: context.matchId,
-          metadata: point.metadata,
         },
       });
 
@@ -475,7 +468,7 @@ export class SkillsService {
       const skillProfiles = await this.prisma.skillProfile.findMany({
         where: {
           userId: playerId,
-          skill: { category },
+          skillType: category,
         },
         include: { skill: true },
         orderBy: { totalPoints: 'desc' },
@@ -514,51 +507,51 @@ export class SkillsService {
     return {
       id: profile.id,
       skillId: profile.skillId,
-      skillName: profile.skill.name,
-      skillDescription: profile.skill.description,
-      category: profile.skill.category,
-      iconUrl: profile.skill.iconUrl,
+      skillName: profile.skill?.name || profile.skillType,
+      skillDescription: profile.skill?.description || '',
+      category: profile.skill?.category || profile.skillType,
+      iconUrl: profile.skill?.iconUrl || '',
       currentLevel: profile.currentLevel,
-      currentPoints: profile.currentPoints,
+      currentPoints: profile.experience,
       totalPoints: profile.totalPoints,
-      proficiencyScore: Number(profile.proficiencyScore),
-      maxLevel: profile.skill.maxLevel,
+      proficiencyScore: 0, // Will be calculated separately if needed
+      maxLevel: profile.skill?.maxLevel || 10,
       pointsToNextLevel,
-      unlockedAt: profile.unlockedAt,
-      lastUpdated: profile.lastUpdated,
+      unlockedAt: profile.createdAt,
+      lastUpdated: profile.updatedAt,
     };
   }
 
   private mapToSkillProgress(profile: any): SkillProgressDto {
     return {
       skillId: profile.skillId,
-      skillName: profile.skill.name,
-      category: profile.skill.category,
+      skillName: profile.skill?.name || profile.skillType,
+      category: profile.skill?.category || profile.skillType,
       currentLevel: profile.currentLevel,
-      currentPoints: profile.currentPoints,
-      proficiencyScore: Number(profile.proficiencyScore),
-      recentPoints: profile.currentPoints, // This could be calculated differently
-      lastActivity: profile.lastUpdated,
+      currentPoints: profile.experience,
+      proficiencyScore: 0, // Will be calculated separately if needed
+      recentPoints: profile.experience,
+      lastActivity: profile.updatedAt,
     };
   }
 
   private mapToSkillPointLog(log: any): SkillPointLogDto {
     return {
       id: log.id,
-      skillId: log.skillProfile.skillId,
-      skillName: log.skillProfile.skill.name,
+      skillId: log.skillId,
+      skillName: log.skill?.name || log.skillId,
       points: log.points,
       reason: log.reason,
-      matchId: log.matchId,
+      matchId: undefined, // Optional field
       createdAt: log.createdAt,
-      metadata: log.metadata,
+      metadata: {}, // Field removed from schema, use empty object
     };
   }
 
   private calculatePointsToNextLevel(profile: any): number {
-    const currentLevelPoints =
-      (profile.currentLevel - 1) * profile.skill.pointsPerLevel;
-    const nextLevelPoints = profile.currentLevel * profile.skill.pointsPerLevel;
+    const pointsPerLevel = profile.skill?.baseExperience || 100;
+    const currentLevelPoints = (profile.currentLevel - 1) * pointsPerLevel;
+    const nextLevelPoints = profile.currentLevel * pointsPerLevel;
     return Math.max(0, nextLevelPoints - profile.totalPoints);
   }
 }

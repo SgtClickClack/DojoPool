@@ -163,5 +163,10 @@
   "editor.smoothScrolling": true,
   "workbench.list.smoothScrolling": true,
   "terminal.integrated.smoothScrolling": true,
-  "editor.guides.highlightActiveIndentation": true
+  "editor.guides.highlightActiveIndentation": true,
+  // CMake Configuration
+  "cmake.cmakePath": "C:\\Program Files\\CMake\\bin\\cmake.exe",
+  "cmake.sourceDirectory": "${workspaceFolder}/apps/web/src/wasm",
+  "cmake.buildDirectory": "${workspaceFolder}/apps/web/src/wasm/build",
+  "cmake.configureOnOpen": false
 }

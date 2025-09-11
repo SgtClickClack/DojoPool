@@ -1,6 +1,6 @@
+import { AnalyticsData } from '@dojopool/types';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AnalyticsData } from '@dojopool/types';
 
 export interface TelemetryEventData {
   eventName: string;
@@ -29,10 +29,11 @@ export class TelemetryService {
         try {
           await this.prisma.telemetryEvent.create({
             data: {
+              eventType: eventData.eventName,
               eventName: eventData.eventName,
-              userId: eventData.userId,
+              userId: eventData.userId || '',
               sessionId: eventData.sessionId,
-              data: eventData.data || {},
+              data: eventData.data ? JSON.stringify(eventData.data) : null,
               timestamp: eventData.timestamp || new Date(),
               ipAddress: eventData.ipAddress,
               userAgent: eventData.userAgent,
@@ -61,10 +62,11 @@ export class TelemetryService {
       setImmediate(async () => {
         try {
           const data = events.map((event) => ({
+            eventType: event.eventName,
             eventName: event.eventName,
-            userId: event.userId,
+            userId: event.userId || '',
             sessionId: event.sessionId,
-            data: event.data || {},
+            data: event.data ? JSON.stringify(event.data) : null,
             timestamp: event.timestamp || new Date(),
             ipAddress: event.ipAddress,
             userAgent: event.userAgent,
@@ -220,10 +222,12 @@ export class TelemetryService {
       take: 10,
     });
 
-    return result.map((item) => ({
-      eventName: item.eventName,
-      count: item._count.eventName,
-    }));
+    return result
+      .filter((item) => item.eventName !== null)
+      .map((item) => ({
+        eventName: item.eventName as string,
+        count: item._count.eventName,
+      }));
   }
 
   private async getUserEngagementData(
@@ -255,6 +259,8 @@ export class TelemetryService {
         select: {
           userId: true,
           sessionId: true,
+          eventName: true,
+          timestamp: true,
           data: true,
         },
       });
@@ -276,7 +282,7 @@ export class TelemetryService {
       const sessionMap = new Map<string, { start?: Date; end?: Date }>();
 
       dayEvents.forEach((event) => {
-        if (!event.sessionId) return;
+        if (!event.sessionId || !event.eventName) return;
 
         if (event.eventName === 'session_start') {
           sessionMap.set(event.sessionId, {
@@ -353,19 +359,22 @@ export class TelemetryService {
       },
     });
 
+    // Filter null eventNames and convert to expected format
+    const filteredResult = result.filter((item) => item.eventName !== null);
+
     const featureUsage: Array<{
       feature: string;
       usageCount: number;
       uniqueUsers: number;
     }> = [];
 
-    for (const item of result) {
-      const feature = featureMappings[item.eventName] || item.eventName;
+    for (const item of filteredResult) {
+      const feature = featureMappings[item.eventName!] || item.eventName!;
 
       // Get unique users for this event type
       const uniqueUsers = await this.prisma.telemetryEvent.findMany({
         where: {
-          eventName: item.eventName,
+          eventName: item.eventName!,
           timestamp: {
             gte: startDate,
             lte: endDate,
@@ -379,7 +388,7 @@ export class TelemetryService {
 
       featureUsage.push({
         feature,
-        usageCount: item._count.eventName,
+        usageCount: item._count.eventName || 0,
         uniqueUsers: uniqueUsers.filter((event) => event.userId !== null)
           .length,
       });

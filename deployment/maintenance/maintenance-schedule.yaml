@@ -1,0 +1,153 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dojopool-maintenance-schedule
+  namespace: default
+data:
+  maintenance-windows.json: |
+    {
+      "maintenance_windows": {
+        "primary": {
+          "name": "Primary Maintenance Window",
+          "description": "Standard maintenance window for routine updates",
+          "schedule": "0 2 * * 1",  // Every Monday at 2:00 AM UTC
+          "duration": "4h",
+          "timezone": "UTC",
+          "allowed_activities": [
+            "security_patches",
+            "dependency_updates",
+            "database_maintenance",
+            "log_rotation",
+            "backup_verification"
+          ],
+          "notification_channels": ["slack", "email", "status_page"],
+          "rollback_time": "2h"
+        },
+        "security": {
+          "name": "Security Maintenance Window",
+          "description": "Emergency window for critical security updates",
+          "schedule": "immediate",
+          "duration": "1h",
+          "timezone": "UTC",
+          "allowed_activities": [
+            "critical_security_patches",
+            "emergency_hotfixes"
+          ],
+          "notification_channels": ["slack", "email", "status_page", "sms"],
+          "rollback_time": "30m"
+        },
+        "database": {
+          "name": "Database Maintenance Window",
+          "description": "Dedicated window for database optimization and maintenance",
+          "schedule": "0 3 * * 0",  // Every Sunday at 3:00 AM UTC
+          "duration": "6h",
+          "timezone": "UTC",
+          "allowed_activities": [
+            "vacuum_analyze",
+            "reindex",
+            "partition_maintenance",
+            "backup_optimization"
+          ],
+          "notification_channels": ["slack", "email"],
+          "rollback_time": "4h"
+        },
+        "infrastructure": {
+          "name": "Infrastructure Maintenance Window",
+          "description": "Infrastructure updates and Kubernetes maintenance",
+          "schedule": "0 1 1 * *",  // First day of every month at 1:00 AM UTC
+          "duration": "8h",
+          "timezone": "UTC",
+          "allowed_activities": [
+            "kubernetes_upgrades",
+            "infrastructure_patches",
+            "network_maintenance",
+            "storage_maintenance"
+          ],
+          "notification_channels": ["slack", "email", "status_page"],
+          "rollback_time": "6h"
+        }
+      },
+      "maintenance_policies": {
+        "pre_maintenance": {
+          "health_checks": true,
+          "backup_verification": true,
+          "capacity_planning": true,
+          "communication_plan": true
+        },
+        "during_maintenance": {
+          "monitoring": "enhanced",
+          "logging": "verbose",
+          "alert_suppression": "maintenance_mode",
+          "user_communication": "status_updates"
+        },
+        "post_maintenance": {
+          "validation_tests": true,
+          "performance_verification": true,
+          "rollback_readiness": "24h",
+          "incident_review": true
+        }
+      },
+      "maintenance_zones": {
+        "low_impact": {
+          "regions": ["us-west-2", "eu-west-1"],
+          "user_traffic": "< 20%",
+          "maintenance_preference": "primary"
+        },
+        "medium_impact": {
+          "regions": ["us-east-1", "eu-central-1"],
+          "user_traffic": "20-50%",
+          "maintenance_preference": "database"
+        },
+        "high_impact": {
+          "regions": ["ap-southeast-1", "us-west-1"],
+          "user_traffic": "> 50%",
+          "maintenance_preference": "infrastructure"
+        }
+      }
+    }
+
+  maintenance-calendar.json: |
+    {
+      "2025": {
+        "q1": [
+          {
+            "date": "2025-01-06",
+            "window": "database",
+            "activities": ["vacuum_analyze", "reindex"],
+            "impact": "low"
+          },
+          {
+            "date": "2025-01-13",
+            "window": "primary",
+            "activities": ["security_patches", "dependency_updates"],
+            "impact": "medium"
+          },
+          {
+            "date": "2025-01-20",
+            "window": "database",
+            "activities": ["backup_verification", "partition_maintenance"],
+            "impact": "low"
+          },
+          {
+            "date": "2025-01-27",
+            "window": "primary",
+            "activities": ["log_rotation", "performance_tuning"],
+            "impact": "medium"
+          }
+        ],
+        "q2": [
+          {
+            "date": "2025-02-03",
+            "window": "infrastructure",
+            "activities": ["kubernetes_upgrades"],
+            "impact": "high"
+          },
+          {
+            "date": "2025-02-10",
+            "window": "primary",
+            "activities": ["security_patches", "dependency_updates"],
+            "impact": "medium"
+          }
+        ]
+      }
+    }

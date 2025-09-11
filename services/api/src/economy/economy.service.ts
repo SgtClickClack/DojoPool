@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import type { Transaction, TxType } from '@prisma/client';
+import type { Transaction, TxType } from '@dojopool/prisma';
 import { ErrorUtils } from '../common';
 import { PrismaService } from '../prisma/prisma.service';
 

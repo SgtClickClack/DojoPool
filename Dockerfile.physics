@@ -1,0 +1,79 @@
+# DojoPool C++ Physics Engine Builder
+FROM alpine:latest AS base
+
+# Install build dependencies
+RUN apk add --no-cache \
+    build-base \
+    cmake \
+    ninja \
+    clang \
+    llvm \
+    libc++-dev \
+    libc++abi-dev \
+    python3 \
+    py3-pip \
+    git \
+    nodejs \
+    npm \
+    node-gyp \
+    make \
+    g++ \
+    && ln -sf python3 /usr/bin/python
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy CMake configuration
+COPY CMakeLists.txt ./
+COPY cmake ./cmake/
+
+# Copy source code
+COPY src ./src/
+
+# Build the physics engine and addon
+RUN mkdir -p build && \
+    cd build && \
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_C_COMPILER=clang \
+        -GNinja && \
+    ninja && \
+    ninja install_nodejs_addon
+
+# Copy the built addon to a known location
+RUN mkdir -p /output && \
+    cp build/src/addon/dojopool_physics.node /output/ && \
+    cp src/addon/package.json /output/ && \
+    cp src/addon/index.js /output/
+
+# Production stage - minimal image with just the addon
+FROM alpine:latest AS production
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    libc++ \
+    nodejs \
+    npm
+
+# Copy built addon
+COPY --from=base /output/dojopool_physics.node /app/addons/
+COPY --from=base /output/package.json /app/addons/
+COPY --from=base /output/index.js /app/addons/
+
+# Copy physics libraries
+COPY --from=base /usr/local/lib/libdojopool*.so* /usr/local/lib/
+
+# Set library path
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+WORKDIR /app
+
+# Verify addon can be loaded
+RUN node -e "try { require('./addons/dojopool_physics.node'); console.log('✅ Addon loaded successfully'); } catch(e) { console.error('❌ Addon failed to load:', e.message); process.exit(1); }"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD node -e "require('./addons/dojopool_physics.node')" || exit 1
+
+CMD ["echo", "Physics addon ready"]

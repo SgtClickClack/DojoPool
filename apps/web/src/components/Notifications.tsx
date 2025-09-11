@@ -3,6 +3,9 @@ import {
   Close as CloseIcon,
   DoneAll as MarkAllReadIcon,
   Notifications as NotificationsIcon,
+  PlayArrow as PlayIcon,
+  Star as StarIcon,
+  EmojiEvents as TrophyIcon,
 } from '@mui/icons-material';
 import {
   Alert,
@@ -18,6 +21,7 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import React from 'react';
 
 interface NotificationsProps {
@@ -29,6 +33,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
   onClose,
   compact = false,
 }) => {
+  const theme = useTheme();
   const {
     notifications,
     unreadCount,
@@ -67,32 +72,72 @@ export const Notifications: React.FC<NotificationsProps> = ({
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
-  const getNotificationIcon = (type: string): string => {
+  const getNotificationIcon = (type: string): JSX.Element => {
     switch (type.toLowerCase()) {
       case 'challenge':
       case 'challenge_received':
-        return '⚔️';
+        return (
+          <PlayIcon sx={{ color: theme.palette.primary.main, fontSize: 20 }} />
+        );
       case 'match_result':
-        return '🏆';
+      case 'tournament_win':
+        return (
+          <TrophyIcon
+            sx={{ color: theme.palette.success.main, fontSize: 20 }}
+          />
+        );
       case 'tournament_update':
       case 'tournament_invite':
-        return '🎮';
+      case 'tournament_started':
+        return (
+          <PlayIcon sx={{ color: theme.palette.warning.main, fontSize: 20 }} />
+        );
       case 'achievement':
       case 'achievement_unlocked':
-        return '🎯';
+        return (
+          <TrophyIcon sx={{ color: theme.palette.info.main, fontSize: 20 }} />
+        );
+      case 'battle_pass':
+      case 'battle_pass_unlocked':
+      case 'battle_pass_progress':
+        return (
+          <StarIcon sx={{ color: theme.palette.warning.main, fontSize: 20 }} />
+        );
       case 'clan_invite':
       case 'clan_war_update':
-        return '⚔️';
+        return (
+          <PlayIcon
+            sx={{ color: theme.palette.secondary.main, fontSize: 20 }}
+          />
+        );
       case 'friend_request':
-        return '🤝';
+        return (
+          <TrophyIcon
+            sx={{ color: theme.palette.success.main, fontSize: 20 }}
+          />
+        );
       case 'territory_changed':
-        return '🏰';
+        return (
+          <PlayIcon sx={{ color: theme.palette.info.main, fontSize: 20 }} />
+        );
       case 'venue_checkin':
-        return '📍';
+        return (
+          <TrophyIcon
+            sx={{ color: theme.palette.primary.main, fontSize: 20 }}
+          />
+        );
       case 'system':
-        return '📢';
+        return (
+          <NotificationsIcon
+            sx={{ color: theme.palette.error.main, fontSize: 20 }}
+          />
+        );
       default:
-        return '🔔';
+        return (
+          <NotificationsIcon
+            sx={{ color: theme.palette.primary.main, fontSize: 20 }}
+          />
+        );
     }
   };
 
@@ -113,8 +158,9 @@ export const Notifications: React.FC<NotificationsProps> = ({
         flexDirection: 'column',
         borderRadius: 2,
         boxShadow: 3,
-        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
-        border: '1px solid #00d4ff',
+        background: theme.cyberpunk.gradients.card,
+        border: `1px solid ${theme.palette.primary.main}`,
+        boxShadow: `0 0 20px ${theme.palette.primary.main}30`,
       }}
     >
       {/* Header */}
@@ -124,16 +170,16 @@ export const Notifications: React.FC<NotificationsProps> = ({
           alignItems: 'center',
           justifyContent: 'space-between',
           p: 2,
-          borderBottom: '1px solid #00d4ff',
+          borderBottom: `1px solid ${theme.palette.primary.main}`,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Badge badgeContent={unreadCount} color="primary" max={99}>
-            <NotificationsIcon sx={{ color: '#00d4ff' }} />
+            <NotificationsIcon sx={{ color: theme.palette.primary.main }} />
           </Badge>
           <Typography
             variant="h6"
-            sx={{ color: '#00d4ff', fontWeight: 'bold' }}
+            sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}
           >
             Notifications
           </Typography>
@@ -145,7 +191,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
               size="small"
               onClick={handleMarkAllRead}
               disabled={isLoading}
-              sx={{ color: '#00d4ff' }}
+              sx={{ color: theme.palette.primary.main }}
             >
               <MarkAllReadIcon />
             </IconButton>
@@ -154,7 +200,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
             <IconButton
               size="small"
               onClick={onClose}
-              sx={{ color: '#00d4ff' }}
+              sx={{ color: theme.palette.primary.main }}
             >
               <CloseIcon />
             </IconButton>
@@ -166,16 +212,25 @@ export const Notifications: React.FC<NotificationsProps> = ({
       <CardContent sx={{ flex: 1, p: 0, overflow: 'auto' }}>
         {isLoading ? (
           <Box sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
+            <Typography
+              variant="body2"
+              sx={{ color: theme.palette.text.secondary }}
+            >
               Loading notifications...
             </Typography>
           </Box>
         ) : notifications.length === 0 ? (
           <Box sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ color: '#b0b0b0' }}>
+            <Typography
+              variant="body2"
+              sx={{ color: theme.palette.text.secondary }}
+            >
               No notifications yet
             </Typography>
-            <Typography variant="caption" sx={{ color: '#666' }}>
+            <Typography
+              variant="caption"
+              sx={{ color: theme.palette.text.disabled }}
+            >
               You'll see updates here when things happen in your Dojo world
             </Typography>
           </Box>
@@ -189,22 +244,23 @@ export const Notifications: React.FC<NotificationsProps> = ({
                     px: 2,
                     backgroundColor: notification.isRead
                       ? 'transparent'
-                      : 'rgba(0, 212, 255, 0.1)',
+                      : `${theme.palette.primary.main}20`,
                     borderLeft: notification.isRead
                       ? 'none'
-                      : '3px solid #00d4ff',
+                      : `3px solid ${theme.palette.primary.main}`,
                     cursor: notification.isRead ? 'default' : 'pointer',
                     '&:hover': {
                       backgroundColor: notification.isRead
                         ? 'rgba(255, 255, 255, 0.05)'
-                        : 'rgba(0, 212, 255, 0.15)',
+                        : `${theme.palette.primary.main}30`,
                     },
+                    transition: 'all 0.2s ease',
                   }}
                   onClick={() =>
                     !notification.isRead && handleMarkAsRead(notification.id)
                   }
                 >
-                  <Box sx={{ mr: 2, fontSize: '1.5rem' }}>
+                  <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
                     {getNotificationIcon(notification.type)}
                   </Box>
 
@@ -213,7 +269,9 @@ export const Notifications: React.FC<NotificationsProps> = ({
                       <Typography
                         variant="subtitle2"
                         sx={{
-                          color: notification.isRead ? '#b0b0b0' : '#ffffff',
+                          color: notification.isRead
+                            ? theme.palette.text.secondary
+                            : theme.palette.text.primary,
                           fontWeight: notification.isRead ? 'normal' : 'bold',
                           mb: 0.5,
                         }}
@@ -226,7 +284,9 @@ export const Notifications: React.FC<NotificationsProps> = ({
                         <Typography
                           variant="body2"
                           sx={{
-                            color: notification.isRead ? '#888' : '#cccccc',
+                            color: notification.isRead
+                              ? theme.palette.text.disabled
+                              : theme.palette.text.secondary,
                             lineHeight: 1.3,
                             mb: 1,
                           }}
@@ -236,7 +296,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
                         <Typography
                           variant="caption"
                           sx={{
-                            color: '#666',
+                            color: theme.palette.text.disabled,
                             fontSize: '0.7rem',
                           }}
                         >
@@ -252,14 +312,17 @@ export const Notifications: React.FC<NotificationsProps> = ({
                         width: 8,
                         height: 8,
                         borderRadius: '50%',
-                        backgroundColor: '#00d4ff',
+                        backgroundColor: theme.palette.primary.main,
                         flexShrink: 0,
+                        boxShadow: `0 0 6px ${theme.palette.primary.main}80`,
                       }}
                     />
                   )}
                 </ListItem>
                 {index < notifications.length - 1 && (
-                  <Divider sx={{ bgcolor: 'rgba(0, 212, 255, 0.2)' }} />
+                  <Divider
+                    sx={{ bgcolor: `${theme.palette.primary.main}30` }}
+                  />
                 )}
               </React.Fragment>
             ))}
@@ -269,18 +332,20 @@ export const Notifications: React.FC<NotificationsProps> = ({
 
       {/* Footer */}
       {notifications.length > 0 && !compact && (
-        <Box sx={{ p: 2, borderTop: '1px solid rgba(0, 212, 255, 0.2)' }}>
+        <Box
+          sx={{ p: 2, borderTop: `1px solid ${theme.palette.primary.main}30` }}
+        >
           <Button
             fullWidth
             variant="outlined"
             size="small"
             onClick={onClose}
             sx={{
-              color: '#00d4ff',
-              borderColor: '#00d4ff',
+              color: theme.palette.primary.main,
+              borderColor: theme.palette.primary.main,
               '&:hover': {
-                borderColor: '#00d4ff',
-                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                borderColor: theme.palette.primary.main,
+                backgroundColor: `${theme.palette.primary.main}20`,
               },
             }}
           >

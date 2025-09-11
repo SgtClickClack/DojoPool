@@ -47,7 +47,9 @@ class AiService {
 
   constructor() {
     this.baseUrl =
-      process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '/api';
+      (process.env.NEXT_PUBLIC_API_URL
+        ? process.env.NEXT_PUBLIC_API_URL.trim().replace(/\/$/, '')
+        : undefined) || '/api';
   }
 
   /**

@@ -1,0 +1,49 @@
+# DojoPool Physics Integration Tester
+FROM python:3.11-alpine AS base
+
+# Install system dependencies
+RUN apk add --no-cache \
+    build-base \
+    cmake \
+    ninja \
+    clang \
+    llvm \
+    libc++-dev \
+    libc++abi-dev \
+    nodejs \
+    npm \
+    curl \
+    git \
+    && ln -sf python3 /usr/bin/python
+
+# Install Python testing dependencies
+RUN pip install --no-cache-dir \
+    pytest \
+    pytest-asyncio \
+    pytest-cov \
+    aiohttp \
+    requests
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy test files
+COPY tests ./tests/
+COPY api/src ./api/src/
+
+# Copy physics addon (if available)
+COPY --from=docker-physics /app/addons/dojopool_physics.node ./api/src/addons/ 2>/dev/null || true
+
+# Copy built libraries
+COPY --from=docker-physics /usr/local/lib/libdojopool*.so* /usr/local/lib/ 2>/dev/null || true
+
+# Set library path
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+ENV PYTHONPATH=/workspace
+
+# Run integration tests
+CMD ["pytest", "tests/integration/", "-v", "--tb=short", "--cov=api/src", "--cov-report=term-missing"]
+
+# Health check - verify test environment
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import sys; sys.path.append('/workspace'); import api.src.physics_engine; print('✅ Test environment ready')" || exit 1

@@ -68,7 +68,7 @@ export class AuthService {
       data: {
         email: email.toLowerCase(),
         username,
-        passwordHash,
+        password: passwordHash,
       },
     });
     const tokens = await this.issueTokens({
@@ -95,7 +95,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const valid = await bcrypt.compare(password, user.passwordHash);
+    const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -155,7 +155,7 @@ export class AuthService {
           data: {
             email: mockEmail.toLowerCase(),
             username: mockName || mockEmail.split('@')[0],
-            passwordHash: '', // Google users don't need password
+            password: '', // Google users don't need password
             profile: {
               create: {
                 displayName: mockName,
@@ -214,7 +214,7 @@ export class AuthService {
           data: {
             email: email.toLowerCase(),
             username: name || email.split('@')[0],
-            passwordHash: '', // Google users don't need password
+            password: '', // Google users don't need password
             profile: {
               create: {
                 displayName: name,

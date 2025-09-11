@@ -1,0 +1,20 @@
+{
+  "Index": {
+    "title": "Willkommen bei DojoPool"
+  },
+  "NotFound": {
+    "title": "Seite nicht gefunden",
+    "description": "Die von Ihnen gesuchte Seite existiert nicht.",
+    "goHome": "Zur Startseite"
+  },
+  "LanguageSwitcher": {
+    "label": "Sprache ändern",
+    "en": "Englisch",
+    "de": "Deutsch"
+  },
+  "LanguageSuggestion": {
+    "suggestion": "Es scheint, als ob Sie aus einer Region surfen, in der {locale} üblich ist.",
+    "switchTo": "Zu {locale} wechseln",
+    "dismiss": "Verwerfen"
+  }
+}

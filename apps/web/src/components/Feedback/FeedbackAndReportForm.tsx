@@ -1,6 +1,5 @@
 import { submitFeedback, uploadFiles } from '@/services/APIService';
-import { validateFeedbackForm } from '@dojopool/shared';
-import { FeedbackCategory } from '@dojopool/types';
+import { FeedbackCategory, validateFeedbackForm } from '@/utils/validation';
 import { AttachFile, CloudUpload, Delete } from '@mui/icons-material';
 import {
   Alert,

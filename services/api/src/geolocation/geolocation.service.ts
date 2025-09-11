@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import * as crypto from 'crypto';
+import * as geoip from 'geoip-lite';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   LocationPrivacySettingsDto,
@@ -32,7 +33,56 @@ export class GeolocationService {
   private readonly UPDATE_RATE_LIMIT_MS = 1000; // 1 update per second max
   private updateTimestamps = new Map<string, number>();
 
+  private readonly countryToLanguageMap: Record<string, string> = {
+    US: 'en',
+    GB: 'en',
+    CA: 'en',
+    AU: 'en',
+    DE: 'de',
+    FR: 'fr',
+    ES: 'es',
+    IT: 'it',
+    JP: 'ja',
+    CN: 'zh',
+  };
+
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Determines the preferred language from the Accept-Language header or IP address.
+   * @param ipAddress The user's IP address.
+   * @param acceptLanguageHeader The Accept-Language HTTP header.
+   * @returns A two-letter language code (e.g., 'en').
+   */
+  getPreferredLanguage(
+    ipAddress: string,
+    acceptLanguageHeader?: string
+  ): string {
+    // 1. Check Accept-Language header
+    if (acceptLanguageHeader) {
+      const languages = acceptLanguageHeader
+        .split(',')
+        .map((lang) => lang.split(';')[0].trim().toLowerCase().substring(0, 2));
+
+      if (languages.length > 0) {
+        // For simplicity, we're taking the first language.
+        // A more robust solution would parse q-factors.
+        const preferredLang = languages[0];
+        // You might want to check if you support this language.
+        // For now, we return it directly.
+        return preferredLang;
+      }
+    }
+
+    // 2. Fallback to IP-based geolocation
+    const geo = geoip.lookup(ipAddress);
+    if (geo && this.countryToLanguageMap[geo.country]) {
+      return this.countryToLanguageMap[geo.country];
+    }
+
+    // 3. Default language
+    return 'en';
+  }
 
   /**
    * Update player location with privacy and security checks

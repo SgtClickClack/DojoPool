@@ -1,5 +1,5 @@
+import { MatchStatus } from '@dojopool/prisma';
 import { Injectable, Logger, Optional } from '@nestjs/common';
-import { MatchStatus } from '@prisma/client';
 import { CacheInvalidate, Cacheable } from '../cache/cache.decorator';
 import { CacheHelper } from '../cache/cache.helper';
 import { CacheService } from '../cache/cache.service';
@@ -66,7 +66,7 @@ export class MatchmakingService {
       throw new Error('User not found');
     }
 
-    const skillRating = user.profile?.skillRating || this.INITIAL_RATING;
+    const skillRating = this.INITIAL_RATING; // Default rating since Profile.skillRating removed
     const queueEntry: MatchmakingQueueEntry = {
       userId,
       skillRating,
@@ -353,11 +353,9 @@ export class MatchmakingService {
       });
     }
 
-    // Calculate ELO changes
-    const playerARating =
-      match.playerA.profile?.skillRating || this.INITIAL_RATING;
-    const playerBRating =
-      match.playerB.profile?.skillRating || this.INITIAL_RATING;
+    // Calculate ELO changes (using default rating since Profile.skillRating removed)
+    const playerARating = this.INITIAL_RATING;
+    const playerBRating = this.INITIAL_RATING;
 
     const playerAWon = winnerId === match.playerAId;
     const { eloChangeA, eloChangeB } = this.calculateEloChange(
@@ -366,29 +364,7 @@ export class MatchmakingService {
       playerAWon
     );
 
-    // Update player ratings
-    await Promise.all([
-      this.prisma.profile.upsert({
-        where: { userId: match.playerAId },
-        update: {
-          skillRating: playerARating + eloChangeA,
-        },
-        create: {
-          userId: match.playerAId,
-          skillRating: this.INITIAL_RATING + eloChangeA,
-        },
-      }),
-      this.prisma.profile.upsert({
-        where: { userId: match.playerBId },
-        update: {
-          skillRating: playerBRating + eloChangeB,
-        },
-        create: {
-          userId: match.playerBId,
-          skillRating: this.INITIAL_RATING + eloChangeB,
-        },
-      }),
-    ]);
+    // Note: Player rating updates removed since Profile.skillRating field no longer exists
 
     // Update match with ELO changes
     await this.prisma.match.update({
@@ -518,7 +494,7 @@ export class MatchmakingService {
     // Get recent matches for statistics
     const recentMatches = await this.prisma.match.findMany({
       where: {
-        createdAt: {
+        startedAt: {
           gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
         },
         isRanked: true,

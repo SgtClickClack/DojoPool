@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dojo Pool - Match Reporting Component</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .modal-backdrop {
+        backdrop-filter: blur(4px);
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
+      .animate-slide-up {
+        animation: slideUp 0.3s ease-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-white min-h-screen">
+    <!-- Demo Button -->
+    <div class="max-w-4xl mx-auto p-8">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-green-400 mb-4">
+          ⚔️ Dojo Pool Match Reporting
+        </h1>
+        <p class="text-gray-300 mb-6">
+          Report the results of your real-life pool matches and share them with
+          the community!
+        </p>
+        <button
+          id="open-report-modal"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors duration-200"
+        >
+          📝 Report Match Result
+        </button>
+      </div>
+
+      <!-- Recent Matches Display -->
+      <div class="bg-gray-800 rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-bold mb-4">Recent Matches</h2>
+        <div id="recent-matches" class="space-y-3">
+          <div class="text-gray-400">No matches reported yet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Match Reporting Modal -->
+    <div id="report-modal" class="fixed inset-0 z-50 hidden">
+      <!-- Backdrop -->
+      <div class="modal-backdrop absolute inset-0 bg-black bg-opacity-50"></div>
+
+      <!-- Modal Content -->
+      <div class="relative flex items-center justify-center min-h-screen p-4">
+        <div
+          class="bg-gray-800 rounded-lg shadow-xl max-w-md w-full animate-slide-up"
+        >
+          <!-- Header -->
+          <div
+            class="flex items-center justify-between p-6 border-b border-gray-700"
+          >
+            <h2 class="text-xl font-bold text-green-400">
+              Report Match Result
+            </h2>
+            <button
+              id="close-modal"
+              class="text-gray-400 hover:text-white text-2xl"
+            >
+              &times;
+            </button>
+          </div>
+
+          <!-- Form -->
+          <form id="match-report-form" class="p-6 space-y-4">
+            <!-- Player A -->
+            <div>
+              <label class="block text-sm font-medium mb-2"
+                >Player 1 (You)</label
+              >
+              <input
+                type="text"
+                id="player-a-id"
+                class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                placeholder="Enter your Player ID"
+                required
+              />
+              <input
+                type="text"
+                id="player-a-name"
+                class="w-full mt-2 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                placeholder="Your name (optional)"
+              />
+            </div>
+
+            <!-- Player B -->
+            <div>
+              <label class="block text-sm font-medium mb-2"
+                >Player 2 (Opponent)</label
+              >
+              <input
+                type="text"
+                id="player-b-id"
+                class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                placeholder="Enter opponent's Player ID"
+                required
+              />
+              <input
+                type="text"
+                id="player-b-name"
+                class="w-full mt-2 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                placeholder="Opponent's name (optional)"
+              />
+            </div>
+
+            <!-- Winner Selection -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Who Won?</label>
+              <div class="space-y-2">
+                <label class="flex items-center">
+                  <input
+                    type="radio"
+                    name="winner"
+                    value="player-a"
+                    class="mr-3"
+                    required
+                  />
+                  <span>You (Player 1)</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="radio"
+                    name="winner"
+                    value="player-b"
+                    class="mr-3"
+                    required
+                  />
+                  <span>Opponent (Player 2)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Scores -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-2">Your Score</label>
+                <input
+                  type="number"
+                  id="score-a"
+                  class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                  placeholder="0"
+                  min="0"
+                  required
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2"
+                  >Opponent's Score</label
+                >
+                <input
+                  type="number"
+                  id="score-b"
+                  class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+                  placeholder="0"
+                  min="0"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Venue (Optional) -->
+            <div>
+              <label class="block text-sm font-medium mb-2"
+                >Venue (Optional)</label
+              >
+              <select
+                id="venue-id"
+                class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white"
+              >
+                <option value="">Select venue...</option>
+                <option value="venue-1">The Jade Tiger</option>
+                <option value="venue-2">Crimson Dragon Billiards</option>
+                <option value="venue-3">Silent Fox Pool Club</option>
+              </select>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              id="submit-report"
+              class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 disabled:bg-gray-600 disabled:cursor-not-allowed"
+            >
+              📤 Submit Match Report
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 z-50 hidden">
+      <div class="modal-backdrop absolute inset-0 bg-black bg-opacity-50"></div>
+      <div class="relative flex items-center justify-center min-h-screen p-4">
+        <div
+          class="bg-gray-800 rounded-lg shadow-xl max-w-md w-full animate-slide-up"
+        >
+          <div class="p-6 text-center">
+            <div class="text-4xl mb-4">🎉</div>
+            <h2 class="text-xl font-bold text-green-400 mb-4">
+              Match Reported Successfully!
+            </h2>
+            <div id="match-summary" class="text-gray-300 mb-6"></div>
+
+            <!-- Share Button -->
+            <button
+              id="share-match"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg mr-3 transition-colors duration-200"
+            >
+              📤 Share Match
+            </button>
+            <button
+              id="close-success-modal"
+              class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // Mock API configuration
+      const API_BASE_URL = 'http://localhost:3000/api/v1'; // Adjust this to your API URL
+      const USE_MOCK_API = true; // Set to false when connecting to real API
+
+      let currentUser = {
+        id: 'player-' + Math.random().toString(36).substr(2, 9),
+        username: 'TestPlayer',
+      };
+
+      let lastMatchResult = null;
+
+      // Mock API functions
+      const mockAPI = {
+        async reportMatch(reportData) {
+          // Simulate API delay
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+
+          // Mock response
+          const winnerId = reportData.winnerId;
+          const loserId =
+            winnerId === reportData.playerAId
+              ? reportData.playerBId
+              : reportData.playerAId;
+
+          return {
+            id: 'match-' + Date.now(),
+            winnerId,
+            loserId,
+            scoreA: reportData.scoreA,
+            scoreB: reportData.scoreB,
+            playerAStats: {
+              totalWins: winnerId === reportData.playerAId ? 5 : 3,
+              totalLosses: winnerId === reportData.playerAId ? 2 : 4,
+              winStreak: winnerId === reportData.playerAId ? 3 : 0,
+              longestWinStreak: winnerId === reportData.playerAId ? 5 : 2,
+              totalMatches: winnerId === reportData.playerAId ? 7 : 7,
+            },
+            playerBStats: {
+              totalWins: winnerId === reportData.playerBId ? 5 : 3,
+              totalLosses: winnerId === reportData.playerBId ? 2 : 4,
+              winStreak: winnerId === reportData.playerBId ? 3 : 0,
+              longestWinStreak: winnerId === reportData.playerBId ? 5 : 2,
+              totalMatches: winnerId === reportData.playerBId ? 7 : 7,
+            },
+          };
+        },
+      };
+
+      // Real API functions
+      const realAPI = {
+        async reportMatch(reportData) {
+          const response = await fetch(`${API_BASE_URL}/matches/report`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${getAuthToken()}`, // You'll need to implement getAuthToken()
+            },
+            body: JSON.stringify(reportData),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to report match');
+          }
+
+          return await response.json();
+        },
+      };
+
+      // Get auth token (implement based on your auth system)
+      function getAuthToken() {
+        // This should return the JWT token from your auth system
+        // For demo purposes, returning a placeholder
+        return localStorage.getItem('authToken') || 'demo-token';
+      }
+
+      // DOM elements
+      const modal = document.getElementById('report-modal');
+      const successModal = document.getElementById('success-modal');
+      const form = document.getElementById('match-report-form');
+      const submitBtn = document.getElementById('submit-report');
+      const recentMatches = document.getElementById('recent-matches');
+
+      // Event listeners
+      document
+        .getElementById('open-report-modal')
+        .addEventListener('click', openModal);
+      document
+        .getElementById('close-modal')
+        .addEventListener('click', closeModal);
+      document
+        .getElementById('close-success-modal')
+        .addEventListener('click', closeSuccessModal);
+      document
+        .getElementById('share-match')
+        .addEventListener('click', shareMatch);
+      document.getElementById('report-modal').addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+      document
+        .getElementById('success-modal')
+        .addEventListener('click', (e) => {
+          if (e.target === successModal) closeSuccessModal();
+        });
+
+      form.addEventListener('submit', handleFormSubmit);
+
+      // Modal functions
+      function openModal() {
+        modal.classList.remove('hidden');
+        modal.classList.add('animate-fade-in');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        form.reset();
+      }
+
+      function closeSuccessModal() {
+        successModal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+
+      // Form handling
+      async function handleFormSubmit(e) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById('submit-report');
+        const originalText = submitBtn.textContent;
+
+        // Get form data
+        const playerAId = document.getElementById('player-a-id').value;
+        const playerBId = document.getElementById('player-b-id').value;
+        const winnerSelection = document.querySelector(
+          'input[name="winner"]:checked'
+        );
+        const scoreA = parseInt(document.getElementById('score-a').value);
+        const scoreB = parseInt(document.getElementById('score-b').value);
+        const venueId = document.getElementById('venue-id').value;
+
+        if (!playerAId || !playerBId || !winnerSelection) {
+          showError('Please fill in all required fields');
+          return;
+        }
+
+        const winnerId =
+          winnerSelection.value === 'player-a' ? playerAId : playerBId;
+
+        // Disable submit button and show loading
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Submitting...';
+
+        try {
+          const reportData = {
+            playerAId,
+            playerBId,
+            winnerId,
+            scoreA,
+            scoreB,
+            venueId: venueId || undefined,
+          };
+
+          // Use mock or real API
+          const api = USE_MOCK_API ? mockAPI : realAPI;
+          const result = await api.reportMatch(reportData);
+
+          // Store result for sharing
+          lastMatchResult = {
+            ...result,
+            playerAName:
+              document.getElementById('player-a-name').value || 'Player 1',
+            playerBName:
+              document.getElementById('player-b-name').value || 'Player 2',
+          };
+
+          // Show success modal
+          showSuccessModal(result);
+
+          // Add to recent matches
+          addRecentMatch(result);
+
+          // Close report modal
+          closeModal();
+        } catch (error) {
+          showError(error.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      }
+
+      function showSuccessModal(result) {
+        const summary = document.getElementById('match-summary');
+        const winnerName =
+          result.winnerId === result.playerAStats ? 'Player 1' : 'Player 2';
+
+        summary.innerHTML = `
+                <div class="text-lg mb-2"><strong>${winnerName} won!</strong></div>
+                <div>Final Score: ${result.scoreA} - ${result.scoreB}</div>
+                <div class="mt-2 text-sm text-gray-400">
+                    Winner's Stats: ${result.playerAStats.totalWins}W / ${result.playerAStats.totalLosses}L
+                </div>
+            `;
+
+        successModal.classList.remove('hidden');
+        successModal.classList.add('animate-fade-in');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function showError(message) {
+        // You can implement a toast notification system here
+        alert('Error: ' + message);
+      }
+
+      function addRecentMatch(result) {
+        const recentMatchesDiv = document.getElementById('recent-matches');
+
+        if (recentMatchesDiv.firstChild.textContent.includes('No matches')) {
+          recentMatchesDiv.innerHTML = '';
+        }
+
+        const matchItem = document.createElement('div');
+        matchItem.className = 'bg-gray-700 rounded p-3';
+        matchItem.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <div>
+                        <strong>Match #${result.id.slice(-6)}</strong> -
+                        Score: ${result.scoreA} - ${result.scoreB}
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        ${new Date().toLocaleTimeString()}
+                    </div>
+                </div>
+            `;
+
+        recentMatchesDiv.insertBefore(matchItem, recentMatchesDiv.firstChild);
+      }
+
+      async function shareMatch() {
+        if (!lastMatchResult) return;
+
+        const winnerName =
+          lastMatchResult.winnerId === lastMatchResult.playerAId
+            ? lastMatchResult.playerAName
+            : lastMatchResult.playerBName;
+        const loserName =
+          lastMatchResult.winnerId === lastMatchResult.playerAId
+            ? lastMatchResult.playerBName
+            : lastMatchResult.playerAName;
+
+        const shareText =
+          `🏆 Just crushed ${loserName} in a real-life pool match! ` +
+          `Final score: ${lastMatchResult.scoreA} - ${lastMatchResult.scoreB} ` +
+          `#DojoPool #PoolMaster`;
+
+        // Try native share API first
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Dojo Pool Match Result',
+              text: shareText,
+              url: window.location.href,
+            });
+            return;
+          } catch (error) {
+            // User cancelled or share failed, fallback to clipboard
+          }
+        }
+
+        // Fallback: copy to clipboard
+        try {
+          await navigator.clipboard.writeText(shareText);
+          alert('Match result copied to clipboard! 📋');
+        } catch (error) {
+          // Fallback: show text for manual copy
+          const textArea = document.createElement('textarea');
+          textArea.value = shareText;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+
+          try {
+            document.execCommand('copy');
+            alert('Match result copied to clipboard! 📋');
+          } catch (fallbackError) {
+            alert('Share text: ' + shareText);
+          }
+
+          textArea.remove();
+        }
+      }
+
+      // Initialize
+      document.addEventListener('DOMContentLoaded', () => {
+        // Pre-fill with demo data if in development
+        if (USE_MOCK_API) {
+          document.getElementById('player-a-id').value = currentUser.id;
+          document.getElementById('player-a-name').value = currentUser.username;
+          document.getElementById('player-b-id').value = 'opponent-123';
+          document.getElementById('player-b-name').value = 'PoolShark';
+          document.getElementById('score-a').value = '8';
+          document.getElementById('score-b').value = '6';
+          document.querySelector(
+            'input[name="winner"][value="player-a"]'
+          ).checked = true;
+        }
+      });
+    </script>
+  </body>
+</html>

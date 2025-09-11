@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
   Patch,
   Post,
   Query,
@@ -22,12 +23,23 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JournalService } from './journal.service';
 import { UsersService } from './users.service';
 
-@Controller('users')
+@Controller('api/v1/users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly journalService: JournalService
   ) {}
+
+  @Get('leaderboard')
+  async getLeaderboard(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10'
+  ) {
+    return this.usersService.getLeaderboard(
+      parseInt(page, 10),
+      parseInt(limit, 10)
+    );
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -90,5 +102,22 @@ export class UsersController {
   ) {
     const userId = (req.user.userId || req.user.sub || req.user.id) as string;
     return this.journalService.getJournal(userId, query.page, query.limit);
+  }
+
+  @Get('me/statistics')
+  @UseGuards(JwtAuthGuard)
+  async getMyStatistics(
+    @Req()
+    req: ExpressRequest & {
+      user: { userId?: string; sub?: string; id?: string };
+    }
+  ) {
+    const userId = (req.user.userId || req.user.sub || req.user.id) as string;
+    return this.usersService.getUserStatistics(userId);
+  }
+
+  @Get(':id/statistics')
+  async getUserStatistics(@Req() req: any, @Param('id') userId: string) {
+    return this.usersService.getUserStatistics(userId);
   }
 }

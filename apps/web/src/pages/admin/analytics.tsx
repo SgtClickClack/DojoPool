@@ -1,4 +1,4 @@
-import { AnalyticsDashboard } from '@/components/Analytics';
+import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Alert,

@@ -45,6 +45,8 @@ import { UsersModule } from './users/users.module';
 import { VenuesModule } from './venues/venues.module';
 import { WorldMapModule } from './world-map/world-map.module';
 import { WorldModule } from './world/world.module';
+import { ActivityModule } from './activity/activity.module';
+import { StoreModule } from './store/store.module';
 
 @Module({
   imports: [
@@ -109,6 +111,8 @@ import { WorldModule } from './world/world.module';
     ErrorsModule,
     // System
     HealthModule,
+    ActivityModule,
+    StoreModule,
   ],
   providers: [],
 })

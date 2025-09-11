@@ -1,0 +1,80 @@
+# DojoPool API with Physics Engine Integration
+FROM node:18-alpine AS base
+
+# Install system dependencies for C++ compilation and Python
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    build-base \
+    cmake \
+    ninja \
+    clang \
+    llvm \
+    libc++-dev \
+    libc++abi-dev \
+    node-gyp \
+    make \
+    g++ \
+    curl \
+    && ln -sf python3 /usr/bin/python
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY api/package*.json ./api/
+COPY package*.json ./
+
+# Install dependencies
+RUN cd api && npm ci
+RUN npm ci
+
+# Copy source code
+COPY api/src ./api/src/
+COPY src/addon ./src/addon/
+COPY cmake ./cmake/
+
+# Build C++ physics addon
+RUN cd src/addon && \
+    npm install node-addon-api && \
+    node-gyp configure && \
+    node-gyp build
+
+# Build the API
+RUN cd api && npm run build
+
+# Production stage
+FROM node:18-alpine AS production
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    curl \
+    && ln -sf python3 /usr/bin/python
+
+WORKDIR /app
+
+# Copy built application
+COPY --from=base /app/api/dist ./api/dist/
+COPY --from=base /app/api/package*.json ./api/
+COPY --from=base /app/src/addon/build/Release/dojopool_physics.node ./api/src/addons/
+COPY --from=base /app/api/node_modules ./api/node_modules/
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Change ownership
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3001/api/physics/health || exit 1
+
+# Start the API server
+CMD ["node", "api/dist/main.js"]

@@ -17,6 +17,7 @@ import {
 } from '../auth/websocket-rate-limit.guard';
 import { corsOptions } from '../config/cors.config';
 import { AiAnalysisService } from './ai-analysis.service';
+import { MatchesService } from './matches.service';
 
 interface ChatMessage {
   matchId: string;
@@ -39,7 +40,10 @@ export class MatchesGateway
   private readonly logger = new Logger(MatchesGateway.name);
   private connectedClients = new Map<string, Set<string>>(); // matchId -> Set of socketIds
 
-  constructor(private readonly aiAnalysisService: AiAnalysisService) {}
+  constructor(
+    private readonly aiAnalysisService: AiAnalysisService,
+    private readonly matchesService: MatchesService
+  ) {}
 
   handleConnection(client: Socket) {
     try {
@@ -67,7 +71,7 @@ export class MatchesGateway
   @SubscribeMessage('joinMatch')
   @SubscribeMessage('join_match')
   @WebSocketRateLimit(RATE_LIMIT_PRESETS.MATCHES.subscriptions!)
-  handleJoinMatch(
+  async handleJoinMatch(
     @MessageBody() data: { matchId: string },
     @ConnectedSocket() client: Socket
   ) {
@@ -77,6 +81,17 @@ export class MatchesGateway
 
       if (!matchId) {
         client.emit('error', { message: 'matchId is required' });
+        return;
+      }
+
+      const isParticipant = await this.matchesService.isUserInMatch(
+        user.id,
+        matchId
+      );
+      if (!isParticipant) {
+        client.emit('error', {
+          message: 'You are not a participant in this match.',
+        });
         return;
       }
 
@@ -189,7 +204,8 @@ export class MatchesGateway
   }
 
   @SubscribeMessage('matchUpdate')
-  handleMatchUpdate(
+  @WebSocketRateLimit(RATE_LIMIT_PRESETS.MATCHES.messages)
+  async handleMatchUpdate(
     @MessageBody() data: { matchId: string; update: any },
     @ConnectedSocket() client: Socket
   ) {
@@ -199,6 +215,17 @@ export class MatchesGateway
 
       if (!matchId || !update) {
         client.emit('error', { message: 'matchId and update are required' });
+        return;
+      }
+
+      const isParticipant = await this.matchesService.isUserInMatch(
+        user.id,
+        matchId
+      );
+      if (!isParticipant) {
+        client.emit('error', {
+          message: 'You are not authorized to update this match.',
+        });
         return;
       }
 

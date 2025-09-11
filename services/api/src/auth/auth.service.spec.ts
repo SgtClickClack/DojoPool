@@ -30,7 +30,6 @@ describe('AuthService', () => {
     bio: 'Test bio',
     avatarUrl: null,
     location: null,
-    skillRating: 1500,
     clanTitle: null,
     createdAt: new Date(),
     updatedAt: new Date(),

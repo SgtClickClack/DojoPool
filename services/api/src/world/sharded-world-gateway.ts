@@ -83,7 +83,7 @@ export class ShardedWorldGateway
     this.connectedClients.set(client.id, client);
 
     // Determine geographic region based on client handshake
-    const venueId = this.extractVenueId(client);
+    const venueId = this.extractVenueId(client) || undefined;
     if (venueId) {
       this.joinGeographicRegion(client, venueId);
     }
@@ -117,7 +117,7 @@ export class ShardedWorldGateway
       // Determine venue based on coordinates or explicit venueId
       let targetVenueId = venueId;
       if (!targetVenueId && lat !== undefined && lng !== undefined) {
-        targetVenueId = await this.findNearestVenue(lat, lng);
+        targetVenueId = (await this.findNearestVenue(lat, lng)) || undefined;
       }
 
       if (!targetVenueId) {
@@ -159,7 +159,8 @@ export class ShardedWorldGateway
       // Determine venue for geographic sharding
       let venueId = data.venueId;
       if (!venueId) {
-        venueId = await this.findNearestVenue(data.lat, data.lng);
+        venueId =
+          (await this.findNearestVenue(data.lat, data.lng)) || undefined;
       }
 
       const playerPosition: PlayerPosition = {
@@ -171,11 +172,13 @@ export class ShardedWorldGateway
       this.playerPositions.set(data.playerId, playerPosition);
 
       // Update shard manager with connection info
-      await this.shardManager.updateShardConnections(
-        SOCKET_NAMESPACES.WORLD_MAP,
-        this.calculateGeographicShard(venueId),
-        this.connectedClients.size
-      );
+      if (venueId) {
+        await this.shardManager.updateShardConnections(
+          SOCKET_NAMESPACES.WORLD_MAP,
+          this.calculateGeographicShard(venueId),
+          this.connectedClients.size
+        );
+      }
 
       this.logger.log(
         `Player ${data.playerName} position updated in region ${venueId}: ${data.lat}, ${data.lng}`

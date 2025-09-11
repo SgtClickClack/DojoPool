@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AssignmentType, PolicyDecision, PolicyEffect } from '@prisma/client';
+import { AssignmentType, PolicyDecision, PolicyEffect } from '@dojopool/prisma';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface PolicyContext {

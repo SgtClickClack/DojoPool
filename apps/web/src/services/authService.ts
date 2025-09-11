@@ -32,124 +32,57 @@ export interface User {
   role?: string;
 }
 
-class AuthService {
-  private readonly baseUrl = '/v1/auth';
-
-  async login(credentials: LoginRequest): Promise<AuthResponse> {
-    try {
-      const response = await api.post(`${this.baseUrl}/login`, credentials);
-      const data = response.data;
-
-      // Store tokens in localStorage
-      const accessToken = data.access_token || data.token;
-      const refreshToken = data.refresh_token || data.refreshToken;
-      if (accessToken) localStorage.setItem('auth_token', accessToken);
-      if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
-
-      return data;
-    } catch (error) {
-      console.error('Login error:', error);
-      throw new Error('Login failed. Please check your credentials.');
-    }
+const login = async (credentials: {
+  usernameOrEmail: string;
+  password: string;
+}) => {
+  const response = await api.post('/auth/login', credentials);
+  if (response.data.access_token) {
+    localStorage.setItem('user', JSON.stringify(response.data));
   }
+  return response.data;
+};
 
-  async register(userData: RegisterRequest): Promise<AuthResponse> {
-    try {
-      const response = await api.post(`${this.baseUrl}/register`, userData);
-      const data = response.data;
-
-      // Store tokens in localStorage
-      const accessToken = data.access_token || data.token;
-      const refreshToken = data.refresh_token || data.refreshToken;
-      if (accessToken) localStorage.setItem('auth_token', accessToken);
-      if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
-
-      return data;
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw new Error('Registration failed. Please try again.');
-    }
+const signup = async (credentials: {
+  email: string;
+  password: string;
+  username: string;
+}) => {
+  const response = await api.post('/auth/signup', credentials);
+  if (response.data.access_token) {
+    localStorage.setItem('user', JSON.stringify(response.data));
   }
+  return response.data;
+};
 
-  async logout(): Promise<void> {
-    try {
-      // Call logout endpoint if it exists
-      await api.post(`${this.baseUrl}/logout`);
-    } catch (error) {
-      console.warn(
-        'Logout endpoint not available, proceeding with local cleanup'
-      );
-    } finally {
-      // Clear local storage
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('refresh_token');
-    }
-  }
+const logout = () => {
+  localStorage.removeItem('user');
+};
 
-  async getCurrentUser(): Promise<User | null> {
-    try {
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        return null;
-      }
+const getCurrentUser = () => {
+  const userStr = localStorage.getItem('user');
+  if (userStr) return JSON.parse(userStr);
+  return null;
+};
 
-      const response = await api.get('/v1/users/me');
-      return response.data;
-    } catch (error) {
-      console.error('Get current user error:', error);
-      // If there's an auth error, clear tokens
-      if (
-        error &&
-        typeof error === 'object' &&
-        'response' in (error as any) &&
-        (error as any).response?.status === 401
-      ) {
-        this.logout();
-      }
-      return null;
-    }
-  }
+const isAuthenticated = () => {
+  return !!localStorage.getItem('user');
+};
 
-  async refreshToken(): Promise<string | null> {
-    try {
-      const refreshToken = localStorage.getItem('refresh_token');
-      if (!refreshToken) {
-        return null;
-      }
+const setToken = (token: string) => {
+  // This is a simplified implementation. In a real app, you'd likely
+  // want to store the token and user data separately.
+  const user = { access_token: token };
+  localStorage.setItem('user', JSON.stringify(user));
+};
 
-      const response = await api.post(`${this.baseUrl}/refresh`, {
-        refresh_token: refreshToken,
-      });
+const authService = {
+  login,
+  signup,
+  logout,
+  isAuthenticated,
+  getCurrentUser,
+  setToken,
+};
 
-      const newAccessToken = response.data.access_token || response.data.token;
-      const newRefreshToken =
-        response.data.refresh_token || response.data.refreshToken;
-      if (newAccessToken) localStorage.setItem('auth_token', newAccessToken);
-      if (newRefreshToken)
-        localStorage.setItem('refresh_token', newRefreshToken);
-      if (newAccessToken) return newAccessToken;
-
-      return null;
-    } catch (error) {
-      console.error('Token refresh error:', error);
-      // Clear tokens on refresh failure
-      this.logout();
-      return null;
-    }
-  }
-
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem('auth_token');
-  }
-
-  getToken(): string | null {
-    return localStorage.getItem('auth_token');
-  }
-
-  setToken(token: string): void {
-    localStorage.setItem('auth_token', token);
-  }
-}
-
-const authService = new AuthService();
 export default authService;

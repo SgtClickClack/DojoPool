@@ -1,0 +1,42 @@
+{
+  "name": "dojopool-physics",
+  "version": "@PROJECT_VERSION@",
+  "description": "DojoPool Physics Engine Node.js Addon",
+  "main": "index.js",
+  "scripts": {
+    "install": "node-gyp-build",
+    "build": "node-gyp-build",
+    "rebuild": "node-gyp rebuild",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "physics",
+    "pool",
+    "billiards",
+    "game",
+    "simulation",
+    "addon",
+    "native",
+    "c++"
+  ],
+  "author": "DojoPool Team",
+  "license": "MIT",
+  "dependencies": {
+    "node-addon-api": "^6.0.0"
+  },
+  "devDependencies": {
+    "node-gyp-build": "^4.6.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
+}

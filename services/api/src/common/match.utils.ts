@@ -19,11 +19,6 @@ export class MatchUtils {
       const match = await prisma.match.findUnique({
         where: { id: matchId },
         include: {
-          tournament: {
-            include: {
-              venue: true,
-            },
-          },
           playerA: {
             select: {
               id: true,
@@ -36,8 +31,6 @@ export class MatchUtils {
               username: true,
             },
           },
-          venue: true,
-          table: true,
         },
       });
 

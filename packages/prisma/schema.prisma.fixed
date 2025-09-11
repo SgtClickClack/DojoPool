@@ -1,0 +1,193 @@
+// Prisma Database Schema for DojoPool
+// This schema defines the complete data model for the DojoPool platform
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  USER
+  VENUE_ADMIN
+  MODERATOR
+  ADMIN
+}
+
+// Policy-Based Access Control Schema Extensions
+model Policy {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  effect      PolicyEffect
+  conditions  Json     // Flexible JSON structure for policy conditions
+  priority    Int      @default(1) // Higher priority policies are evaluated first
+  isEnabled   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  policyAssignments PolicyAssignment[]
+  policyEvaluations PolicyEvaluation[]
+
+  @@index([priority, isEnabled])
+}
+
+enum PolicyEffect {
+  ALLOW
+  DENY
+}
+
+model PolicyAssignment {
+  id       String @id @default(uuid())
+  policyId String
+  userId   String?
+  roleId   String?
+  groupId  String?
+
+  policy Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  // Flexible assignment types
+  assignmentType AssignmentType
+  conditions     Json? // Additional conditions for assignment
+
+  createdAt DateTime @default(now())
+
+  @@unique([policyId, userId, roleId, groupId, assignmentType])
+}
+
+enum AssignmentType {
+  USER
+  ROLE
+  GROUP
+  ATTRIBUTE_BASED
+}
+
+model PolicyEvaluation {
+  id        String @id @default(uuid())
+  policyId  String
+  userId    String
+  resource  String // Resource being accessed (e.g., "match:123", "territory:456")
+  action    String // Action being performed (e.g., "read", "update", "delete")
+  decision  PolicyDecision
+  reason    String?
+
+  // Context information for debugging and auditing
+  context   Json // User attributes, resource attributes, environmental context
+  evaluatedAt DateTime @default(now())
+
+  policy Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@index([userId, resource, action])
+  @@index([evaluatedAt])
+}
+
+enum PolicyDecision {
+  ALLOW
+  DENY
+  NOT_APPLICABLE
+}
+
+// User Groups for more complex role management
+model UserGroup {
+  id          String @id @default(uuid())
+  name        String @unique
+  description String?
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     UserGroupMember[]
+}
+
+model UserGroupMember {
+  id       String @id @default(uuid())
+  groupId  String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  group UserGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+// Enhanced User model with PBAC attributes
+model User {
+  id            String                 @id @default(uuid())
+  email         String                 @unique
+  username      String                 @unique
+  passwordHash  String
+  role          UserRole               @default(USER)
+  isBanned      Boolean                @default(false)
+
+  // PBAC Extensions
+  attributes    Json?                  // Flexible user attributes for policy evaluation
+  groups        UserGroupMember[]
+  policyAssignments PolicyAssignment[]
+
+  profile       Profile?
+  settings      UserSettings?
+  wallets       Wallet[]
+  nfts          UserNFT[]
+  achievements  UserAchievement[] @relation("UserAchievements")
+  memberships   ClanMember[]
+  territories   Territory[]            @relation("TerritoryOwner")
+  contestedTerritories Territory[]     @relation("TerritoryContestant")
+  checkIns      CheckIn[]
+  challengesAsChallenger Challenge[]   @relation("ChallengeChallenger")
+  challengesAsDefender   Challenge[]   @relation("ChallengeDefender")
+  ledClans      Clan[]                 @relation("ClanLeader")
+  matchesAsPlayerA Match[]             @relation("PlayerA")
+  matchesAsPlayerB Match[]             @relation("PlayerB")
+  tournaments   TournamentParticipant[]
+  transactions  Transaction[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+  venues        Venue[]
+  friendshipsAsRequester Friendship[] @relation("FriendshipRequester")
+  friendshipsAsAddressee Friendship[] @relation("FriendshipAddressee")
+  sentMessages  DirectMessage[]        @relation("MessageSender")
+  receivedMessages DirectMessage[]     @relation("MessageReceiver")
+  activityEvents ActivityEvent[]
+  gameSessions  GameSession[]
+  shadowRuns    ShadowRun[]
+  dojoCheckIns  DojoCheckIn[]
+  inventoryItems UserInventoryItem[]
+  feedback      Feedback[]
+  resolvedFeedback Feedback[]         @relation("FeedbackResolver")
+  content        Content[]
+  moderatedContent Content[]          @relation("ContentModerator")
+  contentLikes   ContentLike[]
+  sharedContent  ContentShare[]       @relation("ContentSharer")
+  receivedShares ContentShare[]       @relation("ContentShareReceiver")
+  matchAnalyses  MatchAnalysis[]
+  communityItems CommunityCosmeticItem[]
+  reviewedItems  CommunityCosmeticItem[] @relation("CosmeticItemReviewer")
+  cosmeticLikes  CosmeticItemLike[]
+  // Avatar system relations
+  avatar         Avatar?
+  avatarAssets   UserAvatarAsset[]
+  // Telemetry relations
+  telemetryEvents TelemetryEvent[]
+  // Referral system relations
+  referralsSent  Referral[]            @relation("ReferralInviter")
+  referralsReceived Referral[]         @relation("ReferralInvitee")
+  // Clan marketplace and trading relations
+  clanTransactions ClanTransaction[]
+  tradesProposed   Trade[]              @relation("TradeProposer")
+  tradesReceived   Trade[]              @relation("TradeRecipient")
+  listings         Listing[]
+  // Achievement and rewards relations are handled via achievements field
+  // Skill progression system relations
+  skillProfiles    SkillProfile[]
+  // 3D World & Geolocation system relations
+  playerLocation   PlayerLocation?
+  worldEvents      WorldEvent[]
+  dojoCoinBalance Int                  @default(0)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+}

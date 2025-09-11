@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dojopool-postgres-replica
+  namespace: staging
+spec:
+  serviceName: dojopool-postgres-replica
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dojopool-postgres-replica
+  template:
+    metadata:
+      labels:
+        app: dojopool-postgres-replica
+    spec:
+      containers:
+        - name: postgres-replica
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: dojopool_staging
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-postgres-secret
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dojopool-postgres-secret
+                  key: password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/replica
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+            - name: postgres-config
+              mountPath: /etc/postgresql
+          resources:
+            requests:
+              memory: '2Gi'
+              cpu: '500m'
+            limits:
+              memory: '4Gi'
+              cpu: '1000m'
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - $(POSTGRES_USER)
+                - -d
+                - $(POSTGRES_DB)
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - $(POSTGRES_USER)
+                - -d
+                - $(POSTGRES_DB)
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: dojopool-postgres-replica-pvc
+        - name: postgres-config
+          configMap:
+            name: dojopool-postgres-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dojopool-postgres-config
+  namespace: staging
+data:
+  postgresql.conf: |
+    # Replication settings
+    wal_level = replica
+    max_wal_senders = 10
+    max_replication_slots = 10
+    hot_standby = on
+    hot_standby_feedback = on
+
+    # Performance settings for read replica
+    shared_buffers = 256MB
+    effective_cache_size = 1GB
+    maintenance_work_mem = 64MB
+    checkpoint_completion_target = 0.9
+    wal_buffers = 16MB
+    default_statistics_target = 100
+
+    # Connection settings
+    max_connections = 200
+    work_mem = 4MB
+    maintenance_work_mem = 64MB
+
+    # Logging
+    log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+    log_statement = 'ddl'
+    log_min_duration_statement = 1000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dojopool-postgres-replica-service
+  namespace: staging
+spec:
+  selector:
+    app: dojopool-postgres-replica
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: dojopool-postgres-replica-pdb
+  namespace: staging
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: dojopool-postgres-replica

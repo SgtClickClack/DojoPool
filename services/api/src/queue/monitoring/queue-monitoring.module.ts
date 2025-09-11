@@ -1,5 +1,5 @@
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { BullBoardModule, BullBoardService } from '@bull-board/nestjs';
+import { BullBoardModule } from '@bull-board/nestjs';
 import { Module } from '@nestjs/common';
 import { QueueService } from '../queue.service';
 
@@ -11,6 +11,5 @@ import { QueueService } from '../queue.service';
     }),
   ],
   providers: [QueueService],
-  exports: [BullBoardService],
 })
 export class QueueMonitoringModule {}

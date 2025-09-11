@@ -1,4 +1,4 @@
-import { FeedbackPriority, FeedbackStatus } from '@prisma/client';
+import { FeedbackPriority, FeedbackStatus } from '@dojopool/types';
 import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class UpdateFeedbackDto {

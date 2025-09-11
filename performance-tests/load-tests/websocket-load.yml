@@ -1,0 +1,94 @@
+config:
+  target: 'ws://localhost:3001'
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: 'WebSocket warm-up'
+    - duration: 300
+      arrivalRate: 20
+      name: 'WebSocket load test'
+    - duration: 60
+      arrivalRate: 100
+      name: 'WebSocket stress test'
+  engines:
+    socketio-v3: {}
+  processor: './utils/websocket-processor.js'
+
+scenarios:
+  - name: 'Real-time Tournament Updates'
+    weight: 40
+    engine: socketio-v3
+    flow:
+      - emit:
+          channel: 'join_tournament'
+          data:
+            tournamentId: 'tournament-{{ $randomInt }}'
+            userId: 'user-{{ $randomInt }}'
+      - think: 2
+      - emit:
+          channel: 'tournament_action'
+          data:
+            action: 'join_queue'
+            tournamentId: 'tournament-{{ $randomInt }}'
+      - think: 5
+      - emit:
+          channel: 'leave_tournament'
+          data:
+            tournamentId: 'tournament-{{ $randomInt }}'
+
+  - name: 'Live Match Updates'
+    weight: 30
+    engine: socketio-v3
+    flow:
+      - emit:
+          channel: 'join_match'
+          data:
+            matchId: 'match-{{ $randomInt }}'
+            spectator: true
+      - think: 1
+      - emit:
+          channel: 'match_update'
+          data:
+            matchId: 'match-{{ $randomInt }}'
+            event: 'ball_potted'
+            ballId: '{{ $randomInt % 16 }}'
+      - think: 3
+      - emit:
+          channel: 'leave_match'
+          data:
+            matchId: 'match-{{ $randomInt }}'
+
+  - name: 'Chat System Load'
+    weight: 20
+    engine: socketio-v3
+    flow:
+      - emit:
+          channel: 'join_chat'
+          data:
+            roomId: 'global'
+            userId: 'user-{{ $randomInt }}'
+            username: 'LoadTestUser{{ $randomInt }}'
+      - think: 1
+      - emit:
+          channel: 'send_message'
+          data:
+            roomId: 'global'
+            message: 'Load test message {{ $randomInt }}'
+            userId: 'user-{{ $randomInt }}'
+      - think: 2
+      - emit:
+          channel: 'typing_start'
+          data:
+            roomId: 'global'
+            userId: 'user-{{ $randomInt }}'
+      - think: 1
+      - emit:
+          channel: 'typing_stop'
+          data:
+            roomId: 'global'
+            userId: 'user-{{ $randomInt }}'
+      - think: 5
+      - emit:
+          channel: 'leave_chat'
+          data:
+            roomId: 'global'

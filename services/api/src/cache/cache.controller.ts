@@ -1,5 +1,4 @@
 import { Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { CacheManagementService } from './cache-management.service';
@@ -8,7 +7,7 @@ import { EdgeCacheService } from './edge-cache.service';
 
 @Controller('admin/cache')
 @UseGuards(RolesGuard)
-@Roles(UserRole.ADMIN)
+@Roles('ADMIN')
 export class CacheController {
   constructor(
     private readonly edgeCacheService: EdgeCacheService,

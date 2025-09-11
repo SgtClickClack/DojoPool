@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import React from 'react';
+import LanguageSuggestionBanner from '../Language/LanguageSuggestionBanner';
 import DojoPoolAppBar from './AppBar';
 import MobileNavigation from './MobileNavigation';
 
@@ -38,6 +39,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <main className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">{children}</div>
       </main>
+      <LanguageSuggestionBanner />
     </>
   );
 };

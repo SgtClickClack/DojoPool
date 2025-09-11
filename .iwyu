@@ -1,0 +1,26 @@
+[
+  {
+    "include": [
+      "<bits/stdc++.h>",
+      "private",
+      "<vector>",
+      "public"
+    ]
+  },
+  {
+    "include": [
+      "<algorithm>",
+      "private",
+      "<vector>",
+      "public"
+    ]
+  },
+  {
+    "include": [
+      "<memory>",
+      "private",
+      "<vector>",
+      "public"
+    ]
+  }
+]

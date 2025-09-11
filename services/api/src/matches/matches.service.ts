@@ -1,123 +1,353 @@
-import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
-import { MatchUtils } from '../common';
+import { ActivityType } from '@dojopool/prisma';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { SkillsService } from '../skills/skills.service';
-import { AiAnalysisService } from './ai-analysis.service';
-import { MatchGateway } from './match.gateway';
-import { MatchesGateway } from './matches.gateway';
+
+interface ReportMatchDto {
+  playerAId: string;
+  playerBId: string;
+  winnerId: string;
+  scoreA: number;
+  scoreB: number;
+  venueId?: string;
+  tableId?: string;
+}
+
+interface MatchResult {
+  id: string;
+  winnerId: string;
+  loserId: string;
+  scoreA: number;
+  scoreB: number;
+  playerAStats: {
+    totalWins: number;
+    totalLosses: number;
+    winStreak: number;
+    longestWinStreak: number;
+    totalMatches: number;
+  };
+  playerBStats: {
+    totalWins: number;
+    totalLosses: number;
+    winStreak: number;
+    longestWinStreak: number;
+    totalMatches: number;
+  };
+}
 
 @Injectable()
 export class MatchesService {
-  private readonly logger = new Logger(MatchesService.name);
+  constructor(private readonly prisma: PrismaService) {}
 
-  constructor(
-    private prisma: PrismaService,
-    private aiAnalysisService: AiAnalysisService,
-    private matchesGateway: MatchesGateway,
-    private matchGateway: MatchGateway,
-    @Inject(forwardRef(() => SkillsService))
-    private skillsService: SkillsService
-  ) {}
-
-  async getMatchById(matchId: string): Promise<any> {
-    return MatchUtils.getMatchById(this.prisma, matchId);
+  async isUserInMatch(userId: string, matchId: string): Promise<boolean> {
+    const match = await this.prisma.match.findFirst({
+      where: {
+        id: matchId,
+        OR: [{ playerAId: userId }, { playerBId: userId }],
+      },
+    });
+    return !!match;
   }
 
-  /**
-   * Create a match with optional wager and escrow funds from both players transactionally.
-   */
-  async createMatch(data: {
-    tournamentId: string;
-    venueId: string;
-    playerAId: string;
-    playerBId: string;
-    round: number;
-    status?:
-      | 'PENDING'
-      | 'IN_PROGRESS'
-      | 'PAUSED'
-      | 'COMPLETED'
-      | 'CANCELLED'
-      | string;
-    tableId?: string | null;
-    wager?: number;
-  }): Promise<any> {
-    const {
-      tournamentId,
-      venueId,
-      playerAId,
-      playerBId,
-      round,
-      status = 'IN_PROGRESS',
-      tableId = null,
-      wager = 0,
-    } = data;
+  async getMatchById(id: string) {
+    return this.prisma.match.findUnique({
+      where: { id },
+      include: {
+        playerA: {
+          select: {
+            id: true,
+            username: true,
+            profile: {
+              select: {
+                displayName: true,
+              },
+            },
+          },
+        },
+        playerB: {
+          select: {
+            id: true,
+            username: true,
+            profile: {
+              select: {
+                displayName: true,
+              },
+            },
+          },
+        },
+        winner: {
+          select: {
+            id: true,
+            username: true,
+            profile: {
+              select: {
+                displayName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 
-    const normalizedWager = Math.max(
-      0,
-      Math.floor(Number.isFinite(wager as number) ? (wager as number) : 0)
-    );
+  async getMatchWithAnalysis(id: string) {
+    return this.prisma.match.findUnique({
+      where: { id },
+      include: {
+        playerA: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+        playerB: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
+  }
 
-    return this.prisma.$transaction(async (tx) => {
-      if (normalizedWager > 0) {
-        // Ensure both users exist and can afford the wager, then escrow funds.
-        const [playerA, playerB] = await Promise.all([
-          tx.user.findUnique({
-            where: { id: playerAId },
-            select: { dojoCoinBalance: true },
-          }),
-          tx.user.findUnique({
-            where: { id: playerBId },
-            select: { dojoCoinBalance: true },
-          }),
-        ]);
+  async reportMatch(
+    reportData: ReportMatchDto,
+    reporterId: string
+  ): Promise<MatchResult> {
+    // Validate input data
+    await this.validateMatchReport(reportData, reporterId);
 
-        if (!playerA || !playerB) {
-          throw new Error('One or both players not found');
-        }
-        if (
-          playerA.dojoCoinBalance < normalizedWager ||
-          playerB.dojoCoinBalance < normalizedWager
-        ) {
-          throw new Error('Insufficient DojoCoin balance to cover the wager');
-        }
+    // Check if match already exists or create new one
+    let match = await this.prisma.match.findFirst({
+      where: {
+        playerAId: reportData.playerAId,
+        playerBId: reportData.playerBId,
+        status: 'IN_PROGRESS',
+      },
+    });
 
-        // Decrement balances with guard using updateMany to prevent going negative in concurrent scenarios
-        const aUpdate = await tx.user.updateMany({
-          where: { id: playerAId, dojoCoinBalance: { gte: normalizedWager } },
-          data: { dojoCoinBalance: { decrement: normalizedWager } },
-        });
-        if (aUpdate.count !== 1) {
-          throw new Error(
-            'Failed to escrow wager from player A (insufficient funds)'
-          );
-        }
-        const bUpdate = await tx.user.updateMany({
-          where: { id: playerBId, dojoCoinBalance: { gte: normalizedWager } },
-          data: { dojoCoinBalance: { decrement: normalizedWager } },
-        });
-        if (bUpdate.count !== 1) {
-          throw new Error(
-            'Failed to escrow wager from player B (insufficient funds)'
-          );
-        }
-      }
-
-      // Create the match with wager recorded
-      const match = await tx.match.create({
+    if (!match) {
+      // Create new match
+      match = await this.prisma.match.create({
         data: {
-          tournamentId,
-          venueId,
-          playerAId,
-          playerBId,
-          round,
-          status: status as any,
-          tableId: tableId ?? undefined,
-          wager: normalizedWager,
+          playerAId: reportData.playerAId,
+          playerBId: reportData.playerBId,
+          winnerId: reportData.winnerId,
+          scoreA: reportData.scoreA,
+          scoreB: reportData.scoreB,
+          status: 'COMPLETED',
+          endedAt: new Date(),
+          venueId: reportData.venueId,
+          tableId: reportData.tableId,
         },
       });
+    } else {
+      // Update existing match
+      match = await this.prisma.match.update({
+        where: { id: match.id },
+        data: {
+          winnerId: reportData.winnerId,
+          scoreA: reportData.scoreA,
+          scoreB: reportData.scoreB,
+          status: 'COMPLETED',
+          endedAt: new Date(),
+        },
+      });
+    }
 
-      return match;
+    // Update player statistics
+    const result = await this.updatePlayerStats(match.id);
+
+    // Create activity feed event
+    await this.prisma.activity.create({
+      data: {
+        userId: reportData.winnerId,
+        type: ActivityType.MATCH_WIN,
+        details: JSON.stringify({
+          opponentId:
+            reportData.winnerId === reportData.playerAId
+              ? reportData.playerBId
+              : reportData.playerAId,
+          scoreA: reportData.scoreA,
+          scoreB: reportData.scoreB,
+          matchId: match.id,
+        }),
+      },
+    });
+
+    return result;
+  }
+
+  private async validateMatchReport(
+    reportData: ReportMatchDto,
+    reporterId: string
+  ): Promise<void> {
+    // Check if players exist
+    const [playerA, playerB] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id: reportData.playerAId } }),
+      this.prisma.user.findUnique({ where: { id: reportData.playerBId } }),
+    ]);
+
+    if (!playerA || !playerB) {
+      throw new NotFoundException('One or both players not found');
+    }
+
+    // Check if reporter is one of the players
+    if (
+      reporterId !== reportData.playerAId &&
+      reporterId !== reportData.playerBId
+    ) {
+      throw new ForbiddenException(
+        'Only players in the match can report results'
+      );
+    }
+
+    // Validate winner is one of the players
+    if (
+      reportData.winnerId !== reportData.playerAId &&
+      reportData.winnerId !== reportData.playerBId
+    ) {
+      throw new BadRequestException(
+        'Winner must be one of the players in the match'
+      );
+    }
+
+    // Validate scores
+    if (reportData.scoreA < 0 || reportData.scoreB < 0) {
+      throw new BadRequestException('Scores cannot be negative');
+    }
+
+    // Validate venue and table if provided
+    if (reportData.venueId) {
+      const venue = await this.prisma.venue.findUnique({
+        where: { id: reportData.venueId },
+      });
+      if (!venue) {
+        throw new NotFoundException('Venue not found');
+      }
+    }
+
+    if (reportData.tableId) {
+      const table = await this.prisma.table.findUnique({
+        where: { id: reportData.tableId },
+      });
+      if (!table) {
+        throw new NotFoundException('Table not found');
+      }
+    }
+  }
+
+  private async updatePlayerStats(matchId: string): Promise<MatchResult> {
+    const match = await this.prisma.match.findUnique({
+      where: { id: matchId },
+      include: {
+        playerA: {
+          select: {
+            id: true,
+            username: true,
+            totalWins: true,
+            totalLosses: true,
+            winStreak: true,
+            longestWinStreak: true,
+            totalMatches: true,
+          },
+        },
+        playerB: {
+          select: {
+            id: true,
+            username: true,
+            totalWins: true,
+            totalLosses: true,
+            winStreak: true,
+            longestWinStreak: true,
+            totalMatches: true,
+          },
+        },
+      },
+    });
+
+    if (!match) {
+      throw new NotFoundException('Match not found');
+    }
+
+    const winnerId = match.winnerId;
+    if (!winnerId) {
+      throw new BadRequestException('Match does not have a winner');
+    }
+    const loserId =
+      winnerId === match.playerAId ? match.playerBId : match.playerAId;
+
+    // Update winner stats
+    const winnerStats =
+      winnerId === match.playerAId ? match.playerA : match.playerB;
+    const updatedWinnerStats = await this.updateWinnerStats(
+      winnerId,
+      winnerStats
+    );
+
+    // Update loser stats
+    const loserStats =
+      winnerId === match.playerAId ? match.playerB : match.playerA;
+    const updatedLoserStats = await this.updateLoserStats(loserId, loserStats);
+
+    return {
+      id: match.id,
+      winnerId,
+      loserId,
+      scoreA: match.scoreA,
+      scoreB: match.scoreB,
+      playerAStats:
+        winnerId === match.playerAId ? updatedWinnerStats : updatedLoserStats,
+      playerBStats:
+        winnerId === match.playerAId ? updatedLoserStats : updatedWinnerStats,
+    };
+  }
+
+  private async updateWinnerStats(playerId: string, currentStats: any) {
+    const newWinStreak = currentStats.winStreak + 1;
+    const newLongestWinStreak = Math.max(
+      currentStats.longestWinStreak,
+      newWinStreak
+    );
+
+    return await this.prisma.user.update({
+      where: { id: playerId },
+      data: {
+        totalWins: { increment: 1 },
+        totalMatches: { increment: 1 },
+        winStreak: newWinStreak,
+        longestWinStreak: newLongestWinStreak,
+        dojoCoinBalance: { increment: 10 }, // Reward 10 Dojo Coins for a win
+      },
+      select: {
+        totalWins: true,
+        totalLosses: true,
+        winStreak: true,
+        longestWinStreak: true,
+        totalMatches: true,
+      },
+    });
+  }
+
+  private async updateLoserStats(playerId: string, currentStats: any) {
+    return await this.prisma.user.update({
+      where: { id: playerId },
+      data: {
+        totalLosses: { increment: 1 },
+        totalMatches: { increment: 1 },
+        winStreak: 0, // Reset win streak
+      },
+      select: {
+        totalWins: true,
+        totalLosses: true,
+        winStreak: true,
+        longestWinStreak: true,
+        totalMatches: true,
+      },
     });
   }
 
@@ -126,300 +356,21 @@ export class MatchesService {
     winnerId: string,
     scoreA: number,
     scoreB: number
-  ): Promise<any> {
-    try {
-      // Fetch existing match to determine loser safely and get wager
-      const existing = await this.prisma.match.findUnique({
-        where: { id: matchId },
-        select: { playerAId: true, playerBId: true, wager: true },
-      });
-      if (!existing) {
-        throw new Error('Match not found');
-      }
-      const computedLoserId =
-        winnerId === existing.playerAId
-          ? existing.playerBId
-          : existing.playerAId;
-
-      const COIN_REWARD = Number.parseInt(
-        process.env.DOJO_WIN_REWARD || '50',
-        10
-      );
-      const wager = Math.max(0, Math.floor(existing.wager ?? 0));
-      const prize = wager > 0 ? wager * 2 : 0;
-
-      // Update match and award coins transactionally (including wager payout)
-      const updatedMatch = await this.prisma.$transaction(async (tx) => {
-        const m = await tx.match.update({
-          where: { id: matchId },
-          data: {
-            winnerId,
-            loserId: computedLoserId,
-            scoreA,
-            scoreB,
-            status: 'COMPLETED',
-            endedAt: new Date(),
-          },
-          include: {
-            playerA: { select: { username: true } },
-            playerB: { select: { username: true } },
-            venue: { select: { name: true } },
-          },
-        });
-
-        if (winnerId) {
-          const incrementBy = COIN_REWARD + (prize || 0);
-          if (incrementBy > 0) {
-            await tx.user.update({
-              where: { id: winnerId },
-              data: { dojoCoinBalance: { increment: incrementBy } },
-            });
-          }
-        }
-
-        return m;
-      });
-
-      if (prize > 0) {
-        this.logger.log(
-          `Awarded wager prize ${prize} DojoCoins to winner ${winnerId} for match ${matchId}`
-        );
-      }
-      this.logger.log(
-        `Awarded ${COIN_REWARD} DojoCoins to winner ${winnerId} for match ${matchId}`
-      );
-
-      // Generate AI analysis asynchronously
-      this.generateAndStoreAnalysis(updatedMatch).catch((error) => {
-        this.logger.error(
-          'Failed to generate AI analysis for match:',
-          matchId,
-          error
-        );
-      });
-
-      return updatedMatch;
-    } catch (error) {
-      this.logger.error('Failed to finalize match:', matchId, error);
-      throw error;
-    }
-  }
-
-  private async generateAndStoreAnalysis(match: any): Promise<void> {
-    try {
-      const matchData = {
-        playerAName: match.playerA.username,
-        playerBName: match.playerB.username,
-        scoreA: match.scoreA,
-        scoreB: match.scoreB,
-        winner:
-          match.winnerId === match.playerAId
-            ? match.playerA.username
-            : match.playerB.username,
-        venue: match.venue.name,
-        round: match.round,
-      };
-
-      const analysis =
-        await this.aiAnalysisService.generateMatchAnalysis(matchData);
-
-      // Store the analysis in the database
-      await this.prisma.match.update({
-        where: { id: match.id },
-        data: {
-          aiAnalysisJson: JSON.stringify(analysis),
-        },
-      });
-
-      // Generate MatchAnalysis record for skill calculation
-      await this.generateMatchAnalysisRecord(match, analysis);
-
-      this.logger.log('AI analysis generated and stored for match:', match.id);
-    } catch (error) {
-      this.logger.error('Failed to generate and store AI analysis:', error);
-    }
-  }
-
-  private async generateMatchAnalysisRecord(
-    match: any,
-    analysis: any
-  ): Promise<void> {
-    try {
-      // Create or update MatchAnalysis record
-      await this.prisma.matchAnalysis.upsert({
-        where: { matchId: match.id },
-        update: {
-          keyMoments: analysis.data.keyMoments || [],
-          strategicInsights: analysis.data.strategicInsights || [],
-          playerPerformanceA: analysis.data.playerPerformance?.playerA || '',
-          playerPerformanceB: analysis.data.playerPerformance?.playerB || '',
-          overallAssessment: analysis.data.overallAssessment || '',
-          recommendations: analysis.data.recommendations || [],
-          provider: analysis.provider || 'gemini',
-          fallback: !!analysis.fallback,
-        },
-        create: {
-          matchId: match.id,
-          keyMoments: analysis.data.keyMoments || [],
-          strategicInsights: analysis.data.strategicInsights || [],
-          playerPerformanceA: analysis.data.playerPerformance?.playerA || '',
-          playerPerformanceB: analysis.data.playerPerformance?.playerB || '',
-          overallAssessment: analysis.data.overallAssessment || '',
-          recommendations: analysis.data.recommendations || [],
-          provider: analysis.provider || 'gemini',
-          fallback: !!analysis.fallback,
-        },
-      });
-
-      // Trigger skill point calculation for both players asynchronously
-      this.calculateSkillsForMatch(match.id, match.playerAId).catch((error) => {
-        this.logger.error(
-          `Failed to calculate skills for player A ${match.playerAId} in match ${match.id}:`,
-          error
-        );
-      });
-
-      this.calculateSkillsForMatch(match.id, match.playerBId).catch((error) => {
-        this.logger.error(
-          `Failed to calculate skills for player B ${match.playerBId} in match ${match.id}:`,
-          error
-        );
-      });
-
-      this.logger.log(
-        'MatchAnalysis record created and skill calculation triggered for match:',
-        match.id
-      );
-    } catch (error) {
-      this.logger.error('Failed to generate MatchAnalysis record:', error);
-    }
-  }
-
-  private async calculateSkillsForMatch(
-    matchId: string,
-    playerId: string
-  ): Promise<void> {
-    try {
-      // Check if MatchAnalysis exists before calculating skills
-      const matchAnalysis = await this.prisma.matchAnalysis.findUnique({
-        where: { matchId },
-      });
-
-      if (!matchAnalysis) {
-        this.logger.warn(
-          `MatchAnalysis not found for match ${matchId}, skipping skill calculation`
-        );
-        return;
-      }
-
-      // Calculate skill points using the SkillsService
-      await this.skillsService.calculateSkillPointsForMatch(matchId, playerId);
-
-      this.logger.log(
-        `Skill points calculated for player ${playerId} in match ${matchId}`
-      );
-    } catch (error) {
-      this.logger.error(
-        `Failed to calculate skills for player ${playerId} in match ${matchId}:`,
-        error
-      );
-    }
-  }
-
-  async pauseMatch(matchId: string, userId: string) {
-    // Allow pause only from IN_PROGRESS to PAUSED
-    const match = await this.prisma.match.findUnique({
+  ) {
+    const match = await this.prisma.match.update({
       where: { id: matchId },
+      data: {
+        winnerId,
+        scoreA,
+        scoreB,
+        status: 'COMPLETED',
+        endedAt: new Date(),
+      },
     });
-    if (!match) throw new Error('Match not found');
-    if (match.playerAId !== userId && match.playerBId !== userId) {
-      throw new Error('Not authorized to pause this match');
-    }
-    if (match.status !== 'IN_PROGRESS') {
-      throw new Error('Match is not in progress');
-    }
-    const updated = await this.prisma.match.update({
-      where: { id: matchId },
-      data: { status: 'PAUSED' },
-    });
-    // Broadcast to both gateway room styles
-    this.matchesGateway.broadcastMatchStatusUpdate(matchId, 'PAUSED');
-    this.matchGateway.broadcastMatchStatusUpdate(matchId, 'PAUSED');
-    return updated;
-  }
 
-  async resumeMatch(matchId: string, userId: string) {
-    // Allow resume only from PAUSED to IN_PROGRESS
-    const match = await this.prisma.match.findUnique({
-      where: { id: matchId },
-    });
-    if (!match) throw new Error('Match not found');
-    if (match.playerAId !== userId && match.playerBId !== userId) {
-      throw new Error('Not authorized to resume this match');
-    }
-    if (match.status !== 'PAUSED') {
-      throw new Error('Match is not paused');
-    }
-    const updated = await this.prisma.match.update({
-      where: { id: matchId },
-      data: { status: 'IN_PROGRESS' },
-    });
-    this.matchesGateway.broadcastMatchStatusUpdate(matchId, 'IN_PROGRESS');
-    this.matchGateway.broadcastMatchStatusUpdate(matchId, 'IN_PROGRESS');
-    return updated;
-  }
+    // Update player statistics
+    await this.updatePlayerStats(matchId);
 
-  async getMatchWithAnalysis(matchId: string): Promise<any> {
-    try {
-      const match = await this.prisma.match.findUnique({
-        where: { id: matchId },
-        include: {
-          tournament: {
-            include: {
-              venue: true,
-            },
-          },
-          playerA: {
-            select: {
-              id: true,
-              username: true,
-            },
-          },
-          playerB: {
-            select: {
-              id: true,
-              username: true,
-            },
-          },
-          venue: true,
-          table: true,
-        },
-      });
-
-      if (!match) {
-        throw new Error('Match not found');
-      }
-
-      // Parse AI analysis if available
-      let aiAnalysis = null;
-      if (match.aiAnalysisJson) {
-        try {
-          aiAnalysis = JSON.parse(match.aiAnalysisJson);
-        } catch (error) {
-          this.logger.warn(
-            'Failed to parse AI analysis JSON for match:',
-            matchId
-          );
-        }
-      }
-
-      return {
-        ...match,
-        aiAnalysis,
-      };
-    } catch (err) {
-      this.logger.error('Failed to fetch match with analysis:', matchId, err);
-      throw err;
-    }
+    return match;
   }
 }

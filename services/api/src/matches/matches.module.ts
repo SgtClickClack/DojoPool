@@ -1,17 +1,15 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { Module } from '@nestjs/common';
+import { AiModule } from '../ai/ai.module';
+import { AuthModule } from '../auth/auth.module';
 import { PrismaModule } from '../prisma/prisma.module';
-import { SkillsModule } from '../skills/skills.module';
-import { AiAnalysisService } from './ai-analysis.service';
-import { MatchGateway } from './match.gateway';
 import { MatchesController } from './matches.controller';
 import { MatchesGateway } from './matches.gateway';
 import { MatchesService } from './matches.service';
 
 @Module({
-  imports: [PrismaModule, ConfigModule, forwardRef(() => SkillsModule)],
+  imports: [PrismaModule, AiModule, AuthModule],
   controllers: [MatchesController],
-  providers: [MatchesService, AiAnalysisService, MatchesGateway, MatchGateway],
-  exports: [MatchesService, AiAnalysisService, MatchesGateway, MatchGateway],
+  providers: [MatchesGateway, MatchesService],
+  exports: [MatchesGateway],
 })
 export class MatchesModule {}

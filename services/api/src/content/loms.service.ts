@@ -1,5 +1,5 @@
+import { ContentStatus, ContentType, ContentVisibility } from '@dojopool/types';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { ContentStatus, ContentType, ContentVisibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { CreateNewsItemDto } from './dto/create-news-article.dto';

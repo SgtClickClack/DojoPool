@@ -1,10 +1,10 @@
+import { Notification } from '@dojopool/prisma';
 import {
   ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Notification } from '@prisma/client';
 import {
   CacheKey,
   CacheWriteThrough,
@@ -37,7 +37,11 @@ export class NotificationsService {
         title: type,
         type,
         message,
-        payload: payload ? payload : 'null',
+        payload: payload
+          ? typeof payload === 'string'
+            ? payload
+            : JSON.stringify(payload)
+          : null,
       },
     });
 

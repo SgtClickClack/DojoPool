@@ -39,3 +39,8 @@
 ### Version Control
 
 - [Changelog](./CHANGELOG.md)
+
+### Milestones
+
+- [Current Status](./CURRENT_STATUS.md)
+- [Milestones Index](./milestones/README.md)

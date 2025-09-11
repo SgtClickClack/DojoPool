@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
 import { CacheModule } from '../cache/cache.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { NotificationTemplatesService } from './notification-templates.service';
@@ -7,7 +8,7 @@ import { NotificationsGateway } from './notifications.gateway';
 import { NotificationsService } from './notifications.service';
 
 @Module({
-  imports: [PrismaModule, CacheModule],
+  imports: [PrismaModule, CacheModule, AuthModule],
   controllers: [NotificationsController],
   providers: [
     NotificationsService,

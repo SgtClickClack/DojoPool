@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { AssignmentType, PolicyEffect } from '@prisma/client';
+import { AssignmentType, PolicyEffect } from '@dojopool/prisma';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface PolicyDefinition {

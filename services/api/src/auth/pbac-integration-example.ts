@@ -14,7 +14,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
+// import { UserRole } from '@prisma/client';
 import { FeatureFlagService } from './feature-flag.service';
 import { UsePolicy, UsePolicyWith } from './policy.decorator';
 import { PolicyGuard } from './policy.guard';
@@ -253,7 +253,7 @@ export class AdminControllerV2 {
    * IP-Restricted Access - Admins can only access from approved IPs
    */
   @Get('dashboard')
-  @Roles(UserRole.ADMIN)
+  @Roles('ADMIN')
   @UsePolicyWith('admin-ip-restriction')
   getAdminDashboard() {
     return {
@@ -268,7 +268,7 @@ export class AdminControllerV2 {
    * Multi-Factor Security Policies
    */
   @Delete('users/:id')
-  @Roles(UserRole.ADMIN)
+  @Roles('ADMIN')
   @UsePolicy() // Multiple security policies applied
   deleteUser() {
     return {

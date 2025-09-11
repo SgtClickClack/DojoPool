@@ -1,0 +1,211 @@
+version: '3.8'
+
+# Docker Compose configuration for Chaos Testing Environment
+# This provides a complete multi-region, multi-service environment for chaos testing
+
+services:
+  # Multi-region PostgreSQL databases
+  postgres-us-east:
+    image: postgres:14-alpine
+    container_name: dojopool-postgres-us-east
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=dojopool_user
+      - POSTGRES_PASSWORD=chaos_test_password
+      - POSTGRES_DB=dojopool
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_us_east_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-us-east.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - chaos-testing
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dojopool_user -d dojopool']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  postgres-eu-west:
+    image: postgres:14-alpine
+    container_name: dojopool-postgres-eu-west
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=dojopool_user
+      - POSTGRES_PASSWORD=chaos_test_password
+      - POSTGRES_DB=dojopool
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_eu_west_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-eu-west.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - chaos-testing
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dojopool_user -d dojopool']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  postgres-asia-pacific:
+    image: postgres:14-alpine
+    container_name: dojopool-postgres-asia-pacific
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=dojopool_user
+      - POSTGRES_PASSWORD=chaos_test_password
+      - POSTGRES_DB=dojopool
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - '5434:5432'
+    volumes:
+      - postgres_asia_pacific_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-asia-pacific.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - chaos-testing
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dojopool_user -d dojopool']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis for caching, sessions, and job queues
+  redis:
+    image: redis:7-alpine
+    container_name: dojopool-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      - chaos-testing
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Commander for monitoring (optional)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: dojopool-redis-commander
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0
+    ports:
+      - '8081:8081'
+    depends_on:
+      - redis
+    networks:
+      - chaos-testing
+
+  # DojoPool API Service
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
+    container_name: dojopool-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DATABASE_URL=postgresql://dojopool_user:chaos_test_password@postgres-us-east:5432/dojopool
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=chaos-testing-jwt-secret-key-for-docker
+      - API_BASE_URL=http://localhost:3002
+      - REGIONAL_DATABASES=${REGIONAL_DATABASES}
+    ports:
+      - '3002:3002'
+    volumes:
+      - ./services/api:/app
+      - /app/node_modules
+    depends_on:
+      postgres-us-east:
+        condition: service_healthy
+      postgres-eu-west:
+        condition: service_healthy
+      postgres-asia-pacific:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - chaos-testing
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3002/api/v1/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Chaos testing orchestrator
+  chaos-orchestrator:
+    build:
+      context: .
+      dockerfile: ./docker/chaos/Dockerfile
+    container_name: dojopool-chaos-orchestrator
+    environment:
+      - API_BASE_URL=http://api:3002
+      - CHAOS_INTENSITY=medium
+      - CHAOS_EXPERIMENTS=all
+      - CHAOS_DURATION=300
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - chaos-testing
+    profiles:
+      - chaos
+
+  # Monitoring stack (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dojopool-prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - chaos-testing
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dojopool-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - '3001:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - chaos-testing
+    profiles:
+      - monitoring
+
+volumes:
+  postgres_us_east_data:
+  postgres_eu_west_data:
+  postgres_asia_pacific_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  chaos-testing:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

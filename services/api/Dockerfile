@@ -1,19 +1,31 @@
 FROM node:20-alpine
 
+# Enable Corepack for Yarn
+RUN corepack enable
+
+# Set working directory
 WORKDIR /app
 
-# Install dependencies with Yarn
+# Copy package files
 COPY package.json yarn.lock ./
 COPY services/api/package.json services/api/package.json
 COPY packages/prisma/package.json packages/prisma/package.json
+
+# Install dependencies
 RUN yarn install --immutable
 
-# Build API
-COPY . .
-RUN yarn workspace @dojopool/api run build
+# Copy source code
+COPY services/api ./services/api
+COPY packages/prisma ./packages/prisma
 
-ENV NODE_ENV=production
-ENV PORT=3002
-EXPOSE 3002
+# Generate Prisma client
+RUN yarn prisma generate
 
-CMD ["yarn", "workspace", "@dojopool/api", "start"]
+# Build the application
+RUN yarn build
+
+# Expose port
+EXPOSE 3001
+
+# Start the application
+CMD ["yarn", "start"]

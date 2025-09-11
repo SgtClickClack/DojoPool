@@ -27,7 +27,8 @@ class ErrorReportingService {
   private isOnline: boolean = true;
 
   constructor() {
-    const envBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+    const rawEnv = process.env.NEXT_PUBLIC_API_URL;
+    const envBase = rawEnv ? rawEnv.trim().replace(/\/$/, '') : undefined;
     // Normalize: use Next.js rewrite '/api' by default.
     // If an absolute URL is provided and misses '/api/v1', append it.
     if (!envBase) {

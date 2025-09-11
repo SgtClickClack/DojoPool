@@ -1,0 +1,200 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dojopool-performance-baseline
+  namespace: staging
+data:
+  baseline-metrics.json: |
+    {
+      "api_performance": {
+        "p50_response_time": 0.15,
+        "p95_response_time": 0.45,
+        "p99_response_time": 1.2,
+        "error_rate": 0.005,
+        "throughput_rps": 250
+      },
+      "web_performance": {
+        "page_load_time": 2.1,
+        "first_contentful_paint": 1.8,
+        "largest_contentful_paint": 3.2,
+        "cumulative_layout_shift": 0.1,
+        "first_input_delay": 0.08
+      },
+      "database_performance": {
+        "query_p50": 0.02,
+        "query_p95": 0.15,
+        "query_p99": 0.5,
+        "connection_pool_utilization": 0.7,
+        "cache_hit_rate": 0.85
+      },
+      "tournament_performance": {
+        "join_response_time": 0.3,
+        "bracket_update_time": 0.2,
+        "match_creation_time": 0.1,
+        "prize_distribution_time": 0.5
+      },
+      "scaling_metrics": {
+        "cpu_utilization_target": 0.7,
+        "memory_utilization_target": 0.8,
+        "pod_ready_time": 30,
+        "autoscaling_cooldown": 300
+      },
+      "user_experience": {
+        "websocket_latency": 0.05,
+        "api_call_success_rate": 0.995,
+        "page_interaction_time": 0.1,
+        "error_recovery_time": 2.0
+      }
+    }
+  baseline-alerts.json: |
+    {
+      "performance_regressions": [
+        {
+          "name": "APIResponseTimeRegression",
+          "metric": "http_request_duration_seconds",
+          "condition": "increase > 1.5",
+          "baseline_period": "7d",
+          "severity": "warning",
+          "description": "API response time has increased by more than 50% compared to 7-day baseline"
+        },
+        {
+          "name": "DatabaseQueryRegression",
+          "metric": "postgres_query_duration_seconds",
+          "condition": "p95 > 2.0",
+          "baseline_period": "7d",
+          "severity": "warning",
+          "description": "Database query performance has degraded significantly"
+        },
+        {
+          "name": "MemoryUsageSpike",
+          "metric": "container_memory_usage_bytes",
+          "condition": "spike > 1.3",
+          "baseline_period": "1h",
+          "severity": "warning",
+          "description": "Memory usage has spiked unexpectedly"
+        },
+        {
+          "name": "ErrorRateIncrease",
+          "metric": "http_requests_total",
+          "condition": "error_rate > 0.02",
+          "baseline_period": "1h",
+          "severity": "critical",
+          "description": "Error rate has increased beyond acceptable threshold"
+        }
+      ]
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dojopool-performance-monitor
+  namespace: staging
+  labels:
+    app: dojopool-performance-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dojopool-performance-monitor
+  template:
+    metadata:
+      labels:
+        app: dojopool-performance-monitor
+    spec:
+      containers:
+        - name: performance-monitor
+          image: dojopool/performance-monitor:latest
+          env:
+            - name: PROMETHEUS_URL
+              value: 'http://prometheus-service:9090'
+            - name: BASELINE_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: dojopool-performance-baseline
+                  key: baseline-metrics.json
+            - name: ALERT_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: dojopool-performance-baseline
+                  key: baseline-alerts.json
+            - name: MONITORING_INTERVAL
+              value: '60s'
+            - name: BASELINE_UPDATE_INTERVAL
+              value: '1h'
+          volumeMounts:
+            - name: baseline-data
+              mountPath: /app/data
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '100m'
+            limits:
+              memory: '512Mi'
+              cpu: '200m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+      volumes:
+        - name: baseline-data
+          persistentVolumeClaim:
+            claimName: dojopool-performance-baseline-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dojopool-performance-baseline-pvc
+  namespace: staging
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dojopool-baseline-update
+  namespace: staging
+spec:
+  schedule: '0 */4 * * *' # Every 4 hours
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: baseline-updater
+              image: dojopool/baseline-updater:latest
+              env:
+                - name: PROMETHEUS_URL
+                  value: 'http://prometheus-service:9090'
+                - name: LOOKBACK_PERIOD
+                  value: '7d'
+                - name: BASELINE_FILE
+                  value: '/data/baseline-current.json'
+              volumeMounts:
+                - name: baseline-data
+                  mountPath: /data
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Updating performance baseline..."
+                  # Calculate new baseline metrics from historical data
+                  # Update baseline configuration
+                  echo "Baseline update complete"
+          restartPolicy: OnFailure
+          volumes:
+            - name: baseline-data
+              persistentVolumeClaim:
+                claimName: dojopool-performance-baseline-pvc

@@ -239,7 +239,6 @@ describe('TournamentService', () => {
               username: 'testuser',
               profile: {
                 avatarUrl: 'avatar.jpg',
-                skillRating: 1500,
               },
             },
           },
@@ -252,8 +251,6 @@ describe('TournamentService', () => {
             status: 'SCHEDULED',
             scoreA: 0,
             scoreB: 0,
-            bracketRound: 1,
-            bracketMatch: 1,
             playerA: { username: 'player1' },
             playerB: { username: 'player2' },
             winner: null,
@@ -538,22 +535,22 @@ describe('TournamentService', () => {
         {
           id: 'p1',
           userId: 'user-1',
-          user: { profile: { skillRating: 1600 } },
+          user: { profile: {} },
         },
         {
           id: 'p2',
           userId: 'user-2',
-          user: { profile: { skillRating: 1500 } },
+          user: { profile: {} },
         },
         {
           id: 'p3',
           userId: 'user-3',
-          user: { profile: { skillRating: 1400 } },
+          user: { profile: {} },
         },
         {
           id: 'p4',
           userId: 'user-4',
-          user: { profile: { skillRating: 1300 } },
+          user: { profile: {} },
         },
       ],
       bracket: null,

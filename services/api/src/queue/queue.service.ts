@@ -5,7 +5,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JobsOptions, Queue, QueueScheduler, Worker } from 'bullmq';
+import { JobsOptions, Queue, Worker } from 'bullmq';
 import IORedis from 'ioredis';
 
 export interface JobData {
@@ -41,10 +41,9 @@ export interface QueueConfig {
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(QueueService.name);
-  private redisClient: IORedis;
+  private redisClient!: IORedis;
   private queues: Map<string, Queue> = new Map();
   private workers: Map<string, Worker> = new Map();
-  private schedulers: Map<string, QueueScheduler> = new Map();
   private config: QueueConfig;
 
   constructor(private configService: ConfigService) {
@@ -114,11 +113,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
         this.logger.log(`Closed worker for queue: ${name}`);
       }
 
-      // Close all schedulers
-      for (const [name, scheduler] of this.schedulers) {
-        await scheduler.close();
-        this.logger.log(`Closed scheduler for queue: ${name}`);
-      }
+      // Note: Schedulers are no longer used in this version
 
       // Close all queues
       for (const [name, queue] of this.queues) {
@@ -162,16 +157,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       this.queues.set(config.name, queue);
 
       // Create scheduler for delayed jobs
-      const scheduler = new QueueScheduler(config.name, {
-        connection: {
-          host: this.config.redis.host,
-          port: this.config.redis.port,
-          password: this.config.redis.password,
-          db: this.config.redis.db,
-        },
-      });
-
-      this.schedulers.set(config.name, scheduler);
+      // Note: Schedulers are not used in this version of BullMQ
 
       this.logger.log(`Initialized queue: ${config.name}`);
     }
@@ -196,8 +182,8 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
         ...options,
       });
 
-      this.logger.log(`Added job ${job.id} to queue ${queueName}`);
-      return job.id;
+      this.logger.log(`Added job ${job.id || 'unknown'} to queue ${queueName}`);
+      return job.id || '';
     } catch (error) {
       this.logger.error(`Failed to add job to queue ${queueName}:`, error);
       throw error;

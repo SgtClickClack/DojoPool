@@ -1,0 +1,357 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "DojoPool Staging Business Metrics",
+    "tags": ["dojopool", "staging", "business", "kpi", "analytics"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Users",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_users_total",
+            "legendFormat": "Total Users"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "none",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Active Users (24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_active_users_24h",
+            "legendFormat": "24h Active Users"
+          }
+        ],
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "New Registrations (24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "increase(dojopool_users_total[24h])",
+            "legendFormat": "New Users (24h)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "none"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Revenue (24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_revenue_24h",
+            "legendFormat": "24h Revenue"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "User Registration Trend",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_users_total[1h]) * 3600",
+            "legendFormat": "Registrations/hour"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "registrations/h"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        }
+      },
+      {
+        "id": 6,
+        "title": "User Retention Funnel",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "dojopool_funnel_registrations_total",
+            "legendFormat": "Registrations"
+          },
+          {
+            "expr": "dojopool_funnel_first_game_total",
+            "legendFormat": "First Game"
+          },
+          {
+            "expr": "dojopool_funnel_returning_users_total",
+            "legendFormat": "Returning Users (7d)"
+          },
+          {
+            "expr": "dojopool_funnel_active_users_total",
+            "legendFormat": "Active Users (30d)"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        }
+      },
+      {
+        "id": 7,
+        "title": "Feature Usage by Category",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_feature_usage_total{category=\"gaming\"}[5m]) * 60",
+            "legendFormat": "Gaming Features/min"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{category=\"social\"}[5m]) * 60",
+            "legendFormat": "Social Features/min"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{category=\"marketplace\"}[5m]) * 60",
+            "legendFormat": "Marketplace/min"
+          },
+          {
+            "expr": "rate(dojopool_feature_usage_total{category=\"tournaments\"}[5m]) * 60",
+            "legendFormat": "Tournaments/min"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 14
+        }
+      },
+      {
+        "id": 8,
+        "title": "Game Session Metrics",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_games_started_total[5m]) * 60",
+            "legendFormat": "Games Started/min"
+          },
+          {
+            "expr": "rate(dojopool_games_completed_total[5m]) * 60",
+            "legendFormat": "Games Completed/min"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(dojopool_game_duration_seconds_bucket[5m]))",
+            "legendFormat": "Median Game Duration"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "id": 9,
+        "title": "Venue Engagement",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(dojopool_venue_checkins_total[5m]) * 60",
+            "legendFormat": "Check-ins/min"
+          },
+          {
+            "expr": "dojopool_unique_venues_visited_total",
+            "legendFormat": "Unique Venues Visited"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 22
+        }
+      },
+      {
+        "id": 10,
+        "title": "Conversion Metrics",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_conversion_rate_onboarding * 100",
+            "legendFormat": "Onboarding Completion %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 30
+        }
+      },
+      {
+        "id": 11,
+        "title": "Average Session Duration",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "dojopool_avg_session_duration_minutes",
+            "legendFormat": "Avg Session (min)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "m"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 30
+        }
+      },
+      {
+        "id": 12,
+        "title": "Player Skill Distribution",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "dojopool_player_skill_level_total",
+            "legendFormat": "{{skill_level}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 30
+        }
+      },
+      {
+        "id": 13,
+        "title": "Top Venues by Activity",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, dojopool_venue_activity_total)",
+            "legendFormat": "{{venue_name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 38
+        }
+      },
+      {
+        "id": 14,
+        "title": "User Journey Drop-off Analysis",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "dojopool_journey_step_users{step=\"signup\"}",
+            "legendFormat": "Signup"
+          },
+          {
+            "expr": "dojopool_journey_step_users{step=\"onboarding\"}",
+            "legendFormat": "Onboarding"
+          },
+          {
+            "expr": "dojopool_journey_step_users{step=\"first_game\"}",
+            "legendFormat": "First Game"
+          },
+          {
+            "expr": "dojopool_journey_step_users{step=\"returning\"}",
+            "legendFormat": "Returning User"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 38
+        }
+      }
+    ],
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "5m",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

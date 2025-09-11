@@ -1,9 +1,11 @@
 import { useAuth } from '@/hooks/useAuth';
 import { Box, Button, Container, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
+  const t = useTranslations('Index');
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -31,7 +33,7 @@ const HomePage: React.FC = () => {
     <Container maxWidth="md">
       <Box sx={{ textAlign: 'center', mt: 8 }}>
         <Typography variant="h3" gutterBottom>
-          Welcome to DojoPool
+          {t('title')}
         </Typography>
         <Typography variant="h6" sx={{ mb: 4, color: '#EEEEEE' }}>
           Explore venues, manage your dojo, and join tournaments.
@@ -61,5 +63,13 @@ const HomePage: React.FC = () => {
     </Container>
   );
 };
+
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      messages: (await import(`../../messages/${locale}.json`)).default,
+    },
+  };
+}
 
 export default HomePage;

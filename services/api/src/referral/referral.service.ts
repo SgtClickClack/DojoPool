@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import type { ReferralStatus, RewardStatus } from '@prisma/client';
 import { ErrorUtils } from '../common';
 import { EconomyService } from '../economy/economy.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -22,12 +21,8 @@ export interface ReferralDetails {
   referralCode: string;
   inviteeId?: string;
   inviteeUsername?: string;
-  status: ReferralStatus;
-  rewardStatus: RewardStatus;
-  rewardAmount: number;
-  inviteeReward: number;
-  invitedAt?: Date;
-  rewardClaimedAt?: Date;
+  status: string;
+  rewardClaimed: boolean;
   createdAt: Date;
 }
 
@@ -55,7 +50,7 @@ export class ReferralService {
 
       if (referral) {
         return {
-          referralCode: referral.referralCode,
+          referralCode: referral.code,
           createdAt: referral.createdAt,
         };
       }
@@ -66,10 +61,10 @@ export class ReferralService {
       // Create referral record
       referral = await this.prisma.referral.create({
         data: {
-          referralCode,
+          code: referralCode,
           inviterId: userId,
-          status: ReferralStatus.PENDING,
-          rewardStatus: RewardStatus.PENDING,
+          // inviteeId will be set when someone uses the referral
+          status: 'pending',
         },
       });
 
@@ -78,7 +73,7 @@ export class ReferralService {
       );
 
       return {
-        referralCode: referral.referralCode,
+        referralCode: referral.code,
         createdAt: referral.createdAt,
       };
     } catch (err) {
@@ -103,7 +98,7 @@ export class ReferralService {
     try {
       // Find the referral by code
       const referral = await this.prisma.referral.findUnique({
-        where: { referralCode },
+        where: { code: referralCode },
         include: { inviter: true },
       });
 
@@ -124,8 +119,7 @@ export class ReferralService {
         where: { id: referral.id },
         data: {
           inviteeId: newUserId,
-          status: ReferralStatus.COMPLETED,
-          invitedAt: new Date(),
+          status: 'completed',
         },
       });
 
@@ -133,13 +127,13 @@ export class ReferralService {
       await Promise.all([
         this.economyService.creditCoins(
           referral.inviterId,
-          referral.rewardAmount,
+          100, // Default referral reward
           `Referral reward for inviting ${newUserId}`,
           { referralId: referral.id, type: 'referral_inviter' }
         ),
         this.economyService.creditCoins(
           newUserId,
-          referral.inviteeReward,
+          50, // Default welcome bonus
           'Welcome bonus for using referral code',
           { referralId: referral.id, type: 'referral_invitee' }
         ),
@@ -149,8 +143,7 @@ export class ReferralService {
       await this.prisma.referral.update({
         where: { id: referral.id },
         data: {
-          rewardStatus: RewardStatus.CLAIMED,
-          rewardClaimedAt: new Date(),
+          rewardClaimed: true,
         },
       });
 
@@ -183,15 +176,13 @@ export class ReferralService {
         (acc, referral) => {
           acc.totalReferrals++;
 
-          if (referral.status === ReferralStatus.COMPLETED) {
+          if (referral.status === 'completed') {
             acc.completedReferrals++;
           }
 
-          if (referral.rewardStatus === RewardStatus.CLAIMED) {
+          if (referral.rewardClaimed) {
             acc.claimedRewards++;
-            acc.totalEarned += referral.rewardAmount;
-          } else if (referral.rewardStatus === RewardStatus.PENDING) {
-            acc.pendingRewards++;
+            acc.totalEarned += 100; // Default reward amount
           }
 
           return acc;
@@ -234,15 +225,11 @@ export class ReferralService {
 
       return referrals.map((referral) => ({
         id: referral.id,
-        referralCode: referral.referralCode,
+        referralCode: referral.code,
         inviteeId: referral.inviteeId || undefined,
         inviteeUsername: referral.invitee?.username || undefined,
         status: referral.status,
-        rewardStatus: referral.rewardStatus,
-        rewardAmount: referral.rewardAmount,
-        inviteeReward: referral.inviteeReward,
-        invitedAt: referral.invitedAt || undefined,
-        rewardClaimedAt: referral.rewardClaimedAt || undefined,
+        rewardClaimed: referral.rewardClaimed,
         createdAt: referral.createdAt,
       }));
     } catch (err) {
@@ -259,7 +246,7 @@ export class ReferralService {
   async validateReferralCode(referralCode: string): Promise<boolean> {
     try {
       const referral = await this.prisma.referral.findUnique({
-        where: { referralCode },
+        where: { code: referralCode },
       });
 
       return !!referral && !referral.inviteeId;
@@ -294,7 +281,7 @@ export class ReferralService {
       attempts++;
     } while (
       attempts < maxAttempts &&
-      (await this.prisma.referral.findUnique({ where: { referralCode: code } }))
+      (await this.prisma.referral.findUnique({ where: { code } }))
     );
 
     if (attempts >= maxAttempts) {
@@ -312,7 +299,7 @@ export class ReferralService {
   ): Promise<{ inviterId: string } | null> {
     try {
       const referral = await this.prisma.referral.findUnique({
-        where: { referralCode },
+        where: { code: referralCode },
         select: { inviterId: true },
       });
 

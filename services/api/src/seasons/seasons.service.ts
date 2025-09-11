@@ -30,15 +30,10 @@ export class SeasonsService {
   async getSeasonalLeaderboard(limit = 10) {
     const activeSeason = await this.getActiveSeason();
 
-    // Fetch top clans by seasonalPoints
+    // Fetch top clans (seasonal points not implemented yet)
     const clans = await this.prisma.clan.findMany({
-      orderBy: { seasonalPoints: 'desc' },
+      orderBy: { dojoCoinBalance: 'desc' }, // Use coin balance as ranking for now
       take: Math.max(1, Math.min(limit, 100)),
-      include: {
-        _count: {
-          select: { members: true, territories: true },
-        },
-      },
     });
 
     let rank = 1;
@@ -46,12 +41,12 @@ export class SeasonsService {
       clanId: c.id,
       clanName: c.name,
       clanTag: this.deriveClanTag(c.name),
-      seasonalPoints: c.seasonalPoints ?? 0,
+      seasonalPoints: 0, // Not implemented yet
       rank: rank++,
       totalMatches: 0, // Not tracked in schema yet
       wonMatches: 0, // Not tracked in schema yet
-      territoriesControlled: c._count.territories,
-      members: c._count.members,
+      territoriesControlled: 0, // Not tracked in schema yet
+      members: 0, // Not tracked in schema yet
       avatarUrl: undefined as string | undefined,
     }));
 
@@ -73,7 +68,7 @@ export class SeasonsService {
 
     const updated = await this.prisma.clan.update({
       where: { id: clanId },
-      data: { seasonalPoints: { increment: Math.floor(points) } },
+      data: { dojoCoinBalance: { increment: Math.floor(points) } }, // Use coin balance for now
     });
 
     // Optionally, record an activity event
@@ -85,7 +80,6 @@ export class SeasonsService {
           userId: updated.leaderId,
           clanId: updated.id,
           data: JSON.stringify({ points: Math.floor(points), reason }),
-          metadata: JSON.stringify({ points: Math.floor(points), reason }),
         },
       });
     } catch {

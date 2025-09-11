@@ -2,7 +2,7 @@ import {
   FeedbackCategory,
   FeedbackPriority,
   FeedbackStatus,
-} from '@prisma/client';
+} from '@dojopool/types';
 import { Transform } from 'class-transformer';
 import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
 
