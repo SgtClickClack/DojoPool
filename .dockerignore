@@ -1,26 +1,42 @@
-node_modules
-.next
+# Git
 .git
+.github
+.gitattributes
 .gitignore
-README.md
+
+# Node modules
+node_modules
+**/node_modules
+
+# Build artifacts
+.next/
+dist/
+build/
+coverage/
+
+# Logs and local data
 *.log
-.env
-.env.local
-.env.production
-coverage
-.nyc_output
+*.sqlite
+backups/
+feedback_database.json
+load-test-results.json
+services/api/scripts/production-readiness-report.json
+services/api/scripts/test-coverage-analysis.json
+services/api/scripts/test-reports/
+
+# OS-specific
 .DS_Store
 Thumbs.db
-.vscode
-.idea
-*.swp
-*.swo
-*~
-cypress/
-dist
-build
-.cache
-.parcel-cache
-.yarn
-yarn-error.log
-npm-debug.log*
+
+# Env files (should be passed in securely, not copied)
+.env*
+!/.env.production
+!/.env.example
+
+# IDE/Editor config
+.vscode/
+.idea/
+
+# Temp files
+*.bak
+*.temp
