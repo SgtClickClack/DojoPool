@@ -3,11 +3,20 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import {
+  CacheInvalidate,
+  CacheKey,
+  Cacheable,
+} from '../cache/cache.decorator';
+import { CacheHelper } from '../cache/cache.helper';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class SeasonsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cacheHelper: CacheHelper
+  ) {}
 
   async getActiveSeason() {
     const season = await this.prisma.season.findFirst({
@@ -27,6 +36,14 @@ export class SeasonsService {
     return season;
   }
 
+  /**
+   * Read-heavy endpoint with caching
+   */
+  @Cacheable({
+    ttl: 60, // 1 minute - leaderboards change frequently
+    keyPrefix: 'seasons:leaderboard',
+    keyGenerator: (limit: number) => CacheKey('seasons', 'leaderboard', limit),
+  })
   async getSeasonalLeaderboard(limit = 10) {
     const activeSeason = await this.getActiveSeason();
 
@@ -63,6 +80,10 @@ export class SeasonsService {
     };
   }
 
+  /**
+   * Update operation with cache invalidation
+   */
+  @CacheInvalidate(['seasons:leaderboard:*'])
   async awardPointsToClan(clanId: string, points: number, reason?: string) {
     if (!clanId) throw new BadRequestException('clanId is required');
     if (!Number.isFinite(points) || points <= 0)
