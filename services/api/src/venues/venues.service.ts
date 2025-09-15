@@ -659,4 +659,220 @@ export class VenuesService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  // Tournament Management for Venue Owners
+
+  // List tournaments for the authenticated venue owner
+  async listMyTournaments(userId: string) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) throw new NotFoundException('You do not own a venue');
+    
+    return this.prisma.tournament.findMany({
+      where: { venueId: venue.id },
+      include: {
+        _count: {
+          select: { participants: true, matches: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  // Create a tournament for the authenticated venue owner
+  async createMyTournament(userId: string, data: any) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) throw new NotFoundException('You do not own a venue');
+
+    const { name, description, startTime, endTime, maxPlayers, entryFee, prizePool, format, rewards } = data;
+
+    if (!name || typeof name !== 'string') {
+      throw new BadRequestException('name is required');
+    }
+    if (!startTime) {
+      throw new BadRequestException('startTime is required');
+    }
+
+    const startDate = new Date(startTime);
+    if (isNaN(startDate.getTime())) {
+      throw new BadRequestException('startTime must be a valid date');
+    }
+
+    const tournament = await this.prisma.tournament.create({
+      data: {
+        venueId: venue.id,
+        name,
+        description: description || undefined,
+        startTime: startDate,
+        endTime: endTime ? new Date(endTime) : undefined,
+        startDate: startDate,
+        endDate: endTime ? new Date(endTime) : undefined,
+        maxPlayers: maxPlayers || 8,
+        entryFee: entryFee || 0,
+        prizePool: prizePool || 0,
+        format: format || 'SINGLE_ELIMINATION',
+        rewards: rewards || undefined,
+        status: 'UPCOMING',
+      },
+    });
+
+    return tournament;
+  }
+
+  // Update a tournament for the authenticated venue owner
+  async updateMyTournament(userId: string, tournamentId: string, data: any) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) throw new NotFoundException('You do not own a venue');
+
+    const tournament = await this.prisma.tournament.findUnique({
+      where: { id: tournamentId },
+    });
+    if (!tournament) throw new NotFoundException('Tournament not found');
+    if (tournament.venueId !== venue.id) {
+      throw new ForbiddenException('Tournament does not belong to your venue');
+    }
+    if (tournament.status !== 'UPCOMING') {
+      throw new BadRequestException('Can only update upcoming tournaments');
+    }
+
+    const updateData: any = {};
+    if (data.name) updateData.name = data.name;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.startTime) {
+      const startDate = new Date(data.startTime);
+      if (!isNaN(startDate.getTime())) {
+        updateData.startTime = startDate;
+        updateData.startDate = startDate;
+      }
+    }
+    if (data.endTime !== undefined) {
+      const endDate = data.endTime ? new Date(data.endTime) : null;
+      if (endDate && !isNaN(endDate.getTime())) {
+        updateData.endTime = endDate;
+        updateData.endDate = endDate;
+      }
+    }
+    if (data.maxPlayers !== undefined) updateData.maxPlayers = data.maxPlayers;
+    if (data.entryFee !== undefined) updateData.entryFee = data.entryFee;
+    if (data.prizePool !== undefined) updateData.prizePool = data.prizePool;
+    if (data.format) updateData.format = data.format;
+    if (data.rewards !== undefined) updateData.rewards = data.rewards;
+
+    return this.prisma.tournament.update({
+      where: { id: tournamentId },
+      data: updateData,
+    });
+  }
+
+  // Start a tournament for the authenticated venue owner
+  async startMyTournament(userId: string, tournamentId: string, options?: { shuffleParticipants?: boolean }) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) throw new NotFoundException('You do not own a venue');
+
+    const tournament = await this.prisma.tournament.findUnique({
+      where: { id: tournamentId },
+      include: {
+        participants: {
+          include: {
+            user: { select: { id: true, username: true } }
+          }
+        }
+      }
+    });
+    if (!tournament) throw new NotFoundException('Tournament not found');
+    if (tournament.venueId !== venue.id) {
+      throw new ForbiddenException('Tournament does not belong to your venue');
+    }
+    if (tournament.status !== 'UPCOMING' && tournament.status !== 'REGISTRATION') {
+      throw new BadRequestException('Tournament has already started or finished');
+    }
+    if (tournament.participants.length < 2) {
+      throw new BadRequestException('Need at least 2 participants to start tournament');
+    }
+
+    // Update tournament status to ACTIVE
+    const updatedTournament = await this.prisma.tournament.update({
+      where: { id: tournamentId },
+      data: { 
+        status: 'ACTIVE',
+        startTime: new Date(), // Update actual start time
+      },
+    });
+
+    // TODO: Generate tournament brackets/matches based on format
+    // For now, just return the updated tournament
+    return {
+      tournament: updatedTournament,
+      message: 'Tournament started successfully',
+      participantCount: tournament.participants.length,
+    };
+  }
+
+  // Get a single tournament for the authenticated venue owner
+  async getMyTournament(userId: string, tournamentId: string) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) throw new NotFoundException('You do not own a venue');
+
+    const tournament = await this.prisma.tournament.findUnique({
+      where: { id: tournamentId },
+      include: {
+        participants: {
+          include: {
+            user: { select: { id: true, username: true, avatarUrl: true } }
+          }
+        },
+        matches: {
+          include: {
+            playerA: { select: { id: true, username: true } },
+            playerB: { select: { id: true, username: true } },
+          },
+          orderBy: { createdAt: 'asc' }
+        },
+        _count: {
+          select: { participants: true, matches: true }
+        }
+      }
+    });
+
+    if (!tournament) throw new NotFoundException('Tournament not found');
+    if (tournament.venueId !== venue.id) {
+      throw new ForbiddenException('Tournament does not belong to your venue');
+    }
+
+    return tournament;
+  }
+
+  // Delete a tournament for the authenticated venue owner
+  async deleteMyTournament(userId: string, tournamentId: string) {
+    const venue = await this.prisma.venue.findFirst({
+      where: { ownerId: userId },
+    });
+    if (!venue) throw new NotFoundException('You do not own a venue');
+
+    const tournament = await this.prisma.tournament.findUnique({
+      where: { id: tournamentId },
+    });
+    if (!tournament) throw new NotFoundException('Tournament not found');
+    if (tournament.venueId !== venue.id) {
+      throw new ForbiddenException('Tournament does not belong to your venue');
+    }
+    if (tournament.status === 'ACTIVE') {
+      throw new BadRequestException('Cannot delete an active tournament');
+    }
+
+    await this.prisma.tournament.delete({
+      where: { id: tournamentId },
+    });
+
+    return { status: 'ok', message: 'Tournament deleted successfully' };
+  }
 }
