@@ -1,9 +1,10 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../../services/api/node_modules/.prisma/client"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -14,6 +15,7 @@ model User {
   passwordHash  String
   role          UserRole               @default(USER)
   isBanned      Boolean                @default(false)
+  avatarUrl     String?
   profile       Profile?
   settings      UserSettings?
   wallets       Wallet[]
@@ -54,6 +56,10 @@ model User {
   dojoCoinBalance Int                  @default(0)
   createdAt     DateTime               @default(now())
   updatedAt     DateTime               @updatedAt
+
+  @@index([role])
+  @@index([isBanned])
+  @@index([createdAt])
 }
 
 enum UserRole {
@@ -122,6 +128,11 @@ model Venue {
   gameSessions       GameSession[]
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
+
+  @@index([status])
+  @@index([ownerId])
+  @@index([controllingClanId])
+  @@index([createdAt])
 }
 
 model Table {
@@ -133,6 +144,9 @@ model Table {
   matches   Match[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+
+  @@index([venueId])
+  @@index([status])
 }
 
 enum TableStatus {
@@ -178,6 +192,10 @@ model Clan {
   shadowRuns       ShadowRun[]
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
+
+  @@index([seasonalPoints(sort: Desc)])
+  @@index([leaderId])
+  @@index([createdAt])
 }
 
 model ClanMember {
@@ -189,6 +207,9 @@ model ClanMember {
   role     ClanRole @default(MEMBER)
   joinedAt DateTime @default(now())
 
+  @@index([clanId])
+  @@index([userId])
+  @@index([role])
   @@unique([clanId, userId], name: "clanId_userId")
 }
 
@@ -211,9 +232,9 @@ model Territory {
   level        Int             @default(1)
   defenseScore Int             @default(0)
   // Strategic Map extensions
-  resources    Json            // e.g., { "gold": 100, "wood": 50, "iron": 20 }
+  resources    String          @default("{}") // e.g., { "gold": 100, "wood": 50, "iron": 20 }
   strategicValue Int           @default(0)     // composite score for targeting AI/players
-  resourceRate Json            // e.g., per-hour generation rates per resource
+  resourceRate String          @default("{}") // e.g., per-hour generation rates per resource
   lastTickAt   DateTime?                      // last time periodic resource tick applied
   events       TerritoryEvent[]
   createdAt    DateTime        @default(now())
@@ -259,6 +280,11 @@ model Tournament {
   format       String                  @default("SINGLE_ELIMINATION")
   createdAt    DateTime                @default(now())
   updatedAt    DateTime                @updatedAt
+
+  @@index([venueId])
+  @@index([status])
+  @@index([startDate])
+  @@index([createdAt])
 }
 
 enum TournamentStatus {
@@ -379,7 +405,7 @@ model Transaction {
   amount    Int
   currency  String   @default("DOJO")
   type      TxType
-  metadata  Json
+  metadata  String
   createdAt DateTime @default(now())
 }
 
@@ -396,7 +422,7 @@ model NFT {
   contract  String
   tokenId   String
   chain     String
-  metadata  Json
+  metadata  String
   users     UserNFT[]
   createdAt DateTime  @default(now())
 
@@ -458,7 +484,7 @@ model AuditLog {
   actor     User?    @relation(fields: [actorId], references: [id])
   action    String
   target    String?
-  metadata  Json
+  metadata  String
   ts        DateTime @default(now())
 }
 
@@ -499,12 +525,12 @@ model ActivityEvent {
   userId       String
   type         String
   message      String?
-  data         Json
+  data         String
   venueId      String?
   matchId      String?
   tournamentId String?
   clanId       String?
-  metadata     Json?
+  metadata     String?
   isPublic     Boolean @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -529,6 +555,9 @@ model VenueQuest {
   type            String  @default("DAILY")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([venueId])
+  @@index([isActive])
 }
 
 model GameSession {
@@ -540,16 +569,16 @@ model GameSession {
   venue           Venue?    @relation(fields: [venueId], references: [id])
   status          String    @default("ACTIVE")
   gameType        String?
-  rules           Json
+  rules           String
   startTime       DateTime?
   endTime         DateTime?
   duration        Int?
-  playerIds       Json
+  playerIds       String
   currentPlayerId String?
-  ballStates      Json
-  fouls           Json
-  score           Json
-  events          Json
+  ballStates      String
+  fouls           String
+  score           String
+  events          String
   totalShots      Int       @default(0)
   totalFouls      Int       @default(0)
   totalFrames     Int       @default(0)
@@ -559,9 +588,9 @@ model GameSession {
   frameCount      Int       @default(0)
   shotCount       Int       @default(0)
   foulCount       Int       @default(0)
-  shots           Json
-  statistics      Json
-  aiCommentary    Json
+  shots           String
+  statistics      String
+  aiCommentary    String
   matchId         String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -646,6 +675,9 @@ model Season {
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([startDate])
 }
 
 model ShadowRun {
@@ -810,6 +842,7 @@ enum ContentVisibility {
 
 model Content {
   id            String            @id @default(uuid())
+  contentId     String            @unique @default(uuid())
   userId        String
   user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   title         String
@@ -843,6 +876,7 @@ model ContentLike {
   id        String   @id @default(uuid())
   contentId String
   userId    String
+  likes     Int      @default(0)
   createdAt DateTime @default(now())
 
   content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
