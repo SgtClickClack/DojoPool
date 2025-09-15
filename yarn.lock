@@ -230,9 +230,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ant-design/icons@npm:6.0.0":
-  version: 6.0.0
-  resolution: "@ant-design/icons@npm:6.0.0"
+"@ant-design/icons@npm:6.0.2":
+  version: 6.0.2
+  resolution: "@ant-design/icons@npm:6.0.2"
   dependencies:
     "@ant-design/colors": "npm:^8.0.0"
     "@ant-design/icons-svg": "npm:^4.4.0"
@@ -241,7 +241,7 @@ __metadata:
   peerDependencies:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
-  checksum: 10c0/573ffed2d16fda7c0b79e60339eebaf05490a83b961aaed46201d0bf62d3f7d8995d135dc40b4bd2faf8c562eca88ba3d4ae5533df6ec6d21ee2caa4d3892aa4
+  checksum: 10c0/ff9fe21a573ffe891f112ecfd089e0df6713ffa0318afdac830ef57309c33c054abfa17bcb9d11508944a7b9eb2eec0490a862ce112c3631855391e1aff07094
   languageName: node
   linkType: hard
 
@@ -13846,7 +13846,6 @@ __metadata:
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-jsx-a11y: "npm:^6.10.2"
     file-saver: "npm:^2.0.5"
-    framer-motion: "npm:^12.23.12"
     identity-obj-proxy: "npm:^3.0.0"
     jest: "npm:^29.5.0"
     jest-environment-jsdom: "npm:^29.5.0"
@@ -13877,7 +13876,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "dojopool@workspace:."
   dependencies:
-    "@ant-design/icons": "npm:6.0.0"
+    "@ant-design/icons": "npm:6.0.2"
     "@aws-sdk/client-s3": "npm:3.787.0"
     "@aws-sdk/client-ses": "npm:3.787.0"
     "@aws-sdk/client-sns": "npm:3.787.0"
@@ -15955,7 +15954,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framer-motion@npm:12.23.12, framer-motion@npm:^12.23.12":
+"framer-motion@npm:12.23.12":
   version: 12.23.12
   resolution: "framer-motion@npm:12.23.12"
   dependencies:
