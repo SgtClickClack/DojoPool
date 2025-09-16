@@ -1,69 +1,64 @@
-# Build stage
-FROM node:20-alpine AS frontend-build
-ARG SKIP_FRONTEND_BUILD=false
-WORKDIR /app/frontend
-COPY apps/web/package.json ./
-RUN if [ "$SKIP_FRONTEND_BUILD" = "false" ] ; then yarn install --immutable ; fi
-COPY apps/web .
-RUN if [ "$SKIP_FRONTEND_BUILD" = "false" ] ; then yarn build ; fi
-
-# Python build stage
-FROM python:3.13.2-slim AS backend-build
+# 1. Base Stage
+FROM node:20-alpine AS base
 WORKDIR /app
 
-# Install system dependencies for psycopg2
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    python3-dev \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Final stage
-FROM python:3.13.2-slim
+# 2. Dependencies Stage (Completely Offline)
+FROM base AS deps
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx \
-    supervisor \
-    curl \
-    libpq5 \
-    && rm -rf /var/lib/apt/lists/*
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
 
-# Install Python packages
-RUN pip install --no-cache-dir gunicorn celery
+# Copy Yarn configuration (temporarily enable network for first build)
+COPY .yarnrc.yml ./
+COPY .yarn ./.yarn
+COPY package.json yarn.lock ./
+COPY apps/web/package.json ./apps/web/
+COPY services/api/package.json ./services/api/
+COPY packages/config/package.json ./packages/config/
+COPY packages/prisma/package.json ./packages/prisma/
+COPY packages/types/package.json ./packages/types/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/utils/package.json ./packages/utils/
 
-# Create necessary directories with proper permissions
-RUN mkdir -p /var/run/supervisor /var/log/supervisor /var/log/nginx \
-    && touch /var/log/nginx/access.log /var/log/nginx/error.log \
-    && chown -R www-data:www-data /var/run/supervisor /var/log/supervisor /var/log/nginx
+# Install dependencies using prepopulated offline cache and skip builds
+ENV YARN_ENABLE_IMMUTABLE_INSTALLS=false
+RUN yarn install --immutable --mode=skip-build --inline-builds=0
 
-# Copy built frontend
-COPY --from=frontend-build /app/frontend/.next/standalone /app/static
-COPY --from=frontend-build /app/frontend/public /app/static/public
-COPY --from=frontend-build /app/frontend/.next/static /app/static/.next/static
-COPY nginx.conf /etc/nginx/nginx.conf
+# 3. Builder Stage
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-# Copy Python packages and application code
-COPY --from=backend-build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
-COPY --chown=www-data:www-data src/dojopool /app/dojopool
-COPY --chown=www-data:www-data config /app/config
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# --- API Service Stages ---
+FROM builder AS build-api
+RUN yarn workspace @dojopool/api build
 
-# Set environment variables
-ENV PYTHONPATH=/app/src
-ENV FLASK_APP=dojopool
-ENV FLASK_ENV=production
-ENV STATIC_FOLDER=/app/static
+FROM base AS api
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3002
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nestjs
+USER nestjs
+COPY --from=build-api /app/node_modules ./node_modules
+COPY --from=build-api /app/services/api/dist ./services/api/dist
+COPY --from=build-api /app/package.json ./
+EXPOSE 3002
+CMD ["yarn", "workspace", "@dojopool/api", "start:prod"]
 
-# Set minimal required permissions
-RUN chmod 755 /app/dojopool/app.py
+# --- Web Service Stages ---
+FROM builder AS build-web
+RUN yarn workspace dojopool-frontend build
 
-# Expose ports
-EXPOSE 5000
-
-# Start services using supervisord
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+FROM base AS web
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+USER nextjs
+COPY --from=build-web --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=build-web --chown=nextjs:nodejs /app/apps/web/public ./public
+COPY --from=build-web --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+EXPOSE 3000
+CMD ["node", "server.js"]
