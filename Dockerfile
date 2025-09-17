@@ -23,7 +23,7 @@ COPY packages/utils/package.json ./packages/utils/
 
 # Install dependencies using prepopulated offline cache and skip builds
 ENV YARN_ENABLE_IMMUTABLE_INSTALLS=false
-RUN yarn install --immutable --mode=skip-build --inline-builds=0
+RUN yarn install --immutable --mode=skip-build
 
 # 3. Builder Stage
 FROM base AS builder
@@ -33,6 +33,7 @@ COPY . .
 
 # --- API Service Stages ---
 FROM builder AS build-api
+RUN yarn workspace @dojopool/api prisma:generate
 RUN yarn workspace @dojopool/api build
 
 FROM base AS api
