@@ -66,13 +66,14 @@ FROM builder AS build-web
 RUN yarn workspace dojopool-frontend build
 
 FROM base AS web
-WORKDIR /app/apps/web
+WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 USER node
 COPY --from=builder /app/node_modules /app/node_modules
-COPY --from=build-web /app/apps/web/.next ./.next
-COPY --from=build-web /app/apps/web/public ./public
-COPY --from=build-web /app/apps/web/server.js ./server.js
+COPY --from=build-web /app/apps/web/.next /app/apps/web/.next
+COPY --from=build-web /app/apps/web/public /app/apps/web/public
+COPY --from=build-web /app/apps/web/server.js /app/apps/web/server.js
+ENV NODE_PATH=/app/node_modules
 EXPOSE 3000
 CMD ["node", "/app/apps/web/server.js"]

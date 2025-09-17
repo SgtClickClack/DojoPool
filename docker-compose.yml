@@ -42,13 +42,12 @@ services:
       - NEXT_PUBLIC_API_URL=http://localhost:3002/api/v1
       - NEXT_PUBLIC_WEBSOCKET_URL=http://localhost:3002
       - NODE_ENV=development
+      - NODE_PATH=/app/node_modules
     depends_on:
       - api
     restart: unless-stopped
-    volumes:
-      - ./apps/web:/app
-      - /app/node_modules
-      - /app/.next
+    working_dir: /app/apps/web
+    command: ["node", "server.js"]
     dns:
       - 8.8.8.8
       - 8.8.4.4
