@@ -1,5 +1,109 @@
 # DojoPool Development Tracking
 
+### 2025-09-17: Regenerated Yarn lockfile and offline cache for instant builds
+
+Regenerated `yarn.lock` from a clean slate, repopulated `.yarn/cache`, and adjusted Docker to use the local offline cache with builds skipped during the deps stage. Added cross-platform artifact prefetch and ensured Prisma client generation occurs before API build. Docker images now build without network fetch during install and containers start cleanly.
+
+**Core Components Implemented:**
+- Fresh `yarn.lock` aligned with workspace packages
+- Offline cache populated under `.yarn/cache` (Linux/musl artifacts included)
+- `.yarnrc.yml` hardened: `enableNetwork: false`, `enableGlobalCache: false`, `supportedArchitectures` set
+- Docker deps stage uses `yarn install --mode=skip-build` (immutable locked by lockfile)
+- API build stage runs `yarn workspace @dojopool/api prisma:generate` before build
+
+**File Paths:**
+- `.yarnrc.yml`
+- `.yarn/cache/**`
+- `yarn.lock`
+- `Dockerfile`
+- `docker-compose.yml`
+
+**Next Priority Task:**
+Resolve remaining API TS type issues tied to Prisma model/service mismatches (e.g., `content`, `territory`, `communityCosmeticItem`) and finalize schema/client alignment.
+
+Expected completion time: 2-3 hours
+
+### 2025-09-17: Dev runner stabilization and health verification
+
+Stabilized the backend dev runner and verified both services are healthy.
+
+**Core Components Implemented:**
+- API dev script switched to `nest start --watch` for reliable hot-reload.
+- Confirmed Yarn node-modules linker in `.yarnrc.yml`.
+- Regenerated Prisma client (Postgres).
+- Brought up DB/Redis via Docker Compose.
+- Verified health endpoints for API and Web (both 200).
+
+**File Paths:**
+- `services/api/package.json`
+- `packages/prisma/schema.prisma`
+- `docker-compose.yml`
+- `.yarnrc.yml`
+
+**Next Priority Task:**
+Run Prisma migrations to create missing tables (e.g., `Territory`) and add seeds to eliminate runtime errors in `WorldMapGateway`.
+
+Expected completion time: 1-2 hours
+
+### 2025-09-17: Strategic Map Tick Fixes & Manual Verification
+
+Completed fixes to Strategic Map resource tick and route, and verified manual tick success.
+
+**Core Components Implemented:**
+- Parsed string JSON for `resources` and `resourceRate`; guarded NaN; serialized on update.
+- Corrected `StrategicMapController` route to avoid double prefix.
+- Seeded default `Territory` for baseline data; manual tick returned 201.
+
+**File Paths:**
+- `services/api/src/world-map/world-map.gateway.ts`
+- `services/api/src/strategic-map/strategic-map.controller.ts`
+- `services/api/src/scripts/seed.ts`
+
+**Next Priority Task:**
+Add unit/integration tests for strategic-map tick and territory seeding to ensure regression coverage.
+
+Expected completion time: 1-2 hours
+
+### 2025-09-16: Monorepo Health Audit — Foundation Fixes (Prisma + Env)
+
+Completed a targeted foundation repair based on the health audit: aligned Prisma to PostgreSQL and standardized environment configuration enforcement. This reduces build/runtime fragility, removes provider mismatches, and ensures early failure on misconfigured environments.
+
+**Core Components Implemented:**
+- Prisma schema updated to use `postgresql` provider and standard client output; added multi-platform `binaryTargets`.
+- Added `ENV.EXAMPLE` (non-dot) with required variables from centralized schema.
+- Enforced env validation on `yarn dev` via `predev` script (`env:check:strict`).
+
+**File Paths:**
+- `packages/prisma/schema.prisma`
+- `package.json` (root)
+- `ENV.EXAMPLE` (root)
+
+**Next Priority Task:**
+Unify dependency versions across workspaces (Next, ESLint, TS, MUI, RRD) and remove app runtime deps from the root to eliminate hoist conflicts.
+
+Expected completion time: 3-5 hours
+
+## 2025-09-16: Standardized Monorepo Dev Scripts & Startup Procedure
+
+Established a foolproof, workspace-driven startup flow to eliminate confusion running Next.js from the monorepo root. Replaced `cd`-based scripts with Yarn workspace targets for the frontend (`dojopool-frontend`) and backend (`@dojopool/api`). This ensures `next dev` runs from `apps/web` (where the `pages/app` directories exist) and NestJS runs from `services/api` with correct env handling.
+
+**Core Components Implemented:**
+
+- Root `package.json` scripts updated to use `yarn workspace dojopool-frontend dev` and `yarn workspace @dojopool/api start:dev`
+- Preserved existing concurrent `dev` aggregator script
+- Verified backend port handling remains via `PORT` in `services/api/src/main.ts`
+
+**File Paths:**
+
+- `package.json` (root)
+- `apps/web/package.json`
+- `services/api/package.json`
+
+**Next Priority Task:**
+Run the two-terminal startup and validate health checks: Frontend at `http://localhost:3000`, Backend health at `http://localhost:3002/api/v1/health`.
+
+Expected completion time: 10-15 minutes
+
 ## 2024-12-29: Socket.IO Redis Adapter Configuration
 
 Successfully configured Socket.IO Redis adapter for WebSocket gateways to enable multi-instance scaling and production readiness.
