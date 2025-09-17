@@ -1,4 +1,4 @@
-import { ContentVisibility } from '@dojopool/types';
+import { ContentVisibility } from '@prisma/client';
 import {
   IsArray,
   IsBoolean,
@@ -11,11 +11,11 @@ import {
 export class CreateNewsArticleDto {
   @IsNotEmpty()
   @IsString()
-  title: string;
+  title!: string;
 
   @IsNotEmpty()
   @IsString()
-  description: string;
+  description!: string;
 
   @IsOptional()
   @IsString()

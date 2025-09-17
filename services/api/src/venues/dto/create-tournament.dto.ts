@@ -10,7 +10,7 @@ export enum TournamentFormat {
 export class CreateTournamentDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
@@ -18,7 +18,7 @@ export class CreateTournamentDto {
 
   @IsDateString()
   @IsNotEmpty()
-  startTime: string;
+  startTime!: string;
 
   @IsDateString()
   @IsOptional()

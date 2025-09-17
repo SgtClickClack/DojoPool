@@ -1,4 +1,4 @@
-import { ContentVisibility } from '@dojopool/types';
+import { ContentVisibility } from '@prisma/client';
 import {
   IsArray,
   IsDateString,
@@ -11,7 +11,7 @@ import {
 export class CreateEventDto {
   @IsNotEmpty()
   @IsString()
-  title: string;
+  title!: string;
 
   @IsOptional()
   @IsString()

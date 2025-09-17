@@ -5,7 +5,7 @@ import {
   FilterList as FilterIcon,
   Cancel as RejectIcon,
   Visibility as ViewIcon,
-} from '@mui/icons/material';
+} from '@mui/icons-material';
 import {
   Alert,
   Avatar,

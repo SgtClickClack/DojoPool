@@ -37,7 +37,7 @@ export class NotificationsService {
         title: type,
         type,
         message,
-        payload: payload ? payload : 'null',
+        payload: payload ? JSON.stringify(payload) : 'null',
       },
     });
 

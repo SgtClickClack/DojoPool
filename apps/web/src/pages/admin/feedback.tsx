@@ -13,8 +13,8 @@ import { NextPage } from 'next';
 const AdminFeedbackPage: NextPage = () => {
   const { user } = useAuth();
 
-  // Check if user is admin
-  if (!user || user.role !== 'ADMIN') {
+  // Check if user is authenticated
+  if (!user) {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Alert severity="error">

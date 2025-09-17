@@ -483,7 +483,7 @@ const NewsManagement: React.FC = () => {
           onClose={handleCloseDialog}
           maxWidth="lg"
           fullWidth
-          maxHeight="90vh"
+          sx={{ '& .MuiDialog-paper': { maxHeight: '90vh' } }}
         >
           <DialogTitle>
             {previewMode

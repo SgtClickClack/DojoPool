@@ -6,7 +6,7 @@ import {
   ClockIcon,
   CurrencyDollarIcon,
   StarIcon,
-  TrendingUpIcon,
+  ChartBarIcon,
   TrophyIcon,
   UsersIcon,
 } from '@heroicons/react/24/outline';
@@ -247,7 +247,7 @@ const VenueAnalytics: React.FC<VenueAnalyticsProps> = ({ analyticsData }) => {
                     <div
                       className={`flex items-center space-x-1 mt-1 ${getChangeColor(metric.change)}`}
                     >
-                      <ChangeIcon className="w-4 h-4" />
+                      {ChangeIcon && <ChangeIcon className="w-4 h-4" />}
                       <span className="text-sm font-medium">
                         {Math.abs(metric.change)}%
                       </span>
@@ -363,7 +363,7 @@ const VenueAnalytics: React.FC<VenueAnalyticsProps> = ({ analyticsData }) => {
                   {data.players.newThisPeriod}
                 </p>
               </div>
-              <TrendingUpIcon className="w-8 h-8 text-green-500" />
+              <ChartBarIcon className="w-8 h-8 text-green-500" />
             </div>
 
             <div className="p-4 bg-gray-50 rounded-lg">

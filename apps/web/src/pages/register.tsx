@@ -1,9 +1,11 @@
 import { useAuth } from '@/hooks/useAuth';
+import { Google as GoogleIcon } from '@mui/icons-material';
 import {
   Alert,
   Box,
   Button,
   CircularProgress,
+  Divider,
   Link,
   Paper,
   TextField,
@@ -19,6 +21,7 @@ const RegisterPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const { register, error, loading, clearError } = useAuth();
   const [passwordError, setPasswordError] = useState('');
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
 
   // Clear error when component mounts or when error changes
@@ -50,6 +53,16 @@ const RegisterPage: React.FC = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      // Redirect to Google OAuth
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || '/api'}/auth/google`;
+    } catch (err) {
+      setIsGoogleLoading(false);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -63,6 +76,36 @@ const RegisterPage: React.FC = () => {
         <Typography variant="h5" gutterBottom align="center">
           Create Account
         </Typography>
+        <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
+          Join DojoPool and start your pool journey
+        </Typography>
+
+        {/* Google Sign In Button */}
+        <Button
+          fullWidth
+          variant="outlined"
+          startIcon={<GoogleIcon />}
+          onClick={handleGoogleSignIn}
+          disabled={isGoogleLoading}
+          sx={{
+            mb: 3,
+            borderColor: '#4285f4',
+            color: '#4285f4',
+            '&:hover': {
+              borderColor: '#357ae8',
+              backgroundColor: '#f8f9fa',
+            },
+          }}
+        >
+          {isGoogleLoading ? 'Connecting...' : 'Sign up with Google'}
+        </Button>
+
+        <Divider sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary">
+            or
+          </Typography>
+        </Divider>
+
         <Box component="form" onSubmit={handleSubmit}>
           <TextField
             fullWidth

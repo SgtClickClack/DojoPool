@@ -97,7 +97,7 @@ class ErrorReportingService {
     const errorReport: ErrorReport = {
       message: error.message,
       stack: error.stack,
-      componentStack: errorInfo.componentStack,
+      componentStack: errorInfo.componentStack || undefined,
       errorId: `react_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
@@ -285,10 +285,10 @@ class ErrorReportingService {
         // Monitor large layout shifts
         const layoutObserver = new PerformanceObserver((list) => {
           for (const entry of list.getEntries()) {
-            if (entry.value > 0.1) {
+            if ('value' in entry && (entry as any).value > 0.1) {
               // Layout shifts > 10%
-              this.reportPerformanceIssue('layout-shift', entry.value, 0.1, {
-                sources: entry.sources,
+              this.reportPerformanceIssue('layout-shift', (entry as any).value, 0.1, {
+                sources: (entry as any).sources,
               });
             }
           }

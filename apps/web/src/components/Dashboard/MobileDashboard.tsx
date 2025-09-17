@@ -8,7 +8,7 @@ import {
   FireIcon,
   MapIcon,
   StarIcon,
-  TrendingUpIcon,
+  ChartBarIcon,
   TrophyIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
@@ -101,7 +101,7 @@ const MobileDashboard: React.FC<MobileDashboardProps> = ({
     {
       label: 'Games Played',
       value: stats.gamesPlayed.toString(),
-      icon: TrendingUpIcon,
+      icon: ChartBarIcon,
       color: 'text-blue-500',
     },
     {

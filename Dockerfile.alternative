@@ -1,0 +1,73 @@
+# Alternative Dockerfile with npm registry fallback
+# 1. Base Stage
+FROM node:20-alpine AS base
+WORKDIR /app
+# We do NOT run 'corepack enable' because .yarnrc.yml handles the Yarn version.
+
+# 2. Dependencies Stage
+FROM base AS deps
+WORKDIR /app
+
+# Configure DNS and network settings for better connectivity
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
+    echo "nameserver 8.8.4.4" >> /etc/resolv.conf && \
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+
+# Copy the Yarn configuration and the Yarn binary itself
+COPY .yarnrc.yml ./.yarnrc.yml
+COPY .yarn ./.yarn
+# Copy all package manifests
+COPY package.json yarn.lock ./
+COPY apps/*/package.json ./apps/*/
+COPY services/*/package.json ./services/*/
+COPY packages/*/package.json ./packages/*/
+
+# Configure Yarn with better network settings and retry logic
+RUN yarn config set httpTimeout 300000 && \
+    yarn config set networkTimeout 300000 && \
+    yarn config set retry 5 && \
+    yarn config set retryDelay 2000
+
+# Try yarn install first, if it fails, try with npm registry
+RUN --mount=type=cache,target=/root/.yarn/cache \
+    (yarn install --network-timeout 300000 || \
+     (yarn config set npmRegistryServer https://registry.npmjs.org && \
+      yarn install --network-timeout 300000))
+
+# 3. Builder Stage
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# --- API Service Stages ---
+FROM builder AS build-api
+RUN yarn workspace @dojopool/api build
+
+FROM base AS api
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3002
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nestjs
+USER nestjs
+COPY --from=build-api /app/node_modules ./node_modules
+COPY --from=build-api /app/services/api/dist ./services/api/dist
+COPY --from=build-api /app/package.json ./
+EXPOSE 3002
+CMD ["yarn", "workspace", "@dojopool/api", "start:prod"]
+
+# --- Web Service Stages ---
+FROM builder AS build-web
+RUN yarn workspace dojopool-frontend build
+
+FROM base AS web
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+USER nextjs
+COPY --from=build-web --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=build-web --chown=nextjs:nodejs /app/apps/web/public ./public
+COPY --from=build-web --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+EXPOSE 3000
+CMD ["node", "server.js"]

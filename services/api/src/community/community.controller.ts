@@ -28,12 +28,12 @@ export class CommunityController {
   // Public endpoints (no admin guard)
   @Get('cosmetic-items')
   async getPublicCosmeticItems(
+    @Request() req: any,
     @Query('category') category?: string,
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: 'newest' | 'popular' | 'likes',
     @Query('page', ValidationPipe) page: number = 1,
-    @Query('limit', ValidationPipe) limit: number = 20,
-    @Request() req: any
+    @Query('limit', ValidationPipe) limit: number = 20
   ) {
     return this.communityService.getPublicCosmeticItems(
       {
@@ -228,7 +228,7 @@ export class CommunityController {
         );
         results.push({ id, success: true, result });
       } catch (error) {
-        results.push({ id, success: false, error: error.message });
+        results.push({ id, success: false, error: (error as Error).message });
       }
     }
     return { results };
@@ -253,7 +253,7 @@ export class CommunityController {
         );
         results.push({ id, success: true, result });
       } catch (error) {
-        results.push({ id, success: false, error: error.message });
+        results.push({ id, success: false, error: (error as Error).message });
       }
     }
     return { results };

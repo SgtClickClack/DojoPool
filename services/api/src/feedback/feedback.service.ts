@@ -330,7 +330,7 @@ export class FeedbackService {
         where: {
           status: FeedbackStatus.RESOLVED,
           resolvedAt: { not: null },
-          createdAt: { not: null },
+          createdAt: { not: undefined },
         },
         select: {
           createdAt: true,

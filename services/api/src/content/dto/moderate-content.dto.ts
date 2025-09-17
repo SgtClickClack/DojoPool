@@ -1,4 +1,3 @@
-import { ContentStatus } from '@prisma/client';
 import {
   IsEnum,
   IsNotEmpty,
@@ -7,10 +6,18 @@ import {
   MaxLength,
 } from 'class-validator';
 
+// Define enum values directly to avoid import issues
+enum ContentStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  ARCHIVED = 'ARCHIVED'
+}
+
 export class ModerateContentDto {
   @IsNotEmpty()
   @IsEnum(ContentStatus)
-  status: ContentStatus;
+  status!: ContentStatus;
 
   @IsOptional()
   @IsString()

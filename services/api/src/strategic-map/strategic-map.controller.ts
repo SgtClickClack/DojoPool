@@ -1,7 +1,7 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { StrategicMapService } from './strategic-map.service';
 
-@Controller('api/v1/strategic-map')
+@Controller('strategic-map')
 export class StrategicMapController {
   constructor(private readonly strategic: StrategicMapService) {}
 

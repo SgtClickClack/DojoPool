@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalErrorHandler } from './common/error-handler.middleware';
 import { corsOptions } from './config/cors.config';
+import { ErrorLoggerService } from './monitoring/error-logger.service';
 import { RedisService } from './redis/redis.service';
 
 // Startup validation function
@@ -160,7 +161,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Apply global error handler
-  app.useGlobalFilters(new GlobalErrorHandler(app.get('ErrorLoggerService')));
+  app.useGlobalFilters(new GlobalErrorHandler(app.get(ErrorLoggerService)));
 
   // WebSocket adapter configuration
   try {

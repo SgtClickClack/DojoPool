@@ -1,0 +1,24 @@
+[33m2543f729[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m feat(portal): scaffold tournament management features for venues
+[33mb2aa8ba8[m perf(db): optimize prisma queries and fix n+1 issues
+[33ma42653a6[m feat(api): implement redis caching for core services
+[33me5167494[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m ci: add vercel.json to automate deployment settings
+[33mdd97ae61[m fix: add missing peer dependencies for Vercel deployment
+[33mfc089d05[m[33m ([m[1;31morigin/remediate/secret-purge-history[m[33m)[m build: fix line endings, add dockerignore, and update lockfile
+[33mdc54792e[m fix: update lockfile and fix prisma postinstall script
+[33m5e4be865[m[33m ([m[1;31morigin/snyk-upgrade-155e85b1960699635eed867a97e96a1a[m[33m)[m fix: upgrade @headlessui/react from 2.2.4 to 2.2.7
+[33mc2f60659[m[33m ([m[1;31morigin/snyk-upgrade-4812c26b337c451bd52d1c8bb7b70189[m[33m)[m fix: upgrade @chakra-ui/react from 3.16.0 to 3.25.0
+[33m463617cd[m[33m ([m[1;31morigin/snyk-upgrade-df625f3a076fd9789ab0733fa2214801[m[33m)[m fix: upgrade @tanstack/react-query from 5.80.7 to 5.85.5
+[33m755005c8[m[33m ([m[1;31morigin/snyk-upgrade-d549d93db9be4bc4b1a2ecef2912708a[m[33m)[m fix: upgrade @react-three/fiber from 8.15.19 to 8.18.0
+[33me984c4c3[m fix(deps): resolve multiple package version conflicts and schema issues
+[33ma3a02ca0[m[33m ([m[1;31morigin/dependabot/npm_and_yarn/npm_and_yarn-a3e5c1eb4e[m[33m)[m chore(deps): bump the npm_and_yarn group across 1 directory with 2 updates
+[33maad78690[m[33m ([m[1;33mtag: [m[1;33mv1.0.0-hardened[m[33m)[m feat(security): Finalized security and performance roadmap. Implemented PBAC, WebSocket sharding, and edge caching.
+[33mce6d81ed[m[33m ([m[1;31morigin/dependabot/github_actions/peaceiris/actions-gh-pages-4[m[33m)[m chore(ci): bump peaceiris/actions-gh-pages from 3 to 4
+[33m7f2d669c[m[33m ([m[1;31morigin/dependabot/github_actions/actions/download-artifact-5[m[33m)[m chore(ci): bump actions/download-artifact from 4 to 5
+[33medf04d14[m[33m ([m[1;31morigin/dependabot/github_actions/actions/setup-python-6[m[33m)[m chore(ci): bump actions/setup-python from 5 to 6
+[33mc23a2298[m[33m ([m[1;31morigin/dependabot/github_actions/treosh/lighthouse-ci-action-12[m[33m)[m chore(ci): bump treosh/lighthouse-ci-action from 10 to 12
+[33m4720a606[m[33m ([m[1;31morigin/dependabot/github_actions/actions/setup-node-5[m[33m)[m chore(ci): bump actions/setup-node from 3 to 5
+[33m6089a3e4[m[33m ([m[1;31morigin/snyk-upgrade-d9e0d5a919db2777ce33c3e5929c9669[m[33m)[m fix: upgrade react-native from 0.78.1 to 0.81.0
+[33m475d19d3[m[33m ([m[1;31morigin/dependabot/docker/node-24-alpine[m[33m)[m chore(docker): bump node from 20-alpine to 24-alpine
+[33ma01d16ba[m[33m ([m[1;31morigin/dependabot/docker/python-3.13.7-slim[m[33m)[m chore(docker): bump python from 3.13.2-slim to 3.13.7-slim
+[33m1e42289c[m docs(security): log secret purge and clean-branch strategy under protections
+[33mc8edc0b7[m fix(security): stop tracking .env.local.txt and ignore .env*.txt

@@ -1,4 +1,4 @@
-import { ContentType } from '@dojopool/types';
+import { ContentType, ContentStatus } from './dto/content-filter.dto';
 import {
   Body,
   Controller,
@@ -18,6 +18,7 @@ import { AdminGuard } from '../auth/admin.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ContentService } from './content.service';
 import { CreateEventDto } from './dto/create-event.dto';
+import { CreateContentDto } from './dto/create-content.dto';
 import { CreateNewsArticleDto } from './dto/create-news-article.dto';
 import { CreateSystemMessageDto } from './dto/create-system-message.dto';
 
@@ -33,12 +34,13 @@ export class CmsController {
     @Body(ValidationPipe) createEventDto: CreateEventDto,
     @Request() req: any
   ) {
+    const payload: CreateContentDto = {
+      ...(createEventDto as any),
+      contentType: ContentType.EVENT,
+      visibility: undefined,
+    };
     return this.contentService.create(
-      {
-        ...createEventDto,
-        contentType: ContentType.EVENT,
-        status: 'APPROVED', // CMS content is auto-approved
-      },
+      payload,
       req.user.userId,
       undefined, // fileUrl
       undefined // thumbnailUrl
@@ -65,7 +67,7 @@ export class CmsController {
     @Body(ValidationPipe) updateData: Partial<CreateEventDto>,
     @Request() req: any
   ) {
-    return this.contentService.update(id, updateData, req.user.userId);
+    return this.contentService.update(id, updateData as any, req.user.userId);
   }
 
   @Delete('events/:id')
@@ -81,12 +83,13 @@ export class CmsController {
     @Body(ValidationPipe) createNewsDto: CreateNewsArticleDto,
     @Request() req: any
   ) {
+    const payload: CreateContentDto = {
+      ...(createNewsDto as any),
+      contentType: ContentType.NEWS_ARTICLE,
+      visibility: undefined,
+    };
     return this.contentService.create(
-      {
-        ...createNewsDto,
-        contentType: ContentType.NEWS_ARTICLE,
-        status: createNewsDto.publishDate ? 'APPROVED' : 'PENDING', // Draft if no publish date
-      },
+      payload,
       req.user.userId,
       undefined, // fileUrl
       createNewsDto.featuredImage // thumbnailUrl
@@ -121,7 +124,7 @@ export class CmsController {
     @Body(ValidationPipe) updateData: Partial<CreateNewsArticleDto>,
     @Request() req: any
   ) {
-    return this.contentService.update(id, updateData, req.user.userId);
+    return this.contentService.update(id, updateData as any, req.user.userId);
   }
 
   @Delete('news/:id')
@@ -137,12 +140,13 @@ export class CmsController {
     @Body(ValidationPipe) createMessageDto: CreateSystemMessageDto,
     @Request() req: any
   ) {
+    const payload: CreateContentDto = {
+      ...(createMessageDto as any),
+      contentType: ContentType.SYSTEM_MESSAGE,
+      visibility: undefined,
+    };
     return this.contentService.create(
-      {
-        ...createMessageDto,
-        contentType: ContentType.SYSTEM_MESSAGE,
-        status: 'APPROVED', // System messages are auto-approved
-      },
+      payload,
       req.user.userId,
       undefined, // fileUrl
       undefined // thumbnailUrl
@@ -175,7 +179,7 @@ export class CmsController {
     @Body(ValidationPipe) updateData: Partial<CreateSystemMessageDto>,
     @Request() req: any
   ) {
-    return this.contentService.update(id, updateData, req.user.userId);
+    return this.contentService.update(id, updateData as any, req.user.userId);
   }
 
   @Delete('messages/:id')
@@ -245,12 +249,12 @@ export class CmsController {
       try {
         const result = await this.contentService.update(
           id,
-          { status: 'APPROVED' },
+          { status: ContentStatus.APPROVED as any },
           req.user.userId
         );
         results.push({ id, success: true, result });
       } catch (error) {
-        results.push({ id, success: false, error: error.message });
+        results.push({ id, success: false, error: (error as Error).message });
       }
     }
     return { results };
@@ -266,12 +270,12 @@ export class CmsController {
       try {
         const result = await this.contentService.update(
           id,
-          { status: 'ARCHIVED' },
+          { status: ContentStatus.ARCHIVED as any },
           req.user.userId
         );
         results.push({ id, success: true, result });
       } catch (error) {
-        results.push({ id, success: false, error: error.message });
+        results.push({ id, success: false, error: (error as Error).message });
       }
     }
     return { results };
@@ -287,7 +291,7 @@ export class CmsController {
       this.contentService.findAllForAdmin(
         {
           contentType: ContentType.EVENT,
-          status: 'APPROVED',
+          status: ContentStatus.APPROVED,
         },
         1,
         1000
@@ -295,7 +299,7 @@ export class CmsController {
       this.contentService.findAllForAdmin(
         {
           contentType: ContentType.NEWS_ARTICLE,
-          status: 'APPROVED',
+          status: ContentStatus.APPROVED,
         },
         1,
         1000
@@ -303,7 +307,7 @@ export class CmsController {
       this.contentService.findAllForAdmin(
         {
           contentType: ContentType.SYSTEM_MESSAGE,
-          status: 'APPROVED',
+          status: ContentStatus.APPROVED,
         },
         1,
         1000

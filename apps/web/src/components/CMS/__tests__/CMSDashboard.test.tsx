@@ -65,7 +65,7 @@ jest.mock('../SystemMessageManagement', () => {
 });
 
 describe('CMSDashboard', () => {
-  const mockStats = {
+  const mockStats: APIService.CMSStats = {
     totalEvents: 15,
     totalNewsArticles: 25,
     totalSystemMessages: 10,
@@ -76,9 +76,13 @@ describe('CMSDashboard', () => {
     totalShares: 234,
   };
 
+  const getCMSStatsMock = APIService.getCMSStats as jest.MockedFunction<
+    typeof APIService.getCMSStats
+  >;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    (APIService.getCMSStats as jest.Mock).mockResolvedValue(mockStats);
+    getCMSStatsMock.mockResolvedValue(mockStats);
   });
 
   afterEach(() => {
@@ -121,9 +125,7 @@ describe('CMSDashboard', () => {
     const consoleErrorSpy = jest
       .spyOn(console, 'error')
       .mockImplementation(() => {});
-    (APIService.getCMSStats as jest.Mock).mockRejectedValue(
-      new Error('API Error')
-    );
+    getCMSStatsMock.mockRejectedValue(new Error('API Error'));
 
     render(<CMSDashboard />);
 
@@ -138,9 +140,7 @@ describe('CMSDashboard', () => {
   });
 
   it('displays fallback data when API fails', async () => {
-    (APIService.getCMSStats as jest.Mock).mockRejectedValue(
-      new Error('Network Error')
-    );
+    getCMSStatsMock.mockRejectedValue(new Error('Network Error'));
 
     render(<CMSDashboard />);
 

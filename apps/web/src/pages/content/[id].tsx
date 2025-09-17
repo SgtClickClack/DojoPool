@@ -38,6 +38,9 @@ const contentTypeLabels = {
   TOURNAMENT_HIGHLIGHT: '🏟️ Tournament Highlight',
   VENUE_REVIEW: '🏢 Venue Review',
   GENERAL: '💬 General Content',
+  EVENT: '📅 Event',
+  NEWS_ARTICLE: '📰 News Article',
+  SYSTEM_MESSAGE: '📢 System Message',
 };
 
 const visibilityLabels = {

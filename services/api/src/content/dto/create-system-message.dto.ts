@@ -1,4 +1,4 @@
-import { ContentVisibility } from '@dojopool/types';
+import { ContentVisibility } from '@prisma/client';
 import {
   IsArray,
   IsBoolean,
@@ -27,11 +27,11 @@ export enum SystemMessagePriority {
 export class CreateSystemMessageDto {
   @IsNotEmpty()
   @IsString()
-  title: string;
+  title!: string;
 
   @IsNotEmpty()
   @IsString()
-  message: string;
+  message!: string;
 
   @IsOptional()
   @IsEnum(SystemMessageType)

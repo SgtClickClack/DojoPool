@@ -1,5 +1,5 @@
 # 1. Base Stage
-FROM node:20-alpine AS base
+FROM node:20-slim AS base
 WORKDIR /app
 
 # 2. Dependencies Stage (Completely Offline)
@@ -7,7 +7,9 @@ FROM base AS deps
 WORKDIR /app
 
 # Install build dependencies for native modules
-RUN apk add --no-cache python3 make g++
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  python3 python-is-python3 make g++ build-essential ca-certificates git libssl-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 # Copy Yarn configuration (temporarily enable network for first build)
 COPY .yarnrc.yml ./
@@ -21,9 +23,14 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/utils/package.json ./packages/utils/
 
-# Install dependencies using prepopulated offline cache and skip builds
+# Install dependencies using offline cache and build native modules from source
 ENV YARN_ENABLE_IMMUTABLE_INSTALLS=false
-RUN yarn install --immutable --mode=skip-build
+ENV YARN_ENABLE_SCRIPTS=1
+ENV npm_config_build_from_source=true
+ENV npm_config_nodedir=/usr/local
+ENV npm_config_python=python3
+RUN yarn install
+RUN npm rebuild bcrypt --build-from-source --verbose || true
 
 # 3. Builder Stage
 FROM base AS builder
@@ -34,32 +41,38 @@ COPY . .
 # --- API Service Stages ---
 FROM builder AS build-api
 RUN yarn workspace @dojopool/api prisma:generate
-RUN yarn workspace @dojopool/api build
+RUN rm -rf services/api/dist services/api/tsconfig.tsbuildinfo services/api/dist/tsconfig.tsbuildinfo || true
+RUN yarn workspace @dojopool/api build --force
+# Fix bcrypt imports in compiled JavaScript
+RUN find /app/services/api/dist -type f -name "*.js" -exec sh -c 'sed -i "s/require(\"bcrypt\")/require(\"bcryptjs\")/g" "$1"' _ {} \;
 
 FROM base AS api
-WORKDIR /app
+WORKDIR /app/services/api
 ENV NODE_ENV=production
 ENV PORT=3002
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nestjs
-USER nestjs
-COPY --from=build-api /app/node_modules ./node_modules
-COPY --from=build-api /app/services/api/dist ./services/api/dist
-COPY --from=build-api /app/package.json ./
+ENV NODE_PATH=/app/node_modules
+COPY --from=build-api /app/node_modules /app/node_modules
+COPY --from=build-api /app/services/api/dist ./dist
+COPY --from=build-api /app/services/api/package.json ./package.json
+USER root
+# Create symbolic link from bcrypt to bcryptjs
+RUN rm -rf /app/node_modules/bcrypt && ln -s /app/node_modules/bcryptjs /app/node_modules/bcrypt
+USER node
 EXPOSE 3002
-CMD ["yarn", "workspace", "@dojopool/api", "start:prod"]
+CMD ["node", "dist/main.js"]
 
 # --- Web Service Stages ---
 FROM builder AS build-web
 RUN yarn workspace dojopool-frontend build
 
 FROM base AS web
-WORKDIR /app
+WORKDIR /app/apps/web
 ENV NODE_ENV=production
 ENV PORT=3000
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
-USER nextjs
-COPY --from=build-web --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=build-web --chown=nextjs:nodejs /app/apps/web/public ./public
-COPY --from=build-web --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+USER node
+COPY --from=builder /app/node_modules /app/node_modules
+COPY --from=build-web /app/apps/web/.next ./.next
+COPY --from=build-web /app/apps/web/public ./public
+COPY --from=build-web /app/apps/web/server.js ./server.js
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "/app/apps/web/server.js"]

@@ -1,9 +1,11 @@
 import { useAuth } from '@/hooks/useAuth';
+import { Google as GoogleIcon } from '@mui/icons-material';
 import {
   Alert,
   Box,
   Button,
   Container,
+  Divider,
   Link as MuiLink,
   Paper,
   TextField,
@@ -24,6 +26,7 @@ const RegisterPage: React.FC = () => {
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
@@ -82,6 +85,16 @@ const RegisterPage: React.FC = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      // Redirect to Google OAuth
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || '/api'}/auth/google`;
+    } catch (err) {
+      setIsGoogleLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <Container maxWidth="sm">
@@ -119,6 +132,32 @@ const RegisterPage: React.FC = () => {
           >
             Join DojoPool and start your pool journey
           </Typography>
+
+          {/* Google Sign In Button */}
+          <Button
+            fullWidth
+            variant="outlined"
+            startIcon={<GoogleIcon />}
+            onClick={handleGoogleSignIn}
+            disabled={isGoogleLoading}
+            sx={{
+              mb: 3,
+              borderColor: '#4285f4',
+              color: '#4285f4',
+              '&:hover': {
+                borderColor: '#357ae8',
+                backgroundColor: '#f8f9fa',
+              },
+            }}
+          >
+            {isGoogleLoading ? 'Connecting...' : 'Sign up with Google'}
+          </Button>
+
+          <Divider sx={{ mb: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              or
+            </Typography>
+          </Divider>
 
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>

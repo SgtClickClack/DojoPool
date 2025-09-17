@@ -40,7 +40,7 @@ export default function App({ Component, pageProps }: AppProps) {
             </NotificationProvider>
           </ChatProvider>
         </AuthProvider>
-      </ErrorBoundary>
+      </GlobalErrorBoundary>
     </ThemeProvider>
   );
 }

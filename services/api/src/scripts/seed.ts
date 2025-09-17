@@ -79,6 +79,18 @@ async function main() {
     },
   });
 
+  // Create default territory for the test venue to satisfy scheduler expectations
+  const territory = await prisma.territory.upsert({
+    where: { id: 'test-territory-1' },
+    update: {},
+    create: {
+      id: 'test-territory-1',
+      venueId: venue.id,
+      name: 'Test Venue Territory',
+      ownerId: user1.id,
+    },
+  });
+
   // Register players for tournament
   await prisma.tournamentParticipant.upsert({
     where: {
@@ -140,6 +152,7 @@ async function main() {
   console.log(`Created ${tournament.name} with ${4} participants`);
   console.log(`Tournament ID: ${tournament.id}`);
   console.log(`Venue: ${venue.name}`);
+  console.log(`Territory seeded: ${territory.id} for venue ${venue.id}`);
 }
 
 main()

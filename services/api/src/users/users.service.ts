@@ -60,6 +60,7 @@ export class UsersService {
         passwordHash: (data as any).passwordHash,
         role: 'USER',
         isBanned: false,
+        avatarUrl: null,
         dojoCoinBalance: 0,
         createdAt: new Date(),
         updatedAt: new Date(),

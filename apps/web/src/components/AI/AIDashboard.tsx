@@ -1,6 +1,7 @@
 'use client';
 
-import { AiHealthStatus, useAI } from '@/hooks/useAI';
+import { useAI } from '@/hooks/useAI';
+import { AiHealthStatus } from '@/services/aiService';
 import {
   ArrowPathIcon,
   CameraIcon,
@@ -60,7 +61,7 @@ const AIDashboard: React.FC<AIDashboardProps> = ({ isOpen, onClose }) => {
               {config.enabled && (
                 <span className="text-xs text-green-400">Enabled</span>
               )}
-              {config.configured && (
+              {'configured' in config && config.configured && (
                 <span className="text-xs text-blue-400">Configured</span>
               )}
             </div>

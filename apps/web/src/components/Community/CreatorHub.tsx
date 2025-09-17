@@ -4,7 +4,7 @@ import {
   Brush as BrushIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
-  Flash as FlashIcon,
+  FlashOn as FlashIcon,
   Image as ImageIcon,
   MusicNote as MusicNoteIcon,
   Palette as PaletteIcon,

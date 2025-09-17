@@ -39,6 +39,9 @@ const contentTypeLabels = {
   [ContentType.TOURNAMENT_HIGHLIGHT]: '🏟️ Tournament Highlight',
   [ContentType.VENUE_REVIEW]: '🏢 Venue Review',
   [ContentType.GENERAL]: '💬 General Content',
+  [ContentType.EVENT]: '📅 Event',
+  [ContentType.NEWS_ARTICLE]: '📰 News Article',
+  [ContentType.SYSTEM_MESSAGE]: '📢 System Message',
 };
 
 const contentTypeDescriptions = {
@@ -49,6 +52,9 @@ const contentTypeDescriptions = {
   [ContentType.TOURNAMENT_HIGHLIGHT]: 'Share tournament moments and highlights',
   [ContentType.VENUE_REVIEW]: 'Review and share venue experiences',
   [ContentType.GENERAL]: 'Share any other content with the community',
+  [ContentType.EVENT]: 'Share information about upcoming events',
+  [ContentType.NEWS_ARTICLE]: 'Share news and updates',
+  [ContentType.SYSTEM_MESSAGE]: 'System-generated messages',
 };
 
 const visibilityLabels = {

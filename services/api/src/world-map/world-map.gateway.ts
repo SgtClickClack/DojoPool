@@ -262,16 +262,29 @@ export class WorldMapGateway
         const elapsedHours = last
           ? (now.getTime() - last.getTime()) / 3600000
           : 1;
-        const rate = (t.resourceRate as any) || {};
-        const current = (t.resources as any) || {};
+
+        // Parse stringified JSON fields into objects
+        const rate: Record<string, unknown> =
+          typeof t.resourceRate === 'string'
+            ? JSON.parse(t.resourceRate || '{}')
+            : ((t.resourceRate as any) || {});
+        const current: Record<string, number> =
+          typeof t.resources === 'string'
+            ? JSON.parse(t.resources || '{}')
+            : ((t.resources as any) || {});
+
         const next: Record<string, number> = { ...current };
         for (const key of Object.keys(rate)) {
-          const inc = Number(rate[key]) * elapsedHours;
-          next[key] = Math.max(0, Math.floor((next[key] || 0) + inc));
+          const rateVal = Number((rate as any)[key]);
+          const inc = Number.isFinite(rateVal) ? rateVal * elapsedHours : 0;
+          const base = Number.isFinite(Number(next[key])) ? Number(next[key]) : 0;
+          const candidate = base + inc;
+          next[key] = Math.max(0, Math.floor(Number.isFinite(candidate) ? candidate : 0));
         }
+
         await this.prisma.territory.update({
           where: { id: t.id },
-          data: { resources: next, lastTickAt: now },
+          data: { resources: JSON.stringify(next), lastTickAt: now },
         });
       }
 

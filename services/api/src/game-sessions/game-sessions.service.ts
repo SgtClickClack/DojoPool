@@ -49,11 +49,22 @@ export class GameSessionsService {
           status: 'ACTIVE',
           gameType: createDto.gameType,
           startTime: new Date(),
-          score: 0,
+          score: "0",
           events: JSON.stringify([]),
           totalShots: 0,
           totalFouls: 0,
           totalFrames: 0,
+          rules:
+            typeof createDto.rules === 'string'
+              ? createDto.rules
+              : JSON.stringify(createDto.rules ?? {}),
+          playerIds: JSON.stringify(createDto.playerIds),
+          ballStates: JSON.stringify([]),
+          fouls: JSON.stringify([]),
+          shots: JSON.stringify([]),
+          statistics: JSON.stringify({}),
+          aiCommentary: JSON.stringify([]),
+          data: JSON.stringify({}),
         },
       });
 

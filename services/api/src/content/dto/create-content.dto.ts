@@ -1,4 +1,3 @@
-import { ContentType, ContentVisibility } from '@prisma/client';
 import {
   IsArray,
   IsEnum,
@@ -9,11 +8,31 @@ import {
   MaxLength,
 } from 'class-validator';
 
+// Define enum values directly to avoid import issues
+export enum ContentType {
+  MATCH_REPLAY = 'MATCH_REPLAY',
+  CUSTOM_ITEM = 'CUSTOM_ITEM',
+  HIGH_SCORE = 'HIGH_SCORE',
+  ACHIEVEMENT = 'ACHIEVEMENT',
+  TOURNAMENT_HIGHLIGHT = 'TOURNAMENT_HIGHLIGHT',
+  VENUE_REVIEW = 'VENUE_REVIEW',
+  GENERAL = 'GENERAL',
+  EVENT = 'EVENT',
+  NEWS_ARTICLE = 'NEWS_ARTICLE',
+  SYSTEM_MESSAGE = 'SYSTEM_MESSAGE'
+}
+
+export enum ContentVisibility {
+  PUBLIC = 'PUBLIC',
+  FRIENDS_ONLY = 'FRIENDS_ONLY',
+  PRIVATE = 'PRIVATE'
+}
+
 export class CreateContentDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
-  title: string;
+  title!: string;
 
   @IsOptional()
   @IsString()
@@ -22,7 +41,7 @@ export class CreateContentDto {
 
   @IsNotEmpty()
   @IsEnum(ContentType)
-  contentType: ContentType;
+  contentType!: ContentType;
 
   @IsOptional()
   @IsEnum(ContentVisibility)

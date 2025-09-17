@@ -705,7 +705,7 @@ export class VenuesService {
       data: {
         venueId: venue.id,
         name,
-        description: description || undefined,
+        // description field does not exist in prisma Tournament model
         startTime: startDate,
         endTime: endTime ? new Date(endTime) : undefined,
         startDate: startDate,

@@ -18,6 +18,7 @@
     "@ant-design/charts": "^2.0.2",
     "@babel/helpers": "^7.27.0",
     "@babel/runtime": "^7.27.0",
+    "@heroicons/react": "2.2.0",
     "@mui/icons-material": "5.18.0",
     "@mui/lab": "5.0.0-alpha.169",
     "@mui/material": "5.18.0",
@@ -36,7 +37,7 @@
     "canvg": "^3.0.11",
     "chart.js": "^4.4.0",
     "critters": "^0.0.23",
-    "cypress": "^15.0.0",
+    "cypress": "^14.0.0",
     "date-fns": "^2.30.0",
     "dompurify": "^3.2.5",
     "file-saver": "^2.0.5",
@@ -46,7 +47,7 @@
     "lottie-web": "^5.12.2",
     "mapbox-gl": "^2.15.0",
     "maplibre-gl": "^5.7.0",
-    "next": "^14.2.28",
+    "next": "14.2.32",
     "react": "18.3.1",
     "react-beautiful-dnd": "^13.1.1",
     "react-chartjs-2": "^5.2.0",
@@ -60,7 +61,7 @@
     "socket.io-client": "^4.6.1",
     "styled-components": "^6.1.19",
     "swr": "^2.3.6",
-    "typescript": "^5.0.4"
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",

@@ -26,6 +26,7 @@ const CMSDashboard: React.FC = () => {
     pendingContent: 0,
     totalViews: 0,
     totalLikes: 0,
+    totalShares: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -4,8 +4,9 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Content, ContentStatus, ContentVisibility } from '@prisma/client';
-import * as DOMPurify from 'dompurify';
+import type { Content } from '@prisma/client';
+import { ContentStatus, ContentType, ContentVisibility } from './dto/content-filter.dto';
+import DOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import {
   CacheKey,
@@ -222,12 +223,7 @@ export class ContentService {
               avatarUrl: true,
             },
           },
-          _count: {
-            select: {
-              likes: true,
-              shares: true,
-            },
-          },
+          _count: true,
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -260,14 +256,14 @@ export class ContentService {
           ...item,
           userLiked: !!userLiked,
           userShared: !!userShared,
-        };
+        } as (typeof content)[number] & { userLiked: boolean; userShared: boolean };
       })
     );
 
     const totalPages = Math.ceil(totalCount / limit);
 
     return {
-      content: contentWithInteractions,
+      content: contentWithInteractions as any,
       totalCount,
       pagination: {
         page,
@@ -327,12 +323,7 @@ export class ContentService {
               avatarUrl: true,
             },
           },
-          _count: {
-            select: {
-              likes: true,
-              shares: true,
-            },
-          },
+          _count: true,
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -344,7 +335,7 @@ export class ContentService {
     const totalPages = Math.ceil(totalCount / limit);
 
     return {
-      content,
+      content: content as any,
       totalCount,
       pagination: {
         page,
@@ -377,12 +368,7 @@ export class ContentService {
             avatarUrl: true,
           },
         },
-        _count: {
-          select: {
-            likes: true,
-            shares: true,
-          },
-        },
+        _count: true,
       },
     });
 
@@ -431,7 +417,7 @@ export class ContentService {
       ...content,
       userLiked: !!userLiked,
       userShared: !!userShared,
-    };
+    } as any;
   }
 
   /**
@@ -473,18 +459,23 @@ export class ContentService {
       );
     }
 
+    // Build Prisma-friendly update payload
+    const data: any = {
+      ...updateContentDto,
+      ...(updateContentDto.metadata && {
+        metadata: JSON.stringify(updateContentDto.metadata),
+      }),
+      updatedAt: new Date(),
+    };
+    if (updateContentDto.tags) {
+      data.tags = Array.isArray(updateContentDto.tags)
+        ? JSON.stringify(updateContentDto.tags)
+        : (updateContentDto.tags as unknown as string);
+    }
+
     const content = await this.prisma.content.update({
       where: { id },
-      data: {
-        ...updateContentDto,
-        ...(updateContentDto.metadata && {
-          metadata: JSON.stringify(updateContentDto.metadata),
-        }),
-        ...(updateContentDto.tags && {
-          tags: JSON.stringify(updateContentDto.tags),
-        }),
-        updatedAt: new Date(),
-      },
+      data,
       include: {
         user: {
           select: {
@@ -571,7 +562,7 @@ export class ContentService {
     const totalPages = Math.ceil(totalCount / limit);
 
     return {
-      content,
+      content: content as any,
       totalCount,
       pendingCount,
       pagination: {

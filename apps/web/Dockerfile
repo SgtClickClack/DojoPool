@@ -3,15 +3,23 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json ./
+# Enable Corepack for Yarn 4.x
+RUN corepack enable
 
-RUN yarn install --immutable
+# Pre-download yarn with increased timeout
+ENV COREPACK_NETWORK_TIMEOUT=300000
+RUN corepack prepare yarn@stable --activate
+
+# Copy package files
+COPY package.json yarn.lock ./
+COPY apps/web/package.json apps/web/package.json
+
+RUN COREPACK_NETWORK_TIMEOUT=300000 yarn install
 
 # Copy source code
 COPY . .
 
-RUN yarn build
+RUN COREPACK_NETWORK_TIMEOUT=300000 yarn build
 
 # Production stage
 FROM node:20-alpine AS runner

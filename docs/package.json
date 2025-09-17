@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "vitepress": "^1.0.0-rc.20",
-    "@types/node": "^20.8.2",
+    "@types/node": "^20.19.0",
     "sass": "^1.68.0"
   }
 }

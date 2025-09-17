@@ -1,4 +1,3 @@
-import { ContentVisibility } from '@prisma/client';
 import {
   IsArray,
   IsEnum,
@@ -7,6 +6,14 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+import { ContentStatus } from './content-filter.dto';
+
+// Define enum values directly to avoid import issues
+export enum ContentVisibility {
+  PUBLIC = 'PUBLIC',
+  FRIENDS_ONLY = 'FRIENDS_ONLY',
+  PRIVATE = 'PRIVATE'
+}
 
 export class UpdateContentDto {
   @IsOptional()
@@ -31,4 +38,8 @@ export class UpdateContentDto {
   @IsOptional()
   @IsObject()
   metadata?: Record<string, any>;
+
+  @IsOptional()
+  @IsEnum(ContentStatus)
+  status?: ContentStatus;
 }

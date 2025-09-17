@@ -14,6 +14,7 @@ const nextConfig = {
   swcMinify: true,
   poweredByHeader: false,
   compress: true,
+  transpilePackages: ['@dojopool/types'],
   compiler: {
     styledComponents: true,
     removeConsole: process.env.NODE_ENV === 'production',
