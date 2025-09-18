@@ -34,6 +34,7 @@ import { TournamentsModule } from './tournaments/tournaments.module';
 import { UsersModule } from './users/users.module';
 import { VenuesModule } from './venues/venues.module';
 import { WorldMapModule } from './world-map/world-map.module';
+import { ScheduledTasksModule } from './scheduled-tasks/scheduled-tasks.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { WorldMapModule } from './world-map/world-map.module';
     ErrorsModule,
     // System
     HealthModule,
+    ScheduledTasksModule,
   ],
   providers: [],
 })

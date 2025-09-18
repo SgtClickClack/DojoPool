@@ -229,53 +229,126 @@ export class AuthService {
     }
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(refreshToken: string, deviceId?: string, deviceInfo?: string) {
     try {
-      // Blocklist check (hash the token so we don't store raw token)
-      const hashed = crypto
+      // Hash the token for lookup
+      const tokenHash = crypto
         .createHash('sha256')
         .update(refreshToken)
         .digest('hex');
-      const blocked = await this.cacheService.exists(hashed, 'auth:blocklist:');
+
+      // Check if token exists in database and is not revoked
+      const storedToken = await this.prisma.refreshToken.findUnique({
+        where: { tokenHash },
+        include: { user: true },
+      });
+
+      if (!storedToken || storedToken.isRevoked || storedToken.expiresAt < new Date()) {
+        throw new UnauthorizedException('Invalid or expired refresh token');
+      }
+
+      // Check Redis blocklist as additional security layer
+      const blocked = await this.cacheService.exists(tokenHash, 'auth:blocklist:');
       if (blocked) {
         throw new UnauthorizedException('Refresh token has been revoked');
       }
 
-      const decoded: any = await this.jwtService.verifyAsync(refreshToken);
-      const user = await this.prisma.user.findUnique({
-        where: { id: decoded.sub },
-      });
-      if (!user) {
-        throw new UnauthorizedException('Invalid refresh token');
+      // Verify device binding if provided
+      if (deviceId && storedToken.deviceId && storedToken.deviceId !== deviceId) {
+        throw new UnauthorizedException('Device mismatch - token bound to different device');
       }
+
+      const user = storedToken.user;
       const payload = {
         sub: user.id,
         username: user.username,
         role: user.role,
       };
-      return this.issueTokens(payload);
-    } catch {
+
+      // Revoke the old refresh token
+      await this.prisma.refreshToken.update({
+        where: { id: storedToken.id },
+        data: { isRevoked: true },
+      });
+
+      // Add old token to Redis blocklist
+      await this.cacheService.set(tokenHash, true, {
+        ttl: 7 * 24 * 3600, // 7 days
+        keyPrefix: 'auth:blocklist:',
+      });
+
+      // Issue new tokens with rotation
+      return this.issueTokens(payload, deviceId, deviceInfo);
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
 
-  private async issueTokens(payload: {
-    sub: string;
-    username: string;
-    role: string;
-  }) {
+  private async issueTokens(
+    payload: {
+      sub: string;
+      username: string;
+      role: string;
+    },
+    deviceId?: string,
+    deviceInfo?: string
+  ) {
     const access_token = await this.jwtService.signAsync(payload, {
       expiresIn: process.env.JWT_EXPIRES_IN || '1h',
     });
+    
     const refresh_token = await this.jwtService.signAsync(payload, {
       expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     });
+
+    // Hash the refresh token for storage
+    const tokenHash = crypto
+      .createHash('sha256')
+      .update(refresh_token)
+      .digest('hex');
+
+    // Calculate expiration date
+    const expiresIn = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+    const expiresAt = new Date();
+    if (expiresIn.endsWith('d')) {
+      expiresAt.setDate(expiresAt.getDate() + parseInt(expiresIn.slice(0, -1)));
+    } else if (expiresIn.endsWith('h')) {
+      expiresAt.setHours(expiresAt.getHours() + parseInt(expiresIn.slice(0, -1)));
+    } else if (expiresIn.endsWith('m')) {
+      expiresAt.setMinutes(expiresAt.getMinutes() + parseInt(expiresIn.slice(0, -1)));
+    }
+
+    // Store refresh token in database
+    await this.prisma.refreshToken.create({
+      data: {
+        userId: payload.sub,
+        tokenHash,
+        deviceId,
+        deviceInfo,
+        expiresAt,
+      },
+    });
+
     return { access_token, refresh_token };
   }
 
   async revokeRefreshToken(refreshToken: string) {
-    // Derive TTL from token exp if possible; fallback to configured refresh TTL
+    const tokenHash = crypto
+      .createHash('sha256')
+      .update(refreshToken)
+      .digest('hex');
+
     try {
+      // Update database record
+      await this.prisma.refreshToken.updateMany({
+        where: { tokenHash },
+        data: { isRevoked: true },
+      });
+
+      // Derive TTL from token exp if possible; fallback to configured refresh TTL
       const decoded: any = this.jwtService.decode(refreshToken);
       const nowSec = Math.floor(Date.now() / 1000);
       let ttlSec = 0;
@@ -296,26 +369,67 @@ export class AuthService {
         }
       }
 
-      const hashed = crypto
-        .createHash('sha256')
-        .update(refreshToken)
-        .digest('hex');
-      await this.cacheService.set(hashed, true, {
+      // Add to Redis blocklist
+      await this.cacheService.set(tokenHash, true, {
         ttl: ttlSec,
         keyPrefix: 'auth:blocklist:',
       });
       return { message: 'Logged out' };
     } catch {
       // If decode fails, still attempt to hash and store with default TTL
-      const hashed = crypto
-        .createHash('sha256')
-        .update(refreshToken)
-        .digest('hex');
-      await this.cacheService.set(hashed, true, {
+      await this.cacheService.set(tokenHash, true, {
         ttl: 7 * 24 * 3600,
         keyPrefix: 'auth:blocklist:',
       });
       return { message: 'Logged out' };
+    }
+  }
+
+  async cleanupExpiredTokens() {
+    try {
+      const result = await this.prisma.refreshToken.deleteMany({
+        where: {
+          OR: [
+            { expiresAt: { lt: new Date() } },
+            { isRevoked: true },
+          ],
+        },
+      });
+      console.log(`Cleaned up ${result.count} expired/revoked refresh tokens`);
+      return result.count;
+    } catch (error) {
+      console.error('Error cleaning up expired tokens:', error);
+      return 0;
+    }
+  }
+
+  async revokeAllUserTokens(userId: string) {
+    try {
+      // Revoke all tokens in database
+      await this.prisma.refreshToken.updateMany({
+        where: { userId },
+        data: { isRevoked: true },
+      });
+
+      // Get all token hashes for this user to add to Redis blocklist
+      const tokens = await this.prisma.refreshToken.findMany({
+        where: { userId },
+        select: { tokenHash: true },
+      });
+
+      // Add all tokens to Redis blocklist
+      const promises = tokens.map(token =>
+        this.cacheService.set(token.tokenHash, true, {
+          ttl: 7 * 24 * 3600, // 7 days
+          keyPrefix: 'auth:blocklist:',
+        })
+      );
+
+      await Promise.all(promises);
+      return { message: 'All tokens revoked' };
+    } catch (error) {
+      console.error('Error revoking all user tokens:', error);
+      throw new UnauthorizedException('Failed to revoke tokens');
     }
   }
 }

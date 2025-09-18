@@ -48,6 +48,7 @@ model User {
   content        Content[]
   moderatedContent Content[]          @relation("ContentModerator")
   contentLikes   ContentLike[]
+  refreshTokens  RefreshToken[]
   sharedContent  ContentShare[]       @relation("ContentSharer")
   receivedShares ContentShare[]       @relation("ContentShareReceiver")
   communityItems CommunityCosmeticItem[]
@@ -899,4 +900,19 @@ model ContentShare {
 
   @@unique([contentId, userId, sharedWithId])
   @@map("content_share")
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash   String   @unique
+  deviceId    String?
+  deviceInfo  String?  // JSON string with device fingerprint
+  expiresAt   DateTime
+  isRevoked   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("refresh_tokens")
 }

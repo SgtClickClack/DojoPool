@@ -37,12 +37,12 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Body() body: { refresh_token: string }) {
-    const { refresh_token } = body || ({} as any);
+  async refresh(@Body() body: { refresh_token: string; device_id?: string; device_info?: string }) {
+    const { refresh_token, device_id, device_info } = body || ({} as any);
     if (!refresh_token) {
       throw new UnauthorizedException('Missing refresh token');
     }
-    return this.authService.refreshToken(refresh_token);
+    return this.authService.refreshToken(refresh_token, device_id, device_info);
   }
 
   @Post('logout')
