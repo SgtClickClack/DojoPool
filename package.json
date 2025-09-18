@@ -19,7 +19,7 @@
     "dev:backend": "yarn workspace @dojopool/api start:dev",
     "build": "next build",
     "preview": "yarn env:check:strict && next start",
-    "postinstall": "prisma generate",
+    "postinstall": "yarn workspace @dojopool/api prisma:generate",
     "test": "vitest run --config vitest.unit.config.ts",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --config vitest.unit.config.ts --coverage",
