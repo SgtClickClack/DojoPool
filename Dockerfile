@@ -70,10 +70,12 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 USER node
-COPY --from=builder /app/node_modules /app/node_modules
-COPY --from=build-web /app/apps/web/.next /app/apps/web/.next
-COPY --from=build-web /app/apps/web/public /app/apps/web/public
-COPY --from=build-web /app/apps/web/server.js /app/apps/web/server.js
+# Copy Next.js standalone server and assets to correct locations
+COPY --from=build-web /app/apps/web/.next/standalone /app
+# Place static assets where Next standalone expects them
+COPY --from=build-web /app/apps/web/.next/static /app/.next/static
+# Place public assets at the root public directory
+COPY --from=build-web /app/apps/web/public /app/public
 ENV NODE_PATH=/app/node_modules
 EXPOSE 3000
-CMD ["node", "/app/apps/web/server.js"]
+CMD ["node", "apps/web/server.js"]

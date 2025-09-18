@@ -3,11 +3,5 @@
   "buildCommand": "yarn build",
   "outputDirectory": ".next",
   "installCommand": "yarn install --immutable",
-  "framework": "nextjs",
-  "functions": {
-    "src/pages/api/**/*.ts": {
-      "runtime": "nodejs20.x"
-    }
-  },
-  "regions": ["iad1"]
+  "framework": "nextjs"
 }

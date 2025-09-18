@@ -12,7 +12,7 @@ import {
   ContentType,
   ContentVisibility,
   ModerateContentRequest,
-} from '@dojopool/types';
+} from '@/types/content';
 import {
   CheckCircle as ApproveIcon,
   Archive as ArchiveIcon,

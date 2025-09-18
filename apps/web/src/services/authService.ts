@@ -30,7 +30,7 @@ export interface User {
 }
 
 class AuthService {
-  private readonly baseUrl = '/v1/auth';
+  private readonly baseUrl = '/auth';
 
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     try {
@@ -94,7 +94,7 @@ class AuthService {
         return null;
       }
 
-      const response = await api.get('/v1/users/me');
+      const response = await api.get('/users/me');
       return response.data;
     } catch (error) {
       console.error('Get current user error:', error);

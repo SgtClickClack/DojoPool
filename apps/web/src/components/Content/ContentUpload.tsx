@@ -3,7 +3,7 @@ import {
   ContentType,
   ContentUploadData,
   ContentVisibility,
-} from '@dojopool/types';
+} from '@/types/content';
 import {
   Add as AddIcon,
   CloudUpload as CloudUploadIcon,

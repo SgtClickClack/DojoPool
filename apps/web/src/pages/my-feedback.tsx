@@ -1,5 +1,5 @@
 import { deleteMyFeedback, getMyFeedback } from '@/services/APIService';
-import { FeedbackStatus, UserFeedbackListResponse } from '@dojopool/types';
+import { FeedbackStatus, UserFeedbackListResponse } from '@/types/feedback';
 import {
   Alert,
   Box,

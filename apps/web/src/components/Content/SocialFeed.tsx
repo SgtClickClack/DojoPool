@@ -11,7 +11,7 @@ import {
   ContentListResponse,
   ContentType,
   ContentVisibility,
-} from '@dojopool/types';
+} from '@/types/content';
 import {
   FavoriteBorder as FavoriteBorderIcon,
   Favorite as FavoriteIcon,

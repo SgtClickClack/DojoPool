@@ -11,7 +11,7 @@ import {
   FeedbackPriority,
   FeedbackStats,
   FeedbackStatus,
-} from '@dojopool/types';
+} from '@/types/feedback';
 import {
   Alert,
   Box,

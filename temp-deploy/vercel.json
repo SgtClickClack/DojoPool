@@ -3,6 +3,11 @@
   "outputDirectory": "apps/web/.next",
   "installCommand": "yarn install --immutable",
   "framework": "nextjs",
+  "functions": {
+    "apps/web/src/pages/api/**/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   }

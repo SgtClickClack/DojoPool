@@ -1,5 +1,5 @@
 import { submitFeedback } from '@/services/APIService';
-import { FeedbackCategory } from '@dojopool/types';
+import { FeedbackCategory } from '@/types/feedback';
 import {
   Alert,
   Box,

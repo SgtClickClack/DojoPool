@@ -11,6 +11,12 @@ services:
       - "3002:3002"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/dojopool
+      - JWT_SECRET=dev_jwt_secret_change_me
+      - SESSION_SECRET=dev_session_secret_change_me
+      - LOG_DIR=/tmp/logs
+      - GOOGLE_OAUTH_CLIENT_ID=
+      - GOOGLE_OAUTH_CLIENT_SECRET=
+      - GOOGLE_OAUTH_REDIRECT_URI=http://localhost:3002/api/v1/auth/google/callback
       - PORT=3002
       - NODE_ENV=development
       - CORS_ORIGINS=http://localhost:3000
@@ -23,7 +29,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     volumes:
-      - ./services/api:/app
+      - .:/app
       - /app/node_modules
     dns:
       - 8.8.8.8

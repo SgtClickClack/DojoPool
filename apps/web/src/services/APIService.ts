@@ -10,22 +10,24 @@ import type {
   ContentListResponse,
   ContentStats,
   ContentUploadData,
+  ModerateContentRequest,
+  UpdateContentRequest,
+  UserContentListResponse,
+} from '@/types/content';
+import type {
   CreateFeedbackRequest,
   Feedback,
   FeedbackFilter,
   FeedbackListResponse,
   FeedbackStats,
-  ModerateContentRequest,
-  UpdateContentRequest,
   UpdateFeedbackRequest,
-  UserContentListResponse,
   UserFeedbackListResponse,
-} from '@dojopool/types';
+} from '@/types/feedback';
 import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 // Create axios instance with default config
 const apiBaseUrl =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '/api';
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:3002/api';
 
 const api: AxiosInstance = axios.create({
   baseURL: apiBaseUrl,

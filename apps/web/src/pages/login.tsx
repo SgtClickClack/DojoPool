@@ -58,7 +58,7 @@ const LoginPage: React.FC = () => {
 
     try {
       // Redirect to Google OAuth
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || '/api'}/auth/google`;
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || '/api/v1'}/auth/google`;
     } catch (err) {
       setError('Google sign-in failed. Please try again.');
       setIsGoogleLoading(false);

@@ -21,12 +21,14 @@ import { GetJournalQueryDto } from './dto/get-journal-query.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JournalService } from './journal.service';
 import { UsersService } from './users.service';
+import { UserProfileService } from './user-profile.service';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly journalService: JournalService
+    private readonly journalService: JournalService,
+    private readonly userProfileService: UserProfileService
   ) {}
 
   @Post()
@@ -43,6 +45,15 @@ export class UsersController {
     return this.usersService.findAllUsers();
   }
 
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getCurrentUser(
+    @Req() req: ExpressRequest & { user: { userId: string } }
+  ) {
+    const userId = req.user.userId;
+    return this.usersService.findUserById(userId);
+  }
+
   @Patch('me')
   @UseGuards(JwtAuthGuard)
   async updateProfile(
@@ -51,7 +62,7 @@ export class UsersController {
     updateProfileDto: UpdateProfileDto
   ) {
     const userId = req.user.userId;
-    return this.usersService.updateProfile(userId, updateProfileDto);
+    return this.userProfileService.updateProfile(userId, updateProfileDto);
   }
 
   @Post('me/avatar')
@@ -63,7 +74,7 @@ export class UsersController {
     @UploadedFile() file: any
   ) {
     const userId = req.user.userId;
-    return this.usersService.uploadAvatar(userId, file);
+    return this.userProfileService.uploadAvatar(userId, file);
   }
 
   @Get('me/journal')

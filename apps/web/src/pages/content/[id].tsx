@@ -3,7 +3,7 @@ import {
   likeContent,
   shareContent,
 } from '@/services/APIService';
-import { Content, ContentLikeResponse } from '@dojopool/types';
+import { Content, ContentLikeResponse } from '@/types/content';
 import {
   ArrowBack as ArrowBackIcon,
   FavoriteBorder as FavoriteBorderIcon,

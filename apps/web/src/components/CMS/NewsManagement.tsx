@@ -1,4 +1,4 @@
-import { ContentStatus } from '@dojopool/types';
+import { ContentStatus } from '@/types/content';
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
