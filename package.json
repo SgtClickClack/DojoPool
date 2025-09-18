@@ -11,7 +11,7 @@
     "dev:frontend:3001": "cd apps/web && next dev -p 3001",
     "dev:frontend:3004": "cd apps/web && next dev -p 3004",
     "dev:frontend:3011": "cd apps/web && next dev -p 3011",
-    "dev:web:3000": "next dev -p 3000",
+    "dev:web:3000": "cd apps/web && next dev -p 3000",
     "dev:next": "next dev -p 3001",
     "build:backend": "tsc -p tsconfig.backend.json",
     "start:backend": "node dist/backend/index.js",
@@ -19,6 +19,7 @@
     "dev:backend": "yarn workspace @dojopool/api start:dev",
     "build": "next build",
     "preview": "yarn env:check:strict && next start",
+    "postinstall": "prisma generate",
     "test": "vitest run --config vitest.unit.config.ts",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --config vitest.unit.config.ts --coverage",
@@ -194,6 +195,9 @@
     "@opentelemetry/api": "1.9.0"
   },
   "packageManager": "yarn@4.9.3",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "workspaces": [
     "apps/*",
     "services/*",
