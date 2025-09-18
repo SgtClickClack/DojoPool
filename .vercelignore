@@ -1,90 +1,27 @@
-# Ignore Git and Node modules
+# Ignore all git related files
 .git
+.gitignore
+
+# Ignore all node_modules
 node_modules
+**/node_modules
 
-# Ignore local environment files (secrets should be in Vercel UI)
-.env*
-!.env.example
-!.env.production
+# Ignore the entire Yarn cache and local binaries
+.yarn/cache
+.yarn/install-state.gz
+.pnp.*
 
-# Ignore build outputs (Vercel creates these)
-dist
+# Ignore build outputs and local artifacts
 .next
-build
+dist
 coverage
-
-# Ignore Python virtual environment
-.venv*
-
-# Ignore test files and Cypress configuration
-cypress
-**/*.test.ts
-**/*.test.tsx
-**/*.spec.ts
-**/*.spec.tsx
-**/*.cy.ts
-jest.config.js
-jest.setup.js
-
-# Ignore documentation and logs
-*.md
 *.log
-docs/
+.env*.local
 
-# Ignore local databases and bundles
+# Ignore local database files
 *.db
-*.sqlite
-*.bundle
+*.db-journal
 
-# Ignore IDE and OS files
-.vscode
-.idea
-.DS_Store
-
-# Ignore development and backup files
-components_backup/
-pages-backup/
-DojoPoolCombined/
-Dojo_Pool/
-Dojo_Pool_fresh/
-DojoPoolEnhancer/
-DojoPoolMobile/
-blueprints/
-narrative/
-ranking/
-spectator/
+# Ignore documentation and scripts not needed for the build
+DEPLOYMENT_GUIDE.md
 scripts/
-load-tests/
-logs/
-monitoring/
-infrastructure/
-k8s/
-docker/
-ctags/
-coverage/
-generated/
-firebase/
-hooks/
-Include/
-requirements/
-security/
-specs/
-templates/
-static/
-utils/
-tests/
-types/
-migrations/
-instance/
-graphql/
-core/
-contexts/
-constants/
-ai-docs/
-app-store-assets/
-assets/
-blockchain/
-combined/
-config/
-reports/
-backup_db.sh
