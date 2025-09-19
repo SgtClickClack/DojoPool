@@ -1,16 +1,17 @@
 'use client';
 
 import { DojoData, PlayerData, dojoService } from '@/services/dojoService';
+import { getMapboxToken, handleMapboxError, MAPBOX_PERFORMANCE_CONFIG } from '@/config/mapbox';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, memo } from 'react';
 import styles from './MapboxWorldHubMap.module.css';
 
 interface MapboxWorldHubMapProps {
   height?: string | number;
 }
 
-const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = ({
+const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = memo(({
   height = '100%',
 }) => {
   // Utility function to generate height class
@@ -68,13 +69,13 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = ({
     fetchData();
   }, [fetchData]);
 
-  // Initialize Mapbox map
+  // Initialize Mapbox map with performance optimizations
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+    const token = getMapboxToken();
     if (!token) {
-      setMapError('Mapbox token not found');
+      setMapError('Mapbox token not found or invalid');
       return;
     }
 
@@ -86,10 +87,23 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = ({
       center: [153.0251, -27.4698], // [lng, lat] for Mapbox
       zoom: 13,
       attributionControl: false,
+      // Performance optimizations
+      ...MAPBOX_PERFORMANCE_CONFIG,
+      // Additional performance settings
+      maxTileCacheSize: MAPBOX_PERFORMANCE_CONFIG.maxTileCacheSize,
+      renderWorldCopies: MAPBOX_PERFORMANCE_CONFIG.renderWorldCopies,
+      preserveDrawingBuffer: MAPBOX_PERFORMANCE_CONFIG.preserveDrawingBuffer,
+    });
+
+    // Add error handling
+    map.on('error', (e) => {
+      handleMapboxError(e);
+      setMapError(`Map error: ${e.error?.message || 'Unknown error'}`);
     });
 
     map.on('load', () => {
       setMapInstance(map);
+      setMapError(null); // Clear any previous errors
 
       // Add dojo markers
       dojos.forEach((dojo) => {
@@ -270,6 +284,8 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = ({
       )}
     </div>
   );
-};
+});
+
+MapboxWorldHubMap.displayName = 'MapboxWorldHubMap';
 
 export default MapboxWorldHubMap;

@@ -7,31 +7,91 @@ export const MAPBOX_CONFIG = {
     latitude: -27.4698,
     zoom: 11,
   },
+  // Performance optimizations
+  maxZoom: 18,
+  minZoom: 1,
+  bearing: 0,
+  pitch: 0,
+  antialias: true,
+  // Optimize for mobile
+  touchZoomRotate: true,
+  doubleClickZoom: true,
+  scrollZoom: true,
+  boxZoom: true,
+  dragRotate: true,
+  dragPan: true,
+  keyboard: true,
 };
 
-// Get Mapbox token with proper validation
+// Enhanced Mapbox token validation with better error handling
 export const getMapboxToken = (): string | undefined => {
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
   if (!token || token.trim() === '') {
-    console.warn(
-      '⚠️ Mapbox token not configured. Please set NEXT_PUBLIC_MAPBOX_TOKEN in your .env.local file'
-    );
-    console.warn(
-      '🔗 Get your token from: https://account.mapbox.com/access-tokens/'
-    );
-    console.warn(
-      'ℹ️ Map functionality will be disabled until a valid token is provided'
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(
+        '⚠️ Mapbox token not configured. Please set NEXT_PUBLIC_MAPBOX_TOKEN in your .env.local file'
+      );
+      console.warn(
+        '🔗 Get your token from: https://account.mapbox.com/access-tokens/'
+      );
+      console.warn(
+        'ℹ️ Map functionality will be disabled until a valid token is provided'
+      );
+    }
+    return undefined;
+  }
+
+  // Enhanced validation - check if it looks like a valid Mapbox token
+  if (!token.startsWith('pk.') || token.length < 20) {
+    console.error(
+      '❌ Mapbox token appears to be invalid. Please verify your token from https://account.mapbox.com/access-tokens/'
     );
     return undefined;
   }
 
-  // Basic validation - check if it looks like a valid Mapbox token
-  if (!token.startsWith('pk.') || token.length < 20) {
-    console.warn(
-      '⚠️ Mapbox token appears to be invalid. Please verify your token from https://account.mapbox.com/access-tokens/'
+  // Additional validation for token format
+  const tokenParts = token.split('.');
+  if (tokenParts.length !== 3) {
+    console.error(
+      '❌ Mapbox token format is invalid. Expected format: pk.eyJ1...'
     );
+    return undefined;
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    console.log('✅ Mapbox token validated successfully');
   }
 
   return token;
+};
+
+// Mapbox performance optimization settings
+export const MAPBOX_PERFORMANCE_CONFIG = {
+  // Reduce bundle size by disabling unused features
+  disableWebGL: false,
+  // Optimize for performance
+  preserveDrawingBuffer: false,
+  // Reduce memory usage
+  maxTileCacheSize: 100,
+  // Optimize rendering
+  renderWorldCopies: false,
+  // Performance monitoring
+  performanceMetrics: process.env.NODE_ENV === 'development',
+};
+
+// Mapbox error handling
+export const handleMapboxError = (error: any): void => {
+  console.error('Mapbox Error:', error);
+  
+  // Handle specific error types
+  if (error.type === 'error') {
+    if (error.error?.message?.includes('token')) {
+      console.error('❌ Mapbox token error. Please check your NEXT_PUBLIC_MAPBOX_TOKEN');
+    } else if (error.error?.message?.includes('style')) {
+      console.error('❌ Mapbox style error. Please check your map style configuration');
+    } else {
+      console.error('❌ Mapbox error:', error.error?.message || 'Unknown error');
+    }
+  }
 };

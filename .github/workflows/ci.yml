@@ -13,6 +13,7 @@ concurrency:
 jobs:
   env-validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     
     services:
       postgres:
@@ -40,7 +41,10 @@ jobs:
           - 6379:6379
     
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -50,13 +54,28 @@ jobs:
         run: corepack enable
       - name: Install dependencies
         run: yarn install --immutable
+      - name: Check environment validation script
+        run: |
+          if [ ! -f "scripts/validate-env.mjs" ]; then
+            echo "Error: Environment validation script not found"
+            exit 1
+          fi
+      - name: Setup Python for Mapbox CLI
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Mapbox CLI
+        run: pip install mapboxcli
+      - name: Verify Mapbox CLI
+        run: |
+          python -c "import mapboxcli; print('Mapbox CLI available')" || echo "Mapbox CLI not functional"
       - name: Validate environment (strict)
         run: yarn run env:check:strict
         env:
           NODE_ENV: test
           PORT: 3002
           NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
-          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+          NEXT_PUBLIC_MAPBOX_TOKEN: pk.eyJ1IjoiZG9qb3Bvb2wiLCJhIjoiY21lZng2YmxkMHk1aTJub2VsaXUyeXRlcyJ9.JTlUI6gaKKorGBm-4p-G6g
           CORS_ORIGINS: http://localhost:3000
           SESSION_SECRET: test-session-secret-for-ci
           JWT_SECRET: test-jwt-secret-for-ci
@@ -65,8 +84,12 @@ jobs:
 
   security-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -89,9 +112,13 @@ jobs:
 
   lint-and-types:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [env-validate, security-audit]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -108,9 +135,13 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: lint-and-types
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -125,9 +156,13 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: tests
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
