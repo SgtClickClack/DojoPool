@@ -2055,7 +2055,7 @@ __metadata:
     bcryptjs: "npm:^3.0.2"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:^0.14.2"
-    cloudinary: "npm:^1.41.3"
+    cloudinary: "npm:^2.7.0"
     dompurify: "npm:^3.2.4"
     express: "npm:^4.21.2"
     express-rate-limit: "npm:^8.0.1"
@@ -9837,24 +9837,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cloudinary-core@npm:^2.13.0":
-  version: 2.14.0
-  resolution: "cloudinary-core@npm:2.14.0"
-  peerDependencies:
-    lodash: ">=4.0"
-  checksum: 10c0/65f4c7af952a4b1a2282c560182173ff84065787a1b44b226949a53abf6b258777fd24a4caa00ce4839a3ebd22790d2d861d02ffd258df7d04803f36ca5155b7
-  languageName: node
-  linkType: hard
-
-"cloudinary@npm:^1.41.3":
-  version: 1.41.3
-  resolution: "cloudinary@npm:1.41.3"
+"cloudinary@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "cloudinary@npm:2.7.0"
   dependencies:
-    cloudinary-core: "npm:^2.13.0"
-    core-js: "npm:^3.30.1"
     lodash: "npm:^4.17.21"
     q: "npm:^1.5.1"
-  checksum: 10c0/1f49107e091b6a1c45a1f1ba424437fb1f90c50903f1e04a37b94e0cde46fb074179d8a647cb18ccacb33d155ab63a011ccaa4ba47665ba43b94f6ccd585a058
+  checksum: 10c0/8c6d262d057d5c56f3b0b3666fd520ff11d3cabde23fddfa54d96c50b6634592a7aca18849347d0f03b035e09ef2faf0cdfbba3c71d2697acdd0e857e9cd9ed8
   languageName: node
   linkType: hard
 
@@ -10215,7 +10204,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.30.1, core-js@npm:^3.6.0, core-js@npm:^3.8.3":
+"core-js@npm:^3.6.0, core-js@npm:^3.8.3":
   version: 3.45.1
   resolution: "core-js@npm:3.45.1"
   checksum: 10c0/c38e5fae5a05ee3a129c45e10056aafe61dbb15fd35d27e0c289f5490387541c89741185e0aeb61acb558559c6697e016c245cca738fa169a73f2b06cd30e6b6
