@@ -27,7 +27,7 @@ jobs:
       - name: Run performance tests
         run: echo "Performance tests not yet implemented" || yarn run performance
       - name: Upload performance results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-results
           path: performance/results/
