@@ -12,15 +12,10 @@
     "isolatedModules": false,
     "module": "CommonJS",
     "moduleResolution": "node",
-    "typeRoots": [
-      "./node_modules/@types",
-      "./types"
-    ],
+    "typeRoots": ["./node_modules/@types", "./types"],
     "paths": {}
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*", "types/**/*"],
   "exclude": [
     "node_modules",
     "dist",
