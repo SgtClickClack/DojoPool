@@ -2,6 +2,8 @@
 
 **Dojo Pool is a "Pokémon Go for pool players" — a real-time, location-based platform for social matches, tournaments, and territory control.**
 
+<!-- Pipeline test -->
+
 ---
 
 ## ✨ Features
