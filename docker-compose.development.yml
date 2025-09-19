@@ -1,0 +1,101 @@
+﻿# DojoPool Development Docker Compose
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dojopool_dev
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d dojopool_dev']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dojopool-dev-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_dev_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dojopool-dev-network
+
+  # Development API Container
+  api-dev:
+    image: node:20-alpine
+    container_name: dojopool-api-dev
+    working_dir: /app
+    ports:
+      - '3002:3002'
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/dojopool_dev
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev_jwt_secret_change_me
+      SESSION_SECRET: dev_session_secret_change_me
+      CORS_ORIGINS: http://localhost:3000
+      FRONTEND_URL: http://localhost:3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/services/api/node_modules
+    command: sh -c "yarn install && yarn workspace @dojopool/api start:dev"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dojopool-dev-network
+
+  # Development Web Container
+  web-dev:
+    image: node:20-alpine
+    container_name: dojopool-web-dev
+    working_dir: /app
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
+      NEXT_PUBLIC_WEBSOCKET_URL: http://localhost:3002
+      NEXT_PUBLIC_MAPBOX_TOKEN: pk.eyJ1IjoiZG9qb3Bvb2wiLCJhIjoiY21lZng2YmxkMHk1aTJub2VsaXUyeXRlcyJ9.JTlUI6gaKKorGBm-4p-G6g
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/web/node_modules
+    command: sh -c "yarn install && yarn workspace dojopool-frontend dev"
+    depends_on:
+      - api-dev
+    networks:
+      - dojopool-dev-network
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+
+networks:
+  dojopool-dev-network:
+    driver: bridge
