@@ -6,12 +6,9 @@ import { JournalService } from './journal.service';
 import { UserProfileService } from './user-profile.service';
 import { UserWalletService } from './user-wallet.service';
 import { 
-  IUserService, 
-  IUserProfileService, 
-  IUserWalletService,
-  IUserService as IUserServiceToken,
-  IUserProfileService as IUserProfileServiceToken,
-  IUserWalletService as IUserWalletServiceToken
+  USER_SERVICE_TOKEN,
+  USER_PROFILE_SERVICE_TOKEN,
+  USER_WALLET_SERVICE_TOKEN
 } from '../common/interfaces/user.interfaces';
 
 @Module({
@@ -24,15 +21,15 @@ import {
     UserWalletService,
     // Provide concrete implementations for interfaces
     {
-      provide: IUserServiceToken,
+      provide: USER_SERVICE_TOKEN,
       useClass: UsersService,
     },
     {
-      provide: IUserProfileServiceToken,
+      provide: USER_PROFILE_SERVICE_TOKEN,
       useClass: UserProfileService,
     },
     {
-      provide: IUserWalletServiceToken,
+      provide: USER_WALLET_SERVICE_TOKEN,
       useClass: UserWalletService,
     },
   ],
@@ -40,9 +37,9 @@ import {
     UsersService, 
     UserProfileService, 
     UserWalletService,
-    IUserServiceToken,
-    IUserProfileServiceToken,
-    IUserWalletServiceToken,
+    USER_SERVICE_TOKEN,
+    USER_PROFILE_SERVICE_TOKEN,
+    USER_WALLET_SERVICE_TOKEN,
   ],
 })
 export class UsersModule {}

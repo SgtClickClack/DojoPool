@@ -17,8 +17,8 @@ import { CacheHelper } from '../cache/cache.helper';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ContentFilterDto } from './dto/content-filter.dto';
-import { CreateContentDto } from './dto/create-content.dto';
-import { ModerateContentDto } from './dto/moderate-content.dto';
+import { type CreateContentDto } from './dto/create-content.dto';
+import { type ModerateContentDto } from './dto/moderate-content.dto';
 import { UpdateContentDto } from './dto/update-content.dto';
 
 @Injectable()

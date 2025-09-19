@@ -1,5 +1,5 @@
 import { deleteMyFeedback, getMyFeedback } from '@/services/APIService';
-import { FeedbackStatus, UserFeedbackListResponse } from '@/types/feedback';
+import { FeedbackStatus, type UserFeedbackListResponse } from '@/types/feedback';
 import {
   Alert,
   Box,
@@ -19,7 +19,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { NextPage } from 'next';
+import { type NextPage } from 'next';
 import { useEffect, useState } from 'react';
 
 const statusColors = {

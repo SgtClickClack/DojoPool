@@ -5,9 +5,9 @@ import {
   markNotificationAsRead,
 } from '@/services/APIService';
 import { websocketService } from '@/services/WebSocketService';
-import { Notification, NotificationResponse } from '@/types/notification';
+import { type Notification, type NotificationResponse } from '@/types/notification';
 import React, {
-  ReactNode,
+  type ReactNode,
   createContext,
   useContext,
   useEffect,

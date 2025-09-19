@@ -1,7 +1,7 @@
 import ChallengeModal from '@/components/challenge/ChallengeModal';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/services/APIService';
-import { Challenge } from '@/services/challengeService';
+import { type Challenge } from '@/services/challengeService';
 import {
   Alert,
   Avatar,

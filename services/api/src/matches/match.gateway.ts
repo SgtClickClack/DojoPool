@@ -2,15 +2,15 @@ import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
+  type OnGatewayConnection,
+  type OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { corsOptions } from '../config/cors.config';
-import { AiAnalysisService, ShotData } from './ai-analysis.service';
+import { AiAnalysisService, type ShotData } from './ai-analysis.service';
 
 @WebSocketGateway({
   cors: corsOptions,

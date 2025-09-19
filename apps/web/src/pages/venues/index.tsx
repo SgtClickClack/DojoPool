@@ -1,6 +1,6 @@
 import VenueCard from '@/components/venue/VenueCard';
 import { getVenues } from '@/services/APIService';
-import { Venue } from '@/types/venue';
+import { type Venue } from '@/types/venue';
 import React, { useState } from 'react';
 import useSWR from 'swr';
 

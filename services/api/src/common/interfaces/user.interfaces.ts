@@ -77,8 +77,8 @@ export interface IAuthService {
 }
 
 // Injection tokens
-export const IUserService = Symbol('IUserService');
-export const IUserProfileService = Symbol('IUserProfileService');
-export const IUserWalletService = Symbol('IUserWalletService');
-export const IPermissionsService = Symbol('IPermissionsService');
-export const IAuthService = Symbol('IAuthService');
+export const USER_SERVICE_TOKEN = Symbol('IUserService');
+export const USER_PROFILE_SERVICE_TOKEN = Symbol('IUserProfileService');
+export const USER_WALLET_SERVICE_TOKEN = Symbol('IUserWalletService');
+export const PERMISSIONS_SERVICE_TOKEN = Symbol('IPermissionsService');
+export const AUTH_SERVICE_TOKEN = Symbol('IAuthService');

@@ -1,4 +1,4 @@
-import { Conversation } from '@/services/chatService';
+import { type Conversation } from '@/services/chatService';
 import {
   Avatar,
   Badge,

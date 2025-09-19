@@ -8,7 +8,7 @@ import {
   Link,
   Typography,
 } from '@mui/material';
-import { NextPage } from 'next';
+import { type NextPage } from 'next';
 
 const AdminContentModerationPage: NextPage = () => {
   const { user } = useAuth();

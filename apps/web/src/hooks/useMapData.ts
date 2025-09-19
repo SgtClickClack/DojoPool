@@ -1,5 +1,5 @@
-import { PlayerPosition, websocketService } from '@/services/WebSocketService';
-import { DojoData, PlayerData, dojoService } from '@/services/dojoService';
+import { type PlayerPosition, websocketService } from '@/services/WebSocketService';
+import { type DojoData, type PlayerData, dojoService } from '@/services/dojoService';
 import { useCallback, useEffect, useState } from 'react';
 
 export interface MapData {

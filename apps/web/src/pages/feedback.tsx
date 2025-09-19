@@ -1,6 +1,6 @@
 import { FeedbackForm } from '@/components/Feedback';
 import { Box, Breadcrumbs, Container, Link, Typography } from '@mui/material';
-import { NextPage } from 'next';
+import { type NextPage } from 'next';
 import { useRouter } from 'next/router';
 
 const FeedbackPage: NextPage = () => {

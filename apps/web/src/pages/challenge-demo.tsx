@@ -1,5 +1,5 @@
 import ChallengeNotification from '@/components/challenge/ChallengeNotification';
-import { Challenge } from '@/services/challengeService';
+import { type Challenge } from '@/services/challengeService';
 import {
   Box,
   Button,

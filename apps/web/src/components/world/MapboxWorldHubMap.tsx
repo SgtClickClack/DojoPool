@@ -1,6 +1,6 @@
 'use client';
 
-import { DojoData, PlayerData, dojoService } from '@/services/dojoService';
+import { type DojoData, type PlayerData, dojoService } from '@/services/dojoService';
 import { getMapboxToken, handleMapboxError, MAPBOX_PERFORMANCE_CONFIG } from '@/config/mapbox';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';

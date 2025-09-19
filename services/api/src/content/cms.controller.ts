@@ -18,7 +18,7 @@ import { AdminGuard } from '../auth/admin.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ContentService } from './content.service';
 import { CreateEventDto } from './dto/create-event.dto';
-import { CreateContentDto } from './dto/create-content.dto';
+import { type CreateContentDto } from './dto/create-content.dto';
 import { CreateNewsArticleDto } from './dto/create-news-article.dto';
 import { CreateSystemMessageDto } from './dto/create-system-message.dto';
 

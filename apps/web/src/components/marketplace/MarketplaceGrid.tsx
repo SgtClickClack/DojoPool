@@ -1,4 +1,4 @@
-import { MarketplaceItem } from '@/services/marketplaceService';
+import { type MarketplaceItem } from '@/services/marketplaceService';
 import { AttachMoney as AttachMoneyIcon } from '@mui/icons-material';
 import {
   Box,

@@ -1,7 +1,7 @@
 import DojoMasterDisplay, {
-  DojoMaster,
+  type DojoMaster,
 } from '@/components/dojo/DojoMasterDisplay';
-import { Dojo } from '@/services/dojoService';
+import { type Dojo } from '@/services/dojoService';
 import {
   LocationOn as LocationIcon,
   Star as StarIcon,

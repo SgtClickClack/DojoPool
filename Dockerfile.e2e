@@ -1,0 +1,39 @@
+﻿# E2E Testing Dockerfile
+FROM node:20-slim AS base
+WORKDIR /app
+
+FROM base AS deps
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends python3 python-is-python3 make g++ build-essential ca-certificates git libssl-dev && rm -rf /var/lib/apt/lists/*
+
+COPY .yarnrc.yml ./
+COPY .yarn ./.yarn
+COPY package.json yarn.lock ./
+COPY apps/web/package.json ./apps/web/
+COPY services/api/package.json ./services/api/
+COPY packages/prisma/package.json ./packages/prisma/
+
+ENV YARN_ENABLE_IMMUTABLE_INSTALLS=false
+ENV YARN_ENABLE_SCRIPTS=1
+RUN yarn install
+
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+FROM builder AS build-api-e2e
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
+ENV NODE_ENV=test
+RUN yarn workspace @dojopool/api prisma:generate
+RUN yarn workspace @dojopool/api build --force
+
+FROM base AS api-e2e
+WORKDIR /app/services/api
+ENV NODE_ENV=test
+ENV PORT=3002
+COPY --from=build-api-e2e /app/node_modules /app/node_modules
+COPY --from=build-api-e2e /app/services/api/dist ./dist
+COPY --from=build-api-e2e /app/services/api/package.json ./package.json
+EXPOSE 3002
+CMD ["node", "dist/main.js"]

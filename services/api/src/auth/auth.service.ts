@@ -9,8 +9,8 @@ const bcrypt = require('bcryptjs');
 import * as crypto from 'crypto';
 import { CacheService } from '../cache/cache.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { type LoginDto } from './dto/login.dto';
+import { type RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {

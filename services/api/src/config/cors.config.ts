@@ -1,4 +1,4 @@
-import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import { type CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 export const allowedOrigins: (string | RegExp)[] = (() => {
   const raw = process.env.ALLOWED_ORIGINS;

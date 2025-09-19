@@ -1,4 +1,4 @@
-import { Venue } from '@/types/venue';
+import { type Venue } from '@/types/venue';
 import React from 'react';
 
 interface VenueCardProps {

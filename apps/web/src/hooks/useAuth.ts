@@ -1,6 +1,6 @@
-import authService, { User } from '@/services/authService';
+import authService, { type User } from '@/services/authService';
 import React, {
-  ReactNode,
+  type ReactNode,
   createContext,
   useContext,
   useEffect,

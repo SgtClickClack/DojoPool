@@ -5,10 +5,10 @@ import {
   shareContent,
 } from '@/services/APIService';
 import {
-  Content,
-  ContentFilter,
-  ContentLikeResponse,
-  ContentListResponse,
+  type Content,
+  type ContentFilter,
+  type ContentLikeResponse,
+  type ContentListResponse,
   ContentType,
   ContentVisibility,
 } from '@/types/content';

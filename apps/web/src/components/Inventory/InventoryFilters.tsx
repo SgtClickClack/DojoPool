@@ -6,12 +6,12 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent,
+  type SelectChangeEvent,
   TextField,
 } from '@mui/material';
 import React from 'react';
 
-import { ItemRarity, ItemType } from '@/types/inventory';
+import { type ItemRarity, type ItemType } from '@/types/inventory';
 import { useInventory } from './InventoryDataProvider';
 
 export const InventoryFilters: React.FC = () => {

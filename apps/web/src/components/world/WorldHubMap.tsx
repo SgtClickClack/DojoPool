@@ -1,8 +1,8 @@
 'use client';
 import { useAuth } from '@/hooks/useAuth';
 import { useMapData } from '@/hooks/useMapData';
-import { PlayerPosition } from '@/services/WebSocketService';
-import { DojoData } from '@/services/dojoService';
+import { type PlayerPosition } from '@/services/WebSocketService';
+import { type DojoData } from '@/services/dojoService';
 import {
   GoogleMap,
   InfoWindow,

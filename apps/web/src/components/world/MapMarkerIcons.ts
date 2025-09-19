@@ -1,5 +1,5 @@
-import { DojoData } from '@/services/dojoService';
-import { PlayerPosition } from '@/services/WebSocketService';
+import { type DojoData } from '@/services/dojoService';
+import { type PlayerPosition } from '@/services/WebSocketService';
 
 export const getMarkerIcon = (dojo: DojoData) => {
   if (dojo.isLocked) {

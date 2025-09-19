@@ -1,6 +1,6 @@
-import { PrismaService } from '../prisma/prisma.service';
-import { NotificationTemplatesService } from './notification-templates.service';
-import { NotificationsService } from './notifications.service';
+import { type PrismaService } from '../prisma/prisma.service';
+import { type NotificationTemplatesService } from './notification-templates.service';
+import { type NotificationsService } from './notifications.service';
 
 /**
  * Test script to verify notification system functionality

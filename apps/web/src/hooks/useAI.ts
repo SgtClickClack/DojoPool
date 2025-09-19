@@ -1,9 +1,9 @@
 'use client';
 
 import {
-  AiHealthStatus,
-  AiServiceResponse,
-  MatchAnalysis,
+  type AiHealthStatus,
+  type AiServiceResponse,
+  type MatchAnalysis,
   aiService,
 } from '@/services/aiService';
 import { useCallback, useEffect, useState } from 'react';

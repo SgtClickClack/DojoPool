@@ -1,4 +1,4 @@
-import { UserBalance } from '@/services/marketplaceService';
+import { type UserBalance } from '@/services/marketplaceService';
 import { AttachMoney as AttachMoneyIcon } from '@mui/icons-material';
 import { Box, Paper, Typography } from '@mui/material';
 

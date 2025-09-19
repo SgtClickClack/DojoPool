@@ -1,16 +1,16 @@
 import {
-  CanActivate,
-  ExecutionContext,
+  type CanActivate,
+  type ExecutionContext,
   ForbiddenException,
   Injectable,
   Inject,
 } from '@nestjs/common';
-import { IPermissionsService, IPermissionsService as IPermissionsServiceToken } from '../common/interfaces/user.interfaces';
+import { IPermissionsService, PERMISSIONS_SERVICE_TOKEN } from '../common/interfaces/user.interfaces';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
   constructor(
-    @Inject(IPermissionsServiceToken) 
+    @Inject(PERMISSIONS_SERVICE_TOKEN) 
     private readonly permissionsService: IPermissionsService
   ) {}
 

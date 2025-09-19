@@ -1,4 +1,4 @@
-import { DashboardStats } from './APIService';
+import { type DashboardStats } from './APIService';
 
 export const mockDashboardStats: DashboardStats = {
   matches: {

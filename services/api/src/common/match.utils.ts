@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { type PrismaService } from '../prisma/prisma.service';
 import { ErrorUtils } from './error.utils';
 
 export class MatchUtils {

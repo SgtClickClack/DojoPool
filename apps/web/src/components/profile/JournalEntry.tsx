@@ -1,6 +1,6 @@
 import {
   JournalEntryType as EntryType,
-  JournalEntry as JournalEntryType,
+  type JournalEntry as JournalEntryType,
 } from '@/types/journal';
 import {
   Star as AchievementIcon,

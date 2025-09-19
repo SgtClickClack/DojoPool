@@ -1,5 +1,5 @@
 import { Box, Button, Paper, Typography } from '@mui/material';
-import { NextPageContext } from 'next';
+import { type NextPageContext } from 'next';
 
 interface ErrorProps {
   statusCode?: number;

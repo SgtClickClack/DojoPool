@@ -1,8 +1,8 @@
 import { useAuth } from '@/hooks/useAuth';
 import challengeService, {
-  ChallengeRequest,
+  type ChallengeRequest,
 } from '@/services/challengeService';
-import marketplaceService, { UserBalance } from '@/services/marketplaceService';
+import marketplaceService, { type UserBalance } from '@/services/marketplaceService';
 import { AttachMoney as AttachMoneyIcon } from '@mui/icons-material';
 import {
   Alert,

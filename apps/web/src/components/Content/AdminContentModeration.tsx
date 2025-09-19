@@ -4,14 +4,14 @@ import {
   moderateContent,
 } from '@/services/APIService';
 import {
-  Content,
-  ContentFilter,
-  ContentListResponse,
-  ContentStats,
+  type Content,
+  type ContentFilter,
+  type ContentListResponse,
+  type ContentStats,
   ContentStatus,
   ContentType,
   ContentVisibility,
-  ModerateContentRequest,
+  type ModerateContentRequest,
 } from '@/types/content';
 import {
   CheckCircle as ApproveIcon,

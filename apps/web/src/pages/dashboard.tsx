@@ -2,7 +2,7 @@ import ProtectedRoute from '@/components/Common/ProtectedRoute';
 import ActivityCard from '@/components/Dashboard/ActivityCard';
 import StatCard from '@/components/Dashboard/StatCard';
 import { useAuth } from '@/hooks/useAuth';
-import { DashboardStats, getDashboardStats } from '@/services/APIService';
+import { type DashboardStats, getDashboardStats } from '@/services/APIService';
 import { mockDashboardStats } from '@/services/mockDashboardData';
 import {
   AccountBalanceWallet,

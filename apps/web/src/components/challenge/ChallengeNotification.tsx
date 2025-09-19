@@ -1,4 +1,4 @@
-import challengeService, { Challenge } from '@/services/challengeService';
+import challengeService, { type Challenge } from '@/services/challengeService';
 import {
   AttachMoney as AttachMoneyIcon,
   Cancel,

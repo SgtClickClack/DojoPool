@@ -1,10 +1,10 @@
 import NotificationBell from '@/components/Common/NotificationBell';
 import { useChat } from '@/contexts/ChatContext';
 import { useAuth } from '@/hooks/useAuth';
-import marketplaceService, { UserBalance } from '@/services/marketplaceService';
+import marketplaceService, { type UserBalance } from '@/services/marketplaceService';
 import { AttachMoney as MoneyIcon } from '@mui/icons-material';
 import {
-  AppBarProps,
+  type AppBarProps,
   Avatar,
   Badge,
   Box,

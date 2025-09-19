@@ -6,7 +6,7 @@ import {
   Optional,
 } from '@nestjs/common';
 import type { Prisma, User } from '@prisma/client';
-import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
+import { type UploadApiResponse, v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
 import { CacheInvalidate } from '../cache/cache.decorator';
 import { CacheService } from '../cache/cache.service';

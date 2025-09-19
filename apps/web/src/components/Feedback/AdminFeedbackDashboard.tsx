@@ -4,12 +4,12 @@ import {
   updateFeedback,
 } from '@/services/APIService';
 import {
-  Feedback,
+  type Feedback,
   FeedbackCategory,
-  FeedbackFilter,
-  FeedbackListResponse,
+  type FeedbackFilter,
+  type FeedbackListResponse,
   FeedbackPriority,
-  FeedbackStats,
+  type FeedbackStats,
   FeedbackStatus,
 } from '@/types/feedback';
 import {

@@ -1,16 +1,16 @@
 import {
-  CanActivate,
-  ExecutionContext,
+  type CanActivate,
+  type ExecutionContext,
   ForbiddenException,
   Injectable,
   Inject,
 } from '@nestjs/common';
 import { 
   IPermissionsService, 
-  IPermissionsService as IPermissionsServiceToken,
-  PermissionAction, 
-  PermissionResource, 
-  PermissionContext 
+  PERMISSIONS_SERVICE_TOKEN,
+  type PermissionAction, 
+  type PermissionResource, 
+  type PermissionContext 
 } from '../common/interfaces/user.interfaces';
 
 export interface PermissionGuardOptions {
@@ -22,7 +22,7 @@ export interface PermissionGuardOptions {
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(
-    @Inject(IPermissionsServiceToken) 
+    @Inject(PERMISSIONS_SERVICE_TOKEN) 
     private readonly permissionsService: IPermissionsService
   ) {}
 

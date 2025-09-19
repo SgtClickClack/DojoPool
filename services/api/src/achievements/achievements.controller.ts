@@ -8,7 +8,7 @@ import {
   Body,
 } from '@nestjs/common';
 import { AchievementsService } from './achievements.service';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 @Controller('achievements')
 export class AchievementsController {

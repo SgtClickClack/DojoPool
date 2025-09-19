@@ -3,8 +3,8 @@ import type { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   DashboardService,
-  DashboardStats,
-  CdnCostResponse,
+  type DashboardStats,
+  type CdnCostResponse,
 } from './dashboard.service';
 
 @Controller('dashboard')

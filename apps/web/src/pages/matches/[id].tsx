@@ -11,7 +11,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
-import io, { Socket } from 'socket.io-client';
+import io, { type Socket } from 'socket.io-client';
 
 interface PlayerInfo {
   id: string;

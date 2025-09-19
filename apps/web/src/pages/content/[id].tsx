@@ -3,7 +3,7 @@ import {
   likeContent,
   shareContent,
 } from '@/services/APIService';
-import { Content, ContentLikeResponse } from '@/types/content';
+import { type Content, type ContentLikeResponse } from '@/types/content';
 import {
   ArrowBack as ArrowBackIcon,
   FavoriteBorder as FavoriteBorderIcon,
@@ -26,7 +26,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import { NextPage } from 'next';
+import { type NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 

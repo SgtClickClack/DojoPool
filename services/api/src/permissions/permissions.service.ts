@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { User } from '@prisma/client';
-import { PermissionAction, PermissionResource, PermissionContext } from '../common/interfaces/user.interfaces';
+import { type PermissionAction, type PermissionResource, type PermissionContext } from '../common/interfaces/user.interfaces';
 
 @Injectable()
 export class PermissionsService {

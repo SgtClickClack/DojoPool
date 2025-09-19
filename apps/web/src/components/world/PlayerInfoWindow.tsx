@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlayerPosition } from '@/services/WebSocketService';
+import { type PlayerPosition } from '@/services/WebSocketService';
 import styles from './WorldHubMap.module.css';
 
 interface PlayerInfoWindowProps {

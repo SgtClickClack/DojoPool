@@ -1,7 +1,7 @@
 import MarketplaceGrid from '@/components/marketplace/MarketplaceGrid';
 import marketplaceService, {
-  MarketplaceItem,
-  UserBalance,
+  type MarketplaceItem,
+  type UserBalance,
 } from '@/services/marketplaceService';
 import { AttachMoney as AttachMoneyIcon } from '@mui/icons-material';
 import {

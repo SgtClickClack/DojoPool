@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Feedback, FeedbackStatus } from '@prisma/client';
+import { type Feedback, FeedbackStatus } from '@prisma/client';
 import {
   CacheKey,
   CacheWriteThrough,
@@ -13,7 +13,7 @@ import {
 import { CacheHelper } from '../cache/cache.helper';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateFeedbackDto } from './dto/create-feedback.dto';
+import { type CreateFeedbackDto } from './dto/create-feedback.dto';
 import { FeedbackFilterDto } from './dto/feedback-filter.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 

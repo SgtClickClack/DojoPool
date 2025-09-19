@@ -1,7 +1,7 @@
 import ProtectedRoute from '@/components/Common/ProtectedRoute';
 import VenuePortalLayout from '@/components/VenuePortal/VenuePortalLayout';
 import { getMyVenue, updateMyVenue } from '@/services/APIService';
-import { VenueHours } from '@/types/venue';
+import { type VenueHours } from '@/types/venue';
 import {
   Alert,
   Box,

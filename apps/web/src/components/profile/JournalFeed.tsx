@@ -1,7 +1,7 @@
 import { getMyJournal } from '@/services/APIService';
 import {
-  JournalEntry as JournalEntryType,
-  JournalResponse,
+  type JournalEntry as JournalEntryType,
+  type JournalResponse,
 } from '@/types/journal';
 import { generateMockJournalResponse } from '@/utils/mockJournalData';
 import { Refresh as RefreshIcon } from '@mui/icons-material';

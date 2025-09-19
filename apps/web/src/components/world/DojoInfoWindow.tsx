@@ -1,5 +1,5 @@
 import React from 'react';
-import { DojoData } from '@/services/dojoService';
+import { type DojoData } from '@/services/dojoService';
 import styles from './WorldHubMap.module.css';
 
 interface DojoInfoWindowProps {

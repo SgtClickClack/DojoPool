@@ -1,8 +1,8 @@
 import { apiClient } from '@/services/APIService';
 import {
-  GameSession,
-  GameSessionUpdateDto,
-  ShotData,
+  type GameSession,
+  type GameSessionUpdateDto,
+  type ShotData,
 } from '@/types/gameSession';
 import { useCallback, useEffect, useState } from 'react';
 

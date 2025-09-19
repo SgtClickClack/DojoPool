@@ -1,7 +1,7 @@
 import { uploadContent } from '@/services/APIService';
 import {
   ContentType,
-  ContentUploadData,
+  type ContentUploadData,
   ContentVisibility,
 } from '@/types/content';
 import {

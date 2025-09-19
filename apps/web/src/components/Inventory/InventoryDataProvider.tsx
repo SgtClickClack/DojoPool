@@ -10,7 +10,7 @@ import React, {
 
 import { useAuth } from '@/hooks/useAuth';
 import * as APIService from '@/services/APIService';
-import { EquipmentSlot, ItemRarity, ItemType } from '@/types/inventory';
+import { type EquipmentSlot, type ItemRarity, type ItemType } from '@/types/inventory';
 
 interface CosmeticItem {
   id: string;

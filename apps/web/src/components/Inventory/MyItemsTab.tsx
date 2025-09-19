@@ -1,4 +1,4 @@
-import { EquipmentSlot } from '@/types/inventory';
+import { type EquipmentSlot } from '@/types/inventory';
 import React from 'react';
 import { InventoryGrid } from './InventoryGrid';
 import { InventoryItemCard } from './InventoryItemCard';

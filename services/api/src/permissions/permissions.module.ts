@@ -1,18 +1,17 @@
 import { Module } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import { 
-  IPermissionsService,
-  IPermissionsService as IPermissionsServiceToken
+  PERMISSIONS_SERVICE_TOKEN
 } from '../common/interfaces/user.interfaces';
 
 @Module({
   providers: [
     PermissionsService,
     {
-      provide: IPermissionsServiceToken,
+      provide: PERMISSIONS_SERVICE_TOKEN,
       useClass: PermissionsService,
     },
   ],
-  exports: [PermissionsService, IPermissionsServiceToken],
+  exports: [PermissionsService, PERMISSIONS_SERVICE_TOKEN],
 })
 export class PermissionsModule {}

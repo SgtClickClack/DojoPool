@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
-  CommunityCosmeticItem,
-  CosmeticCategory,
+  type CommunityCosmeticItem,
+  type CosmeticCategory,
   SubmissionStatus,
 } from '@prisma/client';
 import {

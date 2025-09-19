@@ -1,4 +1,4 @@
-import { UserInventoryItem } from '@/services/marketplaceService';
+import { type UserInventoryItem } from '@/services/marketplaceService';
 import { Button, Grid, Paper, Typography } from '@mui/material';
 import { ProfileInventoryItemCard } from './ProfileInventoryItemCard';
 

@@ -1,5 +1,5 @@
 import { Box, Paper, Skeleton, Typography } from '@mui/material';
-import { SvgIconProps } from '@mui/material/SvgIcon';
+import { type SvgIconProps } from '@mui/material/SvgIcon';
 import React from 'react';
 
 interface StatCardProps {

@@ -2,7 +2,7 @@ import ChatWindow from '@/components/chat/ChatWindow';
 import ConversationList from '@/components/chat/ConversationList';
 import { useChat } from '@/contexts/ChatContext';
 import { useAuth } from '@/hooks/useAuth';
-import chatService, { ChatMessage, Conversation } from '@/services/chatService';
+import chatService, { type ChatMessage, type Conversation } from '@/services/chatService';
 import { websocketService } from '@/services/WebSocketService';
 import {
   Alert,

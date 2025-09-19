@@ -1,6 +1,6 @@
 import TournamentList from '@/components/Tournament/TournamentList';
 import { useAuth } from '@/hooks/useAuth';
-import { Tournament, getTournaments } from '@/services/APIService';
+import { type Tournament, getTournaments } from '@/services/APIService';
 import { Add as AddIcon } from '@mui/icons-material';
 import {
   Box,

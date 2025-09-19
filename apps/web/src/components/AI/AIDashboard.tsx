@@ -1,7 +1,7 @@
 'use client';
 
 import { useAI } from '@/hooks/useAI';
-import { AiHealthStatus } from '@/services/aiService';
+import { type AiHealthStatus } from '@/services/aiService';
 import {
   ArrowPathIcon,
   CameraIcon,

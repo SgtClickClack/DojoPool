@@ -1,4 +1,4 @@
-import { Avatar, AvatarProps, Box, SxProps, Typography } from '@mui/material';
+import { Avatar, type AvatarProps, Box, type SxProps, Typography } from '@mui/material';
 import React from 'react';
 
 interface PlayerAvatarProps extends Omit<AvatarProps, 'src'> {

@@ -1,4 +1,4 @@
-import { UserInventoryItem } from '@/services/marketplaceService';
+import { type UserInventoryItem } from '@/services/marketplaceService';
 import { Cancel, CheckCircle } from '@mui/icons-material';
 import {
   Box,

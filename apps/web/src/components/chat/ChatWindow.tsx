@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
-import { ChatMessage, Conversation } from '@/services/chatService';
+import { type ChatMessage, type Conversation } from '@/services/chatService';
 import { Send as SendIcon } from '@mui/icons-material';
 import {
   Avatar,

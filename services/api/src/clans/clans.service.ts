@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ErrorUtils } from '../common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UpgradeDojoDto } from './dto/upgrade-dojo.dto';
+import { type UpgradeDojoDto } from './dto/upgrade-dojo.dto';
 
 @Injectable()
 export class ClansService {

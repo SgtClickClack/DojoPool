@@ -1,4 +1,4 @@
-import { CMSStats, getCMSStats } from '@/services/APIService';
+import { type CMSStats, getCMSStats } from '@/services/APIService';
 import {
   Announcement as AnnouncementIcon,
   Article as ArticleIcon,

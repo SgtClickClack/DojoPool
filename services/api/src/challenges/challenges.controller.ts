@@ -15,7 +15,7 @@ import {
   ChallengeStatus,
   UpdateChallengeDto,
 } from './dto/update-challenge.dto';
-import type { Challenge } from './entities/challenge.entity';
+import { Challenge } from './entities/challenge.entity';
 
 @Controller('challenges')
 export class ChallengesController {

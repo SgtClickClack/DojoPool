@@ -4,7 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Notification } from '@prisma/client';
+import { type Notification } from '@prisma/client';
 import {
   CacheKey,
   CacheWriteThrough,

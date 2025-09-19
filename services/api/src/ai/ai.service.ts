@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { ArAnalysisService } from '../ar-analysis/ar-analysis.service';
 import {
   AiAnalysisService,
-  MatchAnalysis,
-  ShotData,
+  type MatchAnalysis,
+  type ShotData,
 } from '../matches/ai-analysis.service';
 
 export interface AiServiceConfig {

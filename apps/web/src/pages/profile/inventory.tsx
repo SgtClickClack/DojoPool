@@ -3,8 +3,8 @@ import { ProfileInventoryHeader } from '@/components/Inventory/ProfileInventoryH
 import { ProfileInventoryNotification } from '@/components/Inventory/ProfileInventoryNotification';
 import { ProfileInventoryStats } from '@/components/Inventory/ProfileInventoryStats';
 import marketplaceService, {
-  UserBalance,
-  UserInventoryItem,
+  type UserBalance,
+  type UserInventoryItem,
 } from '@/services/marketplaceService';
 import { Box, CircularProgress } from '@mui/material';
 import { useEffect, useState } from 'react';

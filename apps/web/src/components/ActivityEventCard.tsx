@@ -1,4 +1,4 @@
-import { ActivityEvent, ActivityEventType } from '@/types/activity';
+import { type ActivityEvent, ActivityEventType } from '@/types/activity';
 import {
   Avatar,
   Box,
