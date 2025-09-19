@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
-const bcrypt = require('bcryptjs');
+import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { CacheService } from '../cache/cache.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -229,7 +229,11 @@ export class AuthService {
     }
   }
 
-  async refreshToken(refreshToken: string, deviceId?: string, deviceInfo?: string) {
+  async refreshToken(
+    refreshToken: string,
+    deviceId?: string,
+    deviceInfo?: string
+  ) {
     try {
       // Hash the token for lookup
       const tokenHash = crypto
@@ -243,19 +247,32 @@ export class AuthService {
         include: { user: true },
       });
 
-      if (!storedToken || storedToken.isRevoked || storedToken.expiresAt < new Date()) {
+      if (
+        !storedToken ||
+        storedToken.isRevoked ||
+        storedToken.expiresAt < new Date()
+      ) {
         throw new UnauthorizedException('Invalid or expired refresh token');
       }
 
       // Check Redis blocklist as additional security layer
-      const blocked = await this.cacheService.exists(tokenHash, 'auth:blocklist:');
+      const blocked = await this.cacheService.exists(
+        tokenHash,
+        'auth:blocklist:'
+      );
       if (blocked) {
         throw new UnauthorizedException('Refresh token has been revoked');
       }
 
       // Verify device binding if provided
-      if (deviceId && storedToken.deviceId && storedToken.deviceId !== deviceId) {
-        throw new UnauthorizedException('Device mismatch - token bound to different device');
+      if (
+        deviceId &&
+        storedToken.deviceId &&
+        storedToken.deviceId !== deviceId
+      ) {
+        throw new UnauthorizedException(
+          'Device mismatch - token bound to different device'
+        );
       }
 
       const user = storedToken.user;
@@ -299,7 +316,7 @@ export class AuthService {
     const access_token = await this.jwtService.signAsync(payload, {
       expiresIn: process.env.JWT_EXPIRES_IN || '1h',
     });
-    
+
     const refresh_token = await this.jwtService.signAsync(payload, {
       expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     });
@@ -316,9 +333,13 @@ export class AuthService {
     if (expiresIn.endsWith('d')) {
       expiresAt.setDate(expiresAt.getDate() + parseInt(expiresIn.slice(0, -1)));
     } else if (expiresIn.endsWith('h')) {
-      expiresAt.setHours(expiresAt.getHours() + parseInt(expiresIn.slice(0, -1)));
+      expiresAt.setHours(
+        expiresAt.getHours() + parseInt(expiresIn.slice(0, -1))
+      );
     } else if (expiresIn.endsWith('m')) {
-      expiresAt.setMinutes(expiresAt.getMinutes() + parseInt(expiresIn.slice(0, -1)));
+      expiresAt.setMinutes(
+        expiresAt.getMinutes() + parseInt(expiresIn.slice(0, -1))
+      );
     }
 
     // Store refresh token in database
@@ -389,10 +410,7 @@ export class AuthService {
     try {
       const result = await this.prisma.refreshToken.deleteMany({
         where: {
-          OR: [
-            { expiresAt: { lt: new Date() } },
-            { isRevoked: true },
-          ],
+          OR: [{ expiresAt: { lt: new Date() } }, { isRevoked: true }],
         },
       });
       console.log(`Cleaned up ${result.count} expired/revoked refresh tokens`);
@@ -418,7 +436,7 @@ export class AuthService {
       });
 
       // Add all tokens to Redis blocklist
-      const promises = tokens.map(token =>
+      const promises = tokens.map((token) =>
         this.cacheService.set(token.tokenHash, true, {
           ttl: 7 * 24 * 3600, // 7 days
           keyPrefix: 'auth:blocklist:',

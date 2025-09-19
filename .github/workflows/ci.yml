@@ -145,7 +145,7 @@ jobs:
           export NODE_ENV=test
           yarn workspace @dojopool/api prisma:generate
       - name: Lint
-        run: yarn run lint --max-warnings 2000 || echo "Linting completed with warnings"
+        run: yarn run lint --max-warnings 1000 || echo "Linting completed with warnings"
       - name: Type check (web and api)
         run: yarn run type-check || echo "TypeScript check completed with warnings"
 
@@ -191,4 +191,4 @@ jobs:
       - name: Build backend
         run: yarn run build:backend
       - name: Build frontend
-        run: yarn run build
+        run: cd apps/web && yarn build

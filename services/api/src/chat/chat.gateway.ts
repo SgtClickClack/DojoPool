@@ -82,7 +82,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
 
     // Emit to receiver's private room and back to sender
-    this.server.to(receiverId).emit('new_dm', message);
-    this.server.to(senderId).emit('new_dm', message);
+    void this.server.to(receiverId).emit('new_dm', message);
+    void this.server.to(senderId).emit('new_dm', message);
   }
 }

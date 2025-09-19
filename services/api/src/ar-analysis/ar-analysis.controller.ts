@@ -7,7 +7,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import multer from 'multer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ArAnalysisService } from './ar-analysis.service';
 
@@ -24,7 +23,6 @@ export class ArAnalysisController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: multer.memoryStorage(),
       limits: { fileSize: 5 * 1024 * 1024 },
       fileFilter: (_req, file, cb) => {
         const ok =

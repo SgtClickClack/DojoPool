@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FeedbackCategory, FeedbackStatus, UserRole } from '@prisma/client';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../app.module';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -17,6 +17,7 @@ describe('FeedbackController (e2e)', () => {
     id: 'test-user-id',
     email: 'test@example.com',
     username: 'testuser',
+    passwordHash: 'hashed-password',
     role: UserRole.USER,
   };
 
@@ -24,6 +25,7 @@ describe('FeedbackController (e2e)', () => {
     id: 'test-admin-id',
     email: 'admin@example.com',
     username: 'admin',
+    passwordHash: 'hashed-password',
     role: UserRole.ADMIN,
   };
 
@@ -78,7 +80,7 @@ describe('FeedbackController (e2e)', () => {
         .set('Authorization', `Bearer ${userToken}`)
         .send(feedbackData)
         .expect(201)
-        .expect((res) => {
+        .expect((res: any) => {
           expect(res.body).toHaveProperty('id');
           expect(res.body.message).toBe(feedbackData.message);
           expect(res.body.category).toBe(feedbackData.category);
@@ -123,7 +125,7 @@ describe('FeedbackController (e2e)', () => {
         .get('/feedback/my')
         .set('Authorization', `Bearer ${userToken}`)
         .expect(200)
-        .expect((res) => {
+        .expect((res: any) => {
           expect(Array.isArray(res.body.feedback)).toBe(true);
           expect(res.body.feedback.length).toBeGreaterThan(0);
           expect(res.body.feedback[0].userId).toBe(testUser.id);
@@ -136,7 +138,7 @@ describe('FeedbackController (e2e)', () => {
         .get('/feedback/my?page=1&limit=10')
         .set('Authorization', `Bearer ${userToken}`)
         .expect(200)
-        .expect((res) => {
+        .expect((res: any) => {
           expect(res.body.pagination.page).toBe(1);
           expect(res.body.pagination.limit).toBe(10);
         });
@@ -189,7 +191,7 @@ describe('FeedbackController (e2e)', () => {
         .get('/feedback/admin')
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200)
-        .expect((res) => {
+        .expect((res: any) => {
           expect(res.body.feedback).toBeDefined();
           expect(res.body.totalCount).toBeDefined();
           expect(res.body.pendingCount).toBeDefined();
@@ -202,7 +204,7 @@ describe('FeedbackController (e2e)', () => {
         .get('/feedback/admin?category=TECHNICAL_SUPPORT')
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200)
-        .expect((res) => {
+        .expect((res: any) => {
           expect(
             res.body.feedback.every(
               (f: any) => f.category === FeedbackCategory.TECHNICAL_SUPPORT
@@ -225,7 +227,7 @@ describe('FeedbackController (e2e)', () => {
         .get('/feedback/admin/stats')
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200)
-        .expect((res) => {
+        .expect((res: any) => {
           expect(res.body).toHaveProperty('total');
           expect(res.body).toHaveProperty('pending');
           expect(res.body).toHaveProperty('resolved');
@@ -257,7 +259,7 @@ describe('FeedbackController (e2e)', () => {
           adminNotes: 'Reviewing this feedback',
         })
         .expect(200)
-        .expect((res) => {
+        .expect((res: any) => {
           expect(res.body.status).toBe(FeedbackStatus.IN_REVIEW);
           expect(res.body.adminNotes).toBe('Reviewing this feedback');
         });

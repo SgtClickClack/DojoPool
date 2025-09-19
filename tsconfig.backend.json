@@ -2,9 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "NodeNext",
-    "lib": [
-      "ES2020"
-    ],
+    "lib": ["ES2020"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -21,30 +19,37 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src/backend/**/*",
-    "src/config/monitoring.ts",
-    "src/config/environment.backend.ts",
-    "src/types/**/*"
-  ],
+  "include": ["services/api/src/**/*", "services/api/types/**/*"],
   "exclude": [
     "node_modules",
     "dist",
     "build",
-    "src/frontend/**/*",
-    "src/components/**/*",
-    "src/pages/**/*",
-    "src/config/environment.ts",
-    "src/services/**/*",
-    "src/firebase/**/*",
-    "src/utils/**/*",
-    "src/backend/routes/advanced-*.ts",
-    "src/backend/routes/enhanced-*.ts",
-    "src/backend/routes/venue-*.ts"
+    "apps/**/*",
+    "packages/**/*",
+    "components/**/*",
+    "pages/**/*",
+    "hooks/**/*",
+    "firebase/**/*",
+    "utils/**/*",
+    "cypress/**/*",
+    "tests/**/*",
+    "infrastructure/**/*",
+    "monitoring/**/*",
+    "load-tests/**/*",
+    "security/**/*",
+    "scripts/**/*",
+    "public/**/*",
+    "static/**/*",
+    "styles/**/*",
+    "types/**/*",
+    "services/api/src/**/*.spec.ts",
+    "services/api/src/**/*.test.ts",
+    "services/api/src/__tests__/**/*",
+    "services/api/src/backend/routes/advanced-*.ts",
+    "services/api/src/backend/routes/enhanced-*.ts",
+    "services/api/src/backend/routes/venue-*.ts"
   ]
 }

@@ -10,9 +10,70 @@ on:
     - cron: '0 2 * * *'
 
 jobs:
-  e2e-tests:
+  e2e-tests-docker:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Generate Prisma client for tests
+        run: |
+          export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
+          yarn workspace @dojopool/api prisma:generate
+
+      - name: Build Docker images for E2E
+        run: |
+          docker build -f Dockerfile.e2e --target api-e2e -t dojopool-api-e2e .
+          docker build -f Dockerfile.e2e --target web-e2e -t dojopool-web-e2e .
+
+      - name: Start E2E test environment
+        run: |
+          docker-compose -f docker-compose.e2e.yml up -d --build
+          # Wait for services to be ready
+          timeout 120 bash -c 'until curl -f http://localhost:3001 > /dev/null 2>&1; do sleep 5; done'
+          timeout 120 bash -c 'until curl -f http://localhost:3003/api/v1/health > /dev/null 2>&1; do sleep 5; done'
+
+      - name: Run E2E tests against Docker stack
+        run: |
+          yarn cypress:run --config baseUrl=http://localhost:3001
+        env:
+          CYPRESS_baseUrl: http://localhost:3001
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/dojopool_test
+          REDIS_URL: redis://localhost:6380
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-test-results-docker
+          path: |
+            cypress/screenshots/
+            cypress/videos/
+          retention-days: 7
+
+      - name: Cleanup Docker containers
+        if: always()
+        run: |
+          docker-compose -f docker-compose.e2e.yml down -v
+          docker system prune -f
+
+  e2e-tests-traditional:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     services:
       postgres:
@@ -55,34 +116,41 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Generate Prisma client
+        run: |
+          export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
+          yarn workspace @dojopool/api prisma:generate
+
       - name: Build application
-        run: yarn build
+        run: yarn build:backend && cd apps/web && yarn build
 
       - name: Start application
         run: |
-          yarn start &
-          sleep 10
+          yarn dev:backend &
+          sleep 15
         env:
           NODE_ENV: test
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
           REDIS_URL: redis://localhost:6379
-          PORT: 3000
+          PORT: 3002
           NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
           CORS_ORIGINS: http://localhost:3000
           SESSION_SECRET: test-session-secret-for-ci
           JWT_SECRET: test-jwt-secret-for-ci
 
       - name: Wait for application to be ready
-        run: yarn wait-on http://localhost:3000 --timeout 60000
+        run: yarn wait-on http://localhost:3002/api/v1/health --timeout 60000
 
       - name: Run E2E tests
-        run: yarn cypress:run
+        run: yarn cypress:run --config baseUrl=http://localhost:3002
+        env:
+          CYPRESS_baseUrl: http://localhost:3002
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-test-results
+          name: e2e-test-results-traditional
           path: |
             cypress/screenshots/
             cypress/videos/
@@ -90,7 +158,7 @@ jobs:
 
   lighthouse-audit:
     runs-on: ubuntu-latest
-    needs: e2e-tests
+    needs: [e2e-tests-docker, e2e-tests-traditional]
     if: github.event_name == 'pull_request'
 
     steps:
@@ -110,10 +178,10 @@ jobs:
         run: yarn install --immutable
 
       - name: Build application
-        run: yarn build
+        run: cd apps/web && yarn build
 
       - name: Start application
-        run: yarn start &
+        run: cd apps/web && yarn start &
 
       - name: Wait for application
         run: yarn wait-on http://localhost:3000 --timeout 60000

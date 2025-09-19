@@ -27,7 +27,7 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
       - name: Build
-        run: yarn build
+        run: cd apps/web && yarn build
         env:
           NODE_ENV: production
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{secrets.FIREBASE_API_KEY || 'test-key'}}

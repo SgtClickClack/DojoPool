@@ -68,7 +68,6 @@ import { ScheduledTasksModule } from './scheduled-tasks/scheduled-tasks.module';
     VenuesModule,
     TerritoriesModule,
     WorldMapModule,
-    StrategicMapModule,
     // Feedback system
     FeedbackModule,
     // Content sharing system
