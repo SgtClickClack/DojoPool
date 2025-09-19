@@ -1,6 +1,5 @@
 import { performance } from 'perf_hooks';
 
-// Simple benchmark test for NetworkTransport
 async function benchmarkNetworkTransport() {
   console.log('Running NetworkTransport benchmark...');
 
@@ -9,7 +8,6 @@ async function benchmarkNetworkTransport() {
 
   // Simulate network operations
   for (let i = 0; i < iterations; i++) {
-    // Mock network operation
     await new Promise((resolve) => setTimeout(resolve, 0));
   }
 
@@ -23,20 +21,14 @@ async function benchmarkNetworkTransport() {
     `- Average per operation: ${(duration / iterations).toFixed(4)}ms`
   );
 
-  return {
-    iterations,
-    duration,
-    averagePerOperation: duration / iterations,
-  };
+  return { iterations, duration, averagePerOperation: duration / iterations };
 }
 
-// Run the benchmark
 benchmarkNetworkTransport()
-  .then(() => {
-    console.log('Benchmark test completed successfully');
-    process.exit(0);
+  .then((results) => {
+    console.log('Benchmark results:', results);
   })
   .catch((error) => {
-    console.error('Benchmark test failed:', error);
+    console.error('Benchmark failed:', error);
     process.exit(1);
   });
