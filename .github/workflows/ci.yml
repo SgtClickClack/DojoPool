@@ -54,6 +54,8 @@ jobs:
         run: corepack enable
       - name: Install dependencies
         run: yarn install --immutable
+      - name: Generate Prisma client
+        run: yarn workspace @dojopool/api prisma:generate
       - name: Check environment validation scripts
         run: |
           if [ ! -f "scripts/validate-env.mjs" ]; then
@@ -132,6 +134,8 @@ jobs:
         run: corepack enable
       - name: Install dependencies
         run: yarn install --immutable
+      - name: Generate Prisma client
+        run: yarn workspace @dojopool/api prisma:generate
       - name: Lint
         run: yarn run lint
       - name: Type check (web and api)

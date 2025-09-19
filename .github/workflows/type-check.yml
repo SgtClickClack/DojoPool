@@ -27,5 +27,7 @@ jobs:
         run: corepack enable
       - name: Install dependencies
         run: yarn install --immutable
+      - name: Generate Prisma client
+        run: yarn workspace @dojopool/api prisma:generate
       - name: Run TypeScript type check
         run: yarn type-check
