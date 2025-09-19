@@ -9,7 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 30
+
     services:
       postgres:
         image: postgres:14-alpine
@@ -24,7 +25,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7-alpine
         options: >-
@@ -67,15 +68,17 @@ jobs:
       - name: Run E2E tests against Docker stack
         run: |
           # Start Docker Compose stack
-          docker-compose -f docker-compose.yml up -d
-          
+          docker-compose -f docker-compose.yml up -d --build
+
           # Wait for services to be ready
-          timeout 60 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 2; done'
-          
+          timeout 120 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 5; done'
+
           # Run Cypress tests
           yarn cypress:run
         env:
           CYPRESS_baseUrl: http://localhost:3000
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool
+          REDIS_URL: redis://localhost:6379
 
       - name: Cleanup
         if: always()
@@ -85,7 +88,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

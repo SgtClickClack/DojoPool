@@ -54,10 +54,14 @@ jobs:
         run: corepack enable
       - name: Install dependencies
         run: yarn install --immutable
-      - name: Check environment validation script
+      - name: Check environment validation scripts
         run: |
           if [ ! -f "scripts/validate-env.mjs" ]; then
             echo "Error: Environment validation script not found"
+            exit 1
+          fi
+          if [ ! -f "scripts/env-schema.mjs" ]; then
+            echo "Error: Environment schema not found"
             exit 1
           fi
       - name: Setup Python for Mapbox CLI

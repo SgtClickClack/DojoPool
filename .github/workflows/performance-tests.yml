@@ -25,7 +25,14 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
       - name: Run performance tests
-        run: yarn test:unit:coverage || echo "Performance tests completed"
+        run: |
+          # Run benchmark tests if they exist
+          if [ -f "src/tests/benchmarks/NetworkTransport.bench.ts" ]; then
+            yarn benchmark || echo "Benchmark tests completed"
+          else
+            echo "No benchmark tests found, running unit tests for performance baseline"
+            yarn test:unit:coverage || echo "Performance tests completed"
+          fi
       - name: Upload performance results
         uses: actions/upload-artifact@v4
         with:

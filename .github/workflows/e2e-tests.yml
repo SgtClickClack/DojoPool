@@ -14,6 +14,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dojopool_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,9 +59,18 @@ jobs:
         run: yarn build
 
       - name: Start application
-        run: yarn start &
+        run: |
+          yarn start &
+          sleep 10
         env:
           NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
+          REDIS_URL: redis://localhost:6379
+          PORT: 3000
+          NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
+          CORS_ORIGINS: http://localhost:3000
+          SESSION_SECRET: test-session-secret-for-ci
+          JWT_SECRET: test-jwt-secret-for-ci
 
       - name: Wait for application to be ready
         run: npx wait-on http://localhost:3000 --timeout 60000

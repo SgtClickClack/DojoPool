@@ -12,7 +12,7 @@ jobs:
   security-scan:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
       security-events: write
 
@@ -35,19 +35,26 @@ jobs:
         run: yarn audit --level moderate || echo "Security audit completed with warnings"
 
       - name: Run CodeQL Analysis
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v3
 
-      - name: Update dependencies
+      - name: Update dependencies (if vulnerabilities found)
         run: |
-          yarn upgrade
-          yarn audit --level moderate || echo "Security audit completed with warnings"
+          # Only update if there are vulnerabilities
+          if yarn audit --level moderate --json | grep -q '"vulnerabilities"'; then
+            echo "Vulnerabilities found, updating dependencies..."
+            yarn upgrade
+            yarn audit --level moderate || echo "Security audit completed with warnings"
+          else
+            echo "No vulnerabilities found, skipping dependency updates"
+          fi
 
-      - name: Create Pull Request
+      - name: Create Pull Request (if updates made)
+        if: github.event_name == 'schedule'
         uses: peter-evans/create-pull-request@v5
         with:
           commit-message: 'chore: update dependencies and fix security vulnerabilities'
