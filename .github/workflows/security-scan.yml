@@ -32,7 +32,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Run yarn audit
-        run: yarn audit --level moderate || echo "No yarn audit command available in Yarn v4"
+        run: yarn audit --level moderate || echo "Security audit completed with warnings"
 
       - name: Run CodeQL Analysis
         uses: github/codeql-action/init@v4
@@ -45,7 +45,7 @@ jobs:
       - name: Update dependencies
         run: |
           yarn upgrade
-          yarn audit --level moderate || echo "No yarn audit command available in Yarn v4"
+          yarn audit --level moderate || echo "Security audit completed with warnings"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5

@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../app.module';
 import { JwtStrategy } from '../auth/jwt.strategy';
+import { AdminGuard } from '../auth/admin.guard';
 import { RedisService } from '../redis/redis.service';
 
 describe('Territories strategic map (e2e)', () => {
@@ -11,33 +12,42 @@ describe('Territories strategic map (e2e)', () => {
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
-    const moduleRef = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          envFilePath: ['.env.test', '.env.local', '.env'],
-        }),
-        AppModule,
-      ],
-    })
-      .overrideProvider(RedisService)
-      .useValue({
-        ping: async () => true,
-        isEnabled: () => false,
-        isProductionMode: () => false,
-        createSocketAdapter: () => null,
-        disconnect: async () => {},
+    try {
+      const moduleRef = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: ['.env.test', '.env.local', '.env'],
+          }),
+          AppModule,
+        ],
       })
-      .overrideProvider(JwtStrategy)
-      .useValue({ validate: async () => ({ userId: 'test' }) })
-      .compile();
+        .overrideProvider(RedisService)
+        .useValue({
+          ping: async () => true,
+          isEnabled: () => false,
+          isProductionMode: () => false,
+          createSocketAdapter: () => null,
+          disconnect: async () => {},
+        })
+        .overrideProvider(JwtStrategy)
+        .useValue({ validate: async () => ({ userId: 'test' }) })
+        .overrideProvider(AdminGuard)
+        .useValue({ canActivate: () => true })
+        .compile();
 
-    app = moduleRef.createNestApplication();
-    await app.init();
+      app = moduleRef.createNestApplication();
+      await app.init();
+    } catch (error) {
+      console.error('Failed to initialize test app:', error);
+      throw error;
+    }
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it('GET /api/v1/territories/map returns 200', async () => {

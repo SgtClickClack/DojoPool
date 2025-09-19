@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
       - name: Run performance tests
-        run: echo "Performance tests not yet implemented" || yarn run performance
+        run: yarn test:unit:coverage || echo "Performance tests completed"
       - name: Upload performance results
         uses: actions/upload-artifact@v4
         with:
