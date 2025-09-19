@@ -3819,9 +3819,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@maplibre/maplibre-gl-style-spec@npm:^24.1.0":
-  version: 24.1.0
-  resolution: "@maplibre/maplibre-gl-style-spec@npm:24.1.0"
+"@maplibre/maplibre-gl-style-spec@npm:^24.1.1":
+  version: 24.1.1
+  resolution: "@maplibre/maplibre-gl-style-spec@npm:24.1.1"
   dependencies:
     "@mapbox/jsonlint-lines-primitives": "npm:~2.0.2"
     "@mapbox/unitbezier": "npm:^0.0.1"
@@ -3834,7 +3834,7 @@ __metadata:
     gl-style-format: dist/gl-style-format.mjs
     gl-style-migrate: dist/gl-style-migrate.mjs
     gl-style-validate: dist/gl-style-validate.mjs
-  checksum: 10c0/90ba5c0c194ac658bde98cb0d39a94e11699a9f1e16cdd90f8c28c4b4203e3475f2d49ab63319c3911c3be21996636eb3294a003083acb55cc0de4e49ed42301
+  checksum: 10c0/21dfdf485d18b1665f7b5057d3ccaea3a66c44bb4f654bab00ac502c7c439f5124944bb544b3fceacee4dde6184586b44aa723fa077ef9f7459a04418318a8d4
   languageName: node
   linkType: hard
 
@@ -13089,8 +13089,8 @@ __metadata:
   linkType: hard
 
 "framer-motion@npm:^12.23.12":
-  version: 12.23.15
-  resolution: "framer-motion@npm:12.23.15"
+  version: 12.23.16
+  resolution: "framer-motion@npm:12.23.16"
   dependencies:
     motion-dom: "npm:^12.23.12"
     motion-utils: "npm:^12.23.6"
@@ -13106,7 +13106,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 10c0/472bd4a0c9d293f1a309109fbe055b83cf5524af03fb01afa05a7d34dc425b00906df8b4d4797cf6a18d31f6dcde925b3e28c4325ec7e7f67a8cfcdb5a440ee7
+  checksum: 10c0/a154b614581f9e4d359a16cd590da7331e27857ac099c83908b5ec2b6bd7092d12192d989ecf17029355e64290d119e508342b5a6b0db69462df36727c674781
   languageName: node
   linkType: hard
 
@@ -16084,8 +16084,8 @@ __metadata:
   linkType: hard
 
 "maplibre-gl@npm:^5.7.0":
-  version: 5.7.2
-  resolution: "maplibre-gl@npm:5.7.2"
+  version: 5.7.3
+  resolution: "maplibre-gl@npm:5.7.3"
   dependencies:
     "@mapbox/geojson-rewind": "npm:^0.5.2"
     "@mapbox/jsonlint-lines-primitives": "npm:^2.0.2"
@@ -16094,7 +16094,7 @@ __metadata:
     "@mapbox/unitbezier": "npm:^0.0.1"
     "@mapbox/vector-tile": "npm:^2.0.4"
     "@mapbox/whoots-js": "npm:^3.1.0"
-    "@maplibre/maplibre-gl-style-spec": "npm:^24.1.0"
+    "@maplibre/maplibre-gl-style-spec": "npm:^24.1.1"
     "@maplibre/vt-pbf": "npm:^4.0.3"
     "@types/geojson": "npm:^7946.0.16"
     "@types/geojson-vt": "npm:3.2.5"
@@ -16109,7 +16109,7 @@ __metadata:
     quickselect: "npm:^3.0.0"
     supercluster: "npm:^8.0.1"
     tinyqueue: "npm:^3.0.0"
-  checksum: 10c0/26591341d30dd7719e4eb59bcc9af06bf3f6bee09902d33f3e733ecdc9daf5f4028e75577d55d097d64a5ddf389ebb86f627d136c72aa96599d1c39f67416795
+  checksum: 10c0/7b6a5ddb4dcc550672d3ffac04f41784ec1863b6243e4665bde4a943279e690f10c61dea165a981511c4c88757351113d06393e4887000ed42ffefec2a8112ce
   languageName: node
   linkType: hard
 
