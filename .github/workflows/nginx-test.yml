@@ -1,19 +1,20 @@
 name: NGINX Configuration Test
 on:
-  push:
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'LICENSE'
-      - '**.txt'
-    paths:
-      - deployment/nginx/**
-      - .github/workflows/nginx-test.yml
-  pull_request:
-    paths:
-      - deployment/nginx/**
-      - .github/workflows/nginx-test.yml
+  # Disabled until deployment directory is created
+  # push:
+  #   paths-ignore:
+  #     - '**.md'
+  #     - 'docs/**'
+  #     - '.gitignore'
+  #     - 'LICENSE'
+  #     - '**.txt'
+  #   paths:
+  #     - deployment/nginx/**
+  #     - .github/workflows/nginx-test.yml
+  # pull_request:
+  #   paths:
+  #     - deployment/nginx/**
+  #     - .github/workflows/nginx-test.yml
   workflow_dispatch:
 jobs:
   test-nginx:
