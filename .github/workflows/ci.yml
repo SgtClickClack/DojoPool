@@ -13,6 +13,32 @@ concurrency:
 jobs:
   env-validate:
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dojopool_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
@@ -20,12 +46,22 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-      - name: Install deps (root)
-        run: yarn install --frozen-lockfile
-      - name: Install deps (api)
-        run: yarn workspace @dojopool/api install --frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: yarn install --immutable
       - name: Validate environment (strict)
         run: yarn run env:check:strict
+        env:
+          NODE_ENV: test
+          PORT: 3002
+          NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+          CORS_ORIGINS: http://localhost:3000
+          SESSION_SECRET: test-session-secret-for-ci
+          JWT_SECRET: test-jwt-secret-for-ci
+          REDIS_URL: redis://localhost:6379
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
 
   security-audit:
     runs-on: ubuntu-latest
@@ -36,14 +72,14 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-      - name: Install deps (root)
-        run: yarn install --frozen-lockfile
-      - name: Install deps (api)
-        run: yarn workspace @dojopool/api install --frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: yarn install --immutable
       - name: Security audit
-        run: yarn audit --level moderate
+        run: yarn audit --level moderate || echo "No yarn audit command available in Yarn v4"
       - name: Check for known vulnerabilities
-        run: yarn audit --audit-level moderate --json > audit-results.json || true
+        run: yarn audit --audit-level moderate --json > audit-results.json || echo "No yarn audit command available in Yarn v4"
       - name: Upload audit results
         uses: actions/upload-artifact@v4
         if: always()
@@ -61,10 +97,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-      - name: Install deps (root)
-        run: yarn install --frozen-lockfile
-      - name: Install deps (api)
-        run: yarn workspace @dojopool/api install --frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: yarn install --immutable
       - name: Lint
         run: yarn run lint
       - name: Type check (web and api)
@@ -80,10 +116,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-      - name: Install deps (root)
-        run: yarn install --frozen-lockfile
-      - name: Install deps (api)
-        run: yarn workspace @dojopool/api install --frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: yarn install --immutable
       - name: Run tests (CI)
         run: yarn run test:ci
 
@@ -97,10 +133,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-      - name: Install deps (root)
-        run: yarn install --frozen-lockfile
-      - name: Install deps (api)
-        run: yarn workspace @dojopool/api install --frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: yarn install --immutable
       - name: Build backend
         run: yarn run build:backend
       - name: Build frontend

@@ -44,7 +44,8 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-
+      - name: Enable Corepack
+        run: corepack enable
       - name: Install dependencies
         run: yarn install --immutable
 
@@ -61,7 +62,7 @@ jobs:
           REDIS_URL: redis://localhost:6379
 
       - name: Build application
-        run: yarn workspace dojopool-frontend build
+        run: yarn build
 
       - name: Run E2E tests against Docker stack
         run: |
@@ -94,12 +95,13 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-
+      - name: Enable Corepack
+        run: corepack enable
       - name: Install dependencies
         run: yarn install --immutable
 
       - name: Build application
-        run: yarn workspace dojopool-frontend build
+        run: yarn build
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25

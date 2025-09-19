@@ -27,58 +27,8 @@ jobs:
 
       - name: Audit
         run: |
-          yarn npm audit --recursive
+          yarn audit --level moderate
 
       - name: Security Tests
         run: |
           yarn test:security || exit 1
-name: Security Scanning
-
-on:
-  push:
-    branches: [main, develop]
-  schedule:
-    - cron: '0 0 * * *' # Run daily at midnight
-
-jobs:
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run npm audit (no-fail on findings)
-        run: npm audit --audit-level=high || true
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Upload security report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-report
-          path: |
-            security/reports/
-            .snyk
-
-      - name: Notify on failure
-        if: failure()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Security scan failed',
-              body: 'The security scan has failed. Please check the workflow logs for details.',
-              labels: ['security', 'bug']
-            })

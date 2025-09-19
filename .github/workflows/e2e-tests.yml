@@ -14,10 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
-    strategy:
-      matrix:
-        browser: [chromium, firefox, webkit]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,19 +22,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'yarn'
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        run: yarn install --immutable
 
       - name: Build application
-        run: npm run build
+        run: yarn build
 
       - name: Start application
-        run: npm start &
+        run: yarn start &
         env:
           NODE_ENV: test
 
@@ -46,26 +42,16 @@ jobs:
         run: npx wait-on http://localhost:3000 --timeout 60000
 
       - name: Run E2E tests
-        run: npx playwright test --project=${{ matrix.browser }}
-        env:
-          PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
+        run: yarn cypress:run
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-test-results-${{ matrix.browser }}
+          name: e2e-test-results
           path: |
-            test-results/
-            playwright-report/
-          retention-days: 7
-
-      - name: Upload screenshots
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: e2e-screenshots-${{ matrix.browser }}
-          path: test-results/
+            cypress/screenshots/
+            cypress/videos/
           retention-days: 7
 
   lighthouse-audit:
@@ -81,16 +67,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'yarn'
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --immutable
 
       - name: Build application
-        run: npm run build
+        run: yarn build
 
       - name: Start application
-        run: npm start &
+        run: yarn start &
 
       - name: Wait for application
         run: npx wait-on http://localhost:3000 --timeout 60000

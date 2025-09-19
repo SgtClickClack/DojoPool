@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const path = require('path');
-const dotenv = require('dotenv');
-const { execSync } = require('child_process');
-const readline = require('readline');
+import fs from 'fs';
+import path from 'path';
+import dotenv from 'dotenv';
+import { execSync } from 'child_process';
+import readline from 'readline';
 
 const ENV_FILE = path.resolve(process.cwd(), '.env.local');
 const REQUIRED_KEYS = [

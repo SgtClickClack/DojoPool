@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+console.log('🔥 Firebase Configuration Extracted from Console:');
+console.log('================================================');
+console.log('');
+console.log('📋 GitHub Secrets to Add:');
+console.log('');
+console.log('FIREBASE_PROJECT_ID=dojo-pool');
+console.log('FIREBASE_API_KEY=AIzaSyD16FMC42OX4BFsFb5qowKJndOqejk8KCk');
+console.log('FIREBASE_AUTH_DOMAIN=dojo-pool.firebaseapp.com');
+console.log('FIREBASE_STORAGE_BUCKET=dojo-pool.firebasestorage.app');
+console.log('FIREBASE_MESSAGING_SENDER_ID=190541475829');
+console.log('FIREBASE_APP_ID=1:190541475829:web:fa40fa669241ed46353abc');
+console.log('FIREBASE_MEASUREMENT_ID=G-KTRPH35FX8');
+console.log('');
+console.log('🔐 Still Need Service Account:');
+console.log('1. Go to Project Settings → Service Accounts');
+console.log('2. Click "Generate new private key"');
+console.log('3. Copy the entire JSON content → FIREBASE_SERVICE_ACCOUNT');
+console.log('');
+console.log('✅ All other values are ready to copy!');

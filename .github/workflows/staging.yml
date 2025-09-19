@@ -22,8 +22,10 @@ jobs:
         with:
           node-version: '18'
           cache: 'yarn'
+      - name: Enable Corepack
+        run: corepack enable
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Run tests
         run: yarn test
       - name: Run linting

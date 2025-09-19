@@ -1,0 +1,260 @@
+.tournament-list {
+  padding: 24px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h1 {
+      margin: 0;
+    }
+  }
+
+  &__filters {
+    margin-bottom: 24px;
+  }
+}
+
+.tournament-detail {
+  padding: 24px;
+
+  &__header {
+    margin-bottom: 24px;
+
+    h1 {
+      margin: 0 0 8px 0;
+    }
+  }
+
+  &__rules {
+    margin: 24px 0;
+    padding: 16px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+
+    h3 {
+      margin: 0 0 8px 0;
+    }
+
+    p {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+  }
+
+  .ant-descriptions {
+    margin-bottom: 24px;
+  }
+
+  .ant-tabs {
+    margin-top: 24px;
+  }
+}
+
+.tournament-form {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+
+  .ant-card {
+    .ant-card-head-title {
+      font-size: 20px;
+    }
+  }
+
+  .ant-form {
+    .ant-space {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+
+      .ant-form-item {
+        margin-bottom: 0;
+        flex: 1;
+        min-width: 200px;
+      }
+    }
+  }
+}
+
+.tournament-bracket {
+  width: 100%;
+  overflow-x: auto;
+  padding: 24px;
+  background-color: #fff;
+
+  &__svg {
+    min-width: 100%;
+  }
+
+  &__match {
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  &__players {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__player {
+    padding: 4px 8px;
+    border-radius: 2px;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.85);
+    background-color: #f5f5f5;
+
+    &.winner {
+      background-color: #f6ffed;
+      color: #52c41a;
+      font-weight: 500;
+    }
+  }
+
+  &__score {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #d9d9d9;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+    text-align: center;
+  }
+}
+
+.match-stats {
+  padding: 24px;
+
+  .ant-row {
+    margin-bottom: 24px;
+  }
+
+  .ant-card {
+    height: 100%;
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .ant-statistic {
+    text-align: center;
+
+    &-title {
+      font-size: 16px;
+      color: rgba(0, 0, 0, 0.85);
+    }
+
+    &-content {
+      font-size: 24px;
+      font-weight: 500;
+    }
+  }
+
+  .match-history {
+    .ant-table {
+      background-color: #fff;
+    }
+
+    .ant-table-thead > tr > th {
+      background-color: #fafafa;
+      font-weight: 500;
+    }
+
+    .ant-tag {
+      min-width: 60px;
+      text-align: center;
+    }
+  }
+
+  .ant-timeline {
+    padding: 16px;
+
+    &-item {
+      padding-bottom: 16px;
+
+      &-content {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.prize-management {
+  padding: 24px;
+
+  .ant-card {
+    margin-bottom: 24px;
+
+    .ant-card-head {
+      border-bottom: none;
+    }
+
+    .ant-card-head-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+
+      .anticon {
+        color: #faad14;
+      }
+    }
+  }
+
+  .ant-table {
+    .ant-tag {
+      min-width: 60px;
+      text-align: center;
+
+      &.gold {
+        color: #d4b106;
+        background: #fffbe6;
+        border-color: #ffe58f;
+      }
+      &.silver {
+        color: #595959;
+        background: #fafafa;
+        border-color: #d9d9d9;
+      }
+      &.bronze {
+        color: #ad4e00;
+        background: #fff7e6;
+        border-color: #ffd591;
+      }
+    }
+  }
+
+  .ant-modal {
+    .ant-modal-body {
+      p {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      strong {
+        color: #1890ff;
+      }
+    }
+  }
+}
+
+/* Reduced motion safeguard */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

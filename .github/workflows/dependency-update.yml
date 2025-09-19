@@ -14,15 +14,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'yarn'
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --immutable
 
       - name: Update dependencies
         run: |
-          npm update
-          npm audit fix --force
+          yarn upgrade
+          yarn audit --level moderate
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
@@ -37,14 +40,14 @@ jobs:
             Changes:
             - Updated all dependencies to their latest versions
             - Fixed security vulnerabilities
-            - Updated package-lock.json
+            - Updated yarn.lock
 
             Please review the changes and merge if appropriate.
           branch: update-dependencies
           delete-branch: true
 
       - name: Check for security vulnerabilities
-        run: npm audit
+        run: yarn audit --level moderate
 
       - name: Notify on failure
         if: failure()

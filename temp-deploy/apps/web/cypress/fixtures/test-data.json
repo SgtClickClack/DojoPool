@@ -1,0 +1,98 @@
+{
+  "users": {
+    "validUser": {
+      "email": "test@example.com",
+      "password": "password123",
+      "username": "TestPlayer",
+      "id": "user_123",
+      "role": "USER",
+      "avatar": "avatar-1"
+    },
+    "adminUser": {
+      "email": "admin@example.com",
+      "password": "password123",
+      "username": "AdminUser",
+      "id": "admin_789",
+      "role": "ADMIN",
+      "avatar": "admin-avatar"
+    },
+    "regularUser": {
+      "email": "user@example.com",
+      "password": "password123",
+      "username": "RegularUser",
+      "id": "user_456",
+      "role": "USER",
+      "avatar": "user-avatar"
+    }
+  },
+  "clans": {
+    "existingClan": {
+      "id": "existing-clan-1",
+      "name": "Phoenix Warriors",
+      "tag": "PHX",
+      "description": "A legendary clan of pool masters",
+      "members": 15,
+      "territories": 3,
+      "rating": 1850,
+      "isPublic": true,
+      "requirements": {
+        "minRating": 1500,
+        "minLevel": 10,
+        "invitationOnly": false,
+        "approvalRequired": false
+      }
+    },
+    "newClan": {
+      "id": "new-clan-123",
+      "name": "Test Clan",
+      "tag": "TEST",
+      "description": "A test clan for E2E testing",
+      "members": 1,
+      "territories": 0,
+      "rating": 1000,
+      "isPublic": true,
+      "requirements": {
+        "minRating": undefined,
+        "minLevel": undefined,
+        "invitationOnly": false,
+        "approvalRequired": false
+      }
+    }
+  },
+  "adminStats": {
+    "totalUsers": 1250,
+    "totalMatches": 5678,
+    "totalClans": 89,
+    "activeUsers": 456,
+    "totalRevenue": 12500.5,
+    "averageRating": 4.2
+  },
+  "adminUsers": {
+    "users": [
+      {
+        "id": "user-1",
+        "username": "testuser1",
+        "email": "user1@example.com",
+        "role": "USER",
+        "isBanned": false,
+        "createdAt": "2024-01-01T00:00:00Z",
+        "lastLogin": "2024-01-15T10:30:00Z"
+      },
+      {
+        "id": "user-2",
+        "username": "testuser2",
+        "email": "user2@example.com",
+        "role": "USER",
+        "isBanned": false,
+        "createdAt": "2024-01-02T00:00:00Z",
+        "lastLogin": "2024-01-14T15:45:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "total": 1250,
+      "totalPages": 63
+    }
+  }
+}

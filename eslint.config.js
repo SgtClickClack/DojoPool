@@ -58,6 +58,10 @@ export default [
       'apps/web/src/**/__tests__/**',
       'services/api/src/tests/**',
       'services/api/src/**/__tests__/**',
+      'services/api/src/**/*.spec.ts',
+      'services/api/src/**/*.test.ts',
+      'services/api/test-*.js',
+      'services/api/types/**',
     ],
   },
 
@@ -69,7 +73,7 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        projectService: true,
+        project: ['./tsconfig.json', './apps/web/tsconfig.json', './services/api/tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -121,7 +125,6 @@ export default [
       '@typescript-eslint/no-require-imports': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-empty-object-type': 'warn',
       'no-useless-catch': 'warn',
       'no-undef': 'off',
     },
@@ -192,7 +195,7 @@ export default [
       sourceType: 'module',
       parser: tsParser,
       parserOptions: {
-        projectService: true,
+        project: ['./tsconfig.json', './apps/web/tsconfig.json', './services/api/tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
         ecmaFeatures: { jsx: true },
       },

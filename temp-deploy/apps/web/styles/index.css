@@ -1,0 +1,77 @@
+/* ==========================================================================
+   DojoPool Styles - Main Entry Point
+   ========================================================================== */
+
+/* Import base styles first */
+@import './base.css';
+
+/* Import utility classes */
+@import './utilities.css';
+
+/* Import component-specific styles */
+/* Removed invalid SCSS imports to prevent 404 in Next.js build */
+
+/* ==========================================================================
+   Global Overrides and Final Adjustments
+   ========================================================================== */
+
+/* Ensure proper font loading */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Roboto+Mono:wght@400;500;600&display=swap');
+
+/* ==========================================================================
+   Critical CSS for Above-the-Fold Content
+   ========================================================================== */
+
+/* Optimize critical rendering path */
+.critical {
+  contain: layout style paint;
+}
+
+/* ==========================================================================
+   Mapbox Map Styles
+   ========================================================================== */
+
+/* Dojo marker styles */
+.dojo-marker {
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dojo-marker:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .cyber-background,
+  .neon-grid,
+  .vs-overlay {
+    display: none !important;
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
