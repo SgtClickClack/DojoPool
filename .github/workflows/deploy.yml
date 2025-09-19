@@ -63,7 +63,7 @@ jobs:
           REDIS_URL: redis://localhost:6379
 
       - name: Build application
-        run: yarn build
+        run: cd apps/web && yarn build
 
       - name: Install Docker Compose
         run: |
@@ -109,7 +109,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Build application
-        run: yarn build
+        run: cd apps/web && yarn build
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
@@ -117,5 +117,5 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./
+          working-directory: ./apps/web
           vercel-args: '--prod'
