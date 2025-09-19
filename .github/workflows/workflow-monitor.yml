@@ -1,0 +1,66 @@
+name: Workflow Health Monitor
+
+on:
+  schedule:
+    # Run every 30 minutes
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: 'Monitor duration in minutes'
+        required: false
+        default: '10'
+        type: string
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Setup GitHub CLI
+        run: |
+          gh auth setup-git
+          gh auth status
+
+      - name: Run Workflow Monitor
+        run: |
+          chmod +x scripts/workflow-monitor.sh
+          timeout ${{ github.event.inputs.duration || '10' }}m ./scripts/workflow-monitor.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report Status
+        if: always()
+        run: |
+          echo "## Workflow Monitor Report" >> $GITHUB_STEP_SUMMARY
+          echo "Monitor completed at $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Get recent workflow status
+          gh run list --limit 5 --json workflowName,status,conclusion | jq -r '
+            .[] | 
+            "| \(.workflowName) | \(.status) | \(.conclusion // "N/A") |"
+          ' >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Recent Workflow Runs" >> $GITHUB_STEP_SUMMARY
+          echo "| Workflow | Status | Conclusion |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|------------|" >> $GITHUB_STEP_SUMMARY
