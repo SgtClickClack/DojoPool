@@ -1,7 +1,7 @@
 # Security-related dependencies
 
 # Vulnerability scanning
-bandit==1.7.5
+bandit==1.8.6
 safety==2.3.5
 
 # Security headers and CSRF protection
