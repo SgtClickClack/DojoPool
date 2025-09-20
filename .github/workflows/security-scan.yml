@@ -29,7 +29,7 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install --immutable || yarn install --immutable --check-cache
 
       - name: Run yarn audit
         run: yarn audit --level moderate || echo "Security audit completed with warnings"
