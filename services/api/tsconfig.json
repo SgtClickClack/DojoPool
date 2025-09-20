@@ -23,6 +23,7 @@
     "src/notifications/test-notifications.script.ts",
     "src/shadow-runs/**/*",
     "**/*.spec.ts",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "**/__tests__/**/*"
   ]
 }
