@@ -69,10 +69,12 @@ export type WebSocketEvent =
   | GameUpdate
   | DirectMessageUpdate;
 
+export type WebSocketEventData = Record<string, unknown>;
+
 export class WebSocketService {
   private socket: Socket | null = null;
   private isConnected: boolean = false;
-  private eventListeners: Map<string, Set<(data: any) => void>> = new Map();
+  private eventListeners: Map<string, Set<(data: WebSocketEventData) => void>> = new Map();
   private messageActivityListeners: Set<() => void> = new Set();
   private reconnectAttempts: number = 0;
   private maxReconnectAttempts: number = 5;
@@ -220,7 +222,7 @@ export class WebSocketService {
   subscribeToMatchStatus(
     callback: (payload: { matchId: string; status: string }) => void
   ): () => void {
-    return this.subscribe('match_status_update', callback);
+    return this.subscribe('match_status_update', callback as (data: WebSocketEventData) => void);
   }
 
   // Emit shot taken event for live commentary
@@ -262,7 +264,7 @@ export class WebSocketService {
     }, delay);
   }
 
-  private handleMessage(data: any): void {
+  private handleMessage(data: WebSocketEventData): void {
     try {
       const message = typeof data === 'string' ? JSON.parse(data) : data;
 
@@ -286,7 +288,7 @@ export class WebSocketService {
     }
   }
 
-  subscribe(event: string, callback: (data: any) => void): () => void {
+  subscribe(event: string, callback: (data: WebSocketEventData) => void): () => void {
     if (!this.eventListeners.has(event)) {
       this.eventListeners.set(event, new Set());
     }
@@ -306,7 +308,7 @@ export class WebSocketService {
     };
   }
 
-  unsubscribe(event: string, callback: (data: any) => void): void {
+  unsubscribe(event: string, callback: (data: WebSocketEventData) => void): void {
     const listeners = this.eventListeners.get(event);
     if (listeners && listeners.has(callback)) {
       listeners.delete(callback);
@@ -317,7 +319,7 @@ export class WebSocketService {
     }
   }
 
-  emit(event: string, data: any): void {
+  emit(event: string, data: WebSocketEventData): void {
     if (this.socket && this.isConnected) {
       this.socket.emit(event, data);
     } else {
@@ -354,7 +356,7 @@ export class WebSocketService {
   subscribeToPlayerPositions(
     callback: (positions: PlayerPosition[]) => void
   ): () => void {
-    return this.subscribe('player_position_update', callback);
+    return this.subscribe('player_position_update', callback as unknown as (data: WebSocketEventData) => void);
   }
 
   // Method to request player positions

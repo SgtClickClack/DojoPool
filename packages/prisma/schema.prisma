@@ -116,6 +116,7 @@ model Venue {
   tables             Int           @default(0)
   reviews            String        @default("[]")
   owner              User?         @relation(fields: [ownerId], references: [id])
+  controllingClan    Clan?         @relation(fields: [controllingClanId], references: [id])
   tablesList         Table[]
   tournaments        Tournament[]
   territories        Territory[]
@@ -179,6 +180,7 @@ model Clan {
   description      String?
   tag              String       @unique
   leaderId         String
+  maxMembers       Int          @default(50)
   dojoCoinBalance  Int          @default(0)
   seasonalPoints   Int          @default(0)
   bannerUrl        String?
@@ -190,6 +192,7 @@ model Clan {
   leader           User         @relation("ClanLeader", fields: [leaderId], references: [id])
   members          ClanMember[]
   territories      Territory[]
+  controlledVenues Venue[]
   activityEvents   ActivityEvent[]
   shadowRuns       ShadowRun[]
   createdAt        DateTime     @default(now())

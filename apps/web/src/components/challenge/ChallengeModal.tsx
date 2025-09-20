@@ -1,6 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import challengeService, {
   type ChallengeRequest,
+  type Challenge,
 } from '@/services/challengeService';
 import marketplaceService, { type UserBalance } from '@/services/marketplaceService';
 import { AttachMoney as AttachMoneyIcon } from '@mui/icons-material';
@@ -24,7 +25,7 @@ interface ChallengeModalProps {
   onClose: () => void;
   challengedPlayerId: string;
   challengedPlayerName: string;
-  onChallengeSent?: (challenge: any) => void;
+  onChallengeSent?: (challenge: Challenge) => void;
 }
 
 export const ChallengeModal: React.FC<ChallengeModalProps> = ({
@@ -98,7 +99,7 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
       const response =
         await challengeService.sendMockChallenge(challengeRequest);
 
-      if (response.success) {
+      if (response.success && response.challenge) {
         onChallengeSent?.(response.challenge);
         onClose();
         // Reset form
@@ -107,8 +108,9 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
       } else {
         setError(response.message);
       }
-    } catch (error: any) {
-      setError(error.message || 'Failed to send challenge');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send challenge';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

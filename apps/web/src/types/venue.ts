@@ -71,6 +71,7 @@ export interface Venue {
   hours?: VenueHours[];
   contact?: VenueContact;
   ownerId?: string;
+  controllingClanId?: string;
   isVerified: boolean;
   distance?: number; // in kilometers
   createdAt: string;
@@ -92,6 +93,8 @@ export interface VenueSearchFilters {
     min: number;
     max: number;
   };
+  page?: number;
+  limit?: number;
 }
 
 export interface VenueSearchResponse {

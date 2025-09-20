@@ -1,16 +1,16 @@
-import { jest } from '@jest/globals';
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import * as APIService from '../../../services/APIService';
 import CMSDashboard from '../CMSDashboard';
 
 // Mock the APIService
-jest.mock('../../../services/APIService', () => ({
-  getCMSStats: jest.fn(),
+vi.mock('../../../services/APIService', () => ({
+  getCMSStats: vi.fn(),
 }));
 
 // Mock MUI icons
-jest.mock('@mui/icons-material', () => ({
+vi.mock('@mui/icons-material', () => ({
   Event: () => <div data-testid="event-icon" />,
   Article: () => <div data-testid="article-icon" />,
   Announcement: () => <div data-testid="announcement-icon" />,
@@ -20,7 +20,7 @@ jest.mock('@mui/icons-material', () => ({
 }));
 
 // Mock MUI components
-jest.mock('@mui/material', () => ({
+vi.mock('@mui/material', () => ({
   Alert: ({ children, severity }: any) => (
     <div data-testid={`alert-${severity}`}>{children}</div>
   ),
@@ -36,25 +36,25 @@ jest.mock('@mui/material', () => ({
 }));
 
 // Mock child components
-jest.mock('../CMSTabs', () => {
+vi.mock('../CMSTabs', () => {
   return function MockCMSTabs({ children }: any) {
     return <div data-testid="cms-tabs">{children}</div>;
   };
 });
 
-jest.mock('../EventManagement', () => {
+vi.mock('../EventManagement', () => {
   return function MockEventManagement() {
     return <div data-testid="event-management">Event Management Component</div>;
   };
 });
 
-jest.mock('../NewsManagement', () => {
+vi.mock('../NewsManagement', () => {
   return function MockNewsManagement() {
     return <div data-testid="news-management">News Management Component</div>;
   };
 });
 
-jest.mock('../SystemMessageManagement', () => {
+vi.mock('../SystemMessageManagement', () => {
   return function MockSystemMessageManagement() {
     return (
       <div data-testid="system-message-management">
@@ -76,17 +76,15 @@ describe('CMSDashboard', () => {
     totalShares: 234,
   };
 
-  const getCMSStatsMock = APIService.getCMSStats as jest.MockedFunction<
-    typeof APIService.getCMSStats
-  >;
+  const getCMSStatsMock = APIService.getCMSStats as any;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     getCMSStatsMock.mockResolvedValue(mockStats);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders CMS dashboard with statistics', async () => {
@@ -122,7 +120,7 @@ describe('CMSDashboard', () => {
   });
 
   it('handles API errors gracefully', async () => {
-    const consoleErrorSpy = jest
+    const consoleErrorSpy = vi
       .spyOn(console, 'error')
       .mockImplementation(() => {});
     getCMSStatsMock.mockRejectedValue(new Error('API Error'));

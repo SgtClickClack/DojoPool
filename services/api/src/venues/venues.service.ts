@@ -37,7 +37,7 @@ export class VenuesService {
       include: {
         owner: { select: { id: true, username: true } },
         controllingClan: { select: { id: true, name: true } },
-        _count: { select: { tables: true } },
+        _count: { select: { tablesList: true } },
       },
     });
   }
@@ -48,7 +48,7 @@ export class VenuesService {
       include: {
         owner: { select: { id: true, username: true } },
         controllingClan: { select: { id: true, name: true } },
-        tables: true,
+        tablesList: true,
       },
     });
     if (!venue) {
@@ -148,22 +148,32 @@ export class VenuesService {
   }
 
   async getVenueStatistics(): Promise<any> {
-    const [totalVenues, totalTables, averageTables] = await Promise.all([
+    const [totalVenues, totalTables, venueStats] = await Promise.all([
       this.prisma.venue.count(),
       this.prisma.table.count(),
-      this.prisma.venue.aggregate({
-        _avg: {
-          _count: {
-            tables: true,
+      this.prisma.table.groupBy({
+        by: ['venueId'],
+        _count: {
+          venueId: true,
+        },
+        where: {
+          venueId: {
+            not: undefined,
           },
         },
       }),
     ]);
 
+    // Calculate average tables per venue
+    const totalVenuesWithTables = venueStats.length;
+    const averageTablesPerVenue = totalVenuesWithTables > 0
+      ? venueStats.reduce((sum, stat) => sum + (stat._count?.venueId || 0), 0) / totalVenuesWithTables
+      : 0;
+
     return {
       totalVenues,
       totalTables,
-      averageTablesPerVenue: averageTables._avg._count?.tables || 0,
+      averageTablesPerVenue: Math.round(averageTablesPerVenue * 100) / 100,
     };
   }
 
@@ -217,10 +227,10 @@ export class VenuesService {
 
     try {
       this.matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(
         `Failed to emit tablesUpdated event: ${
-          err instanceof Error ? err.message : String(err)
+          (err as Error).message || String(err)
         }`
       );
     }
@@ -261,10 +271,10 @@ export class VenuesService {
 
     try {
       this.matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(
         `Failed to emit tablesUpdated event: ${
-          err instanceof Error ? err.message : String(err)
+          (err as Error).message || String(err)
         }`
       );
     }
@@ -298,10 +308,10 @@ export class VenuesService {
 
     try {
       this.matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(
         `Failed to emit tablesUpdated event: ${
-          err instanceof Error ? err.message : String(err)
+          (err as Error).message || String(err)
         }`
       );
     }
@@ -384,7 +394,7 @@ export class VenuesService {
     } catch (err) {
       this.logger.warn(
         `Failed to emit tableUpdated event: ${
-          err instanceof Error ? err.message : String(err)
+          (err as Error).message || String(err)
         }`
       );
     }

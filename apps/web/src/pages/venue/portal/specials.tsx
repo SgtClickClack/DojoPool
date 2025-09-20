@@ -64,9 +64,9 @@ const SpecialsPage: React.FC = () => {
       setSuccess(null);
       const created = await createVenueSpecial({
         title,
-        description: description || undefined,
-        startsAt: startsAt || undefined,
-        endsAt: endsAt || undefined,
+        ...(description && { description }),
+        ...(startsAt && { startsAt }),
+        ...(endsAt && { endsAt }),
         isActive: true,
       });
       setSpecials((prev) => [created, ...prev]);

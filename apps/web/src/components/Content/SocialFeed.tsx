@@ -344,6 +344,9 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({
               size="small"
               sx={{ minWidth: 150 }}
               value={filters.contentType || ''}
+              SelectProps={{
+                title: 'Filter by content type'
+              }}
               onChange={(e) =>
                 setFilters((prev) => ({
                   ...prev,

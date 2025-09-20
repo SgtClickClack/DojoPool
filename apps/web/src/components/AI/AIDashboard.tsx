@@ -116,6 +116,7 @@ const AIDashboard: React.FC<AIDashboardProps> = ({ isOpen, onClose }) => {
             <button
               onClick={onClose}
               className="p-2 rounded-full hover:bg-gray-800 transition-colors"
+              aria-label="Close AI Dashboard"
             >
               <XCircleIcon className="w-6 h-6 text-gray-400" />
             </button>

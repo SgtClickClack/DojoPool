@@ -72,7 +72,7 @@ interface PlayerLoadout {
 }
 
 interface InventoryContextType {
-  user: any;
+  user: { id: string; username?: string } | null;
   inventory: PlayerInventoryItem[];
   allItems: CosmeticItem[];
   loadout: PlayerLoadout | null;
@@ -140,15 +140,47 @@ export const InventoryDataProvider: React.FC<InventoryDataProviderProps> = ({
 
       // Fetch all available items
       const allItemsResponse = await APIService.getAllItems();
-      setAllItems(allItemsResponse);
+      // Transform InventoryItem[] to CosmeticItem[]
+      const transformedItems: CosmeticItem[] = allItemsResponse.map(item => ({
+        ...item,
+        key: item.id, // Use id as key
+        isDefault: false, // Default assumption
+        isTradable: true, // Default assumption
+        icon: item.imageUrl,
+        previewImage: item.imageUrl,
+        equipmentSlot: item.type === 'equipment' ? item.type as any : undefined,
+        createdAt: item.createdAt || new Date().toISOString(),
+        updatedAt: item.updatedAt || new Date().toISOString(),
+      }));
+      setAllItems(transformedItems);
 
       // Fetch user's inventory
       const inventoryResponse = await APIService.getPlayerInventory(user!.id);
-      setInventory(inventoryResponse);
+      // Transform UserInventory to PlayerInventoryItem[]
+      const transformedInventory: PlayerInventoryItem[] = inventoryResponse.items.map(item => ({
+        id: `${user!.id}-${item.id}`, // Create composite ID
+        userId: user!.id,
+        itemId: item.id,
+        item: {
+          ...item,
+          key: item.id,
+          isDefault: false,
+          isTradable: true,
+          icon: item.imageUrl,
+          previewImage: item.imageUrl,
+          equipmentSlot: item.type === 'equipment' ? item.type as any : undefined,
+          createdAt: item.createdAt || new Date().toISOString(),
+          updatedAt: item.updatedAt || new Date().toISOString(),
+        },
+        acquiredAt: item.createdAt || new Date().toISOString(),
+        source: 'unknown',
+        isEquipped: item.equipped || false,
+      }));
+      setInventory(transformedInventory);
 
       // Fetch user's loadout with emote wheel data
       const loadoutData = await APIService.getPlayerLoadout(user!.id);
-      setLoadout(loadoutData);
+      setLoadout(loadoutData as PlayerLoadout | null);
     } catch (err) {
       console.error('Failed to fetch inventory data:', err);
       setError('Failed to load inventory data');
@@ -174,7 +206,7 @@ export const InventoryDataProvider: React.FC<InventoryDataProviderProps> = ({
       await APIService.equipItem({
         userId: user.id,
         itemId,
-        equipmentSlot,
+        equipmentSlot: equipmentSlot.id,
       });
 
       enqueueSnackbar('Item equipped successfully!', { variant: 'success' });
@@ -184,7 +216,7 @@ export const InventoryDataProvider: React.FC<InventoryDataProviderProps> = ({
     } catch (err: unknown) {
       const message =
         err instanceof Error && 'response' in err
-          ? (err as any).response?.data?.message || err.message
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message || err.message
           : 'Failed to equip item';
       enqueueSnackbar(message, {
         variant: 'error',
@@ -198,10 +230,10 @@ export const InventoryDataProvider: React.FC<InventoryDataProviderProps> = ({
     if (!user?.id) return;
 
     try {
-      setEquipping((equipmentSlot as any)?.id ?? null);
+      setEquipping(equipmentSlot?.id ?? null);
       await APIService.unequipItem({
         userId: user.id,
-        equipmentSlot,
+        equipmentSlot: equipmentSlot.id,
       });
 
       enqueueSnackbar('Item unequipped successfully!', { variant: 'success' });
@@ -211,7 +243,7 @@ export const InventoryDataProvider: React.FC<InventoryDataProviderProps> = ({
     } catch (err: unknown) {
       const message =
         err instanceof Error && 'response' in err
-          ? (err as any).response?.data?.message || err.message
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message || err.message
           : 'Failed to unequip item';
       enqueueSnackbar(message, {
         variant: 'error',

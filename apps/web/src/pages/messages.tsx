@@ -3,7 +3,7 @@ import ConversationList from '@/components/chat/ConversationList';
 import { useChat } from '@/contexts/ChatContext';
 import { useAuth } from '@/hooks/useAuth';
 import chatService, { type ChatMessage, type Conversation } from '@/services/chatService';
-import { websocketService } from '@/services/WebSocketService';
+import { websocketService, type WebSocketEventData } from '@/services/WebSocketService';
 import {
   Alert,
   Box,
@@ -88,7 +88,7 @@ export default function MessagesPage() {
 
     const unsubscribe = websocketService.subscribe(
       'new_dm',
-      (data: ChatMessage) => {
+      ((data: ChatMessage) => {
         // Update messages if this is the current conversation
         if (
           selectedConversation &&
@@ -112,7 +112,7 @@ export default function MessagesPage() {
             severity: 'info',
           });
         }
-      }
+      }) as unknown as (data: WebSocketEventData) => void
     );
 
     return unsubscribe;

@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useAuth';
 import { type ChatMessage, type Conversation } from '@/services/chatService';
-import { websocketService } from '@/services/WebSocketService';
+import { websocketService, type WebSocketEventData } from '@/services/WebSocketService';
 import React, {
   createContext,
   useCallback,
@@ -52,7 +52,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     const unsubscribe = websocketService.subscribe(
       'new_dm',
-      (data: ChatMessage) => {
+      ((data: ChatMessage) => {
         // Update conversations with new message
         setConversations((prev) =>
           prev.map((conv) => {
@@ -73,7 +73,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             return conv;
           })
         );
-      }
+      }) as unknown as (data: WebSocketEventData) => void
     );
 
     return unsubscribe;

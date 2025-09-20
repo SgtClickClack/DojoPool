@@ -395,7 +395,7 @@ export class TournamentsService {
       
       return await this.addParticipantToDb(tournamentId, participantId);
     } catch (error) {
-      this.logger.error(`Failed to add participant to tournament ${tournamentId}: ${error.message}`);
+      this.logger.error(`Failed to add participant to tournament ${tournamentId}: ${error instanceof Error ? error.message : String(error)}`);
       throw error;
     }
   }
@@ -409,7 +409,7 @@ export class TournamentsService {
       
       return await this.removeParticipantFromDb(tournamentId, participantId);
     } catch (error) {
-      this.logger.error(`Failed to remove participant from tournament ${tournamentId}: ${error.message}`);
+      this.logger.error(`Failed to remove participant from tournament ${tournamentId}: ${error instanceof Error ? error.message : String(error)}`);
       throw error;
     }
   }
@@ -434,7 +434,7 @@ export class TournamentsService {
         averageParticipants: totalTournaments > 0 ? totalParticipants / totalTournaments : 0,
       };
     } catch (error) {
-      this.logger.error(`Failed to get tournament stats: ${error.message}`);
+      this.logger.error(`Failed to get tournament stats: ${error instanceof Error ? error.message : String(error)}`);
       throw error;
     }
   }

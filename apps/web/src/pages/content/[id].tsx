@@ -297,10 +297,11 @@ const ContentDetailPage: NextPage = () => {
           </Typography>
 
           {content.fileUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-            <img
+            <Box
+              component="img"
               src={content.thumbnailUrl || content.fileUrl}
               alt={content.title}
-              style={{
+              sx={{
                 maxWidth: '100%',
                 maxHeight: '600px',
                 borderRadius: '8px',
@@ -308,9 +309,10 @@ const ContentDetailPage: NextPage = () => {
               }}
             />
           ) : content.fileUrl.match(/\.(mp4|webm|ogg)$/i) ? (
-            <video
+            <Box
+              component="video"
               controls
-              style={{
+              sx={{
                 maxWidth: '100%',
                 maxHeight: '600px',
                 borderRadius: '8px',
@@ -319,7 +321,7 @@ const ContentDetailPage: NextPage = () => {
             >
               <source src={content.fileUrl} />
               Your browser does not support the video tag.
-            </video>
+            </Box>
           ) : (
             <Box sx={{ p: 4 }}>
               <Typography variant="body1" gutterBottom>

@@ -347,22 +347,27 @@ export class ClansService {
 
   async getClanStatistics() {
     try {
-      const [totalClans, totalMembers, averageMembers] = await Promise.all([
+      const [totalClans, totalMembers, clanStats] = await Promise.all([
         this.prisma.clan.count(),
         this.prisma.clanMember.count(),
-        this.prisma.clan.aggregate({
-          _avg: {
-            _count: {
-              members: true,
-            },
+        this.prisma.clanMember.groupBy({
+          by: ['clanId'],
+          _count: {
+            clanId: true,
           },
         }),
       ]);
 
+      // Calculate average members per clan
+      const totalClansWithMembers = clanStats.length;
+      const averageMembers = totalClansWithMembers > 0
+        ? clanStats.reduce((sum, stat) => sum + stat._count.clanId, 0) / totalClansWithMembers
+        : 0;
+
       return {
         totalClans,
         totalMembers,
-        averageMembers: averageMembers._avg._count?.members || 0,
+        averageMembers: Math.round(averageMembers * 100) / 100, // Round to 2 decimal places
       };
     } catch (err) {
       this.logger.error(

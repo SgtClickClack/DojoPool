@@ -23,6 +23,27 @@ import type {
   UpdateFeedbackRequest,
   UserFeedbackListResponse,
 } from '@/types/feedback';
+import type {
+  Clan,
+  ClanListResponse,
+  ClanMember,
+  ClanUpdateData,
+  ClanFilters,
+} from '@/types/clan';
+import type {
+  Territory,
+  TerritoryFilters,
+  TerritoryManageAction,
+  TerritoryScoutResult,
+  TerritoryManageResult,
+} from '@/types/territory';
+import type { Venue, VenueSearchFilters, VenueSearchResponse } from '@/types/venue';
+import type {
+  VenueSpecial,
+  CreateVenueSpecialRequest,
+} from '@/types/venue-special';
+import type { ActivityEvent, ActivityEventType, ActivityFeedResponse, ActivityFeedFilters } from '@/types/activity';
+import type { InventoryItem, EquipmentSlot, UserInventory } from '@/types/inventory';
 import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 // Create axios instance with default config
@@ -92,52 +113,39 @@ api.interceptors.response.use(
 export default api;
 
 // Clan API functions
-export const createClan = async (clanData: any): Promise<any> => {
+export const createClan = async (clanData: Partial<Clan>): Promise<Clan> => {
   const response = await api.post('/v1/clans', clanData);
   return response.data;
 };
 
-export const getClans = async (filters?: any): Promise<any[]> => {
+export const getClans = async (filters?: ClanFilters): Promise<ClanListResponse> => {
   const response = await api.get('/v1/clans', { params: filters });
   return response.data;
 };
 
-export const getClanDetails = async (clanId: string): Promise<any> => {
+export const getClanDetails = async (clanId: string): Promise<Clan> => {
   const response = await api.get(`/v1/clans/${clanId}`);
   return response.data;
 };
 
-export const getClanMembers = async (clanId: string): Promise<any[]> => {
+export const getClanMembers = async (clanId: string): Promise<ClanMember[]> => {
   const response = await api.get(`/v1/clans/${clanId}/members`);
   return response.data;
 };
 
 export const getClanControlledDojos = async (
   clanId: string
-): Promise<any[]> => {
+): Promise<Territory[]> => {
   const response = await api.get(`/v1/territories/clan/${clanId}`);
   return response.data;
 };
 
 // Strategic Map API functions
-export interface StrategicTerritory {
-  id: string;
-  name: string;
-  venueId: string;
-  coordinates?: { lat: number; lng: number };
-  owner?: { id: string; username: string } | null;
-  clan?: { id: string; name: string } | null;
-  level: number;
-  defenseScore: number;
-  strategicValue: number;
-  resources: Record<string, number>;
-}
-
 export const getStrategicMap = async (
   bbox?: [number, number, number, number]
-): Promise<StrategicTerritory[]> => {
-  const params: any = {};
-  if (bbox) params.bbox = bbox.join(',');
+): Promise<Territory[]> => {
+  const params: TerritoryFilters = {};
+  if (bbox) params.bbox = bbox;
   const response = await api.get('/v1/territories/map', { params });
   return response.data;
 };
@@ -145,7 +153,7 @@ export const getStrategicMap = async (
 export const scoutTerritory = async (
   territoryId: string,
   playerId: string
-): Promise<{ success: boolean; eventId?: string }> => {
+): Promise<TerritoryScoutResult> => {
   const response = await api.post(`/v1/territories/${territoryId}/scout`, {
     playerId,
   });
@@ -154,9 +162,9 @@ export const scoutTerritory = async (
 
 export const manageTerritory = async (
   territoryId: string,
-  action: 'upgrade_defense' | 'allocate_resources' | 'transfer_ownership',
-  payload?: any
-): Promise<any> => {
+  action: TerritoryManageAction['action'],
+  payload?: Record<string, unknown>
+): Promise<TerritoryManageResult> => {
   const response = await api.post(`/v1/territories/${territoryId}/manage`, {
     action,
     payload,
@@ -182,20 +190,34 @@ export const getActivityFeed = async (
   filter: 'global' | 'friends' = 'global',
   page: number = 1,
   limit: number = 20
-): Promise<any> => {
+): Promise<ActivityFeedResponse> => {
   const mappedFilter = filter === 'global' ? 'all' : 'friends';
   const response = await api.get('/v1/feed', {
     params: { filter: mappedFilter, page, pageSize: limit },
   });
   const raw = response.data || {};
 
-  const items: any[] = Array.isArray(raw.items) ? raw.items : [];
+  // Define the raw API response structure for activity items
+  interface RawActivityItem {
+    id: string;
+    type: string;
+    message?: string;
+    user?: {
+      id: string;
+      username: string;
+    };
+    userId?: string;
+    metadata?: Record<string, any>;
+    createdAt: string;
+  }
+
+  const items: RawActivityItem[] = Array.isArray(raw.items) ? raw.items : [];
   const pageNumber: number = Number(raw.page ?? page);
   const pageSize: number = Number(raw.pageSize ?? limit);
 
-  const entries = items.map((it: any) => ({
+  const entries = items.map((it: RawActivityItem): ActivityEvent => ({
     id: it.id,
-    type: it.type,
+    type: it.type as ActivityEventType,
     title: it.type?.toString().replace(/_/g, ' ') || 'activity',
     description: it.message ?? '',
     userId: it.user?.id ?? it.userId ?? '',
@@ -219,7 +241,7 @@ export const getActivityFeed = async (
   };
 };
 
-export const getUserClan = async (userId: string): Promise<any | null> => {
+export const getUserClan = async (userId: string): Promise<Clan | null> => {
   try {
     const response = await api.get(`/v1/users/${userId}/clan`);
     return response.data;
@@ -233,8 +255,8 @@ export const getUserClan = async (userId: string): Promise<any | null> => {
 
 export const updateClan = async (
   clanId: string,
-  updates: any
-): Promise<any> => {
+  updates: ClanUpdateData
+): Promise<Clan> => {
   const response = await api.patch(`/v1/clans/${clanId}`, updates);
   return response.data;
 };
@@ -334,7 +356,7 @@ export interface DashboardStats {
     type: string;
     description: string;
     timestamp: string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
   }>;
 }
 
@@ -376,21 +398,7 @@ export const getCdnCostStats = async (): Promise<CdnCostStats> => {
 };
 
 // Venue API functions
-export const getVenues = async (params?: {
-  search?: string;
-  city?: string;
-  state?: string;
-  hasTournaments?: boolean;
-  hasFood?: boolean;
-  hasBar?: boolean;
-  page?: number;
-  limit?: number;
-}): Promise<{
-  venues: any[];
-  total: number;
-  page: number;
-  totalPages: number;
-}> => {
+export const getVenues = async (params?: VenueSearchFilters): Promise<VenueSearchResponse> => {
   const response = await api.get('/v1/venues', { params });
   return response.data;
 };
@@ -399,7 +407,7 @@ export const getVenues = async (params?: {
 export const upgradeDojo = async (
   venueId: string,
   upgradeType: string
-): Promise<any> => {
+): Promise<{ success: boolean; venue?: Venue }> => {
   const response = await api.post(`/v1/venues/${venueId}/upgrade`, {
     upgradeType,
   });
@@ -427,28 +435,22 @@ export const updateMyVenue = async (data: {
   description?: string;
   images?: string[];
   hours?: Array<{ day: string; open: string; close: string; isOpen?: boolean }>;
-}): Promise<any> => {
+}): Promise<Venue> => {
   const response = await api.patch('/v1/venues/me', data);
   return response.data;
 };
 
-export const getMyVenue = async (): Promise<any> => {
+export const getMyVenue = async (): Promise<Venue> => {
   const response = await api.get('/v1/venues/me');
   return response.data;
 };
 
-export const createVenueSpecial = async (data: {
-  title: string;
-  description?: string;
-  startsAt?: string;
-  endsAt?: string;
-  isActive?: boolean;
-}): Promise<any> => {
+export const createVenueSpecial = async (data: CreateVenueSpecialRequest): Promise<VenueSpecial> => {
   const response = await api.post('/v1/venues/me/specials', data);
   return response.data;
 };
 
-export const getMyVenueSpecials = async (): Promise<any[]> => {
+export const getMyVenueSpecials = async (): Promise<VenueSpecial[]> => {
   const response = await api.get('/v1/venues/me/specials');
   return response.data;
 };
@@ -538,39 +540,44 @@ export const unregisterFromTournament = async (
 export interface EquipItemRequest {
   userId: string;
   itemId: string;
-  equipmentSlot: any;
+  equipmentSlot: EquipmentSlot['id'];
 }
 
 export interface UnequipItemRequest {
   userId: string;
-  equipmentSlot: any;
+  equipmentSlot: EquipmentSlot['id'];
 }
 
-export const getAllItems = async (): Promise<any[]> => {
+export interface PlayerLoadout {
+  equippedItems: { [slotId: string]: InventoryItem };
+  totalItems: number;
+}
+
+export const getAllItems = async (): Promise<InventoryItem[]> => {
   const response = await api.get('/v1/inventory/items');
   return response.data ?? [];
 };
 
-export const getPlayerInventory = async (userId: string): Promise<any[]> => {
+export const getPlayerInventory = async (userId: string): Promise<UserInventory> => {
   const response = await api.get(`/v1/inventory/${userId}`);
-  return response.data ?? [];
+  return response.data ?? { items: [], equippedItems: {}, totalItems: 0, maxSlots: 50 };
 };
 
-export const getPlayerLoadout = async (userId: string): Promise<any | null> => {
+export const getPlayerLoadout = async (userId: string): Promise<PlayerLoadout | null> => {
   const response = await api.get(`/v1/inventory/${userId}/loadout`);
   return response.data ?? null;
 };
 
 export const equipItem = async (
   payload: EquipItemRequest
-): Promise<{ success: boolean } | any> => {
+): Promise<{ success: boolean; loadout?: PlayerLoadout }> => {
   const response = await api.post('/v1/inventory/equip', payload);
   return response.data ?? { success: true };
 };
 
 export const unequipItem = async (
   payload: UnequipItemRequest
-): Promise<{ success: boolean } | any> => {
+): Promise<{ success: boolean; loadout?: PlayerLoadout }> => {
   const response = await api.post('/v1/inventory/unequip', payload);
   return response.data ?? { success: true };
 };
@@ -760,7 +767,7 @@ export interface CMSEvent {
   eventType?: string;
   status: string;
   tags?: string[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -778,7 +785,7 @@ export interface CMSNewsArticle {
   publishDate?: string;
   status: string;
   tags?: string[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -795,7 +802,7 @@ export interface CMSSystemMessage {
   targetUserIds?: string[];
   status: string;
   tags?: string[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -821,7 +828,7 @@ export interface CreateEventRequest {
   registrationDeadline?: string;
   eventType?: string;
   tags?: string[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface CreateNewsArticleRequest {
@@ -835,7 +842,7 @@ export interface CreateNewsArticleRequest {
   author?: string;
   publishDate?: string;
   tags?: string[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface CreateSystemMessageRequest {
@@ -848,14 +855,14 @@ export interface CreateSystemMessageRequest {
   targetAudience?: string;
   targetUserIds?: string[];
   tags?: string[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 // CMS Events API
 export const getCMSEvents = async (
   page: number = 1,
   limit: number = 20
-): Promise<{ content: CMSEvent[]; totalCount: number; pagination: any }> => {
+): Promise<{ content: CMSEvent[]; totalCount: number; pagination: ActivityFeedResponse['pagination'] }> => {
   const response = await api.get('/cms/events', {
     params: { page, limit },
   });
@@ -890,7 +897,7 @@ export const getCMSNewsArticles = async (
 ): Promise<{
   content: CMSNewsArticle[];
   totalCount: number;
-  pagination: any;
+  pagination: ActivityFeedResponse['pagination'];
 }> => {
   const response = await api.get('/cms/news', {
     params: { page, limit, status, category },
@@ -925,7 +932,7 @@ export const getCMSSystemMessages = async (
 ): Promise<{
   content: CMSSystemMessage[];
   totalCount: number;
-  pagination: any;
+  pagination: ActivityFeedResponse['pagination'];
 }> => {
   const response = await api.get('/cms/messages', {
     params: { page, limit, active },
@@ -987,7 +994,7 @@ export const bulkPublishContent = async (
   results: Array<{
     id: string;
     success: boolean;
-    result?: any;
+    result?: CMSEvent | CMSNewsArticle | CMSSystemMessage;
     error?: string;
   }>;
 }> => {
@@ -1001,7 +1008,7 @@ export const bulkArchiveContent = async (
   results: Array<{
     id: string;
     success: boolean;
-    result?: any;
+    result?: CMSEvent | CMSNewsArticle | CMSSystemMessage;
     error?: string;
   }>;
 }> => {
