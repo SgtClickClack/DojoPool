@@ -14,12 +14,17 @@ if (!(global as any).jest) {
 
 // Polyfill TextEncoder/TextDecoder for Node.js test environment
 if (typeof global.TextEncoder === 'undefined') {
-  // Use ESM import to avoid require in lint
-  const util = await import('node:util');
-  // @ts-expect-error node global augmentation for tests
-  global.TextEncoder = (util as any).TextEncoder;
-  // @ts-expect-error node global augmentation for tests
-  global.TextDecoder = (util as any).TextDecoder;
+  try {
+    // Use require for Node.js built-ins in test environment
+    const util = require('node:util');
+    // @ts-expect-error node global augmentation for tests
+    global.TextEncoder = util.TextEncoder;
+    // @ts-expect-error node global augmentation for tests
+    global.TextDecoder = util.TextDecoder;
+  } catch (e) {
+    // Fallback for environments where node:util is not available
+    console.warn('Could not polyfill TextEncoder/TextDecoder:', e);
+  }
 }
 
 import '@testing-library/jest-dom';

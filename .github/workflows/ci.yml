@@ -53,7 +53,7 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Install dependencies
-        run: yarn install --immutable || yarn install --immutable --check-cache
+        run: yarn install --immutable
       - name: Generate Prisma client
         run: |
           # Set a dummy DATABASE_URL for Prisma generation
@@ -88,10 +88,10 @@ jobs:
           NODE_ENV: test
           PORT: 3002
           NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
-          NEXT_PUBLIC_MAPBOX_TOKEN: pk.eyJ1IjoiZG9qb3Bvb2wiLCJhIjoiY21lZng2YmxkMHk1aTJub2VsaXUyeXRlcyJ9.JTlUI6gaKKorGBm-4p-G6g
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
           CORS_ORIGINS: http://localhost:3000
-          SESSION_SECRET: test-session-secret-for-ci
-          JWT_SECRET: test-jwt-secret-for-ci
+          SESSION_SECRET: test-session-secret-for-ci-minimum-16-chars
+          JWT_SECRET: test-jwt-secret-for-ci-minimum-16-chars
           REDIS_URL: redis://localhost:6379
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
 
@@ -111,7 +111,7 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Install dependencies
-        run: yarn install --immutable || yarn install --immutable --check-cache
+        run: yarn install --immutable
       - name: Security audit
         run: yarn audit --level moderate || echo "Security audit completed with warnings"
       - name: Check for known vulnerabilities
@@ -140,7 +140,7 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Install dependencies
-        run: yarn install --immutable || yarn install --immutable --check-cache
+        run: yarn install --immutable
       - name: Generate Prisma client
         run: |
           # Set a dummy DATABASE_URL for Prisma generation
@@ -151,9 +151,9 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
           NODE_ENV: test
       - name: Lint
-        run: yarn run lint --max-warnings 1000 || echo "Linting completed with warnings"
+        run: yarn run lint --max-warnings 50
       - name: Type check (web and api)
-        run: yarn run type-check || echo "TypeScript check completed with warnings"
+        run: yarn run type-check
 
   tests:
     runs-on: ubuntu-latest
@@ -198,7 +198,7 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Install dependencies
-        run: yarn install --immutable || yarn install --immutable --check-cache
+        run: yarn install --immutable
       - name: Generate Prisma client
         run: |
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
@@ -207,18 +207,75 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
           NODE_ENV: test
+      - name: Run database migrations
+        run: |
+          cd services/api
+          yarn prisma:migrate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
+          NODE_ENV: test
+      - name: Start backend server
+        run: |
+          cd services/api
+          yarn start:dev &
+          echo $! > server.pid
+          echo "Backend server started with PID $(cat server.pid)"
+          sleep 5  # Give server time to initialize
+        env:
+          NODE_ENV: test
+          PORT: 3002
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
+          JWT_SECRET: test-jwt-secret-for-ci-minimum-16-chars
+          SESSION_SECRET: test-session-secret-for-ci-minimum-16-chars
+          REDIS_URL: redis://localhost:6379
+          FRONTEND_URL: http://localhost:3000
+          CORS_ORIGINS: http://localhost:3000
+          GOOGLE_OAUTH_CLIENT_ID: test-client-id
+          GOOGLE_OAUTH_CLIENT_SECRET: test-client-secret
+          GOOGLE_OAUTH_REDIRECT_URI: http://localhost:3002/api/v1/auth/google/callback
+          CLOUDINARY_CLOUD_NAME: test-cloud
+          CLOUDINARY_API_KEY: test-key
+          CLOUDINARY_API_SECRET: test-secret
+          DOJO_BASE_INCOME: '10'
+          DOJO_WIN_REWARD: '50'
+          DOJO_UPGRADE_INCOME_COST: '100'
+          DOJO_UPGRADE_DEFENSE_COST: '150'
+
+      - name: Wait for backend to be ready
+        run: |
+          echo "Waiting for backend server to be ready..."
+          timeout 60 bash -c 'until curl -f http://localhost:3002/api/v1/health > /dev/null 2>&1; do sleep 2; done' || {
+            echo "Health check failed, showing server logs..."
+            if [ -f server.pid ]; then
+              echo "Server PID: $(cat server.pid)"
+              ps aux | grep $(cat server.pid) || echo "Server process not found"
+            fi
+            exit 1
+          }
+          echo "Backend server is ready!"
+
       - name: Run tests (CI)
         run: yarn run test:ci
         env:
           NODE_ENV: test
           PORT: 3002
           NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
-          NEXT_PUBLIC_MAPBOX_TOKEN: pk.eyJ1IjoiZG9qb3Bvb2wiLCJhIjoiY21lZng2YmxkMHk1aTJub2VsaXUyeXRlcyJ9.JTlUI6gaKKorGBm-4p-G6g
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
           CORS_ORIGINS: http://localhost:3000
           SESSION_SECRET: test-session-secret-for-ci-minimum-16-chars
           JWT_SECRET: test-jwt-secret-for-ci-minimum-16-chars
           REDIS_URL: redis://localhost:6379
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
+
+      - name: Stop backend server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            PID=$(cat server.pid)
+            echo "Stopping server with PID $PID"
+            kill $PID || true
+            rm -f server.pid
+          fi
 
   build:
     runs-on: ubuntu-latest
@@ -237,7 +294,7 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Install dependencies
-        run: yarn install --immutable || yarn install --immutable --check-cache
+        run: yarn install --immutable
       - name: Build backend
         run: yarn run build:backend
       - name: Build frontend

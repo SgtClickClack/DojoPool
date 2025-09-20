@@ -1,0 +1,24 @@
+{
+  "extends": ["../../[LINT].eslintrc.json"],
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  },
+  "rules": {
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "no-console": ["warn", { "allow": ["warn", "error", "log"] }]
+  },
+  "ignorePatterns": [
+    "../packages/**/*",
+    "../../packages/**/*",
+    "../../apps/**/*",
+    "../../DojoPoolCombined/**/*",
+    "../../DojoPool*/**/*",
+    "../../Dojo_Pool*/**/*",
+    "../../Dojo Pool*/**/*"
+  ]
+}
