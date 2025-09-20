@@ -21,7 +21,7 @@ pytest-cov==4.1.0  # Updated for security
 # Development
 black==23.12.1  # Updated for security
 flake8==6.1.0  # Updated for security
-mypy==1.8.0  # Updated for security
+mypy==1.18.2  # Updated for security
 
 # Image Processing
 Pillow>=10.2.0  # Updated for security fixes
