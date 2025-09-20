@@ -37,9 +37,22 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       - name: Update PR body
         if: steps.generate.outputs.DESC != ''
-        uses: actions-ecosystem/action-update-comment@v1
+        uses: actions/github-script@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          comment-id: ${{ github.event.pull_request.number }}
-          body: ${{ steps.generate.outputs.DESC }}
+          script: |
+            const body = process.env.DESC;
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            // Get current PR body
+            const pr = await github.rest.pulls.get({ owner, repo, pull_number });
+            const currentBody = pr.data.body || '';
+
+            // Append AI description if not already present
+            if (!currentBody.includes('## AI-Generated Description')) {
+              const newBody = currentBody + '\n\n## AI-Generated Description\n\n' + body;
+              await github.rest.pulls.update({ owner, repo, pull_number, body: newBody });
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DESC: ${{ steps.generate.outputs.DESC }}

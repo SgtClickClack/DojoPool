@@ -42,8 +42,8 @@ jobs:
           script: |
             const body = process.env.BODY;
             const { owner, repo } = context.repo;
-            const issue_number = context.payload.pull_request.number;
-            await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            const pull_number = context.payload.pull_request.number;
+            await github.rest.issues.createComment({ owner, repo, issue_number: pull_number, body });
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BODY: ${{ steps.review.outputs.OUT }}

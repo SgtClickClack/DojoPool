@@ -43,6 +43,9 @@ Fixed failing GitHub Actions workflows that were causing CI pipeline failures. U
 **Phase 2 - Medium Priority Fixes:**
 Fixed additional workflow configuration issues causing potential pipeline failures. Corrected common workflow patterns, context references, and port conflicts in E2E testing environments.
 
+**Phase 3 - Low Priority Formatting Fixes:**
+Cleaned up workflow formatting and readability issues that don't affect functionality but improve maintainability. Rewrote complex multi-line YAML strings into separate, clear steps.
+
 **Core Components Implemented:**
 
 - Fixed pr-ai-description.yml to properly update PR bodies using GitHub API instead of incorrect comment action
@@ -63,6 +66,9 @@ Fixed additional workflow configuration issues causing potential pipeline failur
 - Common CI steps now use consistent Node.js v20 and yarn package manager across all reusable workflows
 - Dependency update workflow can now properly create GitHub issues on failure
 - E2E tests run in isolated port environments preventing conflicts with traditional CI tests
+- **Low Priority Formatting Fixes:**
+  - nginx-test.yml: Rewrote complex 50+ line multi-line strings into separate, readable steps for SSL setup, security testing, and performance testing
+  - staging.yml: Fixed Node.js version consistency (v18→v20), cleaned SSH command formatting, and improved curl command readability
 
 **Integration Points:**
 
@@ -80,6 +86,8 @@ Fixed additional workflow configuration issues causing potential pipeline failur
 - .github/workflows/common.yml (fixed Node.js setup, package manager consistency)
 - .github/workflows/dependency-update.yml (fixed GitHub API context reference)
 - .github/workflows/e2e-tests.yml (resolved port conflicts for isolated testing)
+- .github/workflows/nginx-test.yml (rewrote complex multi-line strings into readable steps)
+- .github/workflows/staging.yml (fixed Node.js version, SSH/cURL formatting)
 
 **Next Priority Task:**
 

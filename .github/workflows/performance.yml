@@ -56,7 +56,7 @@ jobs:
 
       - name: Report status
         if: always()
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
@@ -82,9 +82,15 @@ jobs:
               }
             }
 
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.name,
-              body: summary
-            });
+            // For push events, create a commit status instead of a comment
+            if (context.eventName === 'push') {
+              const status = results.regressions.length > 0 ? 'failure' : 'success';
+              await github.rest.repos.createCommitStatus({
+                owner: context.repo.owner,
+                repo: context.repo.name,
+                sha: context.sha,
+                state: status,
+                description: results.regressions.length > 0 ? 'Performance regressions detected' : 'Performance tests passed',
+                context: 'performance-tests'
+              });
+            }

@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'yarn'
       - name: Enable Corepack
         run: corepack enable
@@ -78,15 +78,16 @@ jobs:
         with:
           ssh-private-key: ${{secrets.STAGING_SSH_KEY}}
       - name: Deploy to staging
-        run:
-          "ssh ${{secrets.STAGING_SERVER_USER}}@${{secrets.STAGING_SERVER_HOST}} << 'ENDSSH'\n  cd /opt/dojopool\n  docker-compose -f docker-compose.staging.yml
-          pull\n  docker-compose -f docker-compose.staging.yml up -d\n  docker system
-          prune -f\nENDSSH\n"
+        run: |
+          ssh ${{secrets.STAGING_SERVER_USER}}@${{secrets.STAGING_SERVER_HOST}} << 'ENDSSH'
+            cd /opt/dojopool
+            docker-compose -f docker-compose.staging.yml pull
+            docker-compose -f docker-compose.staging.yml up -d
+            docker system prune -f
+          ENDSSH
       - name: Run health check
-        run:
-          'curl --retry 5 --retry-delay 10 -f https://${{secrets.STAGING_DOMAIN}}/health
-
-          '
+        run: |
+          curl --retry 5 --retry-delay 10 -f https://${{secrets.STAGING_DOMAIN}}/health
       - name: Notify deployment status
         if: always()
         uses: rtCamp/action-slack-notify@v2.3.0

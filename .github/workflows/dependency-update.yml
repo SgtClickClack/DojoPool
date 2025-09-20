@@ -56,7 +56,7 @@ jobs:
           script: |
             github.rest.issues.create({
               owner: context.repo.owner,
-              repo: context.repo.repo,
+              repo: context.repo.name,
               title: 'Dependency update failed',
               body: 'The dependency update has failed. Please check the workflow logs for details.',
               labels: ['dependencies', 'bug']
