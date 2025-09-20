@@ -21,10 +21,10 @@ export interface LoadoutDisplayProps {
     [key: string]: LoadoutItem | null;
   };
   slotNames?: { [key: string]: string };
-  user?: { id: string; username: string } | null;
+  user?: { id: string; username?: string } | null;
   equipping?: string | null;
-  onEquipItem?: (itemId: string, equipmentSlot: EquipmentSlot) => Promise<void>;
-  onUnequipItem?: (equipmentSlot: EquipmentSlot) => Promise<void>;
+  onEquipItem?: (itemId: string, equipmentSlot: string) => Promise<void>;
+  onUnequipItem?: (equipmentSlot: string) => Promise<void>;
 }
 
 export const LoadoutDisplay: React.FC<LoadoutDisplayProps> = ({

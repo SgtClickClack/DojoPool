@@ -21,6 +21,26 @@ export interface EquipmentSlot {
   item?: InventoryItem;
 }
 
+export interface CosmeticItem {
+  id: string;
+  key: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  icon?: string;
+  previewImage?: string;
+  rarity: ItemRarity;
+  type: ItemType;
+  price?: number;
+  equipped?: boolean;
+  equipmentSlot?: string;
+  isOwned?: boolean;
+  isDefault: boolean;
+  isTradable: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UserInventory {
   items: InventoryItem[];
   equippedItems: { [slot: string]: InventoryItem };

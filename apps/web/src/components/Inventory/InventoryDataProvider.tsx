@@ -210,14 +210,14 @@ export const InventoryDataProvider: React.FC<InventoryDataProviderProps> = ({
     }
   };
 
-  const handleUnequipItem = async (equipmentSlot: EquipmentSlot) => {
+  const handleUnequipItem = async (equipmentSlot: string) => {
     if (!user?.id) return;
 
     try {
-      setEquipping(equipmentSlot.id);
+      setEquipping(equipmentSlot);
       await APIService.unequipItem({
         userId: user.id,
-        equipmentSlot: equipmentSlot.id,
+        equipmentSlot,
       });
 
       enqueueSnackbar('Item unequipped successfully!', { variant: 'success' });
