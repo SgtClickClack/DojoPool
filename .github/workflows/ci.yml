@@ -88,7 +88,7 @@ jobs:
           NODE_ENV: test
           PORT: 3002
           NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
-          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN || 'pk.test-token-for-ci-only' }}
           CORS_ORIGINS: http://localhost:3000
           SESSION_SECRET: test-session-secret-for-ci-minimum-16-chars
           JWT_SECRET: test-jwt-secret-for-ci-minimum-16-chars
@@ -260,7 +260,7 @@ jobs:
           NODE_ENV: test
           PORT: 3002
           NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
-          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN || 'pk.test-token-for-ci-only' }}
           CORS_ORIGINS: http://localhost:3000
           SESSION_SECRET: test-session-secret-for-ci-minimum-16-chars
           JWT_SECRET: test-jwt-secret-for-ci-minimum-16-chars
