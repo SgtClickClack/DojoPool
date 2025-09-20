@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MatchAnalysis } from '../matches/ai-analysis.service';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
+import { AiAnalysisService } from '../matches/ai-analysis.service';
+import { ArAnalysisService } from '../ar-analysis/ar-analysis.service';
 
 describe('AiController', () => {
   let controller: AiController;
@@ -27,12 +29,30 @@ describe('AiController', () => {
       analyzeTableImage: jest.fn(),
     };
 
+    const mockAiAnalysisService = {
+      generateMatchAnalysis: jest.fn(),
+      generateLiveCommentary: jest.fn(),
+      analyzeTableImage: jest.fn(),
+    };
+
+    const mockArAnalysisService = {
+      analyzeTableImage: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AiController],
       providers: [
         {
           provide: AiService,
           useValue: mockAiService,
+        },
+        {
+          provide: AiAnalysisService,
+          useValue: mockAiAnalysisService,
+        },
+        {
+          provide: ArAnalysisService,
+          useValue: mockArAnalysisService,
         },
       ],
     }).compile();

@@ -30,6 +30,159 @@ export class VenuesService {
     private readonly matchesGateway: MatchesGateway
   ) {}
 
+  // Missing methods that tests are calling
+  async getVenues(filters?: any): Promise<any[]> {
+    return this.prisma.venue.findMany({
+      where: filters,
+      include: {
+        owner: { select: { id: true, username: true } },
+        controllingClan: { select: { id: true, name: true } },
+        _count: { select: { tables: true } },
+      },
+    });
+  }
+
+  async getVenueById(id: string): Promise<any> {
+    const venue = await this.prisma.venue.findUnique({
+      where: { id },
+      include: {
+        owner: { select: { id: true, username: true } },
+        controllingClan: { select: { id: true, name: true } },
+        tables: true,
+      },
+    });
+    if (!venue) {
+      throw new NotFoundException('Venue not found');
+    }
+    return venue;
+  }
+
+  async createVenue(data: any, userId: string): Promise<any> {
+    if (!data.name || !data.address) {
+      throw new BadRequestException('Name and address are required');
+    }
+    return this.prisma.venue.create({
+      data: {
+        ...data,
+        ownerId: userId,
+      },
+      include: {
+        owner: { select: { id: true, username: true } },
+      },
+    });
+  }
+
+  async deleteVenue(id: string, userId: string): Promise<any> {
+    const venue = await this.prisma.venue.findUnique({ where: { id } });
+    if (!venue) {
+      throw new NotFoundException('Venue not found');
+    }
+    if (venue.ownerId !== userId) {
+      throw new ForbiddenException('You can only delete your own venue');
+    }
+    return this.prisma.venue.delete({ where: { id } });
+  }
+
+  async updateTable(tableId: string, venueId: string, data: any): Promise<any> {
+    const table = await this.prisma.table.findUnique({
+      where: { id: tableId },
+    });
+    if (!table) {
+      throw new NotFoundException('Table not found');
+    }
+    if (table.venueId !== venueId) {
+      throw new ForbiddenException('Table does not belong to this venue');
+    }
+    return this.prisma.table.update({
+      where: { id: tableId },
+      data,
+    });
+  }
+
+  async getVenueSpecials(venueId: string): Promise<any[]> {
+    return this.prisma.venueSpecial.findMany({
+      where: { venueId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createVenueSpecial(venueId: string, data: any, userId: string): Promise<any> {
+    const venue = await this.prisma.venue.findUnique({ where: { id: venueId } });
+    if (!venue) {
+      throw new NotFoundException('Venue not found');
+    }
+    if (venue.ownerId !== userId) {
+      throw new ForbiddenException('You can only create specials for your own venue');
+    }
+    return this.prisma.venueSpecial.create({
+      data: {
+        ...data,
+        venueId,
+      },
+    });
+  }
+
+  async updateVenueSpecial(specialId: string, venueId: string, data: any, userId: string): Promise<any> {
+    const venue = await this.prisma.venue.findUnique({ where: { id: venueId } });
+    if (!venue) {
+      throw new NotFoundException('Venue not found');
+    }
+    if (venue.ownerId !== userId) {
+      throw new ForbiddenException('You can only update specials for your own venue');
+    }
+    return this.prisma.venueSpecial.update({
+      where: { id: specialId },
+      data,
+    });
+  }
+
+  async deleteVenueSpecial(specialId: string, venueId: string, userId: string): Promise<any> {
+    const venue = await this.prisma.venue.findUnique({ where: { id: venueId } });
+    if (!venue) {
+      throw new NotFoundException('Venue not found');
+    }
+    if (venue.ownerId !== userId) {
+      throw new ForbiddenException('You can only delete specials for your own venue');
+    }
+    return this.prisma.venueSpecial.delete({ where: { id: specialId } });
+  }
+
+  async getVenueStatistics(): Promise<any> {
+    const [totalVenues, totalTables, averageTables] = await Promise.all([
+      this.prisma.venue.count(),
+      this.prisma.table.count(),
+      this.prisma.venue.aggregate({
+        _avg: {
+          _count: {
+            tables: true,
+          },
+        },
+      }),
+    ]);
+
+    return {
+      totalVenues,
+      totalTables,
+      averageTablesPerVenue: averageTables._avg._count?.tables || 0,
+    };
+  }
+
+  async validateVenueOwnership(venueId: string, userId: string): Promise<boolean> {
+    const venue = await this.prisma.venue.findUnique({
+      where: { id: venueId },
+      select: { ownerId: true },
+    });
+    return venue?.ownerId === userId;
+  }
+
+  async validateVenueAdminRole(venueId: string, userId: string): Promise<boolean> {
+    const venue = await this.prisma.venue.findUnique({
+      where: { id: venueId },
+      select: { ownerId: true },
+    });
+    return venue?.ownerId === userId;
+  }
+
   private async getVenueTables(venueId: string) {
     return this.prisma.table.findMany({
       where: { venueId },
@@ -51,7 +204,7 @@ export class VenuesService {
       throw new NotFoundException('Venue not found');
     }
 
-    await this.prisma.table.create({
+    return await this.prisma.table.create({
       data: {
         venueId,
         // Remove tableNumber as it doesn't exist in schema
@@ -132,13 +285,13 @@ export class VenuesService {
       );
     }
 
-    await this.prisma.$transaction(async (tx) => {
+    const deletedTable = await this.prisma.$transaction(async (tx) => {
       // Nullify references in matches first to avoid foreign key constraint issues
       await tx.match.updateMany({
         where: { tableId },
         data: { tableId: null },
       });
-      await tx.table.delete({ where: { id: tableId } });
+      return await tx.table.delete({ where: { id: tableId } });
     });
 
     const tables = await this.getVenueTables(venueId);
@@ -153,7 +306,7 @@ export class VenuesService {
       );
     }
 
-    return tables;
+    return deletedTable;
   }
 
   async updateTableStatus({

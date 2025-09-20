@@ -56,14 +56,15 @@ export class TestDependencyInjector {
         update: jest.fn(),
         delete: jest.fn(),
       },
-      venue: {
-        create: jest.fn(),
-        findUnique: jest.fn(),
-        findMany: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
-        count: jest.fn(),
-      },
+        venue: {
+          create: jest.fn(),
+          findUnique: jest.fn(),
+          findMany: jest.fn(),
+          update: jest.fn(),
+          delete: jest.fn(),
+          count: jest.fn(),
+          aggregate: jest.fn(),
+        },
       table: {
         create: jest.fn(),
         findUnique: jest.fn(),

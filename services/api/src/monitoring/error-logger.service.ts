@@ -165,7 +165,7 @@ export class ErrorLoggerService {
     }
 
     // Update metrics
-    this.updateMetrics(entry);
+    this.updateMetrics(logEntry);
   }
 
   /**

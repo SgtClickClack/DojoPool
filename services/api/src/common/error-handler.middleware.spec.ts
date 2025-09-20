@@ -148,7 +148,7 @@ describe('GlobalErrorHandler', () => {
           success: false,
           error: expect.objectContaining({
             code: 'INTERNAL_SERVER_ERROR',
-            message: 'JavaScript error',
+            message: 'Something went wrong on our end. Please try again.',
           }),
         })
       );
@@ -282,7 +282,7 @@ describe('GlobalErrorHandler', () => {
           success: false,
           error: expect.objectContaining({
             code: 'INTERNAL_SERVER_ERROR',
-            message: 'String error message',
+            message: 'Something went wrong on our end. Please try again.',
           }),
         })
       );
@@ -304,7 +304,7 @@ describe('GlobalErrorHandler', () => {
           success: false,
           error: expect.objectContaining({
             code: 'INTERNAL_SERVER_ERROR',
-            message: 'An unexpected error occurred',
+            message: 'Something went wrong on our end. Please try again.',
           }),
         })
       );

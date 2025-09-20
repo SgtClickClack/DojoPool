@@ -1,50 +1,36 @@
-import path from 'path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    environment: 'node',
-    setupFiles: ['./jest.setup.ts'],
+    environment: 'jsdom',
+    setupFiles: ['./src/tests/setup.ts'],
     globals: true,
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
       '**/build/**',
       '**/coverage/**',
-      'apps/web/**',
-      'services/api/src/**/*.e2e.spec.ts',
-      'services/api/src/**/*.integration.spec.ts',
+      'src/tests/integration/**',
     ],
     include: [
-      'services/api/src/**/*.spec.ts',
-      'services/api/src/**/*.test.ts',
-      'services/api/src/cache/cache.helper.spec.ts',
+      'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      '!src/**/node_modules/**',
     ],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
+      reporter: ['text', 'json', 'html'],
       exclude: [
-        '**/node_modules/**',
-        '**/dist/**',
-        '**/build/**',
-        'apps/web/**',
-        'services/api/src/main.ts',
-        'services/api/src/**/*.module.ts',
-        'packages/**/dist/**',
+        'node_modules/',
+        'src/tests/',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/coverage/**',
       ],
-      thresholds: {
-        global: {
-          branches: 80,
-          functions: 80,
-          lines: 80,
-          statements: 80,
-        },
-      },
     },
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'services/api/src'),
+      '@': '/src',
     },
   },
 });

@@ -16,6 +16,7 @@ describe('CommunityService', () => {
       findUnique: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
+      aggregate: jest.fn(),
     },
     cosmeticItemLike: {
       findUnique: jest.fn(),
@@ -56,6 +57,9 @@ describe('CommunityService', () => {
     prismaService = module.get<PrismaService>(PrismaService);
     notificationsService =
       module.get<NotificationsService>(NotificationsService);
+
+    // Ensure the service has the prisma property
+    (service as any).prisma = mockPrismaService;
   });
 
   it('should be defined', () => {

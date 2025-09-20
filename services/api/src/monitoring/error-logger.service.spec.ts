@@ -54,6 +54,7 @@ describe('ErrorLoggerService', () => {
         status: '500',
         method: 'GET',
         path: '/api/test',
+        errorCode: '500',
       },
     };
 
@@ -279,8 +280,9 @@ describe('ErrorLoggerService', () => {
       const recentError = service.getRecentErrors(1)[0];
 
       expect(recentError.timestamp).toBeDefined();
-      expect(recentError.timestamp).toBeGreaterThanOrEqual(beforeTime);
-      expect(recentError.timestamp).toBeLessThanOrEqual(afterTime);
+      const timestamp = new Date(recentError.timestamp as string);
+      expect(timestamp.getTime()).toBeGreaterThanOrEqual(beforeTime.getTime());
+      expect(timestamp.getTime()).toBeLessThanOrEqual(afterTime.getTime());
     });
 
     it('should preserve existing timestamp', () => {

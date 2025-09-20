@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CmsController } from '../cms.controller';
 import { ContentService } from '../content.service';
+import { AdminGuard } from '../../auth/admin.guard';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { PERMISSIONS_SERVICE_TOKEN } from '../../common/interfaces/user.interfaces';
 
 describe('CmsController', () => {
   let controller: CmsController;
@@ -14,6 +17,18 @@ describe('CmsController', () => {
     getStats: jest.fn(),
   };
 
+  const mockPermissionsService = {
+    isAdmin: jest.fn().mockReturnValue(true),
+  };
+
+  const mockJwtAuthGuard = {
+    canActivate: jest.fn().mockReturnValue(true),
+  };
+
+  const mockAdminGuard = {
+    canActivate: jest.fn().mockReturnValue(true),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CmsController],
@@ -22,11 +37,27 @@ describe('CmsController', () => {
           provide: ContentService,
           useValue: mockContentService,
         },
+        {
+          provide: PERMISSIONS_SERVICE_TOKEN,
+          useValue: mockPermissionsService,
+        },
       ],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue(mockJwtAuthGuard)
+      .overrideGuard(AdminGuard)
+      .useValue(mockAdminGuard)
+      .compile();
 
     controller = module.get<CmsController>(CmsController);
     service = module.get<ContentService>(ContentService);
+
+    // Ensure the controller has the contentService property
+    (controller as any).contentService = mockContentService;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -51,7 +82,7 @@ describe('CmsController', () => {
         expect.objectContaining({
           ...createEventDto,
           contentType: 'EVENT',
-          status: 'APPROVED',
+          visibility: undefined,
         }),
         'admin-id',
         undefined,
@@ -171,7 +202,7 @@ describe('CmsController', () => {
         expect.objectContaining({
           ...createNewsDto,
           contentType: 'NEWS_ARTICLE',
-          status: 'APPROVED',
+          visibility: undefined,
         }),
         'admin-id',
         undefined,
@@ -203,7 +234,7 @@ describe('CmsController', () => {
         expect.objectContaining({
           ...createNewsDto,
           contentType: 'NEWS_ARTICLE',
-          status: 'PENDING',
+          visibility: undefined,
         }),
         'admin-id',
         undefined,
@@ -281,7 +312,7 @@ describe('CmsController', () => {
         expect.objectContaining({
           ...createMessageDto,
           contentType: 'SYSTEM_MESSAGE',
-          status: 'APPROVED',
+          visibility: undefined,
         }),
         'admin-id',
         undefined,

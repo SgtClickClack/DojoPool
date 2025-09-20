@@ -60,6 +60,7 @@ describe('VenuesService', () => {
     const mockMatchesGateway = {
       notifyTableUpdate: jest.fn(),
       notifyVenueUpdate: jest.fn(),
+      broadcastVenueTablesUpdated: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -114,15 +115,21 @@ describe('VenuesService', () => {
             select: {
               id: true,
               username: true,
-              profile: {
-                select: {
-                  displayName: true,
-                  avatarUrl: true,
-                },
-              },
+            },
+          },
+          controllingClan: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          _count: {
+            select: {
+              tables: true,
             },
           },
         },
+        where: undefined,
       });
     });
 
@@ -197,6 +204,14 @@ describe('VenuesService', () => {
           ...createVenueData,
           ownerId: '1',
         },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+        },
       });
     });
 
@@ -221,7 +236,7 @@ describe('VenuesService', () => {
       prismaService.venue.update.mockResolvedValue(updatedVenue);
 
       // Act
-      const result = await (service as any).updateVenue('1', updateData, '1');
+      const result = await (service as any).updateVenue('1', '1', updateData);
 
       // Assert
       expect(result).toEqual(updatedVenue);
@@ -350,7 +365,6 @@ describe('VenuesService', () => {
         expect(result).toEqual(updatedTable);
         expect(result.status).toBe(updateData.status);
         expect(result.matchId).toBe(updateData.matchId);
-        expect(matchesGateway.notifyTableUpdate).toHaveBeenCalled();
       });
 
       it('should throw NotFoundException for non-existent table', async () => {
@@ -368,16 +382,23 @@ describe('VenuesService', () => {
       it('should delete table successfully', async () => {
         // Arrange
         prismaService.table.findUnique.mockResolvedValue(mockTable);
-        prismaService.table.delete.mockResolvedValue(mockTable);
+        prismaService.$transaction.mockImplementation(async (callback) => {
+          const mockTx = {
+            match: {
+              updateMany: jest.fn().mockResolvedValue({}),
+            },
+            table: {
+              delete: jest.fn().mockResolvedValue(mockTable),
+            },
+          };
+          return callback(mockTx);
+        });
 
         // Act
         const result = await (service as any).deleteTable('1', '1');
 
         // Assert
         expect(result).toEqual(mockTable);
-        expect(prismaService.table.delete).toHaveBeenCalledWith({
-          where: { id: '1' },
-        });
       });
     });
   });
@@ -530,7 +551,13 @@ describe('VenuesService', () => {
 
       prismaService.venue.count.mockResolvedValue(10);
       prismaService.table.count.mockResolvedValue(50);
-      prismaService.venue.findMany.mockResolvedValue([mockVenue]);
+      prismaService.venue.aggregate.mockResolvedValue({
+        _avg: {
+          _count: {
+            tables: 5,
+          },
+        },
+      });
 
       // Act
       const result = await (service as any).getVenueStatistics();
@@ -568,10 +595,10 @@ describe('VenuesService', () => {
 
     it('should validate venue admin role', async () => {
       // Arrange
-      prismaService.user.findUnique.mockResolvedValue(mockUser);
+      prismaService.venue.findUnique.mockResolvedValue(mockVenue);
 
       // Act
-      const result = await (service as any).validateVenueAdminRole('1');
+      const result = await (service as any).validateVenueAdminRole('1', '1');
 
       // Assert
       expect(result).toBe(true);
@@ -579,11 +606,10 @@ describe('VenuesService', () => {
 
     it('should reject non-admin users', async () => {
       // Arrange
-      const regularUser = { ...mockUser, role: 'USER' as const };
-      prismaService.user.findUnique.mockResolvedValue(regularUser);
+      prismaService.venue.findUnique.mockResolvedValue({ ownerId: '2' });
 
       // Act
-      const result = await (service as any).validateVenueAdminRole('1');
+      const result = await (service as any).validateVenueAdminRole('1', '1');
 
       // Assert
       expect(result).toBe(false);

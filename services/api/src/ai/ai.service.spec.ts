@@ -91,13 +91,24 @@ describe('AiService', () => {
 
     it('should load configuration correctly', () => {
       // Mock environment variables
-      configService.get
-        .mockReturnValueOnce('test-gemini-key')
-        .mockReturnValueOnce('gemini-1.5-flash')
-        .mockReturnValueOnce('test-openai-key')
-        .mockReturnValueOnce('gpt-4')
-        .mockReturnValueOnce(true) // opencv enabled
-        .mockReturnValueOnce(false); // tensorflow disabled
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return 'test-gemini-key';
+          case 'GEMINI_MODEL':
+            return 'gemini-1.5-flash';
+          case 'OPENAI_API_KEY':
+            return 'test-openai-key';
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return true;
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          default:
+            return undefined;
+        }
+      });
 
       const config = (service as any).loadConfiguration();
 

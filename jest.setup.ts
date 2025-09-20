@@ -120,7 +120,7 @@ jest.mock('ws', () => {
 */
 
 // Now import MSW server (needs structuredClone potentially)
-import { server } from './src/__tests__/mocks/server.js';
+import { server } from './src/__tests__/mocks/server';
 
 // Set default timeout for performance tests
 jest.setTimeout(60000);

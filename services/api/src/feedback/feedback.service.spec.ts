@@ -72,6 +72,25 @@ describe('FeedbackService', () => {
       notificationsService: mockNotificationsService,
       cacheHelper: mockCacheHelper,
     });
+
+    // Ensure the service has the prisma property
+    (service as any).prisma = mockPrismaService;
+    
+    // Ensure the cache helper bypasses caching and calls the actual methods
+    (service as any).cacheHelper = {
+      get: jest.fn().mockResolvedValue(null), // Always return null to bypass cache
+      set: jest.fn().mockResolvedValue(true),
+      delete: jest.fn().mockResolvedValue(true),
+      deleteByPattern: jest.fn().mockResolvedValue(true),
+      exists: jest.fn().mockResolvedValue(false),
+      clear: jest.fn().mockResolvedValue(true),
+      ping: jest.fn().mockResolvedValue(true),
+      writeThrough: jest.fn().mockImplementation(async (key, fn) => fn()), // Call the function directly
+      invalidate: jest.fn().mockResolvedValue(true),
+    };
+    
+    // Also set cacheService for the @Cacheable decorator
+    (service as any).cacheService = (service as any).cacheHelper;
   });
 
   it('should be defined', () => {
@@ -146,7 +165,7 @@ describe('FeedbackService', () => {
       expect(notificationsService.createNotification).toHaveBeenCalledWith(
         'admin-1',
         'NEW_FEEDBACK_SUBMITTED',
-        'New bug report feedback from testuser',
+        'New bug feedback from testuser',
         expect.any(Object)
       );
     });
@@ -169,8 +188,7 @@ describe('FeedbackService', () => {
       };
 
       prismaService.feedback.findMany.mockResolvedValue([mockFeedback]);
-      prismaService.feedback.count.mockResolvedValueOnce(1); // totalCount
-      prismaService.feedback.count.mockResolvedValueOnce(1); // pendingCount
+      prismaService.feedback.count.mockResolvedValue(1);
 
       const result = await service.findAllForAdmin(filters, 1, 20);
 

@@ -58,6 +58,7 @@ export class GlobalErrorHandler implements ExceptionFilter {
 
       if (typeof exceptionResponse === 'string') {
         message = exceptionResponse;
+        errorCode = this.getErrorCodeFromStatus(status);
       } else if (
         typeof exceptionResponse === 'object' &&
         exceptionResponse !== null

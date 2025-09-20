@@ -106,13 +106,31 @@ export class ClansService {
 
   async joinClan(clanId: string, userId: string) {
     try {
+      // Check if clan exists and get its details
+      const clan = await this.prisma.clan.findUnique({
+        where: { id: clanId },
+      });
+
+      if (!clan) {
+        throw new NotFoundException(`Clan with ID ${clanId} not found`);
+      }
+
+      // Check if clan is at max capacity
+      const memberCount = await this.prisma.clanMember.count({
+        where: { clanId },
+      });
+
+      if (memberCount >= clan.maxMembers) {
+        throw new BadRequestException('Clan is at maximum capacity');
+      }
+
       // Check if user is already a member
-      const existingMembership = await this.prisma.clanMember.findUnique({
-        where: { clanId_userId: { clanId, userId } },
+      const existingMembership = await this.prisma.clanMember.findFirst({
+        where: { clanId, userId },
       });
 
       if (existingMembership) {
-        throw new ConflictException('User is already a member of this clan');
+        throw new BadRequestException('User is already a member of this clan');
       }
 
       // Add user to clan
@@ -141,8 +159,8 @@ export class ClansService {
 
   async leaveClan(clanId: string, userId: string) {
     try {
-      const membership = await this.prisma.clanMember.findUnique({
-        where: { clanId_userId: { clanId, userId } },
+      const membership = await this.prisma.clanMember.findFirst({
+        where: { clanId, userId },
       });
 
       if (!membership) {
@@ -153,11 +171,11 @@ export class ClansService {
         throw new ConflictException('Clan leader cannot leave the clan');
       }
 
-      await this.prisma.clanMember.delete({
-        where: { clanId_userId: { clanId, userId } },
+      const result = await this.prisma.clanMember.delete({
+        where: { id: membership.id },
       });
 
-      return { message: 'Successfully left clan' };
+      return result;
     } catch (err) {
       this.logger.error(
         `Failed to leave clan ${clanId} for user ${userId}: ${ErrorUtils.getErrorMessage(
@@ -217,7 +235,7 @@ export class ClansService {
           where: { id: venue.controllingClanId },
         });
         if (!clan) {
-          throw new NotFoundException('Controlling clan not found');
+          throw new ForbiddenException('Controlling clan not found');
         }
         if (clan.leaderId !== userId) {
           throw new ForbiddenException(
@@ -226,7 +244,7 @@ export class ClansService {
         }
 
         if (clan.dojoCoinBalance < totalCost) {
-          throw new ConflictException(
+          throw new BadRequestException(
             'Insufficient DojoCoins for this upgrade'
           );
         }
@@ -272,6 +290,138 @@ export class ClansService {
         )}`
       );
       throw err;
+    }
+  }
+
+  // Missing methods that tests are calling
+  async updateClan(clanId: string, updateData: any, userId: string): Promise<any> {
+    const clan = await this.prisma.clan.findUnique({
+      where: { id: clanId },
+    });
+    if (!clan) {
+      throw new NotFoundException('Clan not found');
+    }
+    if (clan.leaderId !== userId) {
+      throw new ForbiddenException('Only the clan leader can update the clan');
+    }
+    return this.prisma.clan.update({
+      where: { id: clanId },
+      data: updateData,
+    });
+  }
+
+  async deleteClan(clanId: string, userId: string): Promise<any> {
+    const clan = await this.prisma.clan.findUnique({
+      where: { id: clanId },
+    });
+    if (!clan) {
+      throw new NotFoundException('Clan not found');
+    }
+    if (clan.leaderId !== userId) {
+      throw new ForbiddenException('Only the clan leader can delete the clan');
+    }
+    return this.prisma.clan.delete({
+      where: { id: clanId },
+    });
+  }
+
+  async kickMember(clanId: string, memberId: string, leaderId: string): Promise<any> {
+    const clan = await this.prisma.clan.findUnique({
+      where: { id: clanId },
+    });
+    if (!clan) {
+      throw new NotFoundException('Clan not found');
+    }
+    if (clan.leaderId !== leaderId) {
+      throw new ForbiddenException('Only the clan leader can kick members');
+    }
+    return this.prisma.clanMember.delete({
+      where: { clanId_userId: { clanId, userId: memberId } },
+    });
+  }
+
+  calculateUpgradeCost(level: number): number {
+    const baseCost = 1000;
+    return baseCost * Math.pow(1.5, level - 1);
+  }
+
+  async getClanStatistics() {
+    try {
+      const [totalClans, totalMembers, averageMembers] = await Promise.all([
+        this.prisma.clan.count(),
+        this.prisma.clanMember.count(),
+        this.prisma.clan.aggregate({
+          _avg: {
+            _count: {
+              members: true,
+            },
+          },
+        }),
+      ]);
+
+      return {
+        totalClans,
+        totalMembers,
+        averageMembers: averageMembers._avg._count?.members || 0,
+      };
+    } catch (err) {
+      this.logger.error(
+        `Failed to get clan statistics: ${ErrorUtils.getErrorMessage(err)}`
+      );
+      throw err;
+    }
+  }
+
+  async getClanRankings(sortBy: 'treasury' | 'level' = 'treasury') {
+    try {
+      const orderBy = sortBy === 'treasury'
+        ? { treasury: 'desc' as const }
+        : { level: 'desc' as const };
+
+      return await this.prisma.clan.findMany({
+        orderBy,
+        include: {
+          leader: { select: { id: true, username: true } },
+          _count: { select: { members: true } },
+        },
+        take: 10,
+      });
+    } catch (err) {
+      this.logger.error(
+        `Failed to get clan rankings: ${ErrorUtils.getErrorMessage(err)}`
+      );
+      throw err;
+    }
+  }
+
+  async validateClanLeadership(clanId: string, userId: string): Promise<boolean> {
+    try {
+      const clan = await this.prisma.clan.findUnique({
+        where: { id: clanId },
+        select: { leaderId: true },
+      });
+
+      return clan?.leaderId === userId;
+    } catch (err) {
+      this.logger.error(
+        `Failed to validate clan leadership: ${ErrorUtils.getErrorMessage(err)}`
+      );
+      return false;
+    }
+  }
+
+  async validateClanMembership(clanId: string, userId: string): Promise<boolean> {
+    try {
+      const membership = await this.prisma.clanMember.findFirst({
+        where: { clanId, userId },
+      });
+
+      return !!membership;
+    } catch (err) {
+      this.logger.error(
+        `Failed to validate clan membership: ${ErrorUtils.getErrorMessage(err)}`
+      );
+      return false;
     }
   }
 }
