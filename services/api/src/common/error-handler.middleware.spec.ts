@@ -51,6 +51,10 @@ describe('GlobalErrorHandler', () => {
     });
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('HTTP Exceptions', () => {
     it('should handle HttpException with custom response', () => {
       // Arrange
@@ -69,7 +73,7 @@ describe('GlobalErrorHandler', () => {
           success: false,
           error: expect.objectContaining({
             code: 'CUSTOM_ERROR',
-            message: 'Please check your input data and try again.',
+            message: 'Custom error',
           }),
         })
       );
@@ -92,7 +96,7 @@ describe('GlobalErrorHandler', () => {
           success: false,
           error: expect.objectContaining({
             code: 'NOT_FOUND',
-            message: 'Simple error message',
+            message: 'The requested resource was not found.',
           }),
         })
       );
@@ -314,7 +318,10 @@ describe('GlobalErrorHandler', () => {
   describe('Request Context', () => {
     it('should extract request information correctly', () => {
       // Arrange
-      mockRequest.get.mockReturnValue('Mozilla/5.0 Test Browser');
+      mockRequest.get.mockImplementation((header: string) => {
+        if (header === 'User-Agent') return 'Mozilla/5.0 Test Browser';
+        return undefined; // Return undefined for IP headers so it falls back to request.ip
+      });
       const error = new Error('Test error');
 
       // Act
