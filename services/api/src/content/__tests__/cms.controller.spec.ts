@@ -190,7 +190,7 @@ describe('CmsController', () => {
         id: 'news-id',
         ...createNewsDto,
         contentType: 'NEWS_ARTICLE',
-        status: 'APPROVED',
+        visibility: undefined,
       };
 
       mockContentService.create.mockResolvedValue(mockResult);
@@ -222,7 +222,7 @@ describe('CmsController', () => {
         id: 'news-id',
         ...createNewsDto,
         contentType: 'NEWS_ARTICLE',
-        status: 'PENDING',
+        visibility: undefined,
       };
 
       mockContentService.create.mockResolvedValue(mockResult);
@@ -271,7 +271,7 @@ describe('CmsController', () => {
       expect(service.findAllForAdmin).toHaveBeenCalledWith(
         {
           contentType: 'NEWS_ARTICLE',
-          status: 'APPROVED',
+          visibility: undefined,
           metadata: {
             path: ['category'],
             equals: 'NEWS',
@@ -380,8 +380,8 @@ describe('CmsController', () => {
       const contentIds = ['content-1', 'content-2'];
 
       mockContentService.update
-        .mockResolvedValueOnce({ status: 'APPROVED' })
-        .mockResolvedValueOnce({ status: 'APPROVED' });
+        .mockResolvedValueOnce({ visibility: undefined })
+        .mockResolvedValueOnce({ visibility: undefined });
 
       const result = await controller.bulkPublish({ contentIds }, req);
 
@@ -390,7 +390,7 @@ describe('CmsController', () => {
         expect.objectContaining({
           id: 'content-1',
           success: true,
-          result: { status: 'APPROVED' },
+          result: { visibility: undefined },
         })
       );
       expect(mockContentService.update).toHaveBeenCalledTimes(2);
@@ -400,8 +400,8 @@ describe('CmsController', () => {
       const contentIds = ['content-1', 'content-2'];
 
       mockContentService.update
-        .mockResolvedValueOnce({ status: 'ARCHIVED' })
-        .mockResolvedValueOnce({ status: 'ARCHIVED' });
+        .mockResolvedValueOnce({ visibility: undefined })
+        .mockResolvedValueOnce({ visibility: undefined });
 
       const result = await controller.bulkArchive({ contentIds }, req);
 
@@ -410,7 +410,7 @@ describe('CmsController', () => {
         expect.objectContaining({
           id: 'content-1',
           success: true,
-          result: { status: 'ARCHIVED' },
+          result: { visibility: undefined },
         })
       );
       expect(mockContentService.update).toHaveBeenCalledTimes(2);
@@ -421,7 +421,7 @@ describe('CmsController', () => {
 
       mockContentService.update
         .mockRejectedValueOnce(new Error('Update failed'))
-        .mockResolvedValueOnce({ status: 'APPROVED' });
+        .mockResolvedValueOnce({ visibility: undefined });
 
       const result = await controller.bulkPublish({ contentIds }, req);
 
@@ -435,7 +435,7 @@ describe('CmsController', () => {
         expect.objectContaining({
           id: 'content-2',
           success: true,
-          result: { status: 'APPROVED' },
+          result: { visibility: undefined },
         })
       );
     });

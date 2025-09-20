@@ -37,6 +37,13 @@ describe('AuthService', () => {
   };
 
   beforeEach(async () => {
+    // Mock bcrypt module
+    jest.mock('bcrypt', () => ({
+      hash: jest.fn().mockResolvedValue('hashedpassword'),
+      compare: jest.fn().mockResolvedValue(true),
+      genSalt: jest.fn().mockResolvedValue('salt'),
+    }));
+
     const mockPrismaService = {
       user: {
         findFirst: jest.fn(),
