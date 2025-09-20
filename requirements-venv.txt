@@ -10,7 +10,7 @@ email-validator==2.2.0  # Updated for security
 Werkzeug==2.3.7  # Updated for security fixes
 
 # Security tools
-cryptography==42.0.8  # Updated for critical security fixes
+cryptography==46.0.1  # Updated for critical security fixes
 pyOpenSSL==24.2.1  # Updated for security
 schedule==1.2.2  # Updated for security
 
