@@ -2,6 +2,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ErrorLoggerService } from '../monitoring/error-logger.service';
 import { GlobalErrorHandler } from './error-handler.middleware';
+import { TestDependencyInjector } from '../__tests__/utils/test-dependency-injector';
 
 describe('GlobalErrorHandler', () => {
   let errorHandler: GlobalErrorHandler;
@@ -28,9 +29,8 @@ describe('GlobalErrorHandler', () => {
   };
 
   beforeEach(async () => {
-    const mockErrorLogger = {
-      logError: jest.fn(),
-    };
+    const mockErrorLogger =
+      TestDependencyInjector.createMockErrorLoggerService();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -44,6 +44,11 @@ describe('GlobalErrorHandler', () => {
 
     errorHandler = module.get<GlobalErrorHandler>(GlobalErrorHandler);
     errorLoggerService = module.get(ErrorLoggerService);
+
+    // Use the test utility to fix dependency injection
+    TestDependencyInjector.setupServiceWithMocks(errorHandler, {
+      errorLogger: mockErrorLogger,
+    });
   });
 
   describe('HTTP Exceptions', () => {

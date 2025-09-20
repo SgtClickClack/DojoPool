@@ -63,6 +63,7 @@ export default [
       'services/api/test-*.js',
       'services/api/types/**',
       'jest.setup.ts',
+      'vitest.*.config.ts',
     ],
   },
 

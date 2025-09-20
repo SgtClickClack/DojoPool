@@ -8,6 +8,7 @@ import { CacheHelper } from '../cache/cache.helper';
 import { MatchesGateway } from '../matches/matches.gateway';
 import { PrismaService } from '../prisma/prisma.service';
 import { VenuesService } from './venues.service';
+import { TestDependencyInjector } from '../__tests__/utils/test-dependency-injector';
 
 describe('VenuesService', () => {
   let service: VenuesService;
@@ -54,39 +55,8 @@ describe('VenuesService', () => {
   };
 
   beforeEach(async () => {
-    const mockPrismaService = {
-      venue: {
-        findUnique: jest.fn(),
-        findMany: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
-      },
-      table: {
-        findMany: jest.fn(),
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
-        count: jest.fn(),
-      },
-      user: {
-        findUnique: jest.fn(),
-      },
-      venueSpecial: {
-        findMany: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
-      },
-    };
-
-    const mockCacheHelper = {
-      readThrough: jest.fn(),
-      writeThrough: jest.fn(),
-      invalidatePatterns: jest.fn(),
-    };
-
+    const mockPrismaService = TestDependencyInjector.createMockPrismaService();
+    const mockCacheHelper = TestDependencyInjector.createMockCacheHelper();
     const mockMatchesGateway = {
       notifyTableUpdate: jest.fn(),
       notifyVenueUpdate: jest.fn(),
@@ -114,6 +84,13 @@ describe('VenuesService', () => {
     prismaService = module.get(PrismaService);
     cacheHelper = module.get(CacheHelper);
     matchesGateway = module.get(MatchesGateway);
+
+    // Use the test utility to fix dependency injection
+    TestDependencyInjector.setupServiceWithMocks(service, {
+      prisma: mockPrismaService,
+      cacheHelper: mockCacheHelper,
+      matchesGateway: mockMatchesGateway,
+    });
   });
 
   it('should be defined', () => {

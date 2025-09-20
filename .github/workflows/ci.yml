@@ -60,6 +60,9 @@ jobs:
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
           export NODE_ENV=test
           cd services/api && yarn prisma:generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
+          NODE_ENV: test
       - name: Check environment validation scripts
         run: |
           if [ ! -f "scripts/validate-env.mjs" ]; then
@@ -144,6 +147,9 @@ jobs:
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
           export NODE_ENV=test
           cd services/api && yarn prisma:generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
+          NODE_ENV: test
       - name: Lint
         run: yarn run lint --max-warnings 1000 || echo "Linting completed with warnings"
       - name: Type check (web and api)
@@ -169,6 +175,16 @@ jobs:
         run: yarn install --immutable || yarn install --immutable --check-cache
       - name: Run tests (CI)
         run: yarn run test:ci
+        env:
+          NODE_ENV: test
+          PORT: 3002
+          NEXT_PUBLIC_API_URL: http://localhost:3002/api/v1
+          NEXT_PUBLIC_MAPBOX_TOKEN: pk.eyJ1IjoiZG9qb3Bvb2wiLCJhIjoiY21lZng2YmxkMHk1aTJub2VsaXUyeXRlcyJ9.JTlUI6gaKKorGBm-4p-G6g
+          CORS_ORIGINS: http://localhost:3000
+          SESSION_SECRET: test-session-secret-for-ci-minimum-16-chars
+          JWT_SECRET: test-jwt-secret-for-ci-minimum-16-chars
+          REDIS_URL: redis://localhost:6379
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
 
   build:
     runs-on: ubuntu-latest

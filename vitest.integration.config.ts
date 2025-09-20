@@ -17,6 +17,7 @@ export default defineConfig({
       'services/api/src/**/*.integration.spec.ts',
       'services/api/src/**/*.integration.test.ts',
       'services/api/src/__tests__/territories.e2e.spec.ts',
+      'services/api/src/feedback/feedback.controller.spec.ts',
     ],
     coverage: {
       provider: 'v8',

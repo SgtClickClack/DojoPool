@@ -4,6 +4,7 @@ import {
   FeedbackPriority,
   FeedbackStatus,
 } from '@prisma/client';
+import { TestDependencyInjector } from '../__tests__/utils/test-dependency-injector';
 import { CacheHelper } from '../cache/cache.helper';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -37,25 +38,10 @@ describe('FeedbackService', () => {
   };
 
   beforeEach(async () => {
-    const mockPrismaService = {
-      feedback: {
-        create: jest.fn(),
-        findUnique: jest.fn(),
-        findMany: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
-        count: jest.fn(),
-      },
-      user: {
-        findMany: jest.fn(),
-      },
-    };
-
-    const mockNotificationsService = {
-      createNotification: jest.fn(),
-    };
-
-    const mockCacheHelper = {};
+    const mockPrismaService = TestDependencyInjector.createMockPrismaService();
+    const mockNotificationsService =
+      TestDependencyInjector.createMockNotificationsService();
+    const mockCacheHelper = TestDependencyInjector.createMockCacheHelper();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -79,6 +65,13 @@ describe('FeedbackService', () => {
     prismaService = module.get(PrismaService);
     notificationsService = module.get(NotificationsService);
     cacheHelper = module.get(CacheHelper);
+
+    // Use the test utility to fix dependency injection
+    TestDependencyInjector.setupServiceWithMocks(service, {
+      prisma: mockPrismaService,
+      notificationsService: mockNotificationsService,
+      cacheHelper: mockCacheHelper,
+    });
   });
 
   it('should be defined', () => {
