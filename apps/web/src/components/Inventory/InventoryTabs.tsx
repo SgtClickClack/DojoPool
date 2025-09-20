@@ -7,7 +7,7 @@ import { MyItemsTab } from './MyItemsTab';
 
 export const InventoryTabs: React.FC = () => {
   const {
-    inventory,
+    inventory: _inventory,
     filteredMyItems,
     filteredAllItems,
     ownedItemIds,

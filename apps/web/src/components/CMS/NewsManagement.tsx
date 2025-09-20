@@ -58,7 +58,7 @@ interface NewsArticle {
   publishDate?: string;
   status: string;
   tags?: string[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -74,7 +74,7 @@ interface NewsFormData {
   author: string;
   publishDate: Date | null;
   tags: string[];
-  metadata: any;
+  metadata: Record<string, unknown>;
 }
 
 const NewsManagement: React.FC = () => {
@@ -315,7 +315,9 @@ const NewsManagement: React.FC = () => {
     setPreviewMode(false);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (
+    status: string
+  ): 'success' | 'warning' | 'error' | 'default' => {
     switch (status) {
       case ContentStatus.APPROVED:
         return 'success';
@@ -441,7 +443,7 @@ const NewsManagement: React.FC = () => {
                     <Chip
                       label={article.status}
                       size="small"
-                      color={getStatusColor(article.status) as any}
+                      color={getStatusColor(article.status)}
                     />
                   </TableCell>
                   <TableCell>{article.author || 'Unknown'}</TableCell>

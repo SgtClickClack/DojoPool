@@ -6,6 +6,7 @@ import {
   Chip,
   Typography,
 } from '@mui/material';
+import { type EquipmentSlot } from '@/types/inventory';
 
 export interface LoadoutItem {
   id: string;
@@ -20,19 +21,19 @@ export interface LoadoutDisplayProps {
     [key: string]: LoadoutItem | null;
   };
   slotNames?: { [key: string]: string };
-  user?: any;
+  user?: { id: string; username: string } | null;
   equipping?: string | null;
-  onEquipItem?: (itemId: string, equipmentSlot: any) => Promise<void>;
-  onUnequipItem?: (equipmentSlot: any) => Promise<void>;
+  onEquipItem?: (itemId: string, equipmentSlot: EquipmentSlot) => Promise<void>;
+  onUnequipItem?: (equipmentSlot: EquipmentSlot) => Promise<void>;
 }
 
 export const LoadoutDisplay: React.FC<LoadoutDisplayProps> = ({
   loadout,
   slotNames = {},
-  user,
-  equipping,
-  onEquipItem,
-  onUnequipItem,
+  user: _user,
+  equipping: _equipping,
+  onEquipItem: _onEquipItem,
+  onUnequipItem: _onUnequipItem,
 }) => {
   return (
     <Card sx={{ mb: 3 }}>

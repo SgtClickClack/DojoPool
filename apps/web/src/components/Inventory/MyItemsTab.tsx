@@ -1,26 +1,14 @@
-import { type EquipmentSlot } from '@/types/inventory';
+import {
+  type EquipmentSlot,
+  type ItemType,
+  type ItemRarity,
+  type CosmeticItem,
+} from '@/types/inventory';
 import React from 'react';
 import { InventoryGrid } from './InventoryGrid';
 import { InventoryItemCard } from './InventoryItemCard';
 
-interface CosmeticItem {
-  id: string;
-  key: string;
-  name: string;
-  description?: string;
-  type: any;
-  rarity: any;
-  icon?: string;
-  previewImage?: string;
-  isDefault: boolean;
-  isTradable: boolean;
-  price?: number;
-  equipmentSlot?: EquipmentSlot;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface PlayerInventoryItem {
+interface _PlayerInventoryItem {
   id: string;
   userId: string;
   itemId: string;
@@ -34,32 +22,26 @@ interface PlayerInventoryItem {
 interface MyItemsTabProps {
   items: CosmeticItem[];
   equipping: string | null;
-  onEquipItem: (itemId: string, equipmentSlot: EquipmentSlot) => Promise<void>;
-  onUnequipItem: (equipmentSlot: EquipmentSlot) => Promise<void>;
+  onEquipItem: (itemId: string, equipmentSlot: string) => Promise<void>;
+  onUnequipItem: (equipmentSlot: string) => Promise<void>;
 }
 
 export const MyItemsTab: React.FC<MyItemsTabProps> = ({
   items,
-  equipping,
+  equipping: _equipping,
   onEquipItem,
   onUnequipItem,
 }) => {
-  const resolveSlot = (type: any): EquipmentSlot => {
+  const resolveSlot = (type: ItemType | string): string => {
     const t = String(type).toLowerCase();
-    const makeSlot = (id: string, name: string): EquipmentSlot =>
-      ({
-        id,
-        name,
-        type: 'equipment',
-      }) as unknown as EquipmentSlot;
 
-    if (t.includes('cue')) return makeSlot('PRIMARY_CUE', 'Primary Cue');
-    if (t.includes('ball')) return makeSlot('BALL_SET', 'Ball Set');
-    if (t.includes('table')) return makeSlot('TABLE_THEME', 'Table Theme');
-    if (t.includes('frame')) return makeSlot('AVATAR_FRAME', 'Avatar Frame');
-    if (t.includes('badge')) return makeSlot('PROFILE_BADGE', 'Profile Badge');
-    if (t.includes('title')) return makeSlot('TITLE', 'Title');
-    return makeSlot('PRIMARY_CUE', 'Primary Cue');
+    if (t.includes('cue')) return 'PRIMARY_CUE';
+    if (t.includes('ball')) return 'BALL_SET';
+    if (t.includes('table')) return 'TABLE_THEME';
+    if (t.includes('frame')) return 'AVATAR_FRAME';
+    if (t.includes('badge')) return 'PROFILE_BADGE';
+    if (t.includes('title')) return 'TITLE';
+    return 'PRIMARY_CUE';
   };
 
   const itemsToDisplay = items.map((item) => {

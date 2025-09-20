@@ -1,3 +1,11 @@
+interface AxiosError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 import { submitFeedback } from '@/services/APIService';
 import { FeedbackCategory } from '@/types/feedback';
 import {
@@ -86,9 +94,11 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
       setTimeout(() => {
         onSuccess?.();
       }, 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
-        err.response?.data?.message ||
+        (err instanceof Error &&
+          'response' in err &&
+          (err as AxiosError).response?.data?.message) ||
           'Failed to submit feedback. Please try again.'
       );
     } finally {

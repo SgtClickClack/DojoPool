@@ -147,7 +147,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         'image/jpeg',
         0.9
       );
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to process image');
     } finally {
       setCropping(false);

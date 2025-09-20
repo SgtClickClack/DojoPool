@@ -38,7 +38,7 @@ interface MobileTournamentFlowProps {
 const MobileTournamentFlow: React.FC<MobileTournamentFlowProps> = ({
   tournaments = [],
 }) => {
-  const router = useRouter();
+  const _router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<
     'all' | 'upcoming' | 'active' | 'completed'

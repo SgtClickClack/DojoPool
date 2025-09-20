@@ -35,6 +35,7 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import logger from '@/services/loggerService';
 
 interface CosmeticItem {
   id: string;
@@ -116,7 +117,7 @@ const categories = [
 ];
 
 const CreatorHub: React.FC = () => {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [items, setItems] = useState<CosmeticItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -154,7 +155,9 @@ const CreatorHub: React.FC = () => {
       }
     } catch (err) {
       setError('Failed to fetch your submissions');
-      console.error('Error fetching submissions:', err);
+      logger.error('Error fetching submissions', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     } finally {
       setLoading(false);
     }
@@ -242,7 +245,9 @@ const CreatorHub: React.FC = () => {
       }
     } catch (err) {
       setError('Failed to submit your cosmetic item');
-      console.error('Error submitting:', err);
+      logger.error('Error submitting cosmetic item', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     } finally {
       setUploading(false);
     }
@@ -264,11 +269,15 @@ const CreatorHub: React.FC = () => {
       }
     } catch (err) {
       setError('Failed to delete submission');
-      console.error('Error deleting submission:', err);
+      logger.error('Error deleting submission', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (
+    status: string
+  ): 'success' | 'warning' | 'error' | 'info' => {
     switch (status) {
       case 'PENDING':
         return 'warning';
@@ -279,7 +288,7 @@ const CreatorHub: React.FC = () => {
       case 'REQUIRES_CHANGES':
         return 'info';
       default:
-        return 'default';
+        return 'warning';
     }
   };
 
@@ -451,7 +460,7 @@ const CreatorHub: React.FC = () => {
                     <Chip
                       label={getStatusLabel(item.status)}
                       size="small"
-                      color={getStatusColor(item.status) as any}
+                      color={getStatusColor(item.status)}
                     />
                     <Typography variant="caption" color="text.secondary">
                       {new Date(item.createdAt).toLocaleDateString()}

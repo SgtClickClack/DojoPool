@@ -21,6 +21,8 @@ export interface ErrorReportResponse {
   error?: string;
 }
 
+import logger from './loggerService';
+
 class ErrorReportingService {
   private baseUrl: string;
   private retryQueue: ErrorReport[] = [];
@@ -72,7 +74,9 @@ class ErrorReportingService {
       const result = await response.json();
       return result;
     } catch (error) {
-      console.error('Failed to report error:', error);
+      logger.error('Failed to report error', {
+        error: error instanceof Error ? error.message : String(error),
+      });
 
       // Queue for retry if it's a network error
       if (!navigator.onLine || error instanceof TypeError) {
@@ -287,16 +291,23 @@ class ErrorReportingService {
           for (const entry of list.getEntries()) {
             if ('value' in entry && (entry as any).value > 0.1) {
               // Layout shifts > 10%
-              this.reportPerformanceIssue('layout-shift', (entry as any).value, 0.1, {
-                sources: (entry as any).sources,
-              });
+              this.reportPerformanceIssue(
+                'layout-shift',
+                (entry as any).value,
+                0.1,
+                {
+                  sources: (entry as any).sources,
+                }
+              );
             }
           }
         });
 
         layoutObserver.observe({ entryTypes: ['layout-shift'] });
       } catch (error) {
-        console.warn('Performance monitoring setup failed:', error);
+        logger.warn('Performance monitoring setup failed', {
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
   }

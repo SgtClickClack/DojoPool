@@ -1,3 +1,11 @@
+interface AxiosError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 import { uploadContent } from '@/services/APIService';
 import {
   ContentType,
@@ -164,7 +172,8 @@ export const ContentUpload: React.FC<ContentUploadProps> = ({
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error && 'response' in err
-          ? (err as any).response?.data?.message
+          ? (err as AxiosError).response?.data?.message ||
+            'Failed to upload content. Please try again.'
           : 'Failed to upload content. Please try again.';
       setError(errorMessage);
     } finally {

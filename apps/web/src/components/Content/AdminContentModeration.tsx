@@ -13,6 +13,14 @@ import {
   ContentVisibility,
   type ModerateContentRequest,
 } from '@/types/content';
+interface AxiosError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 import {
   CheckCircle as ApproveIcon,
   Archive as ArchiveIcon,
@@ -117,7 +125,8 @@ export const AdminContentModeration: React.FC<AdminContentModerationProps> = ({
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error && 'response' in err
-          ? (err as any).response?.data?.message
+          ? (err as AxiosError).response?.data?.message ||
+            'Failed to load content'
           : 'Failed to load content';
       setError(errorMessage);
     } finally {
@@ -158,7 +167,8 @@ export const AdminContentModeration: React.FC<AdminContentModerationProps> = ({
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error && 'response' in err
-          ? (err as any).response?.data?.message
+          ? (err as AxiosError).response?.data?.message ||
+            'Failed to moderate content'
           : 'Failed to moderate content';
       setError(errorMessage);
     } finally {

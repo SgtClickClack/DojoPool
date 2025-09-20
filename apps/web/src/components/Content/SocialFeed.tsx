@@ -4,6 +4,14 @@ import {
   likeContent,
   shareContent,
 } from '@/services/APIService';
+interface AxiosError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 import {
   type Content,
   type ContentFilter,
@@ -96,7 +104,8 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error && 'response' in err
-          ? (err as any).response?.data?.message
+          ? (err as AxiosError).response?.data?.message ||
+            'Failed to load content'
           : 'Failed to load content';
       setError(errorMessage);
     } finally {
@@ -132,7 +141,8 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error && 'response' in err
-          ? (err as any).response?.data?.message
+          ? (err as AxiosError).response?.data?.message ||
+            'Failed to like content'
           : 'Failed to like content';
       setError(errorMessage);
     }
@@ -174,7 +184,8 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error && 'response' in err
-          ? (err as any).response?.data?.message
+          ? (err as AxiosError).response?.data?.message ||
+            'Failed to share content'
           : 'Failed to share content';
       setError(errorMessage);
     } finally {
@@ -345,7 +356,11 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({
               sx={{ minWidth: 150 }}
               value={filters.contentType || ''}
               SelectProps={{
-                title: 'Filter by content type'
+                title: 'Filter by content type',
+                'aria-label': 'Filter by content type',
+              }}
+              inputProps={{
+                'aria-label': 'Content type filter',
               }}
               onChange={(e) =>
                 setFilters((prev) => ({

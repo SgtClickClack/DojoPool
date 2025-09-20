@@ -37,7 +37,7 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({
     gameSession,
     loading,
     error,
-    updateSession,
+    updateSession: _updateSession,
     refreshSession,
     recordShot,
     recordFoul,

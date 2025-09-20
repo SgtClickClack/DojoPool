@@ -1,38 +1,27 @@
 import React from 'react';
 import { InventoryGrid } from './InventoryGrid';
 import { InventoryItemCard } from './InventoryItemCard';
-
-interface CosmeticItem {
-  id: string;
-  key: string;
-  name: string;
-  description?: string;
-  type: any;
-  rarity: any;
-  icon?: string;
-  previewImage?: string;
-  isDefault: boolean;
-  isTradable: boolean;
-  price?: number;
-  equipmentSlot?: any;
-  createdAt: string;
-  updatedAt: string;
-}
+import {
+  type EquipmentSlot,
+  type ItemType,
+  type ItemRarity,
+  type CosmeticItem,
+} from '@/types/inventory';
 
 interface AllItemsTabProps {
   items: CosmeticItem[];
   ownedItemIds: Set<string>;
   equipping: string | null;
-  onEquipItem: (itemId: string, equipmentSlot: any) => Promise<void>;
-  onUnequipItem: (equipmentSlot: any) => Promise<void>;
+  onEquipItem: (itemId: string, equipmentSlot: string) => Promise<void>;
+  onUnequipItem: (equipmentSlot: string) => Promise<void>;
 }
 
 export const AllItemsTab: React.FC<AllItemsTabProps> = ({
   items,
-  ownedItemIds,
-  equipping,
-  onEquipItem,
-  onUnequipItem,
+  ownedItemIds: _ownedItemIds,
+  equipping: _equipping,
+  onEquipItem: _onEquipItem,
+  onUnequipItem: _onUnequipItem,
 }) => {
   const itemsToRender = items.map((item) => {
     // Transform CosmeticItem to InventoryItemCard's expected item shape

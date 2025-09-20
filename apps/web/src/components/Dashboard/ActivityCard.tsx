@@ -14,7 +14,7 @@ interface ActivityItem {
   type: string;
   description: string;
   timestamp: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 interface ActivityCardProps {
@@ -45,7 +45,9 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     }
   };
 
-  const getActivityColor = (type: string) => {
+  const getActivityColor = (
+    type: string
+  ): 'primary' | 'warning' | 'secondary' | 'info' | 'success' | 'default' => {
     switch (type.toLowerCase()) {
       case 'match':
         return 'primary';
@@ -97,7 +99,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           <Chip
             label={activity.type}
             size="small"
-            color={getActivityColor(activity.type) as any}
+            color={getActivityColor(activity.type)}
             sx={{ mr: 1 }}
           />
           <Typography

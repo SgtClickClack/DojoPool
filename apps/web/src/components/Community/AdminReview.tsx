@@ -67,8 +67,13 @@ interface ReviewFormData {
   approvedPrice: string;
 }
 
+interface BulkOperationResult {
+  success: boolean;
+  [key: string]: unknown;
+}
+
 const AdminReview: React.FC = () => {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [items, setItems] = useState<CosmeticItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -205,7 +210,7 @@ const AdminReview: React.FC = () => {
       if (response.ok) {
         const result = await response.json();
         const successCount = result.results.filter(
-          (r: any) => r.success
+          (r: BulkOperationResult) => r.success
         ).length;
         setSuccess(
           `Successfully ${bulkOperation}d ${successCount} out of ${selectedItems.size} items`
