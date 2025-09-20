@@ -74,9 +74,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Configure SSH
-        uses: webfactory/ssh-agent@v0.10.0
+        uses: shimataro/ssh-key-action@v2
         with:
-          ssh-private-key: ${{secrets.STAGING_SSH_KEY}}
+          key: ${{secrets.STAGING_SSH_KEY}}
+          known_hosts: 'unnecessary'
       - name: Deploy to staging
         run: |
           ssh ${{secrets.STAGING_SERVER_USER}}@${{secrets.STAGING_SERVER_HOST}} << 'ENDSSH'
@@ -90,8 +91,9 @@ jobs:
           curl --retry 5 --retry-delay 10 -f https://${{secrets.STAGING_DOMAIN}}/health
       - name: Notify deployment status
         if: always()
-        uses: rtCamp/action-slack-notify@v2.3.0
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
         env:
-          SLACK_WEBHOOK: ${{secrets.SLACK_WEBHOOK}}
-          SLACK_MESSAGE: Staging deployment ${{job.status}}
-          SLACK_COLOR: ${{job.status == 'success' && 'good' || 'danger'}}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
