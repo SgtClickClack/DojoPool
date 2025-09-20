@@ -10,7 +10,7 @@ Flask-Talisman==1.0.0
 
 # Authentication and authorization
 Flask-Login==0.6.2
-PyJWT==2.8.0
+PyJWT==2.10.1
 
 # Cryptography
 cryptography>=42.0.0
