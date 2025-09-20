@@ -6,7 +6,7 @@ safety==2.3.5
 
 # Security headers and CSRF protection
 Flask-SeaSurf==1.1.1
-Flask-Talisman==1.0.0
+Flask-Talisman==1.1.0
 
 # Authentication and authorization
 Flask-Login==0.6.2
