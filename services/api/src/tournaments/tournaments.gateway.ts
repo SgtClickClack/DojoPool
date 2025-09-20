@@ -36,7 +36,7 @@ export class TournamentsGateway
     this.logger.log(`Client connected: ${client.id}`);
 
     // Send connection confirmation
-    client.emit('connected', {
+    void client.emit('connected', {
       message: 'Connected to tournament WebSocket server',
       clientId: client.id,
     });
@@ -54,12 +54,12 @@ export class TournamentsGateway
   ) {
     try {
       const { tournamentId } = data;
-      client.join(`tournament:${tournamentId}`);
+      void client.join(`tournament:${tournamentId}`);
       this.logger.log(
         `Client ${client.id} joined tournament room: ${tournamentId}`
       );
 
-      client.emit('joined_tournament', {
+      void client.emit('joined_tournament', {
         tournamentId,
         message: `Joined tournament ${tournamentId}`,
       });
@@ -67,7 +67,7 @@ export class TournamentsGateway
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Error joining tournament: ${errorMessage}`);
-      client.emit('error', { message: 'Failed to join tournament' });
+      void client.emit('error', { message: 'Failed to join tournament' });
     }
   }
 
@@ -78,12 +78,12 @@ export class TournamentsGateway
   ) {
     try {
       const { tournamentId } = data;
-      client.leave(`tournament:${tournamentId}`);
+      void client.leave(`tournament:${tournamentId}`);
       this.logger.log(
         `Client ${client.id} left tournament room: ${tournamentId}`
       );
 
-      client.emit('left_tournament', {
+      void client.emit('left_tournament', {
         tournamentId,
         message: `Left tournament ${tournamentId}`,
       });
@@ -91,7 +91,7 @@ export class TournamentsGateway
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Error leaving tournament: ${errorMessage}`);
-      client.emit('error', { message: 'Failed to leave tournament' });
+      void client.emit('error', { message: 'Failed to leave tournament' });
     }
   }
 
@@ -102,10 +102,10 @@ export class TournamentsGateway
   ) {
     try {
       const { matchId } = data;
-      client.join(`match:${matchId}`);
+      void client.join(`match:${matchId}`);
       this.logger.log(`Client ${client.id} joined match room: ${matchId}`);
 
-      client.emit('joined_match', {
+      void client.emit('joined_match', {
         matchId,
         message: `Joined match ${matchId}`,
       });
@@ -113,7 +113,7 @@ export class TournamentsGateway
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Error joining match: ${errorMessage}`);
-      client.emit('error', { message: 'Failed to join match' });
+      void client.emit('error', { message: 'Failed to join match' });
     }
   }
 
@@ -124,10 +124,10 @@ export class TournamentsGateway
   ) {
     try {
       const { matchId } = data;
-      client.leave(`match:${matchId}`);
+      void client.leave(`match:${matchId}`);
       this.logger.log(`Client ${client.id} left match room: ${matchId}`);
 
-      client.emit('left_match', {
+      void client.emit('left_match', {
         matchId,
         message: `Left match ${matchId}`,
       });
@@ -135,41 +135,45 @@ export class TournamentsGateway
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       this.logger.error(`Error leaving match: ${errorMessage}`);
-      client.emit('error', { message: 'Failed to leave match' });
+      void client.emit('error', { message: 'Failed to leave match' });
     }
   }
 
   @SubscribeMessage('join_global_tournaments')
   handleJoinGlobalTournaments(@ConnectedSocket() client: Socket) {
     try {
-      client.join('global_tournaments');
+      void client.join('global_tournaments');
       this.logger.log(`Client ${client.id} joined global tournaments room`);
 
-      client.emit('joined_global_tournaments', {
+      void client.emit('joined_global_tournaments', {
         message: 'Joined global tournaments room',
       });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       this.logger.error(`Error joining global tournaments: ${errorMessage}`);
-      client.emit('error', { message: 'Failed to join global tournaments' });
+      void client.emit('error', {
+        message: 'Failed to join global tournaments',
+      });
     }
   }
 
   @SubscribeMessage('leave_global_tournaments')
   handleLeaveGlobalTournaments(@ConnectedSocket() client: Socket) {
     try {
-      client.leave('global_tournaments');
+      void client.leave('global_tournaments');
       this.logger.log(`Client ${client.id} left global tournaments room`);
 
-      client.emit('left_global_tournaments', {
+      void client.emit('left_global_tournaments', {
         message: 'Left global tournaments room',
       });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       this.logger.error(`Error leaving global tournaments: ${errorMessage}`);
-      client.emit('error', { message: 'Failed to leave global tournaments' });
+      void client.emit('error', {
+        message: 'Failed to leave global tournaments',
+      });
     }
   }
 
@@ -183,7 +187,7 @@ export class TournamentsGateway
       this.logger.log(`Tournament action: ${action}`, actionData);
 
       // Broadcast to all clients in the global tournaments room
-      this.server.to('global_tournaments').emit('tournament_update', {
+      void this.server.to('global_tournaments').emit('tournament_update', {
         type: `tournament_${action}`,
         tournamentId: actionData.tournamentId,
         data: actionData,
@@ -192,7 +196,7 @@ export class TournamentsGateway
 
       // Also broadcast to specific tournament room if tournamentId is provided
       if (actionData.tournamentId) {
-        this.server
+        void this.server
           .to(`tournament:${actionData.tournamentId}`)
           .emit('tournament_update', {
             type: `tournament_${action}`,
@@ -219,7 +223,7 @@ export class TournamentsGateway
       this.logger.log(`Match result update: ${matchId}`, result);
 
       // Broadcast to all clients in the match room
-      this.server.to(`match:${matchId}`).emit('match_update', {
+      void this.server.to(`match:${matchId}`).emit('match_update', {
         matchId,
         tournamentId: result.tournamentId,
         scoreA: result.scoreA,
@@ -231,7 +235,7 @@ export class TournamentsGateway
 
       // Also broadcast to tournament room if tournamentId is provided
       if (result.tournamentId) {
-        this.server
+        void this.server
           .to(`tournament:${result.tournamentId}`)
           .emit('match_update', {
             matchId,
@@ -265,10 +269,10 @@ export class TournamentsGateway
     };
 
     // Broadcast to global tournaments room
-    this.server.to('global_tournaments').emit('tournament_update', update);
+    void this.server.to('global_tournaments').emit('tournament_update', update);
 
     // Broadcast to specific tournament room
-    this.server
+    void this.server
       .to(`tournament:${tournamentId}`)
       .emit('tournament_update', update);
   }
@@ -282,10 +286,12 @@ export class TournamentsGateway
     };
 
     // Broadcast to match room
-    this.server.to(`match:${matchId}`).emit('match_update', update);
+    void this.server.to(`match:${matchId}`).emit('match_update', update);
 
     // Broadcast to tournament room
-    this.server.to(`tournament:${tournamentId}`).emit('match_update', update);
+    void this.server
+      .to(`tournament:${tournamentId}`)
+      .emit('match_update', update);
   }
 
   broadcastParticipantUpdate(
@@ -301,10 +307,12 @@ export class TournamentsGateway
     };
 
     // Broadcast to global tournaments room
-    this.server.to('global_tournaments').emit('participant_update', update);
+    void this.server
+      .to('global_tournaments')
+      .emit('participant_update', update);
 
     // Broadcast to specific tournament room
-    this.server
+    void this.server
       .to(`tournament:${tournamentId}`)
       .emit('participant_update', update);
   }

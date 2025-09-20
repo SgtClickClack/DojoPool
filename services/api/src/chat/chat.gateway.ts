@@ -64,14 +64,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const senderId = this.getUserIdFromSocket(client);
     if (!senderId) {
       this.logger.warn('send_dm received without sender identification');
-      client.emit('error', {
+      void client.emit('error', {
         message: 'Missing x-user-id/auth.userId for send_dm',
       });
       return;
     }
     const { receiverId, content } = data || ({} as SendDmPayload);
     if (!receiverId || !content) {
-      client.emit('error', { message: 'receiverId and content are required' });
+      void client.emit('error', {
+        message: 'receiverId and content are required',
+      });
       return;
     }
 

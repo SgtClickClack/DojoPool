@@ -161,11 +161,12 @@ export const ContentUpload: React.FC<ContentUploadProps> = ({
       setTimeout(() => {
         onSuccess?.();
       }, 2000);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          'Failed to upload content. Please try again.'
-      );
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to upload content. Please try again.';
+      setError(errorMessage);
     } finally {
       setUploading(false);
     }

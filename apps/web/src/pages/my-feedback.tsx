@@ -1,5 +1,8 @@
 import { deleteMyFeedback, getMyFeedback } from '@/services/APIService';
-import { FeedbackStatus, type UserFeedbackListResponse } from '@/types/feedback';
+import {
+  FeedbackStatus,
+  type UserFeedbackListResponse,
+} from '@/types/feedback';
 import {
   Alert,
   Box,
@@ -46,8 +49,12 @@ const MyFeedbackPage: NextPage = () => {
       const response = await getMyFeedback(page, 10);
       setFeedback(response);
       setError(null);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load your feedback');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to load your feedback';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -67,8 +74,12 @@ const MyFeedbackPage: NextPage = () => {
       await deleteMyFeedback(id);
       // Reload feedback
       await loadFeedback();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to delete feedback');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to delete feedback';
+      setError(errorMessage);
     } finally {
       setDeletingId(null);
     }

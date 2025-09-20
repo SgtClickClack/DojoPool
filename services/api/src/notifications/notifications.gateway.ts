@@ -34,7 +34,7 @@ export class NotificationsGateway
   handleConnection(client: Socket) {
     const userId = this.getUserIdFromSocket(client);
     if (userId) {
-      client.join(userId);
+      void client.join(userId);
       this.logger.log(
         `Client ${client.id} joined notifications room ${userId}`
       );
@@ -51,14 +51,14 @@ export class NotificationsGateway
 
   emitToUser(userId: string, event: string, payload: any) {
     if (!this.server) return;
-    this.server.to(userId).emit(event, payload);
+    void this.server.to(userId).emit(event, payload);
     this.logger.log(`Emitted ${event} to user ${userId}`);
   }
 
   emitToMultipleUsers(userIds: string[], event: string, payload: any) {
     if (!this.server) return;
     userIds.forEach((userId) => {
-      this.server.to(userId).emit(event, payload);
+      void this.server.to(userId).emit(event, payload);
     });
     this.logger.log(`Emitted ${event} to ${userIds.length} users`);
   }

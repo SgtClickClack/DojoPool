@@ -58,8 +58,10 @@ export const ChallengeNotification: React.FC<ChallengeNotificationProps> = ({
       } else {
         setError(response.message);
       }
-    } catch (error: any) {
-      setError(error.message || 'Failed to accept challenge');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to accept challenge';
+      setError(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -78,8 +80,10 @@ export const ChallengeNotification: React.FC<ChallengeNotificationProps> = ({
       } else {
         setError(response.message);
       }
-    } catch (error: any) {
-      setError(error.message || 'Failed to decline challenge');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to decline challenge';
+      setError(errorMessage);
     } finally {
       setIsProcessing(false);
     }

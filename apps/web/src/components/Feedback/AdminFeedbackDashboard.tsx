@@ -97,8 +97,12 @@ export const AdminFeedbackDashboard: React.FC<AdminFeedbackDashboardProps> = ({
       setFeedback(feedbackResponse);
       setStats(statsResponse);
       setError(null);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load feedback');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to load feedback';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -129,8 +133,12 @@ export const AdminFeedbackDashboard: React.FC<AdminFeedbackDashboardProps> = ({
       setUpdateDialogOpen(false);
       setSelectedFeedback(null);
       onFeedbackUpdated?.();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update feedback');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to update feedback';
+      setError(errorMessage);
     } finally {
       setUpdating(false);
     }
@@ -153,8 +161,12 @@ export const AdminFeedbackDashboard: React.FC<AdminFeedbackDashboardProps> = ({
           : null
       );
       onFeedbackUpdated?.();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update priority');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to update priority';
+      setError(errorMessage);
     }
   };
 

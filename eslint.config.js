@@ -74,7 +74,11 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: ['./tsconfig.json', './apps/web/tsconfig.json', './services/api/tsconfig.json'],
+        project: [
+          './tsconfig.json',
+          './apps/web/tsconfig.json',
+          './services/api/tsconfig.json',
+        ],
         tsconfigRootDir: import.meta.dirname,
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -143,6 +147,11 @@ export default [
       parserOptions: {
         projectService: false,
         tsconfigRootDir: import.meta.dirname,
+        project: false,
+      },
+      globals: {
+        ...globals.jest,
+        ...globals.node,
       },
     },
     rules: {
@@ -151,6 +160,7 @@ export default [
       '@typescript-eslint/no-misused-promises': 'off',
       '@typescript-eslint/consistent-type-imports': 'off',
       'no-undef': 'off',
+      'no-console': 'off',
     },
   },
 
@@ -196,7 +206,11 @@ export default [
       sourceType: 'module',
       parser: tsParser,
       parserOptions: {
-        project: ['./tsconfig.json', './apps/web/tsconfig.json', './services/api/tsconfig.json'],
+        project: [
+          './tsconfig.json',
+          './apps/web/tsconfig.json',
+          './services/api/tsconfig.json',
+        ],
         tsconfigRootDir: import.meta.dirname,
         ecmaFeatures: { jsx: true },
       },
@@ -244,6 +258,22 @@ export default [
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/await-thenable': 'off',
       '@typescript-eslint/no-misused-promises': 'off',
+    },
+  },
+
+  // JavaScript files with Node.js environment
+  {
+    files: ['**/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+      ecmaVersion: 2022,
+      sourceType: 'script',
+    },
+    rules: {
+      'no-undef': 'off',
+      'no-console': 'off',
     },
   },
 

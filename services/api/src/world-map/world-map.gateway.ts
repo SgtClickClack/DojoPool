@@ -96,13 +96,13 @@ export class WorldMapGateway
     const { playerId, playerName } = data;
 
     if (playerId && playerName) {
-      client.join('world_map');
-      client.join(`player:${playerId}`);
+      void client.join('world_map');
+      void client.join(`player:${playerId}`);
 
       this.logger.log(`Player ${playerName} (${playerId}) joined world map`);
 
       // Send confirmation
-      client.emit('joined_world_map', {
+      void client.emit('joined_world_map', {
         message: 'Successfully joined world map',
         timestamp: new Date(),
       });
@@ -116,8 +116,8 @@ export class WorldMapGateway
   ) {
     const { playerId } = data;
 
-    client.leave('world_map');
-    client.leave(`player:${playerId}`);
+    void client.leave('world_map');
+    void client.leave(`player:${playerId}`);
 
     // Remove player position
     this.playerPositions.delete(playerId);
@@ -167,7 +167,7 @@ export class WorldMapGateway
   @SubscribeMessage('request_dojo_statuses')
   handleRequestDojoStatuses(@ConnectedSocket() client: Socket) {
     const dojoStatuses = Array.from(this.dojoStatuses.values());
-    client.emit('dojo_status_update', {
+    void client.emit('dojo_status_update', {
       dojos: dojoStatuses,
     });
   }
@@ -218,9 +218,9 @@ export class WorldMapGateway
     };
 
     if (client) {
-      client.emit('message', event);
+      void client.emit('message', event);
     } else {
-      this.server.to('world_map').emit('message', event);
+      void this.server.to('world_map').emit('message', event);
     }
   }
 
@@ -232,7 +232,7 @@ export class WorldMapGateway
       },
     };
 
-    this.server.to('world_map').emit('message', event);
+    void this.server.to('world_map').emit('message', event);
   }
 
   broadcastGameEvent(gameEvent: GameEvent) {
@@ -241,7 +241,7 @@ export class WorldMapGateway
       data: gameEvent,
     };
 
-    this.server.to('world_map').emit('message', event);
+    void this.server.to('world_map').emit('message', event);
   }
 
   // Resource tick: periodic resource accrual and strategic updates
@@ -267,19 +267,24 @@ export class WorldMapGateway
         const rate: Record<string, unknown> =
           typeof t.resourceRate === 'string'
             ? JSON.parse(t.resourceRate || '{}')
-            : ((t.resourceRate as any) || {});
+            : (t.resourceRate as any) || {};
         const current: Record<string, number> =
           typeof t.resources === 'string'
             ? JSON.parse(t.resources || '{}')
-            : ((t.resources as any) || {});
+            : (t.resources as any) || {};
 
         const next: Record<string, number> = { ...current };
         for (const key of Object.keys(rate)) {
           const rateVal = Number((rate as any)[key]);
           const inc = Number.isFinite(rateVal) ? rateVal * elapsedHours : 0;
-          const base = Number.isFinite(Number(next[key])) ? Number(next[key]) : 0;
+          const base = Number.isFinite(Number(next[key]))
+            ? Number(next[key])
+            : 0;
           const candidate = base + inc;
-          next[key] = Math.max(0, Math.floor(Number.isFinite(candidate) ? candidate : 0));
+          next[key] = Math.max(
+            0,
+            Math.floor(Number.isFinite(candidate) ? candidate : 0)
+          );
         }
 
         await this.prisma.territory.update({
@@ -289,7 +294,7 @@ export class WorldMapGateway
       }
 
       // Broadcast a lightweight tick event
-      this.server.to('world_map').emit('message', {
+      void this.server.to('world_map').emit('message', {
         type: 'resource_tick',
         data: { ts: now.toISOString() },
       });
@@ -305,7 +310,7 @@ export class WorldMapGateway
 
     // Send current dojo statuses
     const dojoStatuses = Array.from(this.dojoStatuses.values());
-    client.emit('message', {
+    void client.emit('message', {
       type: 'dojo_status_update',
       data: {
         dojos: dojoStatuses,

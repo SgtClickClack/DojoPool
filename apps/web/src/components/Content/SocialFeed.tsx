@@ -93,8 +93,12 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({
 
       setContent(response);
       setError(null);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load content');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to load content';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -125,8 +129,12 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({
             }
           : null
       );
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to like content');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to like content';
+      setError(errorMessage);
     }
   };
 
@@ -163,8 +171,12 @@ export const SocialFeed: React.FC<SocialFeedProps> = ({
       setShareDialogOpen(false);
       setSelectedContent(null);
       setShareWithIds([]);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to share content');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to share content';
+      setError(errorMessage);
     } finally {
       setSharing(false);
     }

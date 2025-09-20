@@ -1,4 +1,5 @@
 import { SocialFeed } from '@/components/Content';
+import { type Content } from '@/types/content';
 import { Add as AddIcon } from '@mui/icons-material';
 import {
   Box,
@@ -14,7 +15,7 @@ import { useRouter } from 'next/router';
 const SocialFeedPage: NextPage = () => {
   const router = useRouter();
 
-  const handleContentClick = (content: any) => {
+  const handleContentClick = (content: Content) => {
     router.push(`/content/${content.id}`);
   };
 

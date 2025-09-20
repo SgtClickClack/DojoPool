@@ -114,8 +114,12 @@ export const AdminContentModeration: React.FC<AdminContentModerationProps> = ({
       setContent(contentResponse);
       setStats(statsResponse);
       setError(null);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load content');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to load content';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -151,8 +155,12 @@ export const AdminContentModeration: React.FC<AdminContentModerationProps> = ({
         moderationNotes: '',
       });
       onContentUpdated?.();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to moderate content');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && 'response' in err
+          ? (err as any).response?.data?.message
+          : 'Failed to moderate content';
+      setError(errorMessage);
     } finally {
       setModerating(false);
     }

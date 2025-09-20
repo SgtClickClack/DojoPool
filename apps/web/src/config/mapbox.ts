@@ -81,17 +81,24 @@ export const MAPBOX_PERFORMANCE_CONFIG = {
 };
 
 // Mapbox error handling
-export const handleMapboxError = (error: any): void => {
+export const handleMapboxError = (error: unknown): void => {
   console.error('Mapbox Error:', error);
-  
+
   // Handle specific error types
   if (error.type === 'error') {
     if (error.error?.message?.includes('token')) {
-      console.error('❌ Mapbox token error. Please check your NEXT_PUBLIC_MAPBOX_TOKEN');
+      console.error(
+        '❌ Mapbox token error. Please check your NEXT_PUBLIC_MAPBOX_TOKEN'
+      );
     } else if (error.error?.message?.includes('style')) {
-      console.error('❌ Mapbox style error. Please check your map style configuration');
+      console.error(
+        '❌ Mapbox style error. Please check your map style configuration'
+      );
     } else {
-      console.error('❌ Mapbox error:', error.error?.message || 'Unknown error');
+      console.error(
+        '❌ Mapbox error:',
+        error.error?.message || 'Unknown error'
+      );
     }
   }
 };

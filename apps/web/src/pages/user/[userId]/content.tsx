@@ -1,4 +1,5 @@
 import { SocialFeed } from '@/components/Content';
+import { type Content } from '@/types/content';
 import {
   Alert,
   Box,
@@ -22,7 +23,7 @@ const UserContentPage: NextPage = () => {
     );
   }
 
-  const handleContentClick = (content: any) => {
+  const handleContentClick = (content: Content) => {
     router.push(`/content/${content.id}`);
   };
 

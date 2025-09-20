@@ -43,7 +43,7 @@ const ProfilePage: React.FC = () => {
         setImages(Array.isArray(venue?.images) ? venue.images : []);
         if (Array.isArray(venue?.hours) && venue.hours.length > 0) {
           setHours(
-            venue.hours.map((h: any) => ({
+            venue.hours.map((h: VenueHours) => ({
               day: h.day,
               open: h.open,
               close: h.close,
@@ -51,8 +51,10 @@ const ProfilePage: React.FC = () => {
             }))
           );
         }
-      } catch (e: any) {
-        setError(e?.message || 'Failed to load venue');
+      } catch (e: unknown) {
+        const errorMessage =
+          e instanceof Error ? e.message : 'Failed to load venue';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -89,8 +91,10 @@ const ProfilePage: React.FC = () => {
       setSuccess(null);
       await updateMyVenue({ description, images, hours });
       setSuccess('Venue profile updated.');
-    } catch (e: any) {
-      setError(e?.message || 'Failed to update venue');
+    } catch (e: unknown) {
+      const errorMessage =
+        e instanceof Error ? e.message : 'Failed to update venue';
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }

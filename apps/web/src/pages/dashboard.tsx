@@ -36,7 +36,7 @@ const DashboardPage: React.FC = () => {
         setError(null);
         const data = await getDashboardStats();
         setStats(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to fetch dashboard stats:', err);
         console.log('Using mock data as fallback');
         setStats(mockDashboardStats);

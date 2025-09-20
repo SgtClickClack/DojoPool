@@ -24,7 +24,9 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   broadcastMatchStatusUpdate(matchId: string, status: string) {
     try {
       const room = `match:${matchId}`;
-      this.server.to(room).emit('match_status_update', { matchId, status });
+      void this.server
+        .to(room)
+        .emit('match_status_update', { matchId, status });
     } catch (err) {
       this.logger?.warn?.(
         `MatchGateway.broadcastMatchStatusUpdate failed: ${
@@ -53,12 +55,12 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const { matchId } = data || {};
     if (!matchId) {
-      client.emit('join_error', 'matchId is required');
+      void client.emit('join_error', 'matchId is required');
       return;
     }
     const room = `match:${matchId}`;
-    client.join(room);
-    client.emit('joined_match', { room, matchId });
+    void client.join(room);
+    void client.emit('joined_match', { room, matchId });
     this.logger.log(`Client ${client.id} joined room ${room}`);
   }
 
@@ -78,13 +80,13 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Basic validation
       const { matchId, playerId } = payload || {};
       if (!matchId || !playerId) {
-        client.emit('shot_error', 'matchId and playerId are required');
+        void client.emit('shot_error', 'matchId and playerId are required');
         return;
       }
 
       const room = `match:${matchId}`;
       // Ensure the sender is in the room
-      client.join(room);
+      void client.join(room);
 
       // Prepare shot data for AI
       const shotData: ShotData = {
@@ -100,11 +102,11 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         await this.aiAnalysisService.getLiveCommentary(shotData);
 
       // Broadcast to the match room as a simple string per spec
-      this.server.to(room).emit('live_commentary', commentary);
+      void this.server.to(room).emit('live_commentary', commentary);
       this.logger.log(`Broadcast live_commentary to ${room}: ${commentary}`);
     } catch (err) {
       this.logger.error('Error handling shot_taken event', err as any);
-      client.emit('shot_error', 'Failed to process shot_taken event');
+      void client.emit('shot_error', 'Failed to process shot_taken event');
     }
   }
 }

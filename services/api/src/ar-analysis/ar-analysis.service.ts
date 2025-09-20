@@ -187,25 +187,25 @@ export class ArAnalysisService {
       return { tableBounds: [], balls: [], meta: { error: 'Analysis failed' } };
     } finally {
       try {
-        circles && circles.delete();
+        if (circles) circles.delete();
       } catch {}
       try {
-        contours && contours.delete();
+        if (contours) contours.delete();
       } catch {}
       try {
-        hierarchy && hierarchy.delete();
+        if (hierarchy) hierarchy.delete();
       } catch {}
       try {
-        edges && edges.delete();
+        if (edges) edges.delete();
       } catch {}
       try {
-        blurred && blurred.delete();
+        if (blurred) blurred.delete();
       } catch {}
       try {
-        gray && gray.delete();
+        if (gray) gray.delete();
       } catch {}
       try {
-        src && src.delete();
+        if (src) src.delete();
       } catch {}
     }
   }

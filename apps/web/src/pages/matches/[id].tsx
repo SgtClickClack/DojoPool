@@ -69,7 +69,7 @@ export default function LiveMatchPage() {
           // Map backend response (playerA/playerB, scoreA/scoreB) to UI shape
           const mapped: MatchDetail = {
             id: data.id,
-            status: (data.status as any) ?? 'LIVE',
+            status: (data.status as MatchDetail['status']) ?? 'LIVE',
             players: {
               player1: { id: data.playerA?.id, name: data.playerA?.username },
               player2: { id: data.playerB?.id, name: data.playerB?.username },
@@ -89,8 +89,12 @@ export default function LiveMatchPage() {
           setError(null);
         }
       })
-      .catch((err: any) => {
-        if (!cancelled) setError(err?.message || 'Error loading match');
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          const errorMessage =
+            err instanceof Error ? err.message : 'Error loading match';
+          setError(errorMessage);
+        }
       })
       .finally(() => !cancelled && setLoading(false));
     return () => {

@@ -90,10 +90,12 @@ export default function MarketplacePage() {
           severity: 'success',
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to purchase item';
       setNotification({
         open: true,
-        message: error.message || 'Failed to purchase item',
+        message: errorMessage,
         severity: 'error',
       });
     } finally {

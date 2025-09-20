@@ -5,7 +5,10 @@ import {
   markNotificationAsRead,
 } from '@/services/APIService';
 import { websocketService } from '@/services/WebSocketService';
-import { type Notification, type NotificationResponse } from '@/types/notification';
+import {
+  type Notification,
+  type NotificationResponse,
+} from '@/types/notification';
 import React, {
   type ReactNode,
   createContext,
@@ -116,7 +119,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     const unsubscribe = websocketService.subscribe(
       'new_notification',
-      (event: any) => {
+      (event: Record<string, unknown>) => {
         if (event.type === 'new_notification' && event.data) {
           const newNotification = event.data as Notification;
 
