@@ -68,22 +68,22 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ filter }) => {
 
   const loadMore = useCallback(() => {
     if (pagination.hasNext) {
-      fetchEvents(pagination.page + 1, true);
+      void fetchEvents(pagination.page + 1, true);
     }
   }, [pagination.hasNext, pagination.page, fetchEvents]);
 
   const refresh = useCallback(() => {
-    fetchEvents(1, false);
+    void fetchEvents(1, false);
   }, [fetchEvents]);
 
   // Initial fetch
   useEffect(() => {
-    fetchEvents(1, false);
+    void fetchEvents(1, false);
   }, [fetchEvents]);
 
   // WebSocket subscription for real-time updates
   useEffect(() => {
-    const handleNewEvent = (data: any) => {
+    const handleNewEvent = (data: Record<string, unknown>) => {
       if (data.type === 'new_activity_event') {
         const newEvent = data.data as ActivityEvent;
 

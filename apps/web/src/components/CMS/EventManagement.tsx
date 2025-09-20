@@ -44,7 +44,7 @@ interface Event {
   eventType?: string;
   status: string;
   tags?: string[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,7 +59,7 @@ interface EventFormData {
   registrationDeadline: Date | null;
   eventType: string;
   tags: string[];
-  metadata: any;
+  metadata: Record<string, unknown>;
 }
 
 const EventManagement: React.FC = () => {
@@ -90,7 +90,7 @@ const EventManagement: React.FC = () => {
   ];
 
   useEffect(() => {
-    fetchEvents();
+    void fetchEvents();
   }, []);
 
   const fetchEvents = async () => {
@@ -193,7 +193,7 @@ const EventManagement: React.FC = () => {
 
       if (response.ok) {
         setSuccess('Event deleted successfully');
-        fetchEvents();
+        void fetchEvents();
       } else {
         setError('Failed to delete event');
       }
@@ -240,7 +240,7 @@ const EventManagement: React.FC = () => {
             : 'Event created successfully'
         );
         setDialogOpen(false);
-        fetchEvents();
+        void fetchEvents();
       } else {
         setError('Failed to save event');
       }
@@ -332,7 +332,7 @@ const EventManagement: React.FC = () => {
                     <Chip
                       label={event.eventType || 'EVENT'}
                       color={
-                        getEventTypeColor(event.eventType || 'EVENT') as any
+                        getEventTypeColor(event.eventType || 'EVENT') as 'primary' | 'secondary' | 'warning' | 'default'
                       }
                       size="small"
                     />

@@ -3,9 +3,9 @@ import '@testing-library/jest-dom';
 
 // Mock IntersectionObserver
 class IntersectionObserver {
-  observe = jest.fn();
-  disconnect = jest.fn();
-  unobserve = jest.fn();
+  observe = global.jest.fn();
+  disconnect = global.jest.fn();
+  unobserve = global.jest.fn();
 }
 
 Object.defineProperty(window, 'IntersectionObserver', {
@@ -22,9 +22,9 @@ Object.defineProperty(global, 'IntersectionObserver', {
 
 // Mock ResizeObserver
 class ResizeObserver {
-  observe = jest.fn();
-  disconnect = jest.fn();
-  unobserve = jest.fn();
+  observe = global.jest.fn();
+  disconnect = global.jest.fn();
+  unobserve = global.jest.fn();
 }
 
 Object.defineProperty(window, 'ResizeObserver', {
@@ -42,27 +42,27 @@ Object.defineProperty(global, 'ResizeObserver', {
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation((query) => ({
+  value: global.jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // Deprecated
-    removeListener: jest.fn(), // Deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: global.jest.fn(), // Deprecated
+    removeListener: global.jest.fn(), // Deprecated
+    addEventListener: global.jest.fn(),
+    removeEventListener: global.jest.fn(),
+    dispatchEvent: global.jest.fn(),
   })),
 });
 
 // Mock scrollTo
-window.scrollTo = jest.fn();
+window.scrollTo = global.jest.fn();
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  clear: jest.fn(),
-  removeItem: jest.fn(),
+  getItem: global.jest.fn(),
+  setItem: global.jest.fn(),
+  clear: global.jest.fn(),
+  removeItem: global.jest.fn(),
 };
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,

@@ -1,10 +1,6 @@
 {
-  "extends": [
-    "next/core-web-vitals"
-  ],
-  "plugins": [
-    "import"
-  ],
+  "extends": ["next/core-web-vitals"],
+  "plugins": ["import"],
   "rules": {
     "import/no-relative-parent-imports": "warn"
   },
@@ -14,5 +10,23 @@
         "alwaysTryTypes": true
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "files": ["apps/web/server.js", "jest.setup.js"],
+      "env": {
+        "node": true,
+        "jest": true,
+        "browser": true
+      },
+      "globals": {
+        "jest": "readonly",
+        "console": "readonly",
+        "process": "readonly",
+        "require": "readonly",
+        "global": "readonly",
+        "window": "readonly"
+      }
+    }
+  ]
 }

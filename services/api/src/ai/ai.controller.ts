@@ -33,7 +33,7 @@ export class AiController {
       scoreA: number;
       scoreB: number;
       winner: string;
-      shots?: any[];
+      shots?: unknown[];
       venue: string;
       round: number;
     }
@@ -73,6 +73,6 @@ export class AiController {
       throw new BadRequestException('File size must be less than 10MB');
     }
 
-    return await this.aiService.analyzeTableImage(file.buffer, file.mimetype);
+    return await this.aiService.analyzeTableImage(file.buffer!, file.mimetype);
   }
 }

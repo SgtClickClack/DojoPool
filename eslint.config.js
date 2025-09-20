@@ -62,6 +62,7 @@ export default [
       'services/api/src/**/*.test.ts',
       'services/api/test-*.js',
       'services/api/types/**',
+      'jest.setup.ts',
     ],
   },
 

@@ -78,7 +78,7 @@ const AIDashboard: React.FC<AIDashboardProps> = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      refreshHealth();
+      void refreshHealth();
     }
   }, [isOpen, refreshHealth]);
 
@@ -134,7 +134,7 @@ const AIDashboard: React.FC<AIDashboardProps> = ({ isOpen, onClose }) => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setSelectedTab(tab.id as any)}
+                onClick={() => setSelectedTab(tab.id as 'status' | 'analysis' | 'vision')}
                 className={`flex items-center space-x-2 px-6 py-4 border-b-2 transition-colors ${
                   selectedTab === tab.id
                     ? 'border-blue-500 text-blue-400'
