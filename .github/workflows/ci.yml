@@ -159,6 +159,32 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: lint-and-types
+
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dojopool_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -173,6 +199,14 @@ jobs:
         run: corepack enable
       - name: Install dependencies
         run: yarn install --immutable || yarn install --immutable --check-cache
+      - name: Generate Prisma client
+        run: |
+          export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
+          export NODE_ENV=test
+          cd services/api && yarn prisma:generate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
+          NODE_ENV: test
       - name: Run tests (CI)
         run: yarn run test:ci
         env:
