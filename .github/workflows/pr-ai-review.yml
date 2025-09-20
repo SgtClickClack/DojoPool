@@ -25,10 +25,14 @@ jobs:
         if: ${{ secrets.OPENAI_API_KEY != '' }}
         id: review
         run: |
-          OUT=$(node scripts/ai/review-changes.js || true)
-          echo "OUT<<EOF" >> $GITHUB_OUTPUT
-          echo "$OUT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          if [ -f "scripts/ai/review-changes.js" ]; then
+            OUT=$(node scripts/ai/review-changes.js || echo "AI review generation failed")
+            echo "OUT<<EOF" >> $GITHUB_OUTPUT
+            echo "$OUT" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "AI script not found, skipping review generation"
+          fi
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       - name: Post review comment

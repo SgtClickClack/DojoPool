@@ -25,10 +25,14 @@ jobs:
         if: ${{ secrets.OPENAI_API_KEY != '' }}
         id: generate
         run: |
-          DESC=$(node scripts/ai/generate-pr-description.js)
-          echo "DESC<<EOF" >> $GITHUB_OUTPUT
-          echo "$DESC" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          if [ -f "scripts/ai/generate-pr-description.js" ]; then
+            DESC=$(node scripts/ai/generate-pr-description.js || echo "AI description generation failed")
+            echo "DESC<<EOF" >> $GITHUB_OUTPUT
+            echo "$DESC" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "AI script not found, skipping description generation"
+          fi
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       - name: Update PR body
