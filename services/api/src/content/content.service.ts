@@ -26,7 +26,7 @@ export class ContentService {
   private readonly logger = new Logger(ContentService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly _prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
     private readonly cacheHelper: CacheHelper
   ) {}
@@ -137,7 +137,7 @@ export class ContentService {
     // Validate and sanitize input data
     const sanitizedData = this.validateAndSanitizeContent(createContentDto);
 
-    const content = await this.prisma.content.create({
+    const content = await this._prisma.content.create({
       data: {
         ...sanitizedData,
         userId,
@@ -213,7 +213,7 @@ export class ContentService {
     const where = await this.buildFeedWhereClause(userId, filters);
 
     const [content, totalCount] = await Promise.all([
-      this.prisma.content.findMany({
+      this._prisma.content.findMany({
         where,
         include: {
           user: {
@@ -229,14 +229,14 @@ export class ContentService {
         skip,
         take: limit,
       }),
-      this.prisma.content.count({ where }),
+      this._prisma.content.count({ where }),
     ]);
 
     // Add user interaction status
     const contentWithInteractions = await Promise.all(
       content.map(async (item) => {
         const [userLiked, userShared] = await Promise.all([
-          this.prisma.contentLike.findUnique({
+          this._prisma.contentLike.findUnique({
             where: {
               contentId_userId: {
                 contentId: item.id,
@@ -244,7 +244,7 @@ export class ContentService {
               },
             },
           }),
-          this.prisma.contentShare.findFirst({
+          this._prisma.contentShare.findFirst({
             where: {
               contentId: item.id,
               userId,
@@ -313,7 +313,7 @@ export class ContentService {
     }
 
     const [content, totalCount] = await Promise.all([
-      this.prisma.content.findMany({
+      this._prisma.content.findMany({
         where,
         include: {
           user: {
@@ -329,7 +329,7 @@ export class ContentService {
         skip,
         take: limit,
       }),
-      this.prisma.content.count({ where }),
+      this._prisma.content.count({ where }),
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -358,7 +358,7 @@ export class ContentService {
       userShared?: boolean;
     }
   > {
-    const content = await this.prisma.content.findUnique({
+    const content = await this._prisma.content.findUnique({
       where: { id },
       include: {
         user: {
@@ -391,7 +391,7 @@ export class ContentService {
 
     // Add user interaction status
     const [userLiked, userShared] = await Promise.all([
-      this.prisma.contentLike.findUnique({
+      this._prisma.contentLike.findUnique({
         where: {
           contentId_userId: {
             contentId: id,
@@ -399,7 +399,7 @@ export class ContentService {
           },
         },
       }),
-      this.prisma.contentShare.findFirst({
+      this._prisma.contentShare.findFirst({
         where: {
           contentId: id,
           userId,
@@ -408,7 +408,7 @@ export class ContentService {
     ]);
 
     // Increment view count
-    await this.prisma.content.update({
+    await this._prisma.content.update({
       where: { id },
       data: { views: { increment: 1 } },
     });
@@ -438,7 +438,7 @@ export class ContentService {
     updateContentDto: UpdateContentDto,
     userId: string
   ): Promise<Content> {
-    const existingContent = await this.prisma.content.findUnique({
+    const existingContent = await this._prisma.content.findUnique({
       where: { id },
     });
 
@@ -473,7 +473,7 @@ export class ContentService {
         : (updateContentDto.tags as unknown as string);
     }
 
-    const content = await this.prisma.content.update({
+    const content = await this._prisma.content.update({
       where: { id },
       data,
       include: {
@@ -492,7 +492,7 @@ export class ContentService {
   }
 
   async delete(id: string, userId: string): Promise<void> {
-    const content = await this.prisma.content.findUnique({
+    const content = await this._prisma.content.findUnique({
       where: { id },
     });
 
@@ -504,7 +504,7 @@ export class ContentService {
       throw new ForbiddenException('You can only delete your own content');
     }
 
-    await this.prisma.content.delete({ where: { id } });
+    await this._prisma.content.delete({ where: { id } });
     this.logger.log(`Content ${id} deleted by user ${userId}`);
   }
 
@@ -532,7 +532,7 @@ export class ContentService {
     const where = this.buildAdminWhereClause(filters);
 
     const [content, totalCount, pendingCount] = await Promise.all([
-      this.prisma.content.findMany({
+      this._prisma.content.findMany({
         where,
         include: {
           user: {
@@ -553,8 +553,8 @@ export class ContentService {
         skip,
         take: limit,
       }),
-      this.prisma.content.count({ where }),
-      this.prisma.content.count({
+      this._prisma.content.count({ where }),
+      this._prisma.content.count({
         where: { ...where, status: ContentStatus.PENDING },
       }),
     ]);
@@ -580,7 +580,7 @@ export class ContentService {
     moderateContentDto: ModerateContentDto,
     adminId: string
   ): Promise<Content> {
-    const existingContent = await this.prisma.content.findUnique({
+    const existingContent = await this._prisma.content.findUnique({
       where: { id },
       include: { user: true },
     });
@@ -589,7 +589,7 @@ export class ContentService {
       throw new NotFoundException('Content not found');
     }
 
-    const content = await this.prisma.content.update({
+    const content = await this._prisma.content.update({
       where: { id },
       data: {
         status: moderateContentDto.status,
@@ -628,7 +628,7 @@ export class ContentService {
     contentId: string,
     userId: string
   ): Promise<{ liked: boolean }> {
-    const existingLike = await this.prisma.contentLike.findUnique({
+    const existingLike = await this._prisma.contentLike.findUnique({
       where: {
         contentId_userId: {
           contentId,
@@ -639,29 +639,29 @@ export class ContentService {
 
     if (existingLike) {
       // Unlike
-      await this.prisma.contentLike.delete({
+      await this._prisma.contentLike.delete({
         where: { id: existingLike.id },
       });
-      await this.prisma.content.update({
+      await this._prisma.content.update({
         where: { contentId },
         data: { likes: { decrement: 1 } },
       });
       return { liked: false };
     } else {
       // Like
-      await this.prisma.contentLike.create({
+      await this._prisma.contentLike.create({
         data: {
           contentId,
           userId,
         },
       });
-      await this.prisma.content.update({
+      await this._prisma.content.update({
         where: { contentId },
         data: { likes: { increment: 1 } },
       });
 
       // Notify content creator
-      const content = await this.prisma.content.findUnique({
+      const content = await this._prisma.content.findUnique({
         where: { contentId },
         include: { user: true },
       });
@@ -687,7 +687,7 @@ export class ContentService {
     userId: string,
     sharedWithIds: string[]
   ): Promise<void> {
-    const content = await this.prisma.content.findUnique({
+    const content = await this._prisma.content.findUnique({
       where: { contentId },
     });
 
@@ -697,7 +697,7 @@ export class ContentService {
 
     // Create shares
     const sharePromises = sharedWithIds.map((sharedWithId) =>
-      this.prisma.contentShare.upsert({
+      this._prisma.contentShare.upsert({
         where: {
           contentId_userId_sharedWithId: {
             contentId,
@@ -719,7 +719,7 @@ export class ContentService {
     await Promise.all(sharePromises);
 
     // Update share count
-    await this.prisma.content.update({
+    await this._prisma.content.update({
       where: { contentId },
       data: { shares: { increment: sharedWithIds.length } },
     });
@@ -750,11 +750,11 @@ export class ContentService {
     totalViews: number;
   }> {
     const [total, pending, approved, rejected, stats] = await Promise.all([
-      this.prisma.content.count(),
-      this.prisma.content.count({ where: { status: ContentStatus.PENDING } }),
-      this.prisma.content.count({ where: { status: ContentStatus.APPROVED } }),
-      this.prisma.content.count({ where: { status: ContentStatus.REJECTED } }),
-      this.prisma.content.aggregate({
+      this._prisma.content.count(),
+      this._prisma.content.count({ where: { status: ContentStatus.PENDING } }),
+      this._prisma.content.count({ where: { status: ContentStatus.APPROVED } }),
+      this._prisma.content.count({ where: { status: ContentStatus.REJECTED } }),
+      this._prisma.content.aggregate({
         _sum: {
           likes: true,
           shares: true,
@@ -888,7 +888,7 @@ export class ContentService {
     content: Content & { user: { id: string; username: string } }
   ): Promise<void> {
     try {
-      const admins = await this.prisma.user.findMany({
+      const admins = await this._prisma.user.findMany({
         where: { role: 'ADMIN' },
         select: { id: true },
       });
@@ -918,7 +918,7 @@ export class ContentService {
   ): Promise<void> {
     try {
       // For now, notify all users (in a real app, you'd notify followers/friends)
-      const users = await this.prisma.user.findMany({
+      const users = await this._prisma.user.findMany({
         where: {
           NOT: { id: content.userId }, // Don't notify the creator
         },

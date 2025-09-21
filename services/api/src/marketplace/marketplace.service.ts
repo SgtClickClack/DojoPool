@@ -14,7 +14,7 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class MarketplaceService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly _prisma: PrismaService,
     private readonly cacheHelper: CacheHelper
   ) {}
 
@@ -27,7 +27,7 @@ export class MarketplaceService {
     keyGenerator: () => CacheKey('marketplace', 'items', 'list'),
   })
   async listItems() {
-    return this.prisma.marketplaceItem.findMany({
+    return this._prisma.marketplaceItem.findMany({
       include: {
         communityItem: {
           include: {
@@ -56,7 +56,7 @@ export class MarketplaceService {
       CacheKey('marketplace', 'transaction', userId, itemId),
   })
   async buyItem(userId: string, itemId: string) {
-    return this.prisma.$transaction(async (tx) => {
+    return this._prisma.$transaction(async (tx) => {
       const item = await tx.marketplaceItem.findUnique({
         where: { id: itemId },
       });

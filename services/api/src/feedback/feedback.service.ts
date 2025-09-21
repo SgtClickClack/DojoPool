@@ -22,7 +22,7 @@ export class FeedbackService {
   private readonly logger = new Logger(FeedbackService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly _prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
     private readonly cacheHelper: CacheHelper
   ) {}
@@ -31,7 +31,7 @@ export class FeedbackService {
     createFeedbackDto: CreateFeedbackDto,
     userId: string
   ): Promise<Feedback> {
-    const feedback = await this.prisma.feedback.create({
+    const feedback = await this._prisma.feedback.create({
       data: {
         ...createFeedbackDto,
         userId,
@@ -95,7 +95,7 @@ export class FeedbackService {
     const where = this.buildWhereClause(filters);
 
     const [feedback, totalCount, pendingCount] = await Promise.all([
-      this.prisma.feedback.findMany({
+      this._prisma.feedback.findMany({
         where,
         include: {
           user: {
@@ -116,8 +116,8 @@ export class FeedbackService {
         skip,
         take: limit,
       }),
-      this.prisma.feedback.count({ where }),
-      this.prisma.feedback.count({
+      this._prisma.feedback.count({ where }),
+      this._prisma.feedback.count({
         where: { ...where, status: FeedbackStatus.PENDING },
       }),
     ]);
@@ -143,7 +143,7 @@ export class FeedbackService {
   ): Promise<
     Feedback & { user: { id: string; username: string; email: string } }
   > {
-    const feedback = await this.prisma.feedback.findUnique({
+    const feedback = await this._prisma.feedback.findUnique({
       where: { id },
       include: {
         user: {
@@ -187,13 +187,13 @@ export class FeedbackService {
     const skip = (page - 1) * limit;
 
     const [feedback, totalCount] = await Promise.all([
-      this.prisma.feedback.findMany({
+      this._prisma.feedback.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      this.prisma.feedback.count({ where: { userId } }),
+      this._prisma.feedback.count({ where: { userId } }),
     ]);
 
     const totalPages = Math.ceil(totalCount / limit);
@@ -229,7 +229,7 @@ export class FeedbackService {
     updateFeedbackDto: UpdateFeedbackDto,
     adminId: string
   ): Promise<Feedback> {
-    const existingFeedback = await this.prisma.feedback.findUnique({
+    const existingFeedback = await this._prisma.feedback.findUnique({
       where: { id },
       include: { user: true },
     });
@@ -238,7 +238,7 @@ export class FeedbackService {
       throw new NotFoundException('Feedback not found');
     }
 
-    const feedback = await this.prisma.feedback.update({
+    const feedback = await this._prisma.feedback.update({
       where: { id },
       data: {
         ...updateFeedbackDto,
@@ -280,7 +280,7 @@ export class FeedbackService {
   }
 
   async delete(id: string, userId: string): Promise<void> {
-    const feedback = await this.prisma.feedback.findUnique({
+    const feedback = await this._prisma.feedback.findUnique({
       where: { id },
     });
 
@@ -292,7 +292,7 @@ export class FeedbackService {
       throw new ForbiddenException('You can only delete your own feedback');
     }
 
-    await this.prisma.feedback.delete({ where: { id } });
+    await this._prisma.feedback.delete({ where: { id } });
     this.logger.log(`Feedback ${id} deleted by user ${userId}`);
   }
 
@@ -314,19 +314,19 @@ export class FeedbackService {
       rejected,
       resolvedFeedback,
     ] = await Promise.all([
-      this.prisma.feedback.count(),
-      this.prisma.feedback.count({ where: { status: FeedbackStatus.PENDING } }),
-      this.prisma.feedback.count({
+      this._prisma.feedback.count(),
+      this._prisma.feedback.count({ where: { status: FeedbackStatus.PENDING } }),
+      this._prisma.feedback.count({
         where: { status: FeedbackStatus.IN_REVIEW },
       }),
-      this.prisma.feedback.count({
+      this._prisma.feedback.count({
         where: { status: FeedbackStatus.RESOLVED },
       }),
-      this.prisma.feedback.count({ where: { status: FeedbackStatus.CLOSED } }),
-      this.prisma.feedback.count({
+      this._prisma.feedback.count({ where: { status: FeedbackStatus.CLOSED } }),
+      this._prisma.feedback.count({
         where: { status: FeedbackStatus.REJECTED },
       }),
-      this.prisma.feedback.findMany({
+      this._prisma.feedback.findMany({
         where: {
           status: FeedbackStatus.RESOLVED,
           resolvedAt: { not: null },
@@ -404,7 +404,7 @@ export class FeedbackService {
     }
   ): Promise<void> {
     try {
-      const admins = await this.prisma.user.findMany({
+      const admins = await this._prisma.user.findMany({
         where: { role: 'ADMIN' },
         select: { id: true },
       });
