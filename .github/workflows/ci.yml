@@ -59,7 +59,7 @@ jobs:
           # Set a dummy DATABASE_URL for Prisma generation
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
           export NODE_ENV=test
-          cd services/api && yarn prisma:generate
+          npx prisma generate --schema=packages/prisma/schema.prisma
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
           NODE_ENV: test
@@ -146,7 +146,7 @@ jobs:
           # Set a dummy DATABASE_URL for Prisma generation
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
           export NODE_ENV=test
-          cd services/api && yarn prisma:generate
+          npx prisma generate --schema=packages/prisma/schema.prisma
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
           NODE_ENV: test
@@ -203,7 +203,7 @@ jobs:
         run: |
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
           export NODE_ENV=test
-          cd services/api && yarn prisma:generate
+          npx prisma generate --schema=packages/prisma/schema.prisma
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
           NODE_ENV: test
