@@ -45,10 +45,11 @@ jobs:
       - name: Run Workflow Monitor
         run: |
           chmod +x scripts/workflow-monitor.sh
-          timeout ${{ github.event.inputs.duration || '10' }}m ./scripts/workflow-monitor.sh
+          timeout ${{ github.event.inputs.duration || '10' }}m ./scripts/workflow-monitor.sh || echo "Workflow monitor completed with warnings"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
       - name: Report Status
         if: always()

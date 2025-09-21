@@ -1,6 +1,6 @@
 name: PR AI Review
 
-# Temporarily disabled - non-critical workflow
+# Disabled - non-critical workflow
 # on:
 #   pull_request:
 #     types: [opened, synchronize, labeled]

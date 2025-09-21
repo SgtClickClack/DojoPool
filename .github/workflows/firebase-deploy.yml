@@ -13,6 +13,8 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    # Skip deployment if Firebase secrets are not configured
+    if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
