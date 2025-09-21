@@ -21,8 +21,8 @@ declare module 'react-image-crop' {
 
   export interface ReactCropProps {
     crop: Crop;
-    onChange?: (crop: Crop) => void;
-    onComplete?: (crop: PixelCrop) => void;
+    onChange?: (_crop: Crop) => void;
+    onComplete?: (_crop: PixelCrop) => void;
     children?: React.ReactNode;
     circularCrop?: boolean;
     aspect?: number;

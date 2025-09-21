@@ -42,6 +42,9 @@ export enum SkillLevel {
   MASTER = 'master',
 }
 
+// Export individual enum values for use in other files
+export const { BEGINNER, INTERMEDIATE, ADVANCED, EXPERT, MASTER } = SkillLevel;
+
 export enum AchievementRarity {
   COMMON = 'common',
   UNCOMMON = 'uncommon',
@@ -49,3 +52,6 @@ export enum AchievementRarity {
   EPIC = 'epic',
   LEGENDARY = 'legendary',
 }
+
+// Export individual enum values for use in other files
+export const { COMMON, UNCOMMON, RARE, EPIC, LEGENDARY } = AchievementRarity;

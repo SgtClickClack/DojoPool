@@ -14,6 +14,20 @@ export enum ContentType {
   SYSTEM_MESSAGE = 'SYSTEM_MESSAGE',
 }
 
+// Export individual enum values for use in other files
+export const {
+  MATCH_REPLAY,
+  CUSTOM_ITEM,
+  HIGH_SCORE,
+  ACHIEVEMENT,
+  TOURNAMENT_HIGHLIGHT,
+  VENUE_REVIEW,
+  GENERAL,
+  EVENT,
+  NEWS_ARTICLE,
+  SYSTEM_MESSAGE,
+} = ContentType;
+
 export enum ContentStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
@@ -21,11 +35,17 @@ export enum ContentStatus {
   ARCHIVED = 'ARCHIVED',
 }
 
+// Export individual enum values for use in other files
+export const { PENDING, APPROVED, REJECTED, ARCHIVED } = ContentStatus;
+
 export enum ContentVisibility {
   PUBLIC = 'PUBLIC',
   FRIENDS_ONLY = 'FRIENDS_ONLY',
   PRIVATE = 'PRIVATE',
 }
+
+// Export individual enum values for use in other files
+export const { PUBLIC, FRIENDS_ONLY, PRIVATE } = ContentVisibility;
 
 export interface Content {
   id: string;

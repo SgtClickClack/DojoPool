@@ -14,7 +14,7 @@ import { enqueueSnackbar } from 'notistack';
 import React, { useEffect, useState } from 'react';
 
 const TournamentDashboard: React.FC = () => {
-  const { user, isAdmin } = useAuth();
+  const { user: _user, isAdmin } = useAuth();
   const router = useRouter();
 
   const [tournaments, setTournaments] = useState<Tournament[]>([]);

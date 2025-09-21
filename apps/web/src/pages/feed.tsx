@@ -49,9 +49,6 @@ export default function FeedPage() {
     setTabValue(newValue);
   };
 
-  const getCurrentFilter = (): 'global' | 'friends' => {
-    return tabValue === 0 ? 'global' : 'friends';
-  };
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>

@@ -46,11 +46,17 @@ export enum GameStatus {
   CANCELLED = 'cancelled',
 }
 
+// Export individual enum values for use in other files
+export const { PENDING, ACTIVE, COMPLETED, CANCELLED } = GameStatus;
+
 export enum GamePhase {
   BREAK = 'break',
   PLAY = 'play',
   END_GAME = 'end_game',
 }
+
+// Export individual enum values for use in other files
+export const { BREAK, PLAY, END_GAME } = GamePhase;
 
 export enum FoulType {
   SCRATCH = 'scratch',
@@ -58,3 +64,6 @@ export enum FoulType {
   WRONG_BALL = 'wrong_ball',
   JUMP_SHOT = 'jump_shot',
 }
+
+// Export individual enum values for use in other files
+export const { SCRATCH, ILLEGAL_SHOT, WRONG_BALL, JUMP_SHOT } = FoulType;

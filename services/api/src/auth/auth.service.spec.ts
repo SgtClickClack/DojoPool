@@ -5,79 +5,51 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { TestDataManager } from '../../../../tests/fixtures/test-data-manager';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let prismaService: jest.Mocked<PrismaService>;
-  let jwtService: jest.Mocked<JwtService>;
+  let prismaService: any;
+  let jwtService: any;
 
-  const mockUser = {
-    id: '1',
-    email: 'test@example.com',
-    username: 'testuser',
-    passwordHash: 'hashedpassword',
-    role: 'USER' as const,
-    isBanned: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    dojoCoinBalance: 1000,
-  };
-
-  const mockProfile = {
-    id: '1',
-    userId: '1',
-    displayName: 'Test User',
-    bio: 'Test bio',
-    avatarUrl: null,
-    location: null,
-    skillRating: 1500,
-    clanTitle: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+  // Use centralized test data
+  TestDataManager.initialize();
+  const mockUser = TestDataManager.create('user');
+  const mockProfile = TestDataManager.create('profile', { userId: mockUser.id });
 
   beforeEach(async () => {
     // Mock bcrypt module
-    jest.mock('bcrypt', () => ({
-      hash: jest.fn().mockResolvedValue('hashedpassword'),
-      compare: jest.fn().mockResolvedValue(true),
-      genSalt: jest.fn().mockResolvedValue('salt'),
+    vi.mock('bcrypt', () => ({
+      hash: vi.fn().mockResolvedValue('hashedpassword'),
+      compare: vi.fn().mockResolvedValue(true),
+      genSalt: vi.fn().mockResolvedValue('salt'),
     }));
 
-    const mockPrismaService = {
+    // Create mock services
+    prismaService = {
       user: {
-        findFirst: jest.fn(),
-        create: jest.fn(),
-        findUnique: jest.fn(),
-        update: jest.fn(),
+        findFirst: vi.fn(),
+        create: vi.fn(),
+        findUnique: vi.fn(),
+        update: vi.fn(),
       },
       profile: {
-        create: jest.fn(),
+        create: vi.fn(),
       },
     };
 
-    const mockJwtService = {
-      sign: jest.fn(),
-      verify: jest.fn(),
+    jwtService = {
+      sign: vi.fn(),
+      verify: vi.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthService,
-        {
-          provide: PrismaService,
-          useValue: mockPrismaService,
-        },
-        {
-          provide: JwtService,
-          useValue: mockJwtService,
-        },
-      ],
-    }).compile();
+    // Create service with mocked dependencies
+    service = new AuthService(prismaService, jwtService);
+  });
 
-    service = module.get<AuthService>(AuthService);
-    prismaService = module.get(PrismaService);
-    jwtService = module.get(JwtService);
+  afterEach(() => {
+    // Clear all mocks after each test
+    vi.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -148,7 +120,7 @@ describe('AuthService', () => {
       prismaService.user.findFirst.mockResolvedValue(mockUser);
       jwtService.sign.mockReturnValue('jwt-token');
       // Mock bcrypt.compare
-      jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(true);
+      vi.spyOn(require('bcrypt'), 'compare').mockResolvedValue(true);
 
       // Act
       const result = await service.login(loginDto);
@@ -181,7 +153,7 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for wrong password', async () => {
       // Arrange
       prismaService.user.findFirst.mockResolvedValue(mockUser);
-      jest.spyOn(require('bcrypt'), 'compare').mockResolvedValue(false);
+      vi.spyOn(require('bcrypt'), 'compare').mockResolvedValue(false);
 
       // Act & Assert
       await expect(service.login(loginDto)).rejects.toThrow(

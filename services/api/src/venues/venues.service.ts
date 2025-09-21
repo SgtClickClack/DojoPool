@@ -24,10 +24,10 @@ export class VenuesService {
   private readonly logger = new Logger(VenuesService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly cacheHelper: CacheHelper,
+    private readonly _prisma: PrismaService,
+    private readonly _cacheHelper: CacheHelper,
     @Inject(forwardRef(() => MatchesGateway))
-    private readonly matchesGateway: MatchesGateway
+    private readonly _matchesGateway: MatchesGateway
   ) {}
 
   // Missing methods that tests are calling
@@ -214,7 +214,7 @@ export class VenuesService {
       throw new NotFoundException('Venue not found');
     }
 
-    return await this.prisma.table.create({
+    const newTable = await this.prisma.table.create({
       data: {
         venueId,
         // Remove tableNumber as it doesn't exist in schema
@@ -235,7 +235,7 @@ export class VenuesService {
       );
     }
 
-    return tables;
+    return newTable;
   }
 
   async updateTableInfo(
@@ -360,7 +360,7 @@ export class VenuesService {
 
     // Update within a transaction to maintain consistency if matchId provided
     const result = await this.prisma.$transaction(async (tx) => {
-      const updatedTable = await tx.table.update({
+      const _updatedTable = await tx.table.update({
         where: { id: tableId },
         data: { status: status as any },
       });
@@ -850,7 +850,7 @@ export class VenuesService {
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
 
-    const { name, description, startTime, endTime, maxPlayers, entryFee, prizePool, format, rewards } = data;
+    const { name, description: _description, startTime, endTime, maxPlayers, entryFee, prizePool, format, rewards } = data;
 
     if (!name || typeof name !== 'string') {
       throw new BadRequestException('name is required');
@@ -933,7 +933,7 @@ export class VenuesService {
   }
 
   // Start a tournament for the authenticated venue owner
-  async startMyTournament(userId: string, tournamentId: string, options?: { shuffleParticipants?: boolean }) {
+  async startMyTournament(userId: string, tournamentId: string, _options?: { shuffleParticipants?: boolean }) {
     const venue = await this.prisma.venue.findFirst({
       where: { ownerId: userId },
     });

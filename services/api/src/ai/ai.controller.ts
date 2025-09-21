@@ -12,16 +12,16 @@ import { AiService } from './ai.service';
 
 @Controller('ai')
 export class AiController {
-  constructor(private readonly aiService: AiService) {}
+  constructor(private readonly _aiService: AiService) {}
 
   @Get('health')
   async getHealthStatus() {
-    return await this.aiService.getHealthStatus();
+    return await this._aiService.getHealthStatus();
   }
 
   @Get('config')
   getConfiguration() {
-    return this.aiService.getConfiguration();
+    return this._aiService.getConfiguration();
   }
 
   @Post('analyze/match')

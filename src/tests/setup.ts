@@ -1,5 +1,8 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { vi, beforeAll, afterEach, afterAll } from 'vitest';
+
+// Add jest compatibility for existing tests
+global.jest = vi;
 
 // Mock Firebase Initialization
 vi.mock('firebase/app', () => ({

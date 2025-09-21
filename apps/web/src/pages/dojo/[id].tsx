@@ -74,7 +74,7 @@ const DojoDetailPage: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [recentMatches, setRecentMatches] = useState<RecentMatch[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, _setError] = useState<string | null>(null);
 
   // Mock data for development
   const mockMaster: DojoMaster = {

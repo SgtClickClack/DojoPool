@@ -1,32 +1,29 @@
 {
-  "extends": ["next/core-web-vitals"],
-  "plugins": ["import"],
+  "extends": [
+    "../../[LINT].eslintrc.json"
+  ],
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  },
   "rules": {
-    "import/no-relative-parent-imports": "warn"
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "react/forbid-dom-props": "warn"
   },
-  "settings": {
-    "import/resolver": {
-      "typescript": {
-        "alwaysTryTypes": true
-      }
-    }
+  "env": {
+    "browser": true,
+    "jest": true
   },
-  "overrides": [
-    {
-      "files": ["apps/web/server.js", "jest.setup.js"],
-      "env": {
-        "node": true,
-        "jest": true,
-        "browser": true
-      },
-      "globals": {
-        "jest": "readonly",
-        "console": "readonly",
-        "process": "readonly",
-        "require": "readonly",
-        "global": "readonly",
-        "window": "readonly"
-      }
-    }
+  "ignorePatterns": [
+    "../packages/**/*",
+    "../../packages/**/*",
+    "../../services/api/**/*",
+    "../../DojoPoolCombined/**/*",
+    "../../DojoPool*/**/*",
+    "../../Dojo_Pool*/**/*",
+    "../../Dojo Pool*/**/*"
   ]
 }

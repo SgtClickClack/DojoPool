@@ -5,6 +5,9 @@ export enum GameSessionStatus {
   CANCELLED = 'CANCELLED',
 }
 
+// Export individual enum values for use in other files
+export const { ACTIVE, PAUSED, COMPLETED, CANCELLED } = GameSessionStatus;
+
 export enum GameType {
   EIGHT_BALL = 'EIGHT_BALL',
   NINE_BALL = 'NINE_BALL',
@@ -12,6 +15,15 @@ export enum GameType {
   BANK_POOL = 'BANK_POOL',
   ONE_POCKET = 'ONE_POCKET',
 }
+
+// Export individual enum values for use in other files
+export const {
+  EIGHT_BALL,
+  NINE_BALL,
+  STRAIGHT_POOL,
+  BANK_POOL,
+  ONE_POCKET,
+} = GameType;
 
 export interface GameSession {
   id: string;

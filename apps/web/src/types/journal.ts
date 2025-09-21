@@ -24,6 +24,24 @@ export enum JournalEntryType {
   SYSTEM_EVENT = 'SYSTEM_EVENT',
 }
 
+// Export individual enum values for use in other files
+export const {
+  MATCH_PLAYED,
+  TOURNAMENT_JOINED,
+  TOURNAMENT_WON,
+  ACHIEVEMENT_UNLOCKED,
+  FRIEND_ADDED,
+  TERRITORY_CAPTURED,
+  CLAN_JOINED,
+  VENUE_CHECKIN,
+  CHALLENGE_ISSUED,
+  CHALLENGE_ACCEPTED,
+  SKILL_LEVEL_UP,
+  DOJO_COINS_EARNED,
+  NFT_ACQUIRED,
+  SYSTEM_EVENT,
+} = JournalEntryType;
+
 export interface JournalResponse {
   entries: JournalEntry[];
   pagination: {

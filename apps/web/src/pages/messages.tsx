@@ -88,26 +88,26 @@ export default function MessagesPage() {
 
     const unsubscribe = websocketService.subscribe(
       'new_dm',
-      ((data: ChatMessage) => {
+      ((_data: ChatMessage) => {
         // Update messages if this is the current conversation
         if (
           selectedConversation &&
-          (data.senderId === selectedConversation.participantId ||
-            data.receiverId === selectedConversation.participantId)
+          (_data.senderId === selectedConversation.participantId ||
+            _data.receiverId === selectedConversation.participantId)
         ) {
-          setMessages((prev) => [...prev, data]);
+          setMessages((prev) => [...prev, _data]);
         }
 
         // Show notification for new message if not in the conversation
         if (
           !selectedConversation ||
-          (data.senderId !== selectedConversation.participantId &&
-            data.receiverId !== selectedConversation.participantId)
+          (_data.senderId !== selectedConversation.participantId &&
+            _data.receiverId !== selectedConversation.participantId)
         ) {
           setNotification({
             open: true,
             message: `New message from ${
-              data.senderId === user.id ? 'you' : 'a friend'
+              _data.senderId === user.id ? 'you' : 'a friend'
             }`,
             severity: 'info',
           });

@@ -28,26 +28,26 @@ const LoginPage: React.FC = () => {
     try {
       await login(email, password);
       router.push('/');
-    } catch (err: any) {
-      console.error('Login error:', err);
+    } catch (_err: any) {
+      console.error('Login error:', _err);
       // Provide more specific error messages based on the error type
       if (
-        err.message?.includes('Network Error') ||
-        err.message?.includes('ECONNREFUSED')
+        _err.message?.includes('Network Error') ||
+        _err.message?.includes('ECONNREFUSED')
       ) {
         setError(
           'Unable to connect to the server. Please check your internet connection and try again.'
         );
-      } else if (err.response?.status === 401) {
+      } else if (_err.response?.status === 401) {
         setError('Invalid email or password. Please try again.');
-      } else if (err.response?.status === 429) {
+      } else if (_err.response?.status === 429) {
         setError(
           'Too many login attempts. Please wait a few minutes and try again.'
         );
-      } else if (err.response?.status === 500) {
+      } else if (_err.response?.status === 500) {
         setError('Server error. Please try again later.');
       } else {
-        setError(err.message || 'Login failed. Please try again.');
+        setError(_err.message || 'Login failed. Please try again.');
       }
     }
   };
@@ -59,7 +59,7 @@ const LoginPage: React.FC = () => {
     try {
       // Redirect to Google OAuth
       window.location.href = `${process.env.NEXT_PUBLIC_API_URL || '/api/v1'}/auth/google`;
-    } catch (err) {
+    } catch (_err) {
       setError('Google sign-in failed. Please try again.');
       setIsGoogleLoading(false);
     }

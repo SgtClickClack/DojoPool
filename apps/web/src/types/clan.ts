@@ -40,6 +40,9 @@ export enum ClanRole {
   MEMBER = 'member',
 }
 
+// Export individual enum values for use in other files
+export const { LEADER, OFFICER, MEMBER } = ClanRole;
+
 export interface ClanJoinRequest {
   clanId: string;
   message?: string;

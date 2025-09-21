@@ -47,9 +47,9 @@ const RegisterPage: React.FC = () => {
       await register(email, password, name);
       // Redirect to dashboard on successful registration
       router.push('/dashboard');
-    } catch (err) {
+    } catch (_err) {
       // Error is already handled by the context
-      console.error('Registration error:', err);
+      console.error('Registration error:', _err);
     }
   };
 
@@ -58,7 +58,7 @@ const RegisterPage: React.FC = () => {
     try {
       // Redirect to Google OAuth
       window.location.href = `${process.env.NEXT_PUBLIC_API_URL || '/api/v1'}/auth/google`;
-    } catch (err) {
+    } catch (_err) {
       setIsGoogleLoading(false);
     }
   };

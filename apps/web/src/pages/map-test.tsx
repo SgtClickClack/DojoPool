@@ -2,11 +2,11 @@ import { Box, Paper, Typography } from '@mui/material';
 import React from 'react';
 
 const MapTestPage: React.FC = () => {
-  const handleChallengeDojo = (dojoId: string) => {
+  const _handleChallengeDojo = (dojoId: string) => {
     console.log('Challenge dojo:', dojoId);
   };
 
-  const handleViewDojo = (dojoId: string) => {
+  const _handleViewDojo = (dojoId: string) => {
     console.log('View dojo:', dojoId);
   };
 

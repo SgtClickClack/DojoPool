@@ -28,6 +28,24 @@ export enum ActivityEventType {
   CHALLENGE_DECLINED = 'challenge_declined',
 }
 
+// Export individual enum values for use in other files
+export const {
+  GAME_COMPLETED,
+  TOURNAMENT_JOINED,
+  TOURNAMENT_WON,
+  ACHIEVEMENT_EARNED,
+  FRIEND_ADDED,
+  PROFILE_UPDATED,
+  SHOT_ANALYZED,
+  VENUE_VISITED,
+  TERRITORY_CAPTURED,
+  CLAN_JOINED,
+  CLAN_LEFT,
+  CHALLENGE_SENT,
+  CHALLENGE_ACCEPTED,
+  CHALLENGE_DECLINED,
+} = ActivityEventType;
+
 export interface ActivityFeedResponse {
   entries: ActivityEvent[];
   pagination: {

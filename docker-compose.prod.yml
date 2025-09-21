@@ -40,7 +40,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/dojopool
       - PORT=3002
       - NODE_ENV=production
-      - JWT_SECRET=change_this_in_prod
+      - JWT_SECRET=your_super_secret_jwt_key_here_123456789
       - CORS_ORIGINS=http://localhost:3000
       - FRONTEND_URL=http://localhost:3000
       - REDIS_URL=redis://redis:6379
@@ -52,18 +52,23 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    volumes:
+      - ./packages/prisma:/app/packages/prisma
+      - ./temp_node_modules/node_modules/bcryptjs:/app/node_modules/bcrypt
+      - ./logs:/app/logs
 
   web:
     image: dojopool-web:latest
     ports:
       - '3000:3000'
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:3002/api/v1
-      - NEXT_PUBLIC_WEBSOCKET_URL=http://localhost:3002
+      - NEXT_PUBLIC_API_URL=http://api:3002/api/v1
+      - NEXT_PUBLIC_WEBSOCKET_URL=http://api:3002
       - NODE_ENV=production
     depends_on:
       - api
     restart: unless-stopped
+    command: ["sh", "-c", "cd /app/apps/web && node server.js"]
 
 volumes:
   postgres_data:

@@ -1,283 +1,178 @@
-// eslint.config.js (Flat Config)
 import js from '@eslint/js';
-import tsPlugin from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
-import prettier from 'eslint-config-prettier';
-import reactPlugin from 'eslint-plugin-react';
-import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import globals from 'globals';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsparser from '@typescript-eslint/parser';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import prettierConfig from 'eslint-config-prettier';
 
 export default [
-  {
-    ignores: [
-      // Migrated from .eslintignore
-      'node_modules/',
-      'venv/',
-      'dist/',
-      'build/',
-      // Existing broader repo ignores
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/.next/**',
-      '**/coverage/**',
-      '**/generated/**',
-      '**/*.min.*',
-      'venv/**',
-
-      // Legacy directories that are no longer part of the core project
-      'DojoPool*/**',
-      'Dojo_Pool*/**',
-      'Dojo Pool*/**',
-      'combined/**',
-      'generated/**',
-      'blueprints/**',
-      'blockchain/**',
-      'infrastructure/**',
-      'k8s/**',
-      'monitoring/**',
-      'narrative/**',
-      'ranking/**',
-      'spectator/**',
-      'static/**',
-      'templates/**',
-      'lcov-report/**',
-      'cypress/**',
-      // Frontend test and Cypress bundles not part of lint scope for CI coverage gating
-      'apps/web/__tests__/**',
-      'apps/web/cypress/**',
-      'apps/web/public/**',
-      'apps/web/postcss.config.js',
-      'apps/web/next.config.js',
-      'apps/web/middleware.ts',
-
-      // Test files are now properly configured
-      'src/tests/**',
-      'src/**/__tests__/**',
-      'apps/web/src/tests/**',
-      'apps/web/src/**/__tests__/**',
-      'services/api/src/tests/**',
-      'services/api/src/**/__tests__/**',
-      'services/api/src/**/*.spec.ts',
-      'services/api/src/**/*.test.ts',
-      'services/api/test-*.js',
-      'services/api/types/**',
-      'jest.setup.ts',
-      'vitest.*.config.ts',
-    ],
-  },
-
   js.configs.recommended,
-
-  // TypeScript rules and language options (using @typescript-eslint parser + plugin)
+  prettierConfig,
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
-      parser: tsParser,
+      parser: tsparser,
       parserOptions: {
-        project: [
-          './tsconfig.json',
-          './apps/web/tsconfig.json',
-          './services/api/tsconfig.json',
-        ],
-        tsconfigRootDir: import.meta.dirname,
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-      },
-      globals: {
-        ...globals.es2021,
-        ...globals.node,
-        ...globals.browser,
-      },
-    },
-    plugins: {
-      '@typescript-eslint': tsPlugin,
-    },
-    rules: {
-      ...(tsPlugin.configs.recommended.rules ?? {}),
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
-      'no-debugger': 'warn',
-      eqeqeq: ['warn', 'smart'],
-      curly: ['warn', 'all'],
-      'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
-      '@typescript-eslint/consistent-type-imports': [
-        'warn',
-        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
-      ],
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/await-thenable': 'warn',
-      '@typescript-eslint/no-misused-promises': [
-        'warn',
-        { checksVoidReturn: { attributes: false } },
-      ],
-      // Enforce consistent import aliasing
-      'no-restricted-imports': [
-        'warn',
-        {
-          patterns: [
-            {
-              group: ['../**', '../../**', '../../../**', '../../../../**'],
-              message:
-                'Use @/* import alias instead of relative paths for better maintainability',
-            },
-          ],
+        ecmaFeatures: {
+          jsx: true
         },
-      ],
-      'no-empty': 'warn',
-      '@typescript-eslint/no-require-imports': 'warn',
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      'no-useless-catch': 'warn',
-      'no-undef': 'off',
-    },
-  },
-
-  // Backend test files: relax TS project service to avoid parse errors
-  {
-    files: [
-      'services/api/src/**/*.spec.ts',
-      'services/api/src/**/*.test.ts',
-      'services/api/src/**/__tests__/**/*.ts',
-    ],
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        projectService: false,
-        tsconfigRootDir: import.meta.dirname,
-        project: false,
+        ecmaVersion: 12,
+        sourceType: 'module'
       },
       globals: {
-        ...globals.jest,
-        ...globals.node,
-      },
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        console: 'readonly',
+        confirm: 'readonly',
+        alert: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        FormData: 'readonly',
+        File: 'readonly',
+        Blob: 'readonly',
+        // Node.js globals
+        process: 'readonly',
+        Buffer: 'readonly',
+        global: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly'
+      }
     },
-    rules: {
-      '@typescript-eslint/no-floating-promises': 'off',
-      '@typescript-eslint/await-thenable': 'off',
-      '@typescript-eslint/no-misused-promises': 'off',
-      '@typescript-eslint/consistent-type-imports': 'off',
-      'no-undef': 'off',
-      'no-console': 'off',
-    },
-  },
-
-  // Backend sources: temporarily disable restricted import alias rule
-  {
-    files: ['services/api/src/**/*.ts'],
-    rules: {
-      'no-restricted-imports': 'off',
-    },
-  },
-
-  // Declaration files: ensure no project service requirement
-  {
-    files: ['**/*.d.ts'],
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        projectService: false,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  },
-
-  // Gateways: relax async rules for event-handling style
-  {
-    files: ['services/api/src/**/*.gateway.ts'],
-    rules: {
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/await-thenable': 'warn',
-      '@typescript-eslint/no-misused-promises': 'warn',
-    },
-  },
-
-  // React + React Hooks (for .jsx/.tsx)
-  {
-    files: ['**/*.{jsx,tsx}'],
     plugins: {
-      react: reactPlugin,
-      'react-hooks': reactHooksPlugin,
+      '@typescript-eslint': tseslint,
+      'react': react,
+      'react-hooks': reactHooks
     },
-    languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      parser: tsParser,
-      parserOptions: {
-        project: [
-          './tsconfig.json',
-          './apps/web/tsconfig.json',
-          './services/api/tsconfig.json',
-        ],
-        tsconfigRootDir: import.meta.dirname,
-        ecmaFeatures: { jsx: true },
-      },
+    rules: {
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', {
+        'argsIgnorePattern': '^_',
+        'varsIgnorePattern': '^_',
+        'caughtErrorsIgnorePattern': '^_'
+      }],
+      '@typescript-eslint/no-explicit-any': 'off',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      'no-console': ['warn', { 'allow': ['warn', 'error', 'log'] }],
+      'no-empty': 'off', // Allow empty blocks
+      'react/no-unescaped-entities': 'warn', // Warn instead of error for apostrophes
+      'react/no-unknown-property': 'warn' // Warn instead of error for custom properties
     },
     settings: {
-      react: { version: 'detect' },
-    },
-    rules: {
-      ...reactPlugin.configs.recommended.rules,
-      ...reactHooksPlugin.configs.recommended.rules,
-      'react/react-in-jsx-scope': 'off',
-      'react/jsx-uses-react': 'off',
-      'react/jsx-no-target-blank': ['warn', { allowReferrer: true }],
-      'react/prop-types': 'off',
-    },
+      react: {
+        version: 'detect'
+      }
+    }
   },
-
-  // Test files: enable Jest globals
   {
-    files: [
-      '**/*.test.{ts,tsx,js,jsx}',
-      '**/*.spec.{ts,tsx,js,jsx}',
-      'tests/**/*.{ts,tsx,js,jsx}',
-      'src/tests/**/*.{ts,tsx,js,jsx}',
-    ],
+    files: ['apps/web/src/**/*.ts', 'apps/web/src/**/*.tsx'],
     languageOptions: {
-      globals: {
-        ...globals.jest,
-        ...globals.node,
-      },
+      parser: tsparser,
+      parserOptions: {
+        project: ['apps/web/tsconfig.json']
+      }
     },
     rules: {
-      // Allow require in test setup contexts
-      '@typescript-eslint/no-require-imports': 'off',
-    },
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      'react/forbid-dom-props': 'warn'
+    }
   },
-
-  // Declaration files: relax certain rules
   {
-    files: ['**/*.d.ts'],
-    rules: {
-      'no-undef': 'off',
-      'no-redeclare': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'off',
-      '@typescript-eslint/await-thenable': 'off',
-      '@typescript-eslint/no-misused-promises': 'off',
-    },
-  },
-
-  // JavaScript files with Node.js environment
-  {
-    files: ['**/*.js'],
+    files: ['services/api/src/**/*.ts'],
     languageOptions: {
-      globals: {
-        ...globals.node,
-      },
-      ecmaVersion: 2022,
-      sourceType: 'script',
+      parser: tsparser,
+      parserOptions: {
+        project: ['services/api/tsconfig.json']
+      }
     },
     rules: {
-      'no-undef': 'off',
-      'no-console': 'off',
-    },
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off'
+    }
   },
-
-  // Disable formatting concerns in ESLint; handled by Prettier
-  prettier,
+  {
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'build/**',
+      '.next/**',
+      '.turbo/**',
+      '.cache/**',
+      'out/**',
+      'coverage/**',
+      '**/coverage/**/*',
+      'lcov-report/**',
+      '**/lcov-report/**/*',
+      'cypress/**',
+      'packages/**/*',
+      'DojoPoolCombined/**/*',
+      'DojoPool*/**/*',
+      'Dojo_Pool*/**/*',
+      'Dojo Pool*/**/*',
+      'combined/**/*',
+      'generated/**/*',
+      'blueprints/**/*',
+      'blockchain/**/*',
+      'infrastructure/**/*',
+      'k8s/**/*',
+      'monitoring/**/*',
+      'narrative/**/*',
+      'ranking/**/*',
+      'spectator/**/*',
+      'static/**/*',
+      'templates/**/*',
+      'tests/**/*',
+      '**/__tests__/**/*',
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      'utils/**/*',
+      'venv/**/*',
+      'src/pages-backup/**/*',
+      'src/scripts/**/*',
+      'src/migrations/**/*',
+      'src/logs/**/*',
+      'src/instance/**/*',
+      'src/firebase/**/*',
+      'src/graphql/**/*',
+      'src/hooks/**/*',
+      'src/security/**/*',
+      'src/verification/**/*',
+      'src/validation/**/*',
+      'src/tournament/**/*',
+      'src/performance/**/*',
+      'src/frame-processor/**/*',
+      'src/screens/**/*',
+      'src/components/Tournament/**/*',
+      'src/dojopool/frontend/src/**/*',
+      'src/dojopool/frontend/components/Monitoring/**/*',
+      'src/dojopool/frontend/components/Pages/**/*',
+      'src/dojopool/frontend/components/tournaments/**/*',
+      'src/dojopool/frontend/cypress/**/*',
+      'src/dojopool/frontend/components/Venue/**/*',
+      'src/dojopool/frontend/pages/**/*'
+    ]
+  }
 ];

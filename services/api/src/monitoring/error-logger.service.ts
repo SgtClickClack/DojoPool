@@ -60,33 +60,47 @@ export class ErrorLoggerService {
       }),
     ];
 
-    // File transports for production
+    // File transports for production with error handling
     if (isProduction) {
-      transports.push(
-        // Error log file
-        new winston.transports.File({
-          filename: path.join(logDir, 'error.log'),
-          level: 'error',
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.errors({ stack: true }),
-            winston.format.json()
-          ),
-        }),
+      try {
+        // Ensure log directory exists
+        const fs = require('fs');
+        if (!fs.existsSync(logDir)) {
+          fs.mkdirSync(logDir, { recursive: true });
+        }
 
-        // Combined log file
-        new winston.transports.File({
-          filename: path.join(logDir, 'combined.log'),
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.errors({ stack: true }),
-            winston.format.json()
-          ),
-        })
-      );
+        transports.push(
+          // Error log file
+          new winston.transports.File({
+            filename: path.join(logDir, 'error.log'),
+            level: 'error',
+            format: winston.format.combine(
+              winston.format.timestamp(),
+              winston.format.errors({ stack: true }),
+              winston.format.json()
+            ),
+            handleExceptions: true,
+          }),
+
+          // Combined log file
+          new winston.transports.File({
+            filename: path.join(logDir, 'combined.log'),
+            format: winston.format.combine(
+              winston.format.timestamp(),
+              winston.format.errors({ stack: true }),
+              winston.format.json()
+            ),
+            handleExceptions: true,
+          })
+        );
+      } catch (error) {
+        this.consoleLogger.warn(
+          `Failed to create file transports for logging: ${error.message}. Falling back to console-only logging.`
+        );
+      }
     }
 
-    return winston.createLogger({
+    const loggerConfig: winston.LoggerOptions = {
       level: logLevel,
       format: winston.format.combine(
         winston.format.timestamp(),
@@ -94,7 +108,11 @@ export class ErrorLoggerService {
         winston.format.json()
       ),
       transports,
-      exceptionHandlers: [
+    };
+
+    // Add exception and rejection handlers only if file logging is available
+    if (isProduction && transports.length > 1) {
+      loggerConfig.exceptionHandlers = [
         new winston.transports.File({
           filename: path.join(logDir, 'exceptions.log'),
           format: winston.format.combine(
@@ -103,8 +121,8 @@ export class ErrorLoggerService {
             winston.format.json()
           ),
         }),
-      ],
-      rejectionHandlers: [
+      ];
+      loggerConfig.rejectionHandlers = [
         new winston.transports.File({
           filename: path.join(logDir, 'rejections.log'),
           format: winston.format.combine(
@@ -113,8 +131,10 @@ export class ErrorLoggerService {
             winston.format.json()
           ),
         }),
-      ],
-    });
+      ];
+    }
+
+    return winston.createLogger(loggerConfig);
   }
 
   private initializeMetrics(): ErrorMetrics {

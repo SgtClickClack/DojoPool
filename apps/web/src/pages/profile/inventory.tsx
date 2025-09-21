@@ -28,8 +28,8 @@ export default function InventoryPage() {
         ]);
         setInventory(inventoryItems);
         setUserBalance(balance);
-      } catch (error) {
-        console.error('Error fetching inventory:', error);
+      } catch (_error) {
+        console.error('Error fetching inventory:', _error);
         setNotification({
           open: true,
           message: 'Failed to load inventory',
@@ -59,7 +59,7 @@ export default function InventoryPage() {
         message: `${item.name} equipped successfully!`,
         severity: 'success',
       });
-    } catch (error) {
+    } catch (_error) {
       setNotification({
         open: true,
         message: 'Failed to equip item',

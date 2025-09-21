@@ -8,6 +8,17 @@ export enum FeedbackCategory {
   PERFORMANCE_ISSUE = 'PERFORMANCE_ISSUE',
 }
 
+// Export individual enum values for use in other files
+export const {
+  BUG,
+  FEATURE_REQUEST,
+  GENERAL_FEEDBACK,
+  VENUE_ISSUE,
+  TECHNICAL_SUPPORT,
+  UI_UX_IMPROVEMENT,
+  PERFORMANCE_ISSUE,
+} = FeedbackCategory;
+
 export enum FeedbackStatus {
   PENDING = 'PENDING',
   IN_REVIEW = 'IN_REVIEW',
@@ -17,12 +28,25 @@ export enum FeedbackStatus {
   REJECTED = 'REJECTED',
 }
 
+// Export individual enum values for use in other files
+export const {
+  PENDING,
+  IN_REVIEW,
+  IN_PROGRESS,
+  RESOLVED,
+  CLOSED,
+  REJECTED,
+} = FeedbackStatus;
+
 export enum FeedbackPriority {
   LOW = 'LOW',
   NORMAL = 'NORMAL',
   HIGH = 'HIGH',
   CRITICAL = 'CRITICAL',
 }
+
+// Export individual enum values for use in other files
+export const { LOW, NORMAL, HIGH, CRITICAL } = FeedbackPriority;
 
 export interface Feedback {
   id: string;

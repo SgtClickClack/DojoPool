@@ -448,13 +448,16 @@ describe('GlobalErrorHandler', () => {
       ];
 
       testCases.forEach(({ errorCode, expectedMessage }) => {
-        // Create a mock error with specific code
-        const error = new Error('Test error');
-        (errorHandler as any).getErrorCodeFromStatus = jest
-          .fn()
-          .mockReturnValue(errorCode);
+        // Reset mocks
+        jest.clearAllMocks();
 
-        errorHandler.catch(error, mockHost as any);
+        // Create an HttpException with the specific error code
+        const httpException = new HttpException(
+          { message: 'Test error', code: errorCode },
+          HttpStatus.BAD_REQUEST
+        );
+
+        errorHandler.catch(httpException, mockHost as any);
 
         expect(mockResponse.json).toHaveBeenCalledWith(
           expect.objectContaining({

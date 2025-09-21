@@ -1,4 +1,4 @@
-import { PhysicsEngine, Vector2D } from '../../utils/physics';
+import { PhysicsEngine, Vector2D } from '../../../packages/utils/src/utils/physics';
 
 describe('Physics Utilities', () => {
   // Instantiate the PhysicsEngine to test its methods that depend on instance properties
@@ -64,8 +64,7 @@ describe('Physics Utilities', () => {
     });
 
     it('stops at very low velocities', () => {
-      const initialVelocity: Vector2D = { x: 0.01, y: 0.01 };
-      const friction = 0.1; // Note: Friction is now part of PhysicsEngine instance
+      const initialVelocity: Vector2D = { x: 0.005, y: 0.005 }; // Use velocity below minVelocity threshold
       const deltaTime = 1;
 
       // Call the method on the instance

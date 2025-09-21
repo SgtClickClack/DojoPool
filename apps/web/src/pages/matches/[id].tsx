@@ -51,7 +51,7 @@ export default function LiveMatchPage() {
     try {
       const s = io(wsUrl, { withCredentials: true });
       return s;
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   }, []);

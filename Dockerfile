@@ -57,8 +57,8 @@ ENV NODE_PATH=/app/node_modules
 COPY --from=build-api /app/node_modules /app/node_modules
 COPY --from=build-api /app/services/api/dist ./dist
 COPY --from=build-api /app/services/api/package.json ./package.json
+# Create symbolic link from bcrypt to bcryptjs (needs root for symlink creation)
 USER root
-# Create symbolic link from bcrypt to bcryptjs
 RUN rm -rf /app/node_modules/bcrypt && ln -s /app/node_modules/bcryptjs /app/node_modules/bcrypt
 USER node
 EXPOSE 3002
@@ -81,4 +81,4 @@ COPY --from=build-web /app/apps/web/.next/static /app/.next/static
 COPY --from=build-web /app/apps/web/public /app/public
 ENV NODE_PATH=/app/node_modules
 EXPOSE 3000
-CMD ["node", "apps/web/server.js"]
+CMD ["node", "server.js"]

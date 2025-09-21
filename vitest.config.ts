@@ -6,6 +6,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],
     globals: true,
+    environmentOptions: {
+      jsdom: {
+        url: 'http://localhost:3000',
+      },
+    },
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -23,7 +28,9 @@ export default defineConfig({
     ],
     include: [
       'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'services/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       '!src/**/node_modules/**',
+      '!services/**/node_modules/**',
     ],
   },
   resolve: {
