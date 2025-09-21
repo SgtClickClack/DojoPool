@@ -327,7 +327,7 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                      className="progress-bar progress-bar-blue"
                       style={{
                         width: `${(tournament.currentParticipants / tournament.maxParticipants) * 100}%`,
                       }}
@@ -351,8 +351,9 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                   </button>
 
                   {tournament.status === 'draft' && (
-                    <button className="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium">
+                    <button className="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium" title="Delete tournament">
                       <TrashIcon className="w-4 h-4" />
+                      <span className="sr-only">Delete</span>
                     </button>
                   )}
                 </div>
@@ -419,8 +420,10 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                     <button
                       onClick={() => setSelectedTournament(null)}
                       className="p-2 hover:bg-gray-100 rounded-full"
+                      title="Close tournament details"
                     >
                       <XCircleIcon className="w-6 h-6 text-gray-500" />
+                      <span className="sr-only">Close</span>
                     </button>
                   </div>
                 </div>
@@ -601,8 +604,10 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                     <button
                       onClick={() => setShowCreateForm(false)}
                       className="p-2 hover:bg-gray-100 rounded-full"
+                      title="Close create tournament form"
                     >
                       <XCircleIcon className="w-6 h-6 text-gray-500" />
+                      <span className="sr-only">Close</span>
                     </button>
                   </div>
                 </div>
@@ -622,10 +627,10 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tournament-type">
                           Tournament Type
                         </label>
-                        <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <select id="tournament-type" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                           <option>Single Elimination</option>
                           <option>Round Robin</option>
                           <option>Swiss</option>
@@ -657,10 +662,11 @@ const TournamentManagement: React.FC<TournamentManagementProps> = ({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="start-datetime">
                           Start Date & Time
                         </label>
                         <input
+                          id="start-datetime"
                           type="datetime-local"
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />

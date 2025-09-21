@@ -567,7 +567,7 @@ const NewsManagement: React.FC = () => {
                       }
                       modules={quillModules}
                       formats={quillFormats}
-                      style={{ minHeight: '300px' }}
+                      className="quill-editor"
                     />
                   </Box>
                 </Box>

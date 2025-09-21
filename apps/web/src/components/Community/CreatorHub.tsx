@@ -613,7 +613,7 @@ const CreatorHub: React.FC = () => {
                   <Box sx={{ textAlign: 'center' }}>
                     <input
                       accept=".zip,.png,.jpg,.jpeg,.gif"
-                      style={{ display: 'none' }}
+                      className="hidden-file-input"
                       id="design-file"
                       type="file"
                       onChange={(e) => handleFileSelect(e, 'design')}
@@ -645,7 +645,7 @@ const CreatorHub: React.FC = () => {
                   <Box sx={{ textAlign: 'center' }}>
                     <input
                       accept="image/*"
-                      style={{ display: 'none' }}
+                      className="hidden-file-input"
                       id="preview-file"
                       type="file"
                       onChange={(e) => handleFileSelect(e, 'preview')}

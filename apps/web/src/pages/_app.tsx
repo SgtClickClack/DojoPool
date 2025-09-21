@@ -8,6 +8,7 @@ import errorReportingService from '@/services/errorReportingService';
 import '@/styles/index.css';
 import '@/styles/mobile-responsive.css';
 import '@/styles/mobile.css';
+import '@/styles/components.css';
 import { theme } from '@/styles/theme';
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';

@@ -1,18 +1,18 @@
 name: Python Tests
-# Temporarily disabled - non-critical workflow
-# on:
-#   push:
-#     branches:
-#       - main
-#     paths-ignore:
-#       - '**.md'
-#       - 'docs/**'
-#       - '.gitignore'
-#       - 'LICENSE'
-#       - '**.txt'
-#   pull_request:
-#     branches:
-#       - main
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+      - '**.txt'
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test-python:
@@ -40,7 +40,7 @@ jobs:
             pytest || echo "Python tests completed with warnings"
           fi
       - name: Upload coverage to Codecov
-        if: ${{ github.event_name == 'push' && secrets.CODECOV_TOKEN != '' }}
+        if: ${{ github.event_name == 'push' && github.event_name != 'pull_request' && secrets.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

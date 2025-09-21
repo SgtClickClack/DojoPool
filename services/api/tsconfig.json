@@ -16,7 +16,7 @@
     "paths": {
       "@prisma/client": ["../../node_modules/.prisma/client"]
     },
-    "strict": false,
+    "strict": false, // Intentionally disabled for API flexibility
     "noImplicitAny": false,
     "strictNullChecks": false,
     "strictFunctionTypes": false,

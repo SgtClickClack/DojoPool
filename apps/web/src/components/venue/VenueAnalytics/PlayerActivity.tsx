@@ -99,7 +99,7 @@ const PlayerActivity: React.FC<PlayerActivityProps> = ({ data }) => {
           <div className="flex items-center space-x-2">
             <div className="flex-1 bg-gray-200 rounded-full h-3">
               <div
-                className="bg-blue-500 h-3 rounded-full transition-all duration-300"
+                className="progress-bar progress-bar-blue"
                 style={{ width: `${data.tables.utilization}%` }}
               />
             </div>

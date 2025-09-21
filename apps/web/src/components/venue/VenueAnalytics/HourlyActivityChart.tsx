@@ -79,7 +79,7 @@ const HourlyActivityChart: React.FC<HourlyActivityChartProps> = ({ data }) => {
         {data.hourlyActivity.map((hour) => (
           <div
             key={hour.hour}
-            className="bg-blue-200 rounded-sm hover:bg-blue-300 transition-colors cursor-pointer"
+            className="bg-blue-200 rounded-sm hover:bg-blue-300 transition-colors cursor-pointer chart-bar"
             style={{
               height: `${(hour.players / 60) * 100}%`,
               marginTop: 'auto',

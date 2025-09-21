@@ -63,7 +63,7 @@ const WorldHubMapWrapper: React.FC<WorldHubMapWrapperProps> = ({
               href="https://www.mapbox.com/account/"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: '#00a8ff', textDecoration: 'none' }}
+              className="link-blue"
             >
               Mapbox
             </a>

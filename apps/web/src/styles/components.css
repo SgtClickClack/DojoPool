@@ -1,0 +1,90 @@
+/* Component-specific styles to replace inline styles */
+
+/* File upload hidden inputs */
+.hidden-file-input {
+  display: none;
+}
+
+/* Progress bars */
+.progress-bar {
+  transition: all 0.3s ease;
+}
+
+.progress-bar-blue {
+  background-color: #3b82f6;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+.progress-bar-yellow {
+  background-color: #facc15;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+/* Map styles */
+.map-container {
+  height: calc(100vh - 140px);
+}
+
+.map-grid {
+  background-image: 
+    linear-gradient(to right, #000 1px, transparent 1px),
+    linear-gradient(to bottom, #000 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.2;
+}
+
+.map-dojo-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.map-center-marker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Chart styles */
+.chart-bar {
+  background-color: #dbeafe;
+  border-radius: 0.125rem;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.chart-bar:hover {
+  background-color: #93c5fd;
+}
+
+.chart-bar-container {
+  margin-top: auto;
+}
+
+/* Link styles */
+.link-no-decoration {
+  text-decoration: none;
+  color: inherit;
+}
+
+.link-blue {
+  color: #00a8ff;
+  text-decoration: none;
+}
+
+/* Chat styles */
+.chat-unread-indicator {
+  margin-left: 8px;
+}
+
+/* Mobile navigation */
+.mobile-nav {
+  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Quill editor */
+.quill-editor {
+  min-height: 300px;
+}

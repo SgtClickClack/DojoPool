@@ -63,7 +63,7 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
     <MuiAppBar {...props}>
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link href="/" className="link-no-decoration">
             DojoPool
           </Link>
         </Typography>
@@ -140,11 +140,8 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
                 <MenuItem onClick={handleClose}>
                   <Link
                     href="/profile"
-                    style={{
-                      textDecoration: 'none',
-                      color: 'inherit',
-                      width: '100%',
-                    }}
+                    className="link-no-decoration"
+                    style={{ width: '100%' }}
                   >
                     Profile
                   </Link>
@@ -152,11 +149,8 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
                 <MenuItem onClick={handleClose}>
                   <Link
                     href="/profile/inventory"
-                    style={{
-                      textDecoration: 'none',
-                      color: 'inherit',
-                      width: '100%',
-                    }}
+                    className="link-no-decoration"
+                    style={{ width: '100%' }}
                   >
                     Inventory
                   </Link>

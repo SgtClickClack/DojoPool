@@ -13,12 +13,21 @@ import {
   TrophyIcon,
   UsersIcon,
 } from '@heroicons/react/24/outline';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, HTMLMotionProps } from 'framer-motion';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import TournamentManagement from './TournamentManagement';
-import VenueAnalytics from './VenueAnalytics';
-import VenueSettings from './VenueSettings';
+import dynamic from 'next/dynamic';
+
+// Dynamically load heavy components
+const TournamentManagement = dynamic(() => import('./TournamentManagement'), {
+  loading: () => <div>Loading Tournament Management...</div>,
+});
+const VenueAnalytics = dynamic(() => import('./VenueAnalytics'), {
+  loading: () => <div>Loading Analytics...</div>,
+});
+const VenueSettings = dynamic(() => import('./VenueSettings'), {
+  loading: () => <div>Loading Settings...</div>,
+});
 
 interface Venue {
   id: string;
@@ -181,11 +190,7 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <motion.header
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="bg-white shadow-sm border-b border-gray-200"
-      >
+      <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -214,16 +219,12 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
             </div>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
-          <motion.div
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            className="lg:w-64"
-          >
+          <div className="lg:w-64">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <nav className="space-y-2">
                 {tabs.map((tab) => {
@@ -231,7 +232,7 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                   const isActive = activeTab === tab.id;
 
                   return (
-                    <motion.button
+                    <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)}
                       className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
@@ -239,21 +240,21 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                           ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
                           : 'text-gray-700 hover:bg-gray-50'
                       }`}
-                      whileTap={{ scale: 0.98 }}
+                      
                     >
                       <Icon className="w-5 h-5" />
                       <span className="font-medium">{tab.label}</span>
-                    </motion.button>
+                    </button>
                   );
                 })}
               </nav>
             </div>
 
             {/* Quick Actions */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
+            <div
+              
+              
+              
               className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-4"
             >
               <h3 className="font-semibold text-gray-900 mb-4">
@@ -263,36 +264,36 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                 {quickActions.map((action) => {
                   const Icon = action.icon;
                   return (
-                    <motion.button
+                    <button
                       key={action.id}
                       onClick={action.action}
                       className={`flex flex-col items-center justify-center p-4 ${action.color} text-white rounded-lg`}
-                      whileTap={{ scale: 0.95 }}
+                      
                     >
                       <Icon className="w-6 h-6 mb-2" />
                       <span className="text-sm font-medium text-center">
                         {action.label}
                       </span>
-                    </motion.button>
+                    </button>
                   );
                 })}
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* Main Content */}
-          <motion.div
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
+          <div
+            
+            
             className="flex-1"
           >
             <AnimatePresence mode="wait">
               {activeTab === 'dashboard' && (
-                <motion.div
+                <div
                   key="dashboard"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
+                  
+                  
+                  
                   className="space-y-6"
                 >
                   {/* Stats Overview */}
@@ -329,11 +330,11 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                     ].map((stat, index) => {
                       const Icon = stat.icon;
                       return (
-                        <motion.div
+                        <div
                           key={stat.label}
-                          initial={{ scale: 0.9, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: index * 0.1 }}
+                          
+                          
+                          
                           className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
                         >
                           <div className="flex items-center justify-between">
@@ -351,7 +352,7 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                               <Icon className={`w-6 h-6 ${stat.color}`} />
                             </div>
                           </div>
-                        </motion.div>
+                        </div>
                       );
                     })}
                   </div>
@@ -359,10 +360,10 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                   {/* Recent Activity */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Recent Tournaments */}
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.4 }}
+                    <div
+                      
+                      
+                      
                       className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
                     >
                       <div className="flex items-center justify-between mb-4">
@@ -406,13 +407,13 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                           </div>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
 
                     {/* Top Players */}
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.5 }}
+                    <div
+                      
+                      
+                      
                       className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
                     >
                       <div className="flex items-center justify-between mb-4">
@@ -452,9 +453,9 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                           </div>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
-                </motion.div>
+                </div>
               )}
 
               {activeTab === 'tournaments' && (
@@ -470,7 +471,7 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                 <VenueSettings venue={currentVenue} />
               )}
             </AnimatePresence>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>

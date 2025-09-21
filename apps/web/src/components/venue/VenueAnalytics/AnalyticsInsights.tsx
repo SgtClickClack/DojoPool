@@ -122,7 +122,7 @@ const AnalyticsInsights: React.FC<AnalyticsInsightsProps> = ({ data }) => {
               </div>
               <div className="flex-1 bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-yellow-400 h-2 rounded-full"
+                  className="progress-bar progress-bar-yellow"
                   style={{
                     width: `${(data.ratings.distribution[rating as keyof typeof data.ratings.distribution] / data.ratings.totalReviews) * 100}%`,
                   }}

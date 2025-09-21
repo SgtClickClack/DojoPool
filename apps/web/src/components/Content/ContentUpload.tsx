@@ -220,7 +220,7 @@ export const ContentUpload: React.FC<ContentUploadProps> = ({
         <Box>
           <input
             accept="image/*,video/*,.json,.txt"
-            style={{ display: 'none' }}
+            className="hidden-file-input"
             id="file-upload"
             type="file"
             onChange={handleFileChange}

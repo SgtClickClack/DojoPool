@@ -201,7 +201,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                         >
                           {formatMessageTime(message.timestamp)}
                           {!message.isRead && isOwnMessage(message) && (
-                            <span style={{ marginLeft: '8px' }}>•</span>
+                            <span className="chat-unread-indicator">•</span>
                           )}
                         </Typography>
                       </Box>

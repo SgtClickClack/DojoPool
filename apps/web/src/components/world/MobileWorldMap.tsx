@@ -250,21 +250,13 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative flex-1"
-        style={{ height: 'calc(100vh - 140px)' }}
+        className="relative flex-1 map-container"
       >
         {/* Simplified Map Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-green-100">
           {/* Grid overlay */}
           <div
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage: `
-                linear-gradient(to right, #000 1px, transparent 1px),
-                linear-gradient(to bottom, #000 1px, transparent 1px)
-              `,
-              backgroundSize: '50px 50px',
-            }}
+            className="absolute inset-0 opacity-20 map-grid"
           />
 
           {/* Dojo Markers */}
@@ -276,7 +268,7 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
               transition={{ delay: index * 0.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setSelectedDojo(dojo)}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2"
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 map-dojo-marker"
               style={{
                 left: `${20 + ((index * 25) % 60)}%`,
                 top: `${20 + ((index * 30) % 60)}%`,
@@ -300,8 +292,7 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute transform -translate-x-1/2 -translate-y-1/2"
-            style={{ left: '50%', top: '50%' }}
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 map-center-marker"
           >
             <div className="relative">
               <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
