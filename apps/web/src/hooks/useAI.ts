@@ -8,6 +8,24 @@ import {
 } from '@/services/aiService';
 import { useCallback, useEffect, useState } from 'react';
 
+// Define types locally to avoid module import issues
+interface TableBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  confidence?: number;
+}
+
+interface BallPosition {
+  id: number | string;
+  x: number;
+  y: number;
+  type: 'solid' | 'stripe' | '8-ball' | 'cue-ball' | 'unknown';
+  confidence?: number;
+  color?: string;
+}
+
 export interface UseAiReturn {
   // Health and status
   healthStatus: AiHealthStatus | null;
@@ -25,7 +43,7 @@ export interface UseAiReturn {
   ) => Promise<AiServiceResponse<string>>;
   analyzeTableImage: (
     imageFile: File
-  ) => Promise<AiServiceResponse<{ tableBounds: any[]; balls: any[] }>>;
+  ) => Promise<AiServiceResponse<{ tableBounds: TableBounds[]; balls: BallPosition[] }>>;
 
   // Utility methods
   refreshHealth: () => Promise<void>;
@@ -62,7 +80,6 @@ export function useAI(): UseAiReturn {
       setError(
         err instanceof Error ? err.message : 'Failed to check AI status'
       );
-      console.error('AI health check failed:', err);
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +138,7 @@ export function useAI(): UseAiReturn {
   const analyzeTableImage = useCallback(
     async (
       imageFile: File
-    ): Promise<AiServiceResponse<{ tableBounds: any[]; balls: any[] }>> => {
+    ): Promise<AiServiceResponse<{ tableBounds: TableBounds[]; balls: BallPosition[] }>> => {
       try {
         setIsLoading(true);
         setError(null);
@@ -179,7 +196,6 @@ export function useMatchAnalysis() {
           throw new Error(result.error || 'Analysis failed');
         }
       } catch (err) {
-        console.error('Match analysis failed:', err);
         throw err;
       } finally {
         setAnalysisLoading(false);
@@ -221,7 +237,6 @@ export function useLiveCommentary() {
           throw new Error(result.error || 'Commentary generation failed');
         }
       } catch (err) {
-        console.error('Live commentary failed:', err);
         throw err;
       } finally {
         setCommentaryLoading(false);
@@ -247,8 +262,8 @@ export function useTableAnalysis() {
   const { analyzeTableImage, isLoading, error, clearError } = useAI();
 
   const [tableData, setTableData] = useState<{
-    tableBounds: any[];
-    balls: any[];
+    tableBounds: TableBounds[];
+    balls: BallPosition[];
   } | null>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
 
@@ -266,7 +281,6 @@ export function useTableAnalysis() {
           throw new Error(result.error || 'Table analysis failed');
         }
       } catch (err) {
-        console.error('Table analysis failed:', err);
         throw err;
       } finally {
         setAnalysisLoading(false);

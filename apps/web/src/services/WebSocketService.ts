@@ -224,7 +224,6 @@ export class WebSocketService {
   emitShotTaken(shotData: ShotData): void {
     if (this.socket && this.isConnected) {
       this.socket.emit('shot_taken', shotData);
-      console.log('Shot taken event emitted:', shotData);
     } else {
       console.warn('WebSocket not connected, cannot emit shot_taken event');
     }
@@ -234,7 +233,6 @@ export class WebSocketService {
   sendDirectMessage(receiverId: string, content: string): void {
     if (this.socket && this.isConnected) {
       this.socket.emit('send_dm', { receiverId, content });
-      console.log('Direct message sent:', { receiverId, content });
     } else {
       console.warn('WebSocket not connected, cannot send direct message');
     }
@@ -242,7 +240,6 @@ export class WebSocketService {
 
   private handleReconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('Max reconnection attempts reached');
       return;
     }
 
@@ -250,11 +247,8 @@ export class WebSocketService {
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
     setTimeout(() => {
-      console.log(
-        `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
-      );
       this.connect().catch((error) => {
-        console.error('Reconnection failed:', error);
+        // Handle reconnection errors silently
       });
     }, delay);
   }
@@ -273,13 +267,13 @@ export class WebSocketService {
             try {
               callback(message.data || message);
             } catch (error) {
-              console.error('Error in event listener:', error);
+              // Handle event listener errors silently
             }
           });
         }
       }
     } catch (error) {
-      console.error('Error handling WebSocket message:', error);
+      // Handle message parsing errors silently
     }
   }
 
@@ -317,8 +311,6 @@ export class WebSocketService {
   emit(event: string, data: WebSocketEventData): void {
     if (this.socket && this.isConnected) {
       this.socket.emit(event, data);
-    } else {
-      console.warn('WebSocket not connected, cannot emit event:', event);
     }
   }
 
@@ -382,7 +374,7 @@ export class WebSocketService {
       try {
         callback();
       } catch (error) {
-        console.error('Error in message activity listener:', error);
+        // Handle message activity listener errors silently
       }
     });
   }

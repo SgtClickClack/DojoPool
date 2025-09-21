@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
       } catch (err) {
-        console.error('Auth check failed:', err);
+        // Handle auth check errors silently
       } finally {
         setLoading(false);
       }
@@ -62,8 +62,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.login({ email, password });
       setUser(response.user);
       setIsAdmin(response.user.isAdmin || false);
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+      setError(errorMessage);
       throw err;
     }
   };
@@ -82,8 +83,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       setUser(response.user);
       setIsAdmin(response.user.isAdmin || false);
-    } catch (err: any) {
-      setError(err.message || 'Registration failed');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Registration failed';
+      setError(errorMessage);
       throw err;
     }
   };
@@ -94,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       setIsAdmin(false);
     } catch (err) {
-      console.error('Logout error:', err);
+      // Handle logout errors silently
       // Force logout even if API call fails
       setUser(null);
       setIsAdmin(false);
@@ -112,8 +114,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(currentUser);
         setIsAdmin(currentUser.isAdmin || false);
       }
-    } catch (err: any) {
-      setError(err.message || 'Token validation failed');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Token validation failed';
+      setError(errorMessage);
       throw err;
     }
   };

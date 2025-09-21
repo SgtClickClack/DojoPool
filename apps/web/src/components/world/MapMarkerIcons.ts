@@ -13,7 +13,7 @@ export const getMarkerIcon = (dojo: DojoData) => {
             <rect x="14" y="12" width="4" height="4" fill="#ffffff"/>
           </svg>
         `),
-      scaledSize: { width: 32, height: 32 },
+      scaledSize: new google.maps.Size(32, 32),
     };
   }
 
@@ -33,7 +33,7 @@ export const getMarkerIcon = (dojo: DojoData) => {
             }</text>
           </svg>
         `),
-      scaledSize: { width: 32, height: 32 },
+      scaledSize: new google.maps.Size(32, 32),
     };
   }
 
@@ -46,7 +46,7 @@ export const getMarkerIcon = (dojo: DojoData) => {
           <text x="16" y="20" text-anchor="middle" fill="#ffffff" font-size="16" font-family="Arial">🎱</text>
         </svg>
       `),
-    scaledSize: { width: 32, height: 32 },
+    scaledSize: new google.maps.Size(32, 32),
   };
 };
 
@@ -60,6 +60,6 @@ export const getPlayerMarkerIcon = (player: PlayerPosition) => {
           <text x="12" y="16" text-anchor="middle" fill="#ffffff" font-size="12" font-family="Arial">👤</text>
         </svg>
       `),
-    scaledSize: { width: 24, height: 24 },
+    scaledSize: new google.maps.Size(24, 24),
   };
 };

@@ -25,7 +25,7 @@ const nextConfig = {
     // workerThreads: true,
   },
   // Enable static export for Firebase
-  output: 'export',
+  // output: 'export',
   trailingSlash: true,
   // Enable build tracing for standalone output
   outputFileTracing: true,
