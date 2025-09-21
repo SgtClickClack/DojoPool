@@ -106,7 +106,7 @@ export class MatchesGateway
   @SubscribeMessage('sendMessage')
   handleMessage(
     @MessageBody() data: ChatMessage,
-    @ConnectedSocket() client: Socket
+    @ConnectedSocket() _client: Socket
   ) {
     const { matchId, userId, username, message, timestamp } = data;
 
@@ -126,7 +126,7 @@ export class MatchesGateway
   @SubscribeMessage('matchUpdate')
   handleMatchUpdate(
     @MessageBody() data: { matchId: string; update: any },
-    @ConnectedSocket() client: Socket
+    @ConnectedSocket() _client: Socket
   ) {
     const { matchId, update } = data;
 
@@ -147,7 +147,7 @@ export class MatchesGateway
       playerName?: string;
       shotType?: string;
     },
-    @ConnectedSocket() client: Socket
+    @ConnectedSocket() _client: Socket
   ) {
     const { matchId, playerId, ballSunk, wasFoul, playerName, shotType } = data;
 

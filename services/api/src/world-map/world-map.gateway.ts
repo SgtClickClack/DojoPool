@@ -129,7 +129,7 @@ export class WorldMapGateway
   @SubscribeMessage('update_player_position')
   handleUpdatePlayerPosition(
     @MessageBody() data: Omit<PlayerPosition, 'timestamp'>,
-    @ConnectedSocket() client: Socket
+    @ConnectedSocket() _client: Socket
   ) {
     const playerPosition: PlayerPosition = {
       ...data,
@@ -154,7 +154,7 @@ export class WorldMapGateway
   @SubscribeMessage('update_dojo_status')
   handleUpdateDojoStatus(
     @MessageBody() data: DojoStatus,
-    @ConnectedSocket() client: Socket
+    @ConnectedSocket() _client: Socket
   ) {
     this.dojoStatuses.set(data.id, data);
 
@@ -175,7 +175,7 @@ export class WorldMapGateway
   @SubscribeMessage('game_event')
   handleGameEvent(
     @MessageBody() data: Omit<GameEvent, 'timestamp'>,
-    @ConnectedSocket() client: Socket
+    @ConnectedSocket() _client: Socket
   ) {
     const gameEvent: GameEvent = {
       ...data,

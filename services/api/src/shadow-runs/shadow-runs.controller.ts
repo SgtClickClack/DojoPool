@@ -30,7 +30,7 @@ export class ShadowRunsController {
   @UseGuards(JwtAuthGuard)
   @Get('clan/:clanId')
   async getClanRuns(@Param('clanId') clanId: string, @Request() req: any) {
-    const userId = req.user.sub;
+    const _userId = req.user.sub;
     // Check if user is member of clan - simplified for now
     const membership = { role: 'MEMBER' }; // Placeholder
     // TODO: Re-enable proper clan membership check

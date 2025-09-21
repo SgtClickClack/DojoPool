@@ -1,5 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsBoolean, IsEnum, IsUUID, IsArray, IsObject, MinLength, MaxLength, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsEnum,
+  IsArray,
+  IsObject,
+  MinLength,
+  MaxLength,
+  Min,
+  Max,
+} from 'class-validator';
 
 /**
  * Venue status enumeration
@@ -110,7 +122,11 @@ export class CreateVenueDto {
   @MaxLength(100)
   name!: string;
 
-  @ApiProperty({ description: 'Venue description', required: false, maxLength: 500 })
+  @ApiProperty({
+    description: 'Venue description',
+    required: false,
+    maxLength: 500,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(500)
@@ -190,14 +206,23 @@ export class CreateVenueDto {
  * Venue update DTO
  */
 export class UpdateVenueDto {
-  @ApiProperty({ description: 'Venue name', required: false, minLength: 2, maxLength: 100 })
+  @ApiProperty({
+    description: 'Venue name',
+    required: false,
+    minLength: 2,
+    maxLength: 100,
+  })
   @IsOptional()
   @IsString()
   @MinLength(2)
   @MaxLength(100)
   name?: string;
 
-  @ApiProperty({ description: 'Venue description', required: false, maxLength: 500 })
+  @ApiProperty({
+    description: 'Venue description',
+    required: false,
+    maxLength: 500,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(500)
@@ -208,12 +233,20 @@ export class UpdateVenueDto {
   @IsEnum(VenueType)
   type?: VenueType;
 
-  @ApiProperty({ description: 'Venue status', enum: VenueStatus, required: false })
+  @ApiProperty({
+    description: 'Venue status',
+    enum: VenueStatus,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(VenueStatus)
   status?: VenueStatus;
 
-  @ApiProperty({ description: 'Street address', required: false, maxLength: 200 })
+  @ApiProperty({
+    description: 'Street address',
+    required: false,
+    maxLength: 200,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(200)
@@ -225,7 +258,11 @@ export class UpdateVenueDto {
   @MaxLength(100)
   city?: string;
 
-  @ApiProperty({ description: 'State/Province', required: false, maxLength: 100 })
+  @ApiProperty({
+    description: 'State/Province',
+    required: false,
+    maxLength: 100,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(100)
@@ -290,11 +327,22 @@ export class UpdateVenueDto {
  * Venue search query DTO
  */
 export class VenueSearchQueryDto {
-  @ApiProperty({ description: 'Page number', minimum: 1, default: 1, required: false })
+  @ApiProperty({
+    description: 'Page number',
+    minimum: 1,
+    default: 1,
+    required: false,
+  })
   @IsOptional()
   page?: number = 1;
 
-  @ApiProperty({ description: 'Items per page', minimum: 1, maximum: 100, default: 20, required: false })
+  @ApiProperty({
+    description: 'Items per page',
+    minimum: 1,
+    maximum: 100,
+    default: 20,
+    required: false,
+  })
   @IsOptional()
   pageSize?: number = 20;
 
@@ -303,12 +351,20 @@ export class VenueSearchQueryDto {
   @IsString()
   search?: string;
 
-  @ApiProperty({ description: 'Filter by type', enum: VenueType, required: false })
+  @ApiProperty({
+    description: 'Filter by type',
+    enum: VenueType,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(VenueType)
   type?: VenueType;
 
-  @ApiProperty({ description: 'Filter by status', enum: VenueStatus, required: false })
+  @ApiProperty({
+    description: 'Filter by status',
+    enum: VenueStatus,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(VenueStatus)
   status?: VenueStatus;
@@ -328,14 +384,22 @@ export class VenueSearchQueryDto {
   @IsString()
   country?: string;
 
-  @ApiProperty({ description: 'Minimum rating', minimum: 0, maximum: 5, required: false })
+  @ApiProperty({
+    description: 'Minimum rating',
+    minimum: 0,
+    maximum: 5,
+    required: false,
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)
   @Max(5)
   minRating?: number;
 
-  @ApiProperty({ description: 'Filter by verified venues only', required: false })
+  @ApiProperty({
+    description: 'Filter by verified venues only',
+    required: false,
+  })
   @IsOptional()
   @IsBoolean()
   verifiedOnly?: boolean;
@@ -345,7 +409,11 @@ export class VenueSearchQueryDto {
   @IsString()
   sortBy?: string;
 
-  @ApiProperty({ description: 'Sort order', enum: ['asc', 'desc'], required: false })
+  @ApiProperty({
+    description: 'Sort order',
+    enum: ['asc', 'desc'],
+    required: false,
+  })
   @IsOptional()
   @IsString()
   sortOrder?: 'asc' | 'desc';

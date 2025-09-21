@@ -4,6 +4,11 @@ import tsparser from '@typescript-eslint/parser';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import prettierConfig from 'eslint-config-prettier';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default [
   js.configs.recommended,
@@ -56,6 +61,9 @@ export default [
       'react-hooks': reactHooks,
     },
     rules: {
+      // Disable base rules that conflict with TypeScript analysis
+      'no-undef': 'off',
+      'no-unused-vars': 'off',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -102,9 +110,6 @@ export default [
     files: ['services/api/src/**/*.ts'],
     languageOptions: {
       parser: tsparser,
-      parserOptions: {
-        project: ['services/api/tsconfig.json'],
-      },
     },
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -128,7 +133,6 @@ export default [
       'lcov-report/**',
       '**/lcov-report/**/*',
       'cypress/**',
-      'packages/**/*',
       'DojoPoolCombined/**/*',
       'DojoPool*/**/*',
       'Dojo_Pool*/**/*',

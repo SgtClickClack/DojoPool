@@ -22,12 +22,17 @@ export class NotificationsGateway
   private readonly logger = new Logger(NotificationsGateway.name);
 
   private getUserIdFromSocket(client: Socket): string | undefined {
-    const headers = client.handshake.headers as Record<string, any>;
+    const headers = client.handshake.headers as Record<
+      string,
+      string | string[]
+    >;
     const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as
       | string
       | undefined;
     const fromAuth = (client.handshake.auth &&
-      (client.handshake.auth as any).userId) as string | undefined;
+      (client.handshake.auth as { userId?: string }).userId) as
+      | string
+      | undefined;
     return fromHeader || fromAuth;
   }
 
@@ -49,13 +54,17 @@ export class NotificationsGateway
     this.logger.log(`Notifications client disconnected: ${client.id}`);
   }
 
-  emitToUser(userId: string, event: string, payload: any) {
+  emitToUser(userId: string, event: string, payload: Record<string, unknown>) {
     if (!this.server) return;
     void this.server.to(userId).emit(event, payload);
     this.logger.log(`Emitted ${event} to user ${userId}`);
   }
 
-  emitToMultipleUsers(userIds: string[], event: string, payload: any) {
+  emitToMultipleUsers(
+    userIds: string[],
+    event: string,
+    payload: Record<string, unknown>
+  ) {
     if (!this.server) return;
     userIds.forEach((userId) => {
       void this.server.to(userId).emit(event, payload);
@@ -68,7 +77,7 @@ export class NotificationsGateway
     const rooms = this.server.sockets.adapter.rooms;
     const userIds: string[] = [];
 
-    for (const [roomId, sockets] of rooms.entries()) {
+    for (const [roomId, _sockets] of rooms.entries()) {
       // Skip socket.io internal rooms
       if (!roomId.startsWith('socket.io')) {
         userIds.push(roomId);

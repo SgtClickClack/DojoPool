@@ -19,7 +19,7 @@ export class AuthController {
     try {
       const result = await this._authService.login(loginDto);
       return { message: 'Login successful', ...result };
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid credentials');
     }
   }
@@ -31,18 +31,29 @@ export class AuthController {
     try {
       const result = await this._authService.register(registerDto);
       return { message: 'Registration successful', user: result };
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Registration failed');
     }
   }
 
   @Post('refresh')
-  async refresh(@Body() body: { refresh_token: string; device_id?: string; device_info?: string }) {
+  async refresh(
+    @Body()
+    body: {
+      refresh_token: string;
+      device_id?: string;
+      device_info?: string;
+    }
+  ) {
     const { refresh_token, device_id, device_info } = body || ({} as any);
     if (!refresh_token) {
       throw new UnauthorizedException('Missing refresh token');
     }
-    return this._authService.refreshToken(refresh_token, device_id, device_info);
+    return this._authService.refreshToken(
+      refresh_token,
+      device_id,
+      device_info
+    );
   }
 
   @Post('logout')
@@ -67,7 +78,7 @@ export class AuthController {
       // Redirect to frontend with token
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}`);
-    } catch (error) {
+    } catch (_error) {
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
     }

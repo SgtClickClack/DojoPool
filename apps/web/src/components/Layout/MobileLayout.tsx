@@ -85,7 +85,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
               exit={{ y: -100 }}
               className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50"
             >
-              You're offline. Some features may not work.
+              You&apos;re offline. Some features may not work.
             </motion.div>
           )}
         </AnimatePresence>

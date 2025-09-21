@@ -19,7 +19,7 @@ export function Cacheable(options: CacheDecoratorOptions = {}) {
       // Get cache service instances
       const cacheServiceInstance =
         (this as any).cacheService || (this as any).cacheManager;
-      const cacheHelperInstance =
+      const _cacheHelperInstance =
         (this as any).cacheHelper || (this as any).cacheManager;
 
       if (!cacheServiceInstance) {
@@ -39,36 +39,27 @@ export function Cacheable(options: CacheDecoratorOptions = {}) {
         ? options.keyGenerator(...args)
         : generateDefaultKey(target.constructor.name, propertyKey, args);
 
-      try {
-        // Try to get from cache first
-        const cachedResult = await cacheServiceInstance.get(
-          key,
-          options.keyPrefix
-        );
-        if (cachedResult !== null) {
-          return cachedResult;
-        }
-
-        // Execute original method
-        const result = await originalMethod.apply(this, args);
-
-        // Cache the result
-        if (result !== undefined && result !== null) {
-          await cacheServiceInstance.set(key, result, {
-            ttl: options.ttl,
-            keyPrefix: options.keyPrefix,
-          });
-        }
-
-        return result;
-      } catch (error) {
-        console.error(
-          `Cache error in ${target.constructor.name}.${propertyKey}:`,
-          error
-        );
-        // Fallback to original method on cache error
-        return originalMethod.apply(this, args);
+      // Try to get from cache first
+      const cachedResult = await cacheServiceInstance.get(
+        key,
+        options.keyPrefix
+      );
+      if (cachedResult !== null) {
+        return cachedResult;
       }
+
+      // Execute original method
+      const result = await originalMethod.apply(this, args);
+
+      // Cache the result
+      if (result !== undefined && result !== null) {
+        await cacheServiceInstance.set(key, result, {
+          ttl: options.ttl,
+          keyPrefix: options.keyPrefix,
+        });
+      }
+
+      return result;
     };
 
     return descriptor;
@@ -104,29 +95,20 @@ export function CacheWriteThrough(options: CacheDecoratorOptions = {}) {
         ? options.keyGenerator(...args)
         : generateDefaultKey(target.constructor.name, propertyKey, args);
 
-      try {
-        // Use write-through caching
-        const result = await cacheHelperInstance.writeThrough({
-          key,
-          data: args[0], // Assume first argument is the data to cache
-          cacheOptions: {
-            ttl: options.ttl,
-            keyPrefix: options.keyPrefix,
-            invalidateOnWrite: true,
-            invalidatePatterns: options.invalidatePatterns,
-          },
-          writeOperation: () => originalMethod.apply(this, args),
-        });
+      // Use write-through caching
+      const result = await cacheHelperInstance.writeThrough({
+        key,
+        data: args[0], // Assume first argument is the data to cache
+        cacheOptions: {
+          ttl: options.ttl,
+          keyPrefix: options.keyPrefix,
+          invalidateOnWrite: true,
+          invalidatePatterns: options.invalidatePatterns,
+        },
+        writeOperation: () => originalMethod.apply(this, args),
+      });
 
-        return result;
-      } catch (error) {
-        console.error(
-          `Write-through cache error in ${target.constructor.name}.${propertyKey}:`,
-          error
-        );
-        // Fallback to original method on cache error
-        return originalMethod.apply(this, args);
-      }
+      return result;
     };
 
     return descriptor;
@@ -147,24 +129,19 @@ export function CacheInvalidate(patterns: string[]) {
       const cacheHelperInstance =
         (this as any).cacheHelper || (this as any).cacheManager;
 
-      try {
-        // Execute original method first
-        const result = await originalMethod.apply(this, args);
+      // Execute original method first
+      const result = await originalMethod.apply(this, args);
 
-        // Invalidate cache patterns after successful execution
-        if (cacheHelperInstance && patterns.length > 0) {
-          await cacheHelperInstance.invalidatePatterns(patterns);
-        } else if (cacheServiceInstance && patterns.length > 0) {
-          for (const pattern of patterns) {
-            await cacheServiceInstance.deleteByPattern(pattern);
-          }
+      // Invalidate cache patterns after successful execution
+      if (cacheHelperInstance && patterns.length > 0) {
+        await cacheHelperInstance.invalidatePatterns(patterns);
+      } else if (cacheServiceInstance && patterns.length > 0) {
+        for (const pattern of patterns) {
+          await cacheServiceInstance.deleteByPattern(pattern);
         }
-
-        return result;
-      } catch (error) {
-        // Don't invalidate cache on error to preserve existing cached data
-        throw error;
       }
+
+      return result;
     };
 
     return descriptor;

@@ -254,7 +254,7 @@ export class AiService {
           round: 1,
         });
         status.gemini.status = 'healthy';
-      } catch (error) {
+      } catch (_error) {
         status.gemini.status = 'unhealthy';
       }
     }
@@ -266,7 +266,7 @@ export class AiService {
         const testBuffer = Buffer.from('test');
         await this.arAnalysisService.analyzeTableImage(testBuffer);
         status.opencv.status = 'healthy';
-      } catch (error) {
+      } catch (_error) {
         status.opencv.status = 'unhealthy';
       }
     }

@@ -35,7 +35,7 @@ export abstract class BaseTestDataFactory<T> implements TestDataFactory<T> {
   }
 
   createWithVariants(variants: Partial<T>[]): T[] {
-    return variants.map(variant => this.create(variant));
+    return variants.map((variant) => this.create(variant));
   }
 }
 
@@ -47,7 +47,7 @@ export class UserFactory extends BaseTestDataFactory<any> {
     return {
       id: faker.string.uuid(),
       email: faker.internet.email(),
-      username: faker.internet.username(),
+      username: faker.internet.userName(),
       passwordHash: faker.internet.password(),
       role: 'USER',
       isBanned: false,
@@ -127,7 +127,11 @@ export class TournamentFactory extends BaseTestDataFactory<any> {
     return {
       id: faker.string.uuid(),
       name: `${faker.location.city()} Pool Championship`,
-      status: faker.helpers.arrayElement(['upcoming', 'active', 'completed'] as const),
+      status: faker.helpers.arrayElement([
+        'upcoming',
+        'active',
+        'completed',
+      ] as const),
       participants: faker.number.int({ min: 4, max: 32 }),
       maxParticipants: faker.number.int({ min: 16, max: 64 }),
       startDate,
@@ -170,14 +174,19 @@ export class MatchFactory extends BaseTestDataFactory<any> {
   protected getDefaults() {
     const scoreA = faker.number.int({ min: 0, max: 9 });
     const scoreB = faker.number.int({ min: 0, max: 9 });
-    const winnerId = scoreA > scoreB ? faker.string.uuid() : faker.string.uuid();
+    const winnerId =
+      scoreA > scoreB ? faker.string.uuid() : faker.string.uuid();
 
     return {
       id: faker.string.uuid(),
       tournamentId: faker.string.uuid(),
       playerAId: faker.string.uuid(),
       playerBId: faker.string.uuid(),
-      status: faker.helpers.arrayElement(['scheduled', 'in_progress', 'completed'] as const),
+      status: faker.helpers.arrayElement([
+        'scheduled',
+        'in_progress',
+        'completed',
+      ] as const),
       scoreA,
       scoreB,
       winnerId,
@@ -307,9 +316,12 @@ export class TestDataFixtures {
     return this.fixtures.get(category) || [];
   }
 
-  static getByName(category: string, name: string): TestDataFixture<any> | undefined {
+  static getByName(
+    category: string,
+    name: string
+  ): TestDataFixture<any> | undefined {
     const fixtures = this.get(category);
-    return fixtures.find(fixture => fixture.name === name);
+    return fixtures.find((fixture) => fixture.name === name);
   }
 
   static getAll(): Record<string, TestDataFixture<any>[]> {
@@ -448,7 +460,11 @@ class TestDataManager {
     return this.getFactory<T>(factoryName).create(overrides);
   }
 
-  static createMany<T>(factoryName: string, count: number, overrides?: Partial<T>): T[] {
+  static createMany<T>(
+    factoryName: string,
+    count: number,
+    overrides?: Partial<T>
+  ): T[] {
     return this.getFactory<T>(factoryName).createMany(count, overrides);
   }
 
@@ -490,7 +506,8 @@ TestDataManager.initialize();
  */
 export class TestDataScenarios {
   static createTournamentScenario() {
-    const { user, profile, venue, tournament } = TestDataManager.createRelatedData();
+    const { user, profile, venue, tournament } =
+      TestDataManager.createRelatedData();
     const participants = TestDataManager.createMany('user', 8);
 
     return {
@@ -519,7 +536,7 @@ export class TestDataScenarios {
       clan,
       leader,
       members: [leader, ...members],
-      profiles: [leader, ...members].map(member =>
+      profiles: [leader, ...members].map((member) =>
         TestDataManager.create('profile', { userId: member.id })
       ),
     };
@@ -528,13 +545,15 @@ export class TestDataScenarios {
   static createVenueScenario() {
     const venue = TestDataManager.create('venue');
     const owner = TestDataManager.create('user', { id: venue.ownerId });
-    const tournaments = TestDataManager.createMany('tournament', 3, { venueId: venue.id });
+    const tournaments = TestDataManager.createMany('tournament', 3, {
+      venueId: venue.id,
+    });
 
     return {
       venue,
       owner,
       tournaments,
-      activeTournament: tournaments.find(t => t.status === 'active'),
+      activeTournament: tournaments.find((t) => t.status === 'active'),
     };
   }
 }

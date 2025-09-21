@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { User } from '@prisma/client';
-import { type PermissionAction, type PermissionResource, type PermissionContext } from '../common/interfaces/user.interfaces';
+import {
+  type PermissionAction,
+  type PermissionResource,
+  type PermissionContext,
+} from '../common/interfaces/user.interfaces';
 
 @Injectable()
 export class PermissionsService {
@@ -100,7 +104,10 @@ export class PermissionsService {
     }
 
     // Tournament creators can update/delete their tournaments
-    if ((action === 'update' || action === 'delete') && context?.ownerId === user.id) {
+    if (
+      (action === 'update' || action === 'delete') &&
+      context?.ownerId === user.id
+    ) {
       return true;
     }
 
@@ -113,7 +120,7 @@ export class PermissionsService {
   private canManageVenue(
     user: User,
     action: PermissionAction,
-    context?: PermissionContext
+    _context?: PermissionContext
   ): boolean {
     // All users can read venue information
     if (action === 'read') {
@@ -133,8 +140,8 @@ export class PermissionsService {
    */
   private canManageAdmin(
     user: User,
-    action: PermissionAction,
-    context?: PermissionContext
+    _action: PermissionAction,
+    _context?: PermissionContext
   ): boolean {
     // Only admins can access admin resources
     return user.role === 'ADMIN';
@@ -159,7 +166,10 @@ export class PermissionsService {
     }
 
     // Content creators can update/delete their content
-    if ((action === 'update' || action === 'delete') && context?.ownerId === user.id) {
+    if (
+      (action === 'update' || action === 'delete') &&
+      context?.ownerId === user.id
+    ) {
       return true;
     }
 
@@ -211,7 +221,10 @@ export class PermissionsService {
     }
 
     // Clan leaders can manage their clans
-    if ((action === 'update' || action === 'delete') && context?.leaderId === user.id) {
+    if (
+      (action === 'update' || action === 'delete') &&
+      context?.leaderId === user.id
+    ) {
       return true;
     }
 
@@ -232,7 +245,10 @@ export class PermissionsService {
     }
 
     // Territory owners can manage their territories
-    if ((action === 'update' || action === 'delete') && context?.ownerId === user.id) {
+    if (
+      (action === 'update' || action === 'delete') &&
+      context?.ownerId === user.id
+    ) {
       return true;
     }
 

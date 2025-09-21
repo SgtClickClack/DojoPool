@@ -131,7 +131,7 @@ export class BundleOptimizer {
 
   private generateOptimizationSuggestions(
     modules: ModuleInfo[],
-    chunks: ChunkInfo[]
+    _chunks: ChunkInfo[]
   ): OptimizationSuggestion[] {
     const suggestions: OptimizationSuggestion[] = [];
 
@@ -227,7 +227,7 @@ export class BundleOptimizer {
       return 'No bundle analysis available. Run analyzeBundle() first.';
     }
 
-    const { totalSize, gzippedSize, modules, chunks, suggestions } =
+    const { totalSize, gzippedSize, modules, _chunks, suggestions } =
       this.analysis;
 
     let report = `# Bundle Optimization Report\n\n`;

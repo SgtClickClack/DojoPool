@@ -28,7 +28,6 @@ import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { SeasonsModule } from './seasons/seasons.module';
 import { ShadowRunsModule } from './shadow-runs/shadow-runs.module';
-import { StrategicMapModule } from './strategic-map/strategic-map.module';
 import { TerritoriesModule } from './territories/territories.module';
 import { TournamentsModule } from './tournaments/tournaments.module';
 import { UsersModule } from './users/users.module';

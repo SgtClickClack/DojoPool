@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { Content } from '@prisma/client';
-import { ContentStatus, ContentType, ContentVisibility } from './dto/content-filter.dto';
+import { ContentStatus, ContentVisibility } from './dto/content-filter.dto';
 import DOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import {
@@ -185,7 +185,7 @@ export class ContentService {
         page.toString(),
         limit.toString()
       ),
-    condition: (filters: ContentFilterDto, page: number, limit: number) =>
+    condition: (filters: ContentFilterDto, page: number, _limit: number) =>
       page <= 5, // Only cache first 5 pages
   })
   async findFeed(
@@ -256,7 +256,10 @@ export class ContentService {
           ...item,
           userLiked: !!userLiked,
           userShared: !!userShared,
-        } as (typeof content)[number] & { userLiked: boolean; userShared: boolean };
+        } as (typeof content)[number] & {
+          userLiked: boolean;
+          userShared: boolean;
+        };
       })
     );
 

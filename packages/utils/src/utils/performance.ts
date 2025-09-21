@@ -2,7 +2,7 @@
  * Performance measurement utilities for testing and monitoring
  */
 
-import { performance, PerformanceObserver } from 'perf_hooks';
+import { performance } from 'perf_hooks';
 
 // Cast performance to include memory property for browser compatibility
 const performanceWithMemory = performance as any;
@@ -20,81 +20,81 @@ interface PerformanceMetrics {
   measures?: PerformanceEntry[];
 }
 
-interface PerformanceOptions {
-  markName?: string;
-  measureName?: string;
-  collectMemory?: boolean;
-  collectMarks?: boolean;
-  collectMeasures?: boolean;
-  iterations?: number;
-}
+// interface PerformanceOptions {
+//   markName?: string;
+//   measureName?: string;
+//   collectMemory?: boolean;
+//   collectMarks?: boolean;
+//   collectMeasures?: boolean;
+//   iterations?: number;
+// }
 
-interface PerformanceResult {
-  duration: number;
-  memoryUsage?: {
-    initial: number;
-    final: number;
-    max: number;
-  };
-  marks?: PerformanceMark[];
-  measures?: PerformanceMeasure[];
-}
+// interface PerformanceResult {
+//   duration: number;
+//   memoryUsage?: {
+//     initial: number;
+//     final: number;
+//     max: number;
+//   };
+//   marks?: PerformanceMark[];
+//   measures?: PerformanceMeasure[];
+// }
 
-interface FrameRateOptions {
-  duration: number;
-  markName?: string;
-  measureName?: string;
-}
+// interface FrameRateOptions {
+//   duration: number;
+//   markName?: string;
+//   measureName?: string;
+// }
 
-interface FrameRateResult {
-  fps: number;
-  frameTimes: number[];
-  droppedFrames: number;
-}
+// interface FrameRateResult {
+//   fps: number;
+//   frameTimes: number[];
+//   droppedFrames: number;
+// }
 
-interface MemoryUsageOptions {
-  interval: number;
-  markName?: string;
-  measureName?: string;
-}
+// interface MemoryUsageOptions {
+//   interval: number;
+//   markName?: string;
+//   measureName?: string;
+// }
 
-interface MemoryUsageResult {
-  memoryUsage: {
-    initial: number;
-    final: number;
-    max: number;
-    samples: number[];
-  };
-}
+// interface MemoryUsageResult {
+//   memoryUsage: {
+//     initial: number;
+//     final: number;
+//     max: number;
+//     samples: number[];
+//   };
+// }
 
-interface NetworkPerformanceOptions {
-  iterations?: number;
-  markName?: string;
-  measureName?: string;
-}
+// interface NetworkPerformanceOptions {
+//   iterations?: number;
+//   markName?: string;
+//   measureName?: string;
+// }
 
-interface NetworkPerformanceResult {
-  duration: number;
-  successRate: number;
-  errors: Error[];
-}
+// interface NetworkPerformanceResult {
+//   duration: number;
+//   successRate: number;
+//   errors: Error[];
+// }
 
-interface RenderPerformanceOptions {
-  iterations?: number;
-  markName?: string;
-  measureName?: string;
-}
+// interface RenderPerformanceOptions {
+//   iterations?: number;
+//   markName?: string;
+//   measureName?: string;
+// }
 
-interface RenderPerformanceResult {
-  duration: number;
-  memoryUsage?: {
-    initial: number;
-    final: number;
-    max: number;
-  };
-  marks?: PerformanceMark[];
-  measures?: PerformanceMeasure[];
-}
+// interface RenderPerformanceResult {
+//   duration: number;
+//   memoryUsage?: {
+//     initial: number;
+//     final: number;
+//     max: number;
+//   };
+//   marks?: PerformanceMark[];
+//   measures?: PerformanceMeasure[];
+// }
 
 /**
  * Measures the performance of a function execution
@@ -134,7 +134,7 @@ export const measurePerformance = async <T>(
     : undefined;
 
   // Execute function
-  const result = await fn();
+  const _result = await fn();
 
   // End measurement
   const endTime = performance.now();
@@ -314,7 +314,7 @@ export const measureRenderPerformance = async <T>(
   total: number;
 }> => {
   const startTime = performance.now();
-  const result = renderFn();
+  const _result = renderFn();
   const endTime = performance.now();
   const total = endTime - startTime;
 

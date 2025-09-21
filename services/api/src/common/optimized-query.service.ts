@@ -75,18 +75,18 @@ export class OptimizedQueryService {
     const skip = (page - 1) * limit;
 
     const where: any = {};
-    
+
     if (filters.search) {
       where.OR = [
         { username: { contains: filters.search, mode: 'insensitive' } },
         { email: { contains: filters.search, mode: 'insensitive' } },
       ];
     }
-    
+
     if (filters.role) {
       where.role = filters.role;
     }
-    
+
     if (filters.isBanned !== undefined) {
       where.isBanned = filters.isBanned;
     }
@@ -140,12 +140,16 @@ export class OptimizedQueryService {
       };
     } = {},
     pagination: { page: number; limit: number } = { page: 1, limit: 20 }
-  ): Promise<{ venues: VenueWithRelations[]; total: number; hasMore: boolean }> {
+  ): Promise<{
+    venues: VenueWithRelations[];
+    total: number;
+    hasMore: boolean;
+  }> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
 
     const where: any = {};
-    
+
     if (filters.search) {
       where.OR = [
         { name: { contains: filters.search, mode: 'insensitive' } },
@@ -153,7 +157,7 @@ export class OptimizedQueryService {
         { address: { contains: filters.search, mode: 'insensitive' } },
       ];
     }
-    
+
     if (filters.status) {
       where.status = filters.status;
     }
@@ -161,8 +165,8 @@ export class OptimizedQueryService {
     // Location-based filtering using raw SQL for better performance
     if (filters.location) {
       const { lat, lng, radius } = filters.location;
-      const earthRadius = 6371; // Earth's radius in kilometers
-      
+      const _earthRadius = 6371; // Earth's radius in kilometers
+
       where.sql = `
         (6371 * acos(cos(radians(${lat})) * cos(radians(lat)) * 
          cos(radians(lng) - radians(${lng})) + sin(radians(${lat})) * 
@@ -213,27 +217,31 @@ export class OptimizedQueryService {
       };
     } = {},
     pagination: { page: number; limit: number } = { page: 1, limit: 20 }
-  ): Promise<{ matches: MatchWithRelations[]; total: number; hasMore: boolean }> {
+  ): Promise<{
+    matches: MatchWithRelations[];
+    total: number;
+    hasMore: boolean;
+  }> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
 
     const where: any = {};
-    
+
     if (filters.status) {
       where.status = filters.status;
     }
-    
+
     if (filters.playerId) {
       where.OR = [
         { playerAId: filters.playerId },
         { playerBId: filters.playerId },
       ];
     }
-    
+
     if (filters.venueId) {
       where.venueId = filters.venueId;
     }
-    
+
     if (filters.dateRange) {
       where.createdAt = {
         gte: filters.dateRange.start,
@@ -288,46 +296,47 @@ export class OptimizedQueryService {
       // Total matches
       queries.push({
         key: `${userId}:totalMatches`,
-        query: () => this._prisma.match.count({
-          where: {
-            OR: [
-              { playerAId: userId },
-              { playerBId: userId },
-            ],
-          },
-        }),
+        query: () =>
+          this._prisma.match.count({
+            where: {
+              OR: [{ playerAId: userId }, { playerBId: userId }],
+            },
+          }),
         priority: 1,
       });
 
       // Total wins
       queries.push({
         key: `${userId}:totalWins`,
-        query: () => this._prisma.match.count({
-          where: {
-            OR: [
-              { playerAId: userId, winnerId: userId },
-              { playerBId: userId, winnerId: userId },
-            ],
-          },
-        }),
+        query: () =>
+          this._prisma.match.count({
+            where: {
+              OR: [
+                { playerAId: userId, winnerId: userId },
+                { playerBId: userId, winnerId: userId },
+              ],
+            },
+          }),
         priority: 1,
       });
 
       // Tournament participations
       queries.push({
         key: `${userId}:tournaments`,
-        query: () => this._prisma.tournamentParticipant.count({
-          where: { userId },
-        }),
+        query: () =>
+          this._prisma.tournamentParticipant.count({
+            where: { userId },
+          }),
         priority: 2,
       });
 
       // Clan memberships
       queries.push({
         key: `${userId}:clans`,
-        query: () => this._prisma.clanMember.count({
-          where: { userId },
-        }),
+        query: () =>
+          this._prisma.clanMember.count({
+            where: { userId },
+          }),
         priority: 2,
       });
     }
@@ -353,15 +362,15 @@ export class OptimizedQueryService {
     const skip = (page - 1) * limit;
 
     const where: any = {};
-    
+
     if (filters.status) {
       where.status = filters.status;
     }
-    
+
     if (filters.type) {
       where.type = filters.type;
     }
-    
+
     if (filters.dateRange) {
       where.startDate = {
         gte: filters.dateRange.start,
@@ -421,10 +430,7 @@ export class OptimizedQueryService {
   /**
    * Optimized activity feed with batched user/venue lookups
    */
-  async getActivityFeedOptimized(
-    userId: string,
-    limit = 20
-  ): Promise<any[]> {
+  async getActivityFeedOptimized(userId: string, limit = 20): Promise<any[]> {
     // First, get activity events
     const events = await this._prisma.activityEvent.findMany({
       where: {
@@ -450,33 +456,39 @@ export class OptimizedQueryService {
     });
 
     // Extract unique IDs for batch loading
-    const userIds = [...new Set(events.map(e => e.userId).filter(Boolean))];
-    const venueIds = [...new Set(events.map(e => e.venueId).filter(Boolean))];
-    const clanIds = [...new Set(events.map(e => e.clanId).filter(Boolean))];
+    const userIds = [...new Set(events.map((e) => e.userId).filter(Boolean))];
+    const venueIds = [...new Set(events.map((e) => e.venueId).filter(Boolean))];
+    const clanIds = [...new Set(events.map((e) => e.clanId).filter(Boolean))];
 
     // Batch load related data
     const [users, venues, clans] = await Promise.all([
-      userIds.length > 0 ? this._prisma.user.findMany({
-        where: { id: { in: userIds } },
-        select: { id: true, username: true, avatarUrl: true },
-      }) : [],
-      venueIds.length > 0 ? this._prisma.venue.findMany({
-        where: { id: { in: venueIds } },
-        select: { id: true, name: true },
-      }) : [],
-      clanIds.length > 0 ? this._prisma.clan.findMany({
-        where: { id: { in: clanIds } },
-        select: { id: true, name: true },
-      }) : [],
+      userIds.length > 0
+        ? this._prisma.user.findMany({
+            where: { id: { in: userIds } },
+            select: { id: true, username: true, avatarUrl: true },
+          })
+        : [],
+      venueIds.length > 0
+        ? this._prisma.venue.findMany({
+            where: { id: { in: venueIds } },
+            select: { id: true, name: true },
+          })
+        : [],
+      clanIds.length > 0
+        ? this._prisma.clan.findMany({
+            where: { id: { in: clanIds } },
+            select: { id: true, name: true },
+          })
+        : [],
     ]);
 
     // Create lookup maps
-    const userMap = new Map(users.map(u => [u.id, u]));
-    const venueMap = new Map(venues.map(v => [v.id, v]));
-    const clanMap = new Map(clans.map(c => [c.id, c]));
+    const userMap = new Map(users.map((u) => [u.id, u]));
+    const venueMap = new Map(venues.map((v) => [v.id, v]));
+    const clanMap = new Map(clans.map((c) => [c.id, c]));
 
     // Enrich events with related data
-    return events.map(event => ({
+    return events.map((event) => ({
       ...event,
       user: event.userId ? userMap.get(event.userId) : null,
       venue: event.venueId ? venueMap.get(event.venueId) : null,
@@ -489,7 +501,7 @@ export class OptimizedQueryService {
       where: { ownerId: userId },
       select: { id: true },
     });
-    return venues.map(v => v.id);
+    return venues.map((v) => v.id);
   }
 
   private async getUserClanIds(userId: string): Promise<string[]> {
@@ -497,7 +509,7 @@ export class OptimizedQueryService {
       where: { userId },
       select: { clanId: true },
     });
-    return memberships.map(m => m.clanId);
+    return memberships.map((m) => m.clanId);
   }
 
   /**
@@ -505,7 +517,7 @@ export class OptimizedQueryService {
    */
   async getPerformanceMetrics(): Promise<any> {
     const cacheStats = this.optimizationService.getCacheStats();
-    
+
     // Get database connection info
     const dbInfo = await this._prisma.$queryRaw`
       SELECT 

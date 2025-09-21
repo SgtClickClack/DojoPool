@@ -67,7 +67,7 @@ export class NotificationsService {
         page.toString(),
         limit.toString()
       ),
-    condition: (userId: string, page: number, limit: number) => page <= 3, // Only cache first 3 pages
+    condition: (userId: string, page: number, _limit: number) => page <= 3, // Only cache first 3 pages
   })
   async findForUser(
     userId: string,

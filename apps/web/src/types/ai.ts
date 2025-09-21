@@ -59,5 +59,5 @@ export interface AiConfiguration {
   retryAttempts: number;
 }
 
-// Default export to ensure this is recognized as a module
-export default {};
+// Named export to avoid anonymous default export lint warning
+export const __aiTypesModule = true;

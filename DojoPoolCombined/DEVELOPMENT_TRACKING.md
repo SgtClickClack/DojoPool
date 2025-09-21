@@ -1,3 +1,28 @@
+### 2025-09-21: Fix unit tests and repo-wide lint script
+
+Resolved failing unit tests caused by missing polyfills and updated faker usage. Implemented a root-level lint script that runs lint across all workspaces.
+
+**Core Components Implemented:**
+
+- Added `@ungap/structured-clone` and `whatwg-fetch` as dev dependencies at repo root
+- Fixed `faker.internet.userName()` usage in tests
+- Added root `lint`/`lint:fix` scripts using `yarn workspaces foreach -A`
+- Aligned ESLint to v8 across workspaces to match configs
+
+**File Paths:**
+
+- `package.json` (root): scripts `lint`, `lint:fix`; dev deps updates
+- `jest.setup.ts`: ensures structuredClone and fetch polyfills are loaded
+- `tests/fixtures/test-data-manager.ts`: replace `faker.internet.username()` with `userName()`
+- `apps/web/package.json`: set `eslint` ^8.57
+- `packages/ui/package.json`: set `eslint` ^8.57
+- `packages/utils/package.json`: set `eslint` ^8.57
+
+**Next Priority Task:**
+Address remaining lint errors in `apps/web` (`react/no-unescaped-entities`, `import/no-anonymous-default-export`) to get a clean lint run.
+
+Expected completion time: 45m
+
 # DojoPool Development Tracking
 
 ## 2025-09-20: ESLint v9 Flat Configuration Implementation

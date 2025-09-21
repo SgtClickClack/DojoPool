@@ -51,11 +51,7 @@ import {
   createTheme,
   styled,
 } from '@mui/material';
-import {
-  DatePicker,
-  TimePicker,
-  DateTimePicker,
-} from '@mui/x-date-pickers';
+import { DatePicker, TimePicker, DateTimePicker } from '@mui/x-date-pickers';
 import {
   LineChart,
   BarChart,
@@ -156,13 +152,13 @@ export const theme = createTheme({
 });
 
 // Styled components
-export const StyledButton = styled(Button)(({ theme }) => ({
+export const StyledButton = styled(Button)(({ _theme }) => ({
   borderRadius: 8,
   textTransform: 'none',
   fontWeight: 600,
 }));
 
-export const StyledCard = styled(Card)(({ theme }) => ({
+export const StyledCard = styled(Card)(({ _theme }) => ({
   borderRadius: 12,
   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   transition: 'box-shadow 0.3s ease',
@@ -171,7 +167,7 @@ export const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-export const StyledTextField = styled(TextField)(({ theme }) => ({
+export const StyledTextField = styled(TextField)(({ _theme }) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: 8,
   },
@@ -188,7 +184,15 @@ export const LoadingButton = ({ loading, children, ...props }) => (
   </Button>
 );
 
-export const ConfirmDialog = ({ open, onClose, onConfirm, title, content, confirmText = 'Confirm', cancelText = 'Cancel' }) => (
+export const ConfirmDialog = ({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  content,
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
+}) => (
   <Dialog open={open} onClose={onClose}>
     <DialogTitle>{title}</DialogTitle>
     <DialogContent>
@@ -203,7 +207,13 @@ export const ConfirmDialog = ({ open, onClose, onConfirm, title, content, confir
   </Dialog>
 );
 
-export const DataTable = ({ columns, data, loading = false, pagination = null, onRowClick = null }) => (
+export const DataTable = ({
+  columns,
+  data,
+  loading = false,
+  pagination = null,
+  onRowClick = null,
+}) => (
   <TableContainer component={Paper}>
     <Table>
       <TableHead>
@@ -232,7 +242,9 @@ export const DataTable = ({ columns, data, loading = false, pagination = null, o
             >
               {columns.map((column) => (
                 <TableCell key={column.key} align={column.align || 'left'}>
-                  {column.render ? column.render(row[column.dataIndex], row) : row[column.dataIndex]}
+                  {column.render
+                    ? column.render(row[column.dataIndex], row)
+                    : row[column.dataIndex]}
                 </TableCell>
               ))}
             </TableRow>
@@ -255,9 +267,7 @@ export const DataTable = ({ columns, data, loading = false, pagination = null, o
 
 export const ChartContainer = ({ children, title, height = 400 }) => (
   <StyledCard>
-    {title && (
-      <CardHeader title={title} />
-    )}
+    {title && <CardHeader title={title} />}
     <CardContent>
       <ResponsiveContainer width="100%" height={height}>
         {children}
@@ -266,7 +276,13 @@ export const ChartContainer = ({ children, title, height = 400 }) => (
   </StyledCard>
 );
 
-export const LineChartComponent = ({ data, title, height = 400, dataKey = 'value', nameKey = 'name' }) => (
+export const LineChartComponent = ({
+  data,
+  title,
+  height = 400,
+  dataKey = 'value',
+  nameKey = 'name',
+}) => (
   <ChartContainer title={title} height={height}>
     <LineChart data={data}>
       <CartesianGrid strokeDasharray="3 3" />
@@ -274,12 +290,23 @@ export const LineChartComponent = ({ data, title, height = 400, dataKey = 'value
       <YAxis />
       <RechartsTooltip />
       <Legend />
-      <Line type="monotone" dataKey={dataKey} stroke="#8884d8" strokeWidth={2} />
+      <Line
+        type="monotone"
+        dataKey={dataKey}
+        stroke="#8884d8"
+        strokeWidth={2}
+      />
     </LineChart>
   </ChartContainer>
 );
 
-export const BarChartComponent = ({ data, title, height = 400, dataKey = 'value', nameKey = 'name' }) => (
+export const BarChartComponent = ({
+  data,
+  title,
+  height = 400,
+  dataKey = 'value',
+  nameKey = 'name',
+}) => (
   <ChartContainer title={title} height={height}>
     <BarChart data={data}>
       <CartesianGrid strokeDasharray="3 3" />
@@ -292,7 +319,13 @@ export const BarChartComponent = ({ data, title, height = 400, dataKey = 'value'
   </ChartContainer>
 );
 
-export const PieChartComponent = ({ data, title, height = 400, dataKey = 'value', nameKey = 'name' }) => (
+export const PieChartComponent = ({
+  data,
+  title,
+  height = 400,
+  dataKey = 'value',
+  _nameKey = 'name',
+}) => (
   <ChartContainer title={title} height={height}>
     <PieChart>
       <Pie
@@ -315,17 +348,13 @@ export const PieChartComponent = ({ data, title, height = 400, dataKey = 'value'
   </ChartContainer>
 );
 
-export const MapComponent = ({ 
-  initialViewState, 
+export const MapComponent = ({
+  initialViewState,
   style = { width: '100%', height: '400px' },
   children,
-  ...props 
+  ...props
 }) => (
-  <Map
-    initialViewState={initialViewState}
-    style={style}
-    {...props}
-  >
+  <Map initialViewState={initialViewState} style={style} {...props}>
     {children}
   </Map>
 );
@@ -334,9 +363,7 @@ export const MapComponent = ({
 export const FormField = ({ label, error, helperText, ...props }) => (
   <FormControl fullWidth error={!!error}>
     {label && <InputLabel>{label}</InputLabel>}
-    <Select {...props}>
-      {props.children}
-    </Select>
+    <Select {...props}>{props.children}</Select>
     {helperText && (
       <Typography variant="caption" color="error">
         {helperText}
@@ -355,7 +382,14 @@ export const TextInput = ({ label, error, helperText, ...props }) => (
   />
 );
 
-export const DateInput = ({ label, value, onChange, error, helperText, ...props }) => (
+export const DateInput = ({
+  label,
+  value,
+  onChange,
+  error,
+  helperText,
+  ...props
+}) => (
   <DatePicker
     label={label}
     value={value}
@@ -372,7 +406,14 @@ export const DateInput = ({ label, value, onChange, error, helperText, ...props 
   />
 );
 
-export const TimeInput = ({ label, value, onChange, error, helperText, ...props }) => (
+export const TimeInput = ({
+  label,
+  value,
+  onChange,
+  error,
+  helperText,
+  ...props
+}) => (
   <TimePicker
     label={label}
     value={value}
@@ -420,7 +461,12 @@ export const GridItem = ({ children, xs = 12, sm, md, lg, xl, ...props }) => (
 );
 
 // Notification components
-export const NotificationSnackbar = ({ open, onClose, message, severity = 'info' }) => (
+export const NotificationSnackbar = ({
+  open,
+  onClose,
+  message,
+  severity = 'info',
+}) => (
   <Snackbar
     open={open}
     autoHideDuration={6000}
@@ -444,13 +490,13 @@ export const useApiQuery = (queryKey, queryFn, options = {}) => {
 
 export const useApiMutation = (mutationFn, options = {}) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn,
     onSuccess: (data, variables, context) => {
       // Invalidate related queries
       if (options.invalidateQueries) {
-        options.invalidateQueries.forEach(queryKey => {
+        options.invalidateQueries.forEach((queryKey) => {
           queryClient.invalidateQueries({ queryKey });
         });
       }

@@ -37,8 +37,9 @@ const FeedbackPage: NextPage = () => {
           color="text.secondary"
           sx={{ maxWidth: 600, mx: 'auto' }}
         >
-          Your feedback helps us improve Dojo Pool. Whether it's a bug report,
-          feature suggestion, or general thoughts, we want to hear from you!
+          Your feedback helps us improve Dojo Pool. Whether it&apos;s a bug
+          report, feature suggestion, or general thoughts, we want to hear from
+          you!
         </Typography>
       </Box>
 

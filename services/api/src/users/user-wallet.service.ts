@@ -1,5 +1,10 @@
-import { Injectable, Logger, NotFoundException, Optional } from '@nestjs/common';
-import type { Prisma, User } from '@prisma/client';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
+import type { User } from '@prisma/client';
 import { CacheInvalidate } from '../cache/cache.decorator';
 import { CacheService } from '../cache/cache.service';
 import { ErrorUtils } from '../common';
@@ -109,7 +114,9 @@ export class UserWalletService {
       // Check if user has sufficient balance
       const currentBalance = await this.getBalance(userId);
       if (currentBalance < amount) {
-        throw new Error(`Insufficient balance. Current: ${currentBalance}, Required: ${amount}`);
+        throw new Error(
+          `Insufficient balance. Current: ${currentBalance}, Required: ${amount}`
+        );
       }
 
       const user = await this._prisma.user.update({
@@ -168,11 +175,15 @@ export class UserWalletService {
         });
 
         if (!fromUser) {
-          throw new NotFoundException(`Sender user with ID ${fromUserId} not found`);
+          throw new NotFoundException(
+            `Sender user with ID ${fromUserId} not found`
+          );
         }
 
         if (fromUser.dojoCoinBalance < amount) {
-          throw new Error(`Insufficient balance. Current: ${fromUser.dojoCoinBalance}, Required: ${amount}`);
+          throw new Error(
+            `Insufficient balance. Current: ${fromUser.dojoCoinBalance}, Required: ${amount}`
+          );
         }
 
         // Check if recipient exists
@@ -182,7 +193,9 @@ export class UserWalletService {
         });
 
         if (!toUserExists) {
-          throw new NotFoundException(`Recipient user with ID ${toUserId} not found`);
+          throw new NotFoundException(
+            `Recipient user with ID ${toUserId} not found`
+          );
         }
 
         // Perform the transfer

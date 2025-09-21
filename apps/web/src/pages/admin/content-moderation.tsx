@@ -18,7 +18,7 @@ const AdminContentModerationPage: NextPage = () => {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="error">
-          You don't have permission to access this page. Admin privileges
+          You don&apos;t have permission to access this page. Admin privileges
           required.
         </Alert>
       </Container>

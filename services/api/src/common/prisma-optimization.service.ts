@@ -29,12 +29,14 @@ export class PrismaOptimizationService {
    */
   async executeBatch<T>(queries: QueryBatchItem<T>[]): Promise<Map<string, T>> {
     const results = new Map<string, T>();
-    
+
     try {
-      await this._prisma.$transaction(async (tx) => {
+      await this._prisma.$transaction(async (_tx) => {
         // Sort by priority (higher priority first)
-        const sortedQueries = queries.sort((a, b) => (b.priority || 0) - (a.priority || 0));
-        
+        const sortedQueries = queries.sort(
+          (a, b) => (b.priority || 0) - (a.priority || 0)
+        );
+
         for (const item of sortedQueries) {
           try {
             const result = await item.query();
@@ -56,7 +58,11 @@ export class PrismaOptimizationService {
   /**
    * Queue a query for batch execution
    */
-  queueQuery<T>(key: string, query: () => Promise<T>, priority = 0): Promise<T> {
+  queueQuery<T>(
+    key: string,
+    query: () => Promise<T>,
+    priority = 0
+  ): Promise<T> {
     return new Promise((resolve, reject) => {
       this.batchQueue.push({
         key,
@@ -128,7 +134,7 @@ export class PrismaOptimizationService {
 
       // Clean up cache if it exceeds max size
       this.cleanupCache(config.maxSize);
-      
+
       this.logger.debug(`Cached query result for key: ${cacheKey}`);
       return result;
     } catch (error) {
@@ -153,9 +159,13 @@ export class PrismaOptimizationService {
     }
   ): Promise<{ data: T[]; total: number; hasMore: boolean }> {
     const cacheKey = `findMany:${model}:${JSON.stringify(options)}`;
-    
+
     if (options.cache) {
-      return this.cachedQuery(cacheKey, () => this.executeFindMany(model, options), options.cache);
+      return this.cachedQuery(
+        cacheKey,
+        () => this.executeFindMany(model, options),
+        options.cache
+      );
     }
 
     return this.executeFindMany(model, options);
@@ -203,17 +213,24 @@ export class PrismaOptimizationService {
     }
   ): Promise<T | null> {
     const cacheKey = `findUnique:${model}:${JSON.stringify(options)}`;
-    
+
     if (options.cache) {
-      return this.cachedQuery(cacheKey, () => this.executeFindUnique(model, options), options.cache);
+      return this.cachedQuery(
+        cacheKey,
+        () => this.executeFindUnique(model, options),
+        options.cache
+      );
     }
 
     return this.executeFindUnique(model, options);
   }
 
-  private async executeFindUnique<T>(model: string, options: any): Promise<T | null> {
+  private async executeFindUnique<T>(
+    model: string,
+    options: any
+  ): Promise<T | null> {
     const { where, select, include } = options;
-    
+
     return (this._prisma as any)[model].findUnique({
       where,
       select,
@@ -243,7 +260,7 @@ export class PrismaOptimizationService {
     }
   }
 
-  async bulkUpdate<T>(
+  async bulkUpdate(
     model: string,
     data: Array<{ where: any; data: any }>
   ): Promise<{ count: number }> {
@@ -259,7 +276,7 @@ export class PrismaOptimizationService {
 
       const totalCount = results.reduce((sum, result) => sum + result.count, 0);
       this.logger.log(`Bulk updated ${totalCount} records in ${model}`);
-      
+
       return { count: totalCount };
     } catch (error) {
       this.logger.error(`Bulk update failed for ${model}:`, error);
@@ -283,9 +300,13 @@ export class PrismaOptimizationService {
     }
   ): Promise<T> {
     const cacheKey = `aggregate:${model}:${JSON.stringify(options)}`;
-    
+
     if (options.cache) {
-      return this.cachedQuery(cacheKey, () => this.executeAggregate(model, options), options.cache);
+      return this.cachedQuery(
+        cacheKey,
+        () => this.executeAggregate(model, options),
+        options.cache
+      );
     }
 
     return this.executeAggregate(model, options);
@@ -293,7 +314,7 @@ export class PrismaOptimizationService {
 
   private async executeAggregate<T>(model: string, options: any): Promise<T> {
     const { where, ...aggregateOptions } = options;
-    
+
     return (this._prisma as any)[model].aggregate({
       where,
       ...aggregateOptions,
@@ -308,7 +329,7 @@ export class PrismaOptimizationService {
 
     const now = Date.now();
     const entries = Array.from(this.queryCache.entries());
-    
+
     // Remove expired entries first
     for (const [key, value] of entries) {
       if (value.expires <= now) {
@@ -321,7 +342,7 @@ export class PrismaOptimizationService {
       const sortedEntries = entries
         .filter(([key]) => this.queryCache.has(key))
         .sort((a, b) => a[1].expires - b[1].expires);
-      
+
       const toRemove = sortedEntries.slice(0, this.queryCache.size - maxSize);
       for (const [key] of toRemove) {
         this.queryCache.delete(key);
@@ -343,10 +364,11 @@ export class PrismaOptimizationService {
   getCacheStats() {
     const now = Date.now();
     const entries = Array.from(this.queryCache.entries());
-    
+
     return {
       totalEntries: this.queryCache.size,
-      expiredEntries: entries.filter(([, value]) => value.expires <= now).length,
+      expiredEntries: entries.filter(([, value]) => value.expires <= now)
+        .length,
       validEntries: entries.filter(([, value]) => value.expires > now).length,
     };
   }

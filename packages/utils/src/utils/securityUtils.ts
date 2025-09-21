@@ -131,7 +131,7 @@ export function validateURL(url: string): string {
     if (['http:', 'https:', 'mailto:'].includes(parsedUrl.protocol)) {
       return url;
     }
-  } catch (e) {
+  } catch (_e) {
     // Invalid URL
   }
   return '';

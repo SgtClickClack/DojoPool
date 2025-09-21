@@ -183,8 +183,8 @@ Please describe what you were doing when this error occurred:
                 transition={{ delay: 0.4 }}
                 className="text-gray-300 mb-6"
               >
-                We're sorry, but something unexpected happened. Our team has
-                been notified and is working to fix this issue.
+                We&apos;re sorry, but something unexpected happened. Our team
+                has been notified and is working to fix this issue.
               </motion.p>
 
               {/* Error ID */}

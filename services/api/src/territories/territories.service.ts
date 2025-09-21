@@ -90,7 +90,7 @@ export class TerritoriesService {
   async awardInfluence(
     winnerId: string,
     venueId: string,
-    influenceAmount: number
+    _influenceAmount: number
   ) {
     try {
       // Find or create territory for this venue
@@ -212,7 +212,7 @@ export class TerritoriesService {
   }
 
   // Strategic map methods
-  async getStrategicMap(bbox?: string) {
+  async getStrategicMap(_bbox?: string) {
     // For now, return all territories with minimal shape; bbox can be parsed later
     const territories = await this._prisma.territory.findMany({
       include: {

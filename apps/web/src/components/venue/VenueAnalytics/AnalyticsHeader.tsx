@@ -76,7 +76,7 @@ const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
           Analytics Dashboard
         </h2>
         <p className="text-gray-600">
-          Track your venue's performance and insights
+          Track your venue&apos;s performance and insights
         </p>
       </div>
 

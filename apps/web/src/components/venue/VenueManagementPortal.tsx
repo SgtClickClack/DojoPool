@@ -207,7 +207,7 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
 
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-gray-600">Today's Revenue</p>
+                <p className="text-sm text-gray-600">Today&apos;s Revenue</p>
                 <p className="text-lg font-bold text-green-600">$1,247</p>
               </div>
               <div className="text-right">
@@ -240,7 +240,6 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                           ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
                           : 'text-gray-700 hover:bg-gray-50'
                       }`}
-                      
                     >
                       <Icon className="w-5 h-5" />
                       <span className="font-medium">{tab.label}</span>
@@ -251,12 +250,7 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
             </div>
 
             {/* Quick Actions */}
-            <div
-              
-              
-              
-              className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-4"
-            >
+            <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <h3 className="font-semibold text-gray-900 mb-4">
                 Quick Actions
               </h3>
@@ -268,7 +262,6 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                       key={action.id}
                       onClick={action.action}
                       className={`flex flex-col items-center justify-center p-4 ${action.color} text-white rounded-lg`}
-                      
                     >
                       <Icon className="w-6 h-6 mb-2" />
                       <span className="text-sm font-medium text-center">
@@ -282,20 +275,10 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
           </div>
 
           {/* Main Content */}
-          <div
-            
-            
-            className="flex-1"
-          >
+          <div className="flex-1">
             <AnimatePresence mode="wait">
               {activeTab === 'dashboard' && (
-                <div
-                  key="dashboard"
-                  
-                  
-                  
-                  className="space-y-6"
-                >
+                <div key="dashboard" className="space-y-6">
                   {/* Stats Overview */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
@@ -332,9 +315,6 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                       return (
                         <div
                           key={stat.label}
-                          
-                          
-                          
                           className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
                         >
                           <div className="flex items-center justify-between">
@@ -360,12 +340,7 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                   {/* Recent Activity */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Recent Tournaments */}
-                    <div
-                      
-                      
-                      
-                      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-                    >
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-900">
                           Recent Tournaments
@@ -410,12 +385,7 @@ const VenueManagementPortal: React.FC<VenueManagementPortalProps> = ({
                     </div>
 
                     {/* Top Players */}
-                    <div
-                      
-                      
-                      
-                      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-                    >
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-900">
                           Top Players

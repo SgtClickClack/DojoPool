@@ -623,8 +623,12 @@ const SystemMessageManagement: React.FC = () => {
               }
               label="Message is Active"
             />
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, ml: 4 }}>
-              Inactive messages won't be displayed to users
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 0.5, ml: 4 }}
+            >
+              Inactive messages won&apos;t be displayed to users
             </Typography>
 
             <TextField

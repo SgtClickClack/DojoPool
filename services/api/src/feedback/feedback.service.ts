@@ -70,7 +70,7 @@ export class FeedbackService {
         page.toString(),
         limit.toString()
       ),
-    condition: (filters: FeedbackFilterDto, page: number, limit: number) =>
+    condition: (filters: FeedbackFilterDto, page: number, _limit: number) =>
       page <= 5, // Only cache first 5 pages
   })
   async findAllForAdmin(
@@ -315,7 +315,9 @@ export class FeedbackService {
       resolvedFeedback,
     ] = await Promise.all([
       this._prisma.feedback.count(),
-      this._prisma.feedback.count({ where: { status: FeedbackStatus.PENDING } }),
+      this._prisma.feedback.count({
+        where: { status: FeedbackStatus.PENDING },
+      }),
       this._prisma.feedback.count({
         where: { status: FeedbackStatus.IN_REVIEW },
       }),

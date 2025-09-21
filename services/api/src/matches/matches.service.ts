@@ -313,7 +313,7 @@ export class MatchesService {
       if (match.aiAnalysisJson) {
         try {
           aiAnalysis = JSON.parse(match.aiAnalysisJson);
-        } catch (error) {
+        } catch (_error) {
           this.logger.warn(
             'Failed to parse AI analysis JSON for match:',
             matchId

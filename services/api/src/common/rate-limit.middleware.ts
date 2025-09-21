@@ -1,4 +1,9 @@
-import { Injectable, NestMiddleware, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '@nestjs/common';
 
@@ -40,7 +45,7 @@ export class RateLimitMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const key = this.config.keyGenerator!(req);
     const now = Date.now();
-    const windowStart = now - this.config.windowMs;
+    const _windowStart = now - this.config.windowMs;
 
     // Clean up old entries for this key
     if (this.store[key] && this.store[key].resetTime < now) {
@@ -60,7 +65,7 @@ export class RateLimitMiddleware implements NestMiddleware {
     // Check if limit exceeded
     if (current.count >= this.config.maxRequests) {
       const retryAfter = Math.ceil((current.resetTime - now) / 1000);
-      
+
       this.logger.warn(
         `Rate limit exceeded for ${key} on ${req.method} ${req.path}`,
         {
@@ -74,7 +79,10 @@ export class RateLimitMiddleware implements NestMiddleware {
       res.setHeader('Retry-After', retryAfter.toString());
       res.setHeader('X-RateLimit-Limit', this.config.maxRequests.toString());
       res.setHeader('X-RateLimit-Remaining', '0');
-      res.setHeader('X-RateLimit-Reset', new Date(current.resetTime).toISOString());
+      res.setHeader(
+        'X-RateLimit-Reset',
+        new Date(current.resetTime).toISOString()
+      );
 
       throw new HttpException(
         {
@@ -91,19 +99,25 @@ export class RateLimitMiddleware implements NestMiddleware {
 
     // Set response headers
     res.setHeader('X-RateLimit-Limit', this.config.maxRequests.toString());
-    res.setHeader('X-RateLimit-Remaining', (this.config.maxRequests - current.count).toString());
-    res.setHeader('X-RateLimit-Reset', new Date(current.resetTime).toISOString());
+    res.setHeader(
+      'X-RateLimit-Remaining',
+      (this.config.maxRequests - current.count).toString()
+    );
+    res.setHeader(
+      'X-RateLimit-Reset',
+      new Date(current.resetTime).toISOString()
+    );
 
     // Track response status for conditional counting
     const originalSend = res.send;
-    res.send = function(body) {
+    res.send = function (body) {
       const statusCode = res.statusCode;
-      
+
       // Only count successful requests if configured
       if (this.config.skipSuccessfulRequests && statusCode < 400) {
         current.count--;
       }
-      
+
       // Only count failed requests if configured
       if (this.config.skipFailedRequests && statusCode >= 400) {
         current.count--;
@@ -118,7 +132,7 @@ export class RateLimitMiddleware implements NestMiddleware {
   private cleanup() {
     const now = Date.now();
     const keys = Object.keys(this.store);
-    
+
     for (const key of keys) {
       if (this.store[key].resetTime < now) {
         delete this.store[key];

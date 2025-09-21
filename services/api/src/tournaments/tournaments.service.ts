@@ -1,10 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  CacheInvalidate,
-  CacheKey,
-  CacheWriteThrough,
-  Cacheable,
-} from '../cache/cache.decorator';
+import { CacheKey, Cacheable } from '../cache/cache.decorator';
 import { CacheHelper } from '../cache/cache.helper';
 
 export interface Tournament {
@@ -274,7 +269,7 @@ export class TournamentsService {
     return this.deleteTournament(id);
   }
 
-  async registerPlayer(tournamentId: string, registerDto: any): Promise<any> {
+  async registerPlayer(tournamentId: string, _registerDto: any): Promise<any> {
     // TODO: Implement player registration
     this.logger.debug(`Registering player for tournament ${tournamentId}`);
     return { success: true };
@@ -282,7 +277,7 @@ export class TournamentsService {
 
   async unregisterPlayer(
     tournamentId: string,
-    unregisterDto: any
+    _unregisterDto: any
   ): Promise<any> {
     // TODO: Implement player unregistration
     this.logger.debug(`Unregistering player from tournament ${tournamentId}`);
@@ -295,7 +290,7 @@ export class TournamentsService {
     return { success: true };
   }
 
-  async updateMatch(matchId: string, updateMatchDto: any): Promise<any> {
+  async updateMatch(matchId: string, _updateMatchDto: any): Promise<any> {
     // TODO: Implement match update
     this.logger.debug(`Updating match ${matchId}`);
     return { success: true };
@@ -309,7 +304,7 @@ export class TournamentsService {
 
   async create(
     createTournamentDto: any,
-    venueId?: string
+    _venueId?: string
   ): Promise<Tournament> {
     return this.createTournament(createTournamentDto);
   }
@@ -319,19 +314,28 @@ export class TournamentsService {
   }
 
   // Missing methods that tests are calling
-  async fetchTournamentsFromDb(params: TournamentListParams): Promise<Tournament[]> {
+  async fetchTournamentsFromDb(
+    params: TournamentListParams
+  ): Promise<Tournament[]> {
     return this.getTournaments(params);
   }
 
-  async fetchTournamentFromDb(tournamentId: string): Promise<Tournament | null> {
+  async fetchTournamentFromDb(
+    tournamentId: string
+  ): Promise<Tournament | null> {
     return this.getTournamentById(tournamentId);
   }
 
-  async createTournamentInDb(tournament: Omit<Tournament, 'id'>): Promise<Tournament> {
+  async createTournamentInDb(
+    tournament: Omit<Tournament, 'id'>
+  ): Promise<Tournament> {
     return this.createTournament(tournament);
   }
 
-  async updateTournamentInDb(tournamentId: string, updates: Partial<Tournament>): Promise<Tournament | null> {
+  async updateTournamentInDb(
+    tournamentId: string,
+    updates: Partial<Tournament>
+  ): Promise<Tournament | null> {
     return this.updateTournament(tournamentId, updates);
   }
 
@@ -339,7 +343,10 @@ export class TournamentsService {
     return this.deleteTournament(tournamentId);
   }
 
-  async addParticipantToDb(tournamentId: string, participantId: string): Promise<Tournament> {
+  async addParticipantToDb(
+    tournamentId: string,
+    _participantId: string
+  ): Promise<Tournament> {
     const tournament = await this.getTournamentById(tournamentId);
     if (!tournament) {
       throw new Error('Tournament not found');
@@ -350,12 +357,18 @@ export class TournamentsService {
     return { ...tournament, participants: tournament.participants + 1 };
   }
 
-  async removeParticipantFromDb(tournamentId: string, participantId: string): Promise<Tournament> {
+  async removeParticipantFromDb(
+    tournamentId: string,
+    _participantId: string
+  ): Promise<Tournament> {
     const tournament = await this.getTournamentById(tournamentId);
     if (!tournament) {
       throw new Error('Tournament not found');
     }
-    return { ...tournament, participants: Math.max(0, tournament.participants - 1) };
+    return {
+      ...tournament,
+      participants: Math.max(0, tournament.participants - 1),
+    };
   }
 
   async calculateTournamentStats(tournamentId: string): Promise<any> {
@@ -382,34 +395,44 @@ export class TournamentsService {
   }
 
   // Missing methods that tests are calling
-  async addParticipant(tournamentId: string, participantId: string): Promise<Tournament | null> {
+  async addParticipant(
+    tournamentId: string,
+    participantId: string
+  ): Promise<Tournament | null> {
     try {
       const tournament = await this.getTournamentById(tournamentId);
       if (!tournament) {
         return null;
       }
-      
+
       if (tournament.participants >= tournament.maxParticipants) {
         throw new Error('Tournament is full');
       }
-      
+
       return await this.addParticipantToDb(tournamentId, participantId);
     } catch (error) {
-      this.logger.error(`Failed to add participant to tournament ${tournamentId}: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to add participant to tournament ${tournamentId}: ${error instanceof Error ? error.message : String(error)}`
+      );
       throw error;
     }
   }
 
-  async removeParticipant(tournamentId: string, participantId: string): Promise<Tournament | null> {
+  async removeParticipant(
+    tournamentId: string,
+    participantId: string
+  ): Promise<Tournament | null> {
     try {
       const tournament = await this.getTournamentById(tournamentId);
       if (!tournament) {
         return null;
       }
-      
+
       return await this.removeParticipantFromDb(tournamentId, participantId);
     } catch (error) {
-      this.logger.error(`Failed to remove participant from tournament ${tournamentId}: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to remove participant from tournament ${tournamentId}: ${error instanceof Error ? error.message : String(error)}`
+      );
       throw error;
     }
   }
@@ -418,12 +441,24 @@ export class TournamentsService {
     try {
       const tournaments = await this.getTournaments();
       const totalTournaments = tournaments.length;
-      const activeTournaments = tournaments.filter(t => t.status === 'active').length;
-      const upcomingTournaments = tournaments.filter(t => t.status === 'upcoming').length;
-      const completedTournaments = tournaments.filter(t => t.status === 'completed').length;
-      const totalParticipants = tournaments.reduce((sum, t) => sum + t.participants, 0);
-      const totalPrizePool = tournaments.reduce((sum, t) => sum + t.prizePool, 0);
-      
+      const activeTournaments = tournaments.filter(
+        (t) => t.status === 'active'
+      ).length;
+      const upcomingTournaments = tournaments.filter(
+        (t) => t.status === 'upcoming'
+      ).length;
+      const completedTournaments = tournaments.filter(
+        (t) => t.status === 'completed'
+      ).length;
+      const totalParticipants = tournaments.reduce(
+        (sum, t) => sum + t.participants,
+        0
+      );
+      const totalPrizePool = tournaments.reduce(
+        (sum, t) => sum + t.prizePool,
+        0
+      );
+
       return {
         totalTournaments,
         activeTournaments,
@@ -431,10 +466,13 @@ export class TournamentsService {
         completedTournaments,
         totalParticipants,
         totalPrizePool,
-        averageParticipants: totalTournaments > 0 ? totalParticipants / totalTournaments : 0,
+        averageParticipants:
+          totalTournaments > 0 ? totalParticipants / totalTournaments : 0,
       };
     } catch (error) {
-      this.logger.error(`Failed to get tournament stats: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to get tournament stats: ${error instanceof Error ? error.message : String(error)}`
+      );
       throw error;
     }
   }

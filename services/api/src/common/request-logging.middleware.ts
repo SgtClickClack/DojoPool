@@ -30,13 +30,13 @@ export class RequestLoggingMiddleware implements NestMiddleware {
 
   use(req: Request, res: Response, next: NextFunction) {
     // Skip logging for excluded paths
-    if (this.config.excludePaths?.some(path => req.path.startsWith(path))) {
+    if (this.config.excludePaths?.some((path) => req.path.startsWith(path))) {
       return next();
     }
 
     const startTime = Date.now();
     const requestId = this.generateRequestId();
-    
+
     // Add request ID to request object for use in other middleware
     (req as any).requestId = requestId;
 
@@ -47,12 +47,12 @@ export class RequestLoggingMiddleware implements NestMiddleware {
     const originalSend = res.send;
     const originalJson = res.json;
 
-    res.send = function(body) {
+    res.send = function (body) {
       this.logResponse(req, res, startTime, requestId, body);
       return originalSend.call(this, body);
     }.bind(this);
 
-    res.json = function(body) {
+    res.json = function (body) {
       this.logResponse(req, res, startTime, requestId, body);
       return originalJson.call(this, body);
     }.bind(this);
@@ -83,9 +83,15 @@ export class RequestLoggingMiddleware implements NestMiddleware {
     this.logger.log(`Incoming Request [${requestId}]`, logData);
   }
 
-  private logResponse(req: Request, res: Response, startTime: number, requestId: string, body: any) {
+  private logResponse(
+    req: Request,
+    res: Response,
+    startTime: number,
+    requestId: string,
+    body: any
+  ) {
     const duration = Date.now() - startTime;
-    
+
     const logData: any = {
       requestId,
       method: req.method,
@@ -111,12 +117,12 @@ export class RequestLoggingMiddleware implements NestMiddleware {
 
   private sanitizeHeaders(headers: any): any {
     const sanitized = { ...headers };
-    
+
     // Remove sensitive headers
     delete sanitized.authorization;
     delete sanitized.cookie;
     delete sanitized['x-api-key'];
-    
+
     return sanitized;
   }
 
@@ -128,16 +134,23 @@ export class RequestLoggingMiddleware implements NestMiddleware {
     const sanitized = Array.isArray(data) ? [...data] : { ...data };
 
     for (const key in sanitized) {
-      if (sanitized.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(sanitized, key)) {
         const lowerKey = key.toLowerCase();
-        
+
         // Check if field is sensitive
-        if (this.config.sensitiveFields?.some(field => lowerKey.includes(field))) {
+        if (
+          this.config.sensitiveFields?.some((field) => lowerKey.includes(field))
+        ) {
           sanitized[key] = '[REDACTED]';
         } else if (typeof sanitized[key] === 'object') {
           sanitized[key] = this.sanitizeData(sanitized[key]);
-        } else if (typeof sanitized[key] === 'string' && sanitized[key].length > this.config.maxBodyLength!) {
-          sanitized[key] = sanitized[key].substring(0, this.config.maxBodyLength) + '...[TRUNCATED]';
+        } else if (
+          typeof sanitized[key] === 'string' &&
+          sanitized[key].length > this.config.maxBodyLength!
+        ) {
+          sanitized[key] =
+            sanitized[key].substring(0, this.config.maxBodyLength) +
+            '...[TRUNCATED]';
         }
       }
     }

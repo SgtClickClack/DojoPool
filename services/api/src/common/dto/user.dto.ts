@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, IsOptional, IsEnum, IsUUID, MinLength, MaxLength, IsDateString } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  IsOptional,
+  IsEnum,
+  MinLength,
+  MaxLength,
+  IsDateString,
+} from 'class-validator';
 
 /**
  * User role enumeration
@@ -52,7 +60,11 @@ export class UserResponseDto {
   @ApiProperty({ description: 'Location', required: false })
   location?: string;
 
-  @ApiProperty({ description: 'Date of birth', format: 'date', required: false })
+  @ApiProperty({
+    description: 'Date of birth',
+    format: 'date',
+    required: false,
+  })
   dateOfBirth?: string;
 
   @ApiProperty({ description: 'Account creation date', format: 'date-time' })
@@ -61,7 +73,11 @@ export class UserResponseDto {
   @ApiProperty({ description: 'Last update date', format: 'date-time' })
   updatedAt!: string;
 
-  @ApiProperty({ description: 'Last login date', format: 'date-time', required: false })
+  @ApiProperty({
+    description: 'Last login date',
+    format: 'date-time',
+    required: false,
+  })
   lastLoginAt?: string;
 
   @ApiProperty({ description: 'Email verification status' })
@@ -106,7 +122,12 @@ export class CreateUserDto {
  * User update DTO
  */
 export class UpdateUserDto {
-  @ApiProperty({ description: 'Username', required: false, minLength: 3, maxLength: 32 })
+  @ApiProperty({
+    description: 'Username',
+    required: false,
+    minLength: 3,
+    maxLength: 32,
+  })
   @IsOptional()
   @IsString()
   @MinLength(3)
@@ -124,7 +145,11 @@ export class UpdateUserDto {
   @MaxLength(64)
   displayName?: string;
 
-  @ApiProperty({ description: 'Bio/description', required: false, maxLength: 500 })
+  @ApiProperty({
+    description: 'Bio/description',
+    required: false,
+    maxLength: 500,
+  })
   @IsOptional()
   @IsString()
   @MaxLength(500)
@@ -136,7 +161,11 @@ export class UpdateUserDto {
   @MaxLength(100)
   location?: string;
 
-  @ApiProperty({ description: 'Date of birth', format: 'date', required: false })
+  @ApiProperty({
+    description: 'Date of birth',
+    format: 'date',
+    required: false,
+  })
   @IsOptional()
   @IsDateString()
   dateOfBirth?: string;
@@ -151,11 +180,22 @@ export class UpdateUserDto {
  * User list query DTO
  */
 export class UserListQueryDto {
-  @ApiProperty({ description: 'Page number', minimum: 1, default: 1, required: false })
+  @ApiProperty({
+    description: 'Page number',
+    minimum: 1,
+    default: 1,
+    required: false,
+  })
   @IsOptional()
   page?: number = 1;
 
-  @ApiProperty({ description: 'Items per page', minimum: 1, maximum: 100, default: 20, required: false })
+  @ApiProperty({
+    description: 'Items per page',
+    minimum: 1,
+    maximum: 100,
+    default: 20,
+    required: false,
+  })
   @IsOptional()
   pageSize?: number = 20;
 
@@ -164,12 +204,20 @@ export class UserListQueryDto {
   @IsString()
   search?: string;
 
-  @ApiProperty({ description: 'Filter by role', enum: UserRole, required: false })
+  @ApiProperty({
+    description: 'Filter by role',
+    enum: UserRole,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
 
-  @ApiProperty({ description: 'Filter by status', enum: UserStatus, required: false })
+  @ApiProperty({
+    description: 'Filter by status',
+    enum: UserStatus,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(UserStatus)
   status?: UserStatus;
@@ -179,7 +227,11 @@ export class UserListQueryDto {
   @IsString()
   sortBy?: string;
 
-  @ApiProperty({ description: 'Sort order', enum: ['asc', 'desc'], required: false })
+  @ApiProperty({
+    description: 'Sort order',
+    enum: ['asc', 'desc'],
+    required: false,
+  })
   @IsOptional()
   @IsString()
   sortOrder?: 'asc' | 'desc';

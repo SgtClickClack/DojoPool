@@ -69,7 +69,7 @@ export async function generateScreenshot(
 export async function generateAppPreviewVideo(
   sourceVideoPath: string,
   outputPath: string,
-  duration: number = 30
+  _duration: number = 30
 ): Promise<void> {
   try {
     // This would use ffmpeg in a real implementation

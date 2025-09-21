@@ -48,11 +48,11 @@ export class CommunityController {
   }
 
   @Get('cosmetic-items/:id')
-  async getCosmeticItem(@Param('id') id: string, @Request() req: any) {
+  async getCosmeticItem(@Param('id') _id: string, @Request() _req: any) {
     // Increment view count
-    await this.communityService.incrementViews(id);
+    await this.communityService.incrementViews(_id);
     // Return item details (would need to implement this method)
-    return { id };
+    return { id: _id };
   }
 
   @Post('cosmetic-items/:id/like')
@@ -155,7 +155,7 @@ export class CommunityController {
 
   @Delete('cosmetic-items/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteCosmeticItem(@Param('id') id: string, @Request() req: any) {
+  async deleteCosmeticItem(@Param('id') _id: string, @Request() _req: any) {
     // Only allow deletion of pending items by the creator
     // Implementation would need to check ownership and status
     return;
