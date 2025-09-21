@@ -21,13 +21,13 @@ export class UsersService {
   private idCounter = 1;
 
   constructor(
-    private prisma: PrismaService,
+    private _prisma: PrismaService,
     @Optional() private cacheService?: CacheService
   ) {}
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     try {
-      return await this.prisma.user.create({ data });
+      return await this._prisma.user.create({ data });
     } catch (err) {
       this.logger.warn(
         `DB create failed, using in-memory store: ${ErrorUtils.getErrorMessage(
@@ -58,7 +58,7 @@ export class UsersService {
   })
   async findAllUsers(): Promise<User[]> {
     try {
-      return await this.prisma.user.findMany();
+      return await this._prisma.user.findMany();
     } catch (err) {
       this.logger.warn(
         `DB findMany failed, returning in-memory users: ${ErrorUtils.getErrorMessage(
@@ -71,7 +71,7 @@ export class UsersService {
 
   async findUserById(id: string): Promise<User | null> {
     try {
-      return await this.prisma.user.findUnique({ where: { id } });
+      return await this._prisma.user.findUnique({ where: { id } });
     } catch (err) {
       this.logger.warn(
         `DB findUnique failed for user ${id}: ${ErrorUtils.getErrorMessage(err)}`
@@ -83,7 +83,7 @@ export class UsersService {
 
   async findUserByEmail(email: string): Promise<User | null> {
     try {
-      return await this.prisma.user.findUnique({ where: { email } });
+      return await this._prisma.user.findUnique({ where: { email } });
     } catch (err) {
       this.logger.warn(
         `DB findUnique failed for email ${email}: ${ErrorUtils.getErrorMessage(err)}`
@@ -95,7 +95,7 @@ export class UsersService {
 
   async findUserByUsername(username: string): Promise<User | null> {
     try {
-      return await this.prisma.user.findUnique({ where: { username } });
+      return await this._prisma.user.findUnique({ where: { username } });
     } catch (err) {
       this.logger.warn(
         `DB findUnique failed for username ${username}: ${ErrorUtils.getErrorMessage(err)}`
@@ -107,7 +107,7 @@ export class UsersService {
 
   async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<User> {
     try {
-      return await this.prisma.user.update({
+      return await this._prisma.user.update({
         where: { id },
         data,
       });
@@ -121,7 +121,7 @@ export class UsersService {
 
   async deleteUser(id: string): Promise<User> {
     try {
-      return await this.prisma.user.delete({
+      return await this._prisma.user.delete({
         where: { id },
       });
     } catch (err) {

@@ -56,7 +56,7 @@ export class OptimizedQueryService {
   private readonly logger = new Logger(OptimizedQueryService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly _prisma: PrismaService,
     private readonly optimizationService: PrismaOptimizationService
   ) {}
 
@@ -288,7 +288,7 @@ export class OptimizedQueryService {
       // Total matches
       queries.push({
         key: `${userId}:totalMatches`,
-        query: () => this.prisma.match.count({
+        query: () => this._prisma.match.count({
           where: {
             OR: [
               { playerAId: userId },
@@ -302,7 +302,7 @@ export class OptimizedQueryService {
       // Total wins
       queries.push({
         key: `${userId}:totalWins`,
-        query: () => this.prisma.match.count({
+        query: () => this._prisma.match.count({
           where: {
             OR: [
               { playerAId: userId, winnerId: userId },
@@ -316,7 +316,7 @@ export class OptimizedQueryService {
       // Tournament participations
       queries.push({
         key: `${userId}:tournaments`,
-        query: () => this.prisma.tournamentParticipant.count({
+        query: () => this._prisma.tournamentParticipant.count({
           where: { userId },
         }),
         priority: 2,
@@ -325,7 +325,7 @@ export class OptimizedQueryService {
       // Clan memberships
       queries.push({
         key: `${userId}:clans`,
-        query: () => this.prisma.clanMember.count({
+        query: () => this._prisma.clanMember.count({
           where: { userId },
         }),
         priority: 2,
@@ -426,7 +426,7 @@ export class OptimizedQueryService {
     limit = 20
   ): Promise<any[]> {
     // First, get activity events
-    const events = await this.prisma.activityEvent.findMany({
+    const events = await this._prisma.activityEvent.findMany({
       where: {
         OR: [
           { userId },
@@ -456,15 +456,15 @@ export class OptimizedQueryService {
 
     // Batch load related data
     const [users, venues, clans] = await Promise.all([
-      userIds.length > 0 ? this.prisma.user.findMany({
+      userIds.length > 0 ? this._prisma.user.findMany({
         where: { id: { in: userIds } },
         select: { id: true, username: true, avatarUrl: true },
       }) : [],
-      venueIds.length > 0 ? this.prisma.venue.findMany({
+      venueIds.length > 0 ? this._prisma.venue.findMany({
         where: { id: { in: venueIds } },
         select: { id: true, name: true },
       }) : [],
-      clanIds.length > 0 ? this.prisma.clan.findMany({
+      clanIds.length > 0 ? this._prisma.clan.findMany({
         where: { id: { in: clanIds } },
         select: { id: true, name: true },
       }) : [],
@@ -485,7 +485,7 @@ export class OptimizedQueryService {
   }
 
   private async getUserVenueIds(userId: string): Promise<string[]> {
-    const venues = await this.prisma.venue.findMany({
+    const venues = await this._prisma.venue.findMany({
       where: { ownerId: userId },
       select: { id: true },
     });
@@ -493,7 +493,7 @@ export class OptimizedQueryService {
   }
 
   private async getUserClanIds(userId: string): Promise<string[]> {
-    const memberships = await this.prisma.clanMember.findMany({
+    const memberships = await this._prisma.clanMember.findMany({
       where: { userId },
       select: { clanId: true },
     });
@@ -507,7 +507,7 @@ export class OptimizedQueryService {
     const cacheStats = this.optimizationService.getCacheStats();
     
     // Get database connection info
-    const dbInfo = await this.prisma.$queryRaw`
+    const dbInfo = await this._prisma.$queryRaw`
       SELECT 
         current_database() as database_name,
         version() as version,

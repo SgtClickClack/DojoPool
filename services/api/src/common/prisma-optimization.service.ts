@@ -22,7 +22,7 @@ export class PrismaOptimizationService {
   private batchTimeout: NodeJS.Timeout | null = null;
   private readonly BATCH_DELAY = 10; // milliseconds
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly _prisma: PrismaService) {}
 
   /**
    * Execute multiple queries in a single transaction for better performance
@@ -31,7 +31,7 @@ export class PrismaOptimizationService {
     const results = new Map<string, T>();
     
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this._prisma.$transaction(async (tx) => {
         // Sort by priority (higher priority first)
         const sortedQueries = queries.sort((a, b) => (b.priority || 0) - (a.priority || 0));
         
@@ -169,7 +169,7 @@ export class PrismaOptimizationService {
 
     // Execute count and data queries in parallel
     const [data, total] = await Promise.all([
-      (this.prisma as any)[model].findMany({
+      (this._prisma as any)[model].findMany({
         where,
         select,
         include,
@@ -177,7 +177,7 @@ export class PrismaOptimizationService {
         skip,
         take: take + 1, // Get one extra to check if there are more
       }),
-      (this.prisma as any)[model].count({ where }),
+      (this._prisma as any)[model].count({ where }),
     ]);
 
     const hasMore = data.length > take;
@@ -214,7 +214,7 @@ export class PrismaOptimizationService {
   private async executeFindUnique<T>(model: string, options: any): Promise<T | null> {
     const { where, select, include } = options;
     
-    return (this.prisma as any)[model].findUnique({
+    return (this._prisma as any)[model].findUnique({
       where,
       select,
       include,
@@ -230,7 +230,7 @@ export class PrismaOptimizationService {
     options: { skipDuplicates?: boolean } = {}
   ): Promise<{ count: number }> {
     try {
-      const result = await (this.prisma as any)[model].createMany({
+      const result = await (this._prisma as any)[model].createMany({
         data,
         skipDuplicates: options.skipDuplicates || false,
       });
@@ -250,7 +250,7 @@ export class PrismaOptimizationService {
     try {
       const results = await Promise.all(
         data.map(({ where, data: updateData }) =>
-          (this.prisma as any)[model].updateMany({
+          (this._prisma as any)[model].updateMany({
             where,
             data: updateData,
           })
@@ -294,7 +294,7 @@ export class PrismaOptimizationService {
   private async executeAggregate<T>(model: string, options: any): Promise<T> {
     const { where, ...aggregateOptions } = options;
     
-    return (this.prisma as any)[model].aggregate({
+    return (this._prisma as any)[model].aggregate({
       where,
       ...aggregateOptions,
     });

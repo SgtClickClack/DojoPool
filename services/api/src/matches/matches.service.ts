@@ -10,14 +10,14 @@ export class MatchesService {
   private readonly logger = new Logger(MatchesService.name);
 
   constructor(
-    private prisma: PrismaService,
+    private _prisma: PrismaService,
     private aiAnalysisService: AiAnalysisService,
     private matchesGateway: MatchesGateway,
     private matchGateway: MatchGateway
   ) {}
 
   async getMatchById(matchId: string): Promise<any> {
-    return MatchUtils.getMatchById(this.prisma, matchId);
+    return MatchUtils.getMatchById(this._prisma, matchId);
   }
 
   /**
@@ -55,7 +55,7 @@ export class MatchesService {
       Math.floor(Number.isFinite(wager as number) ? (wager as number) : 0)
     );
 
-    return this.prisma.$transaction(async (tx) => {
+    return this._prisma.$transaction(async (tx) => {
       if (normalizedWager > 0) {
         // Ensure both users exist and can afford the wager, then escrow funds.
         const [playerA, playerB] = await Promise.all([
@@ -126,7 +126,7 @@ export class MatchesService {
   ): Promise<any> {
     try {
       // Fetch existing match to determine loser safely and get wager
-      const existing = await this.prisma.match.findUnique({
+      const existing = await this._prisma.match.findUnique({
         where: { id: matchId },
         select: { playerAId: true, playerBId: true, wager: true },
       });
@@ -146,7 +146,7 @@ export class MatchesService {
       const prize = wager > 0 ? wager * 2 : 0;
 
       // Update match and award coins transactionally (including wager payout)
-      const updatedMatch = await this.prisma.$transaction(async (tx) => {
+      const updatedMatch = await this._prisma.$transaction(async (tx) => {
         const m = await tx.match.update({
           where: { id: matchId },
           data: {
@@ -221,7 +221,7 @@ export class MatchesService {
         await this.aiAnalysisService.generateMatchAnalysis(matchData);
 
       // Store the analysis in the database
-      await this.prisma.match.update({
+      await this._prisma.match.update({
         where: { id: match.id },
         data: {
           aiAnalysisJson: JSON.stringify(analysis),
@@ -236,7 +236,7 @@ export class MatchesService {
 
   async pauseMatch(matchId: string, userId: string) {
     // Allow pause only from IN_PROGRESS to PAUSED
-    const match = await this.prisma.match.findUnique({
+    const match = await this._prisma.match.findUnique({
       where: { id: matchId },
     });
     if (!match) throw new Error('Match not found');
@@ -246,7 +246,7 @@ export class MatchesService {
     if (match.status !== 'IN_PROGRESS') {
       throw new Error('Match is not in progress');
     }
-    const updated = await this.prisma.match.update({
+    const updated = await this._prisma.match.update({
       where: { id: matchId },
       data: { status: 'PAUSED' },
     });
@@ -258,7 +258,7 @@ export class MatchesService {
 
   async resumeMatch(matchId: string, userId: string) {
     // Allow resume only from PAUSED to IN_PROGRESS
-    const match = await this.prisma.match.findUnique({
+    const match = await this._prisma.match.findUnique({
       where: { id: matchId },
     });
     if (!match) throw new Error('Match not found');
@@ -268,7 +268,7 @@ export class MatchesService {
     if (match.status !== 'PAUSED') {
       throw new Error('Match is not paused');
     }
-    const updated = await this.prisma.match.update({
+    const updated = await this._prisma.match.update({
       where: { id: matchId },
       data: { status: 'IN_PROGRESS' },
     });
@@ -279,7 +279,7 @@ export class MatchesService {
 
   async getMatchWithAnalysis(matchId: string): Promise<any> {
     try {
-      const match = await this.prisma.match.findUnique({
+      const match = await this._prisma.match.findUnique({
         where: { id: matchId },
         include: {
           tournament: {

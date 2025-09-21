@@ -14,11 +14,11 @@ import { type UpgradeDojoDto } from './dto/upgrade-dojo.dto';
 export class ClansService {
   private readonly logger = new Logger(ClansService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private _prisma: PrismaService) {}
 
   async findClanByTag(tag: string) {
     try {
-      return await this.prisma.clan.findFirst({
+      return await this._prisma.clan.findFirst({
         where: { name: { equals: tag } },
       });
     } catch (err) {
@@ -36,7 +36,7 @@ export class ClansService {
   }) {
     try {
       // Check if clan name already exists
-      const existingClan = await this.prisma.clan.findUnique({
+      const existingClan = await this._prisma.clan.findUnique({
         where: { name: data.name },
       });
 
@@ -46,7 +46,7 @@ export class ClansService {
         );
       }
 
-      const clan = await this.prisma.clan.create({
+      const clan = await this._prisma.clan.create({
         data: {
           name: data.name,
           description: data.description,
@@ -60,7 +60,7 @@ export class ClansService {
       });
 
       // Add leader as first member
-      await this.prisma.clanMember.create({
+      await this._prisma.clanMember.create({
         data: {
           clanId: clan.id,
           userId: data.leaderId,
@@ -79,7 +79,7 @@ export class ClansService {
 
   async getClanById(clanId: string) {
     try {
-      const clan = await this.prisma.clan.findUnique({
+      const clan = await this._prisma.clan.findUnique({
         where: { id: clanId },
         include: {
           leader: { select: { id: true, username: true } },
@@ -107,7 +107,7 @@ export class ClansService {
   async joinClan(clanId: string, userId: string) {
     try {
       // Check if clan exists and get its details
-      const clan = await this.prisma.clan.findUnique({
+      const clan = await this._prisma.clan.findUnique({
         where: { id: clanId },
       });
 
@@ -116,7 +116,7 @@ export class ClansService {
       }
 
       // Check if clan is at max capacity (using default max of 50)
-      const memberCount = await this.prisma.clanMember.count({
+      const memberCount = await this._prisma.clanMember.count({
         where: { clanId },
       });
 
@@ -125,7 +125,7 @@ export class ClansService {
       }
 
       // Check if user is already a member
-      const existingMembership = await this.prisma.clanMember.findFirst({
+      const existingMembership = await this._prisma.clanMember.findFirst({
         where: { clanId, userId },
       });
 
@@ -134,7 +134,7 @@ export class ClansService {
       }
 
       // Add user to clan
-      const membership = await this.prisma.clanMember.create({
+      const membership = await this._prisma.clanMember.create({
         data: {
           clanId,
           userId,
@@ -159,7 +159,7 @@ export class ClansService {
 
   async leaveClan(clanId: string, userId: string) {
     try {
-      const membership = await this.prisma.clanMember.findFirst({
+      const membership = await this._prisma.clanMember.findFirst({
         where: { clanId, userId },
       });
 
@@ -171,7 +171,7 @@ export class ClansService {
         throw new ConflictException('Clan leader cannot leave the clan');
       }
 
-      const result = await this.prisma.clanMember.delete({
+      const result = await this._prisma.clanMember.delete({
         where: { id: membership.id },
       });
 
@@ -188,7 +188,7 @@ export class ClansService {
 
   async getAllClans() {
     try {
-      return await this.prisma.clan.findMany({
+      return await this._prisma.clan.findMany({
         include: {
           leader: { select: { id: true, username: true } },
           _count: { select: { members: true } },
@@ -222,7 +222,7 @@ export class ClansService {
     const totalCost = costPerLevel * levels;
 
     try {
-      return await this.prisma.$transaction(async (tx) => {
+      return await this._prisma.$transaction(async (tx) => {
         const venue = await tx.venue.findUnique({ where: { id: venueId } });
         if (!venue) {
           throw new NotFoundException(`Venue with ID ${venueId} not found`);
@@ -295,7 +295,7 @@ export class ClansService {
 
   // Missing methods that tests are calling
   async updateClan(clanId: string, updateData: any, userId: string): Promise<any> {
-    const clan = await this.prisma.clan.findUnique({
+    const clan = await this._prisma.clan.findUnique({
       where: { id: clanId },
     });
     if (!clan) {
@@ -304,14 +304,14 @@ export class ClansService {
     if (clan.leaderId !== userId) {
       throw new ForbiddenException('Only the clan leader can update the clan');
     }
-    return this.prisma.clan.update({
+    return this._prisma.clan.update({
       where: { id: clanId },
       data: updateData,
     });
   }
 
   async deleteClan(clanId: string, userId: string): Promise<any> {
-    const clan = await this.prisma.clan.findUnique({
+    const clan = await this._prisma.clan.findUnique({
       where: { id: clanId },
     });
     if (!clan) {
@@ -320,13 +320,13 @@ export class ClansService {
     if (clan.leaderId !== userId) {
       throw new ForbiddenException('Only the clan leader can delete the clan');
     }
-    return this.prisma.clan.delete({
+    return this._prisma.clan.delete({
       where: { id: clanId },
     });
   }
 
   async kickMember(clanId: string, memberId: string, leaderId: string): Promise<any> {
-    const clan = await this.prisma.clan.findUnique({
+    const clan = await this._prisma.clan.findUnique({
       where: { id: clanId },
     });
     if (!clan) {
@@ -335,7 +335,7 @@ export class ClansService {
     if (clan.leaderId !== leaderId) {
       throw new ForbiddenException('Only the clan leader can kick members');
     }
-    return this.prisma.clanMember.delete({
+    return this._prisma.clanMember.delete({
       where: { clanId_userId: { clanId, userId: memberId } },
     });
   }
@@ -383,7 +383,7 @@ export class ClansService {
         ? { treasury: 'desc' as const }
         : { level: 'desc' as const };
 
-      return await this.prisma.clan.findMany({
+      return await this._prisma.clan.findMany({
         orderBy,
         include: {
           leader: { select: { id: true, username: true } },
@@ -401,7 +401,7 @@ export class ClansService {
 
   async validateClanLeadership(clanId: string, userId: string): Promise<boolean> {
     try {
-      const clan = await this.prisma.clan.findUnique({
+      const clan = await this._prisma.clan.findUnique({
         where: { id: clanId },
         select: { leaderId: true },
       });
@@ -417,7 +417,7 @@ export class ClansService {
 
   async validateClanMembership(clanId: string, userId: string): Promise<boolean> {
     try {
-      const membership = await this.prisma.clanMember.findFirst({
+      const membership = await this._prisma.clanMember.findFirst({
         where: { clanId, userId },
       });
 
