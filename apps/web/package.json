@@ -53,7 +53,7 @@
     "react-konva": "^18.2.10",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.11.1",
-    "recharts": "^2.10.3",
+    "recharts": "^3.2.1",
     "socket.io-client": "^4.6.1",
     "swr": "^2.2.4",
     "typescript": "^5.3.3"
