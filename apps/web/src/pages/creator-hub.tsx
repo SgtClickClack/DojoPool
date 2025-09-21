@@ -1,7 +1,11 @@
 import ProtectedRoute from '@/components/Common/ProtectedRoute';
-import CreatorHub from '@/components/Community/CreatorHub';
 import { Container } from '@mui/material';
 import dynamic from 'next/dynamic';
+import React from 'react';
+
+const CreatorHub = dynamic(() => import('@/components/Community/CreatorHub'), {
+  loading: () => <div>Loading Creator Hub...</div>,
+});
 
 const CreatorHubPage: React.FC = () => {
   return (

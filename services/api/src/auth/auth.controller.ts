@@ -12,12 +12,12 @@ import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly _authService: AuthService) {}
 
   @Post('login')
   async login(@Body() loginDto: { usernameOrEmail: string; password: string }) {
     try {
-      const result = await this.authService.login(loginDto);
+      const result = await this._authService.login(loginDto);
       return { message: 'Login successful', ...result };
     } catch (error) {
       throw new UnauthorizedException('Invalid credentials');
@@ -29,7 +29,7 @@ export class AuthController {
     @Body() registerDto: { email: string; username: string; password: string }
   ) {
     try {
-      const result = await this.authService.register(registerDto);
+      const result = await this._authService.register(registerDto);
       return { message: 'Registration successful', user: result };
     } catch (error) {
       throw new UnauthorizedException('Registration failed');
@@ -42,7 +42,7 @@ export class AuthController {
     if (!refresh_token) {
       throw new UnauthorizedException('Missing refresh token');
     }
-    return this.authService.refreshToken(refresh_token, device_id, device_info);
+    return this._authService.refreshToken(refresh_token, device_id, device_info);
   }
 
   @Post('logout')
@@ -51,19 +51,19 @@ export class AuthController {
     if (!refresh_token) {
       throw new UnauthorizedException('Missing refresh token');
     }
-    return this.authService.revokeRefreshToken(refresh_token);
+    return this._authService.revokeRefreshToken(refresh_token);
   }
 
   @Get('google')
   async googleAuth(@Res() res: Response) {
-    const authUrl = await this.authService.getGoogleAuthUrl();
+    const authUrl = await this._authService.getGoogleAuthUrl();
     res.redirect(authUrl);
   }
 
   @Get('google/callback')
   async googleAuthCallback(@Query('code') code: string, @Res() res: Response) {
     try {
-      const result = await this.authService.handleGoogleCallback(code);
+      const result = await this._authService.handleGoogleCallback(code);
       // Redirect to frontend with token
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}`);

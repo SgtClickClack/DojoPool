@@ -1,3 +1,4 @@
+import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -5,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 const AuthCallback: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(true);
+  const [_isProcessing, setIsProcessing] = useState(true);
   const { setToken } = useAuth();
   const router = useRouter();
 

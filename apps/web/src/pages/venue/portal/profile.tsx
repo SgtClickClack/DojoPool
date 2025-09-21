@@ -63,7 +63,7 @@ const ProfilePage: React.FC = () => {
   }, []);
 
   const onAddImage = useCallback(() => {
-    const url = prompt('Enter image URL');
+    const url = window.prompt('Enter image URL');
     if (url) setImages((prev) => [...prev, url]);
   }, []);
 

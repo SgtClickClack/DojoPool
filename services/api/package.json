@@ -28,6 +28,7 @@
     "@nestjs/platform-express": "^10.4.20",
     "@nestjs/platform-socket.io": "^10.4.20",
     "@nestjs/schedule": "^4.1.2",
+    "@nestjs/swagger": "^7.4.2",
     "@nestjs/websockets": "^10.4.20",
     "@prisma/client": "6.6.0",
     "@socket.io/redis-adapter": "^8.3.0",
@@ -53,6 +54,7 @@
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
     "socket.io-adapter": "^2.5.4",
+    "swagger-ui-express": "^5.0.1",
     "winston": "3.14.2"
   },
   "devDependencies": {

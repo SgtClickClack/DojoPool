@@ -21,9 +21,9 @@ export class AuthService {
     'http://localhost:3002/api/v1/auth/google/callback';
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService,
-    private readonly cacheService: CacheService
+    private readonly _prisma: PrismaService,
+    private readonly _jwtService: JwtService,
+    private readonly _cacheService: CacheService
   ) {
     // Validate required environment variables
     if (!this.googleClientId) {
@@ -45,7 +45,7 @@ export class AuthService {
         'email, username, and password are required'
       );
     }
-    const existing = await this.prisma.user.findFirst({
+    const existing = await this._prisma.user.findFirst({
       where: { OR: [{ email: email.toLowerCase() }, { username }] },
     });
     if (existing) {
@@ -54,7 +54,7 @@ export class AuthService {
 
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
-    const user = await this.prisma.user.create({
+    const user = await this._prisma.user.create({
       data: {
         email: email.toLowerCase(),
         username,
@@ -77,7 +77,7 @@ export class AuthService {
       );
     }
     const identifier = usernameOrEmail.toLowerCase();
-    const user = await this.prisma.user.findFirst({
+    const user = await this._prisma.user.findFirst({
       where: {
         OR: [{ email: identifier }, { username: usernameOrEmail }],
       },
@@ -135,13 +135,13 @@ export class AuthService {
       const mockPicture = 'https://via.placeholder.com/150';
 
       // Find or create user
-      let user = await this.prisma.user.findUnique({
+      let user = await this._prisma.user.findUnique({
         where: { email: mockEmail.toLowerCase() },
       });
 
       if (!user) {
         // Create new user with mock Google info
-        user = await this.prisma.user.create({
+        user = await this._prisma.user.create({
           data: {
             email: mockEmail.toLowerCase(),
             username: mockName || mockEmail.split('@')[0],
@@ -194,13 +194,13 @@ export class AuthService {
       const { email, name, picture } = userInfoResponse.data;
 
       // Find or create user
-      let user = await this.prisma.user.findUnique({
+      let user = await this._prisma.user.findUnique({
         where: { email: email.toLowerCase() },
       });
 
       if (!user) {
         // Create new user with Google info
-        user = await this.prisma.user.create({
+        user = await this._prisma.user.create({
           data: {
             email: email.toLowerCase(),
             username: name || email.split('@')[0],
@@ -242,7 +242,7 @@ export class AuthService {
         .digest('hex');
 
       // Check if token exists in database and is not revoked
-      const storedToken = await this.prisma.refreshToken.findUnique({
+      const storedToken = await this._prisma.refreshToken.findUnique({
         where: { tokenHash },
         include: { user: true },
       });
@@ -256,7 +256,7 @@ export class AuthService {
       }
 
       // Check Redis blocklist as additional security layer
-      const blocked = await this.cacheService.exists(
+      const blocked = await this._cacheService.exists(
         tokenHash,
         'auth:blocklist:'
       );
@@ -283,13 +283,13 @@ export class AuthService {
       };
 
       // Revoke the old refresh token
-      await this.prisma.refreshToken.update({
+      await this._prisma.refreshToken.update({
         where: { id: storedToken.id },
         data: { isRevoked: true },
       });
 
       // Add old token to Redis blocklist
-      await this.cacheService.set(tokenHash, true, {
+      await this._cacheService.set(tokenHash, true, {
         ttl: 7 * 24 * 3600, // 7 days
         keyPrefix: 'auth:blocklist:',
       });
@@ -313,11 +313,11 @@ export class AuthService {
     deviceId?: string,
     deviceInfo?: string
   ) {
-    const access_token = await this.jwtService.signAsync(payload, {
+    const access_token = await this._jwtService.signAsync(payload, {
       expiresIn: process.env.JWT_EXPIRES_IN || '1h',
     });
 
-    const refresh_token = await this.jwtService.signAsync(payload, {
+    const refresh_token = await this._jwtService.signAsync(payload, {
       expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
     });
 
@@ -343,7 +343,7 @@ export class AuthService {
     }
 
     // Store refresh token in database
-    await this.prisma.refreshToken.create({
+    await this._prisma.refreshToken.create({
       data: {
         userId: payload.sub,
         tokenHash,
@@ -364,13 +364,13 @@ export class AuthService {
 
     try {
       // Update database record
-      await this.prisma.refreshToken.updateMany({
+      await this._prisma.refreshToken.updateMany({
         where: { tokenHash },
         data: { isRevoked: true },
       });
 
       // Derive TTL from token exp if possible; fallback to configured refresh TTL
-      const decoded: any = this.jwtService.decode(refreshToken);
+      const decoded: any = this._jwtService.decode(refreshToken);
       const nowSec = Math.floor(Date.now() / 1000);
       let ttlSec = 0;
       if (decoded && typeof decoded === 'object' && 'exp' in decoded) {
@@ -391,14 +391,14 @@ export class AuthService {
       }
 
       // Add to Redis blocklist
-      await this.cacheService.set(tokenHash, true, {
+      await this._cacheService.set(tokenHash, true, {
         ttl: ttlSec,
         keyPrefix: 'auth:blocklist:',
       });
       return { message: 'Logged out' };
     } catch {
       // If decode fails, still attempt to hash and store with default TTL
-      await this.cacheService.set(tokenHash, true, {
+      await this._cacheService.set(tokenHash, true, {
         ttl: 7 * 24 * 3600,
         keyPrefix: 'auth:blocklist:',
       });
@@ -408,7 +408,7 @@ export class AuthService {
 
   async cleanupExpiredTokens() {
     try {
-      const result = await this.prisma.refreshToken.deleteMany({
+      const result = await this._prisma.refreshToken.deleteMany({
         where: {
           OR: [{ expiresAt: { lt: new Date() } }, { isRevoked: true }],
         },
@@ -424,20 +424,20 @@ export class AuthService {
   async revokeAllUserTokens(userId: string) {
     try {
       // Revoke all tokens in database
-      await this.prisma.refreshToken.updateMany({
+      await this._prisma.refreshToken.updateMany({
         where: { userId },
         data: { isRevoked: true },
       });
 
       // Get all token hashes for this user to add to Redis blocklist
-      const tokens = await this.prisma.refreshToken.findMany({
+      const tokens = await this._prisma.refreshToken.findMany({
         where: { userId },
         select: { tokenHash: true },
       });
 
       // Add all tokens to Redis blocklist
       const promises = tokens.map((token) =>
-        this.cacheService.set(token.tokenHash, true, {
+        this._cacheService.set(token.tokenHash, true, {
           ttl: 7 * 24 * 3600, // 7 days
           keyPrefix: 'auth:blocklist:',
         })

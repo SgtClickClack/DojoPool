@@ -12,26 +12,26 @@ import { Prisma } from '@prisma/client';
 
 @Controller('achievements')
 export class AchievementsController {
-  constructor(private readonly achievementsService: AchievementsService) {}
+  constructor(private readonly _achievementsService: AchievementsService) {}
 
   @Get()
   async findAllAchievements() {
-    return this.achievementsService.findAllAchievements();
+    return this._achievementsService.findAllAchievements();
   }
 
   @Get('user/:userId')
   async findUserAchievements(@Param('userId') userId: string) {
-    return this.achievementsService.findUserAchievements(userId);
+    return this._achievementsService.findUserAchievements(userId);
   }
 
   @Post('check/:playerId')
   async checkAndAward(@Param('playerId') playerId: string) {
-    return this.achievementsService.checkAndAwardAchievements(playerId);
+    return this._achievementsService.checkAndAwardAchievements(playerId);
   }
 
   @Post()
   async createAchievement(@Body() data: Prisma.AchievementCreateInput) {
-    return this.achievementsService.createAchievement(data);
+    return this._achievementsService.createAchievement(data);
   }
 
   @Put(':id')
@@ -39,11 +39,11 @@ export class AchievementsController {
     @Param('id') id: string,
     @Body() data: Prisma.AchievementUpdateInput
   ) {
-    return this.achievementsService.updateAchievement(id, data);
+    return this._achievementsService.updateAchievement(id, data);
   }
 
   @Delete(':id')
   async deleteAchievement(@Param('id') id: string) {
-    return this.achievementsService.deleteAchievement(id);
+    return this._achievementsService.deleteAchievement(id);
   }
 }

@@ -30,6 +30,7 @@ function a11yProps(index: number) {
 
 interface CMSTabsProps {
   value: number;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onChange: (event: React.SyntheticEvent, newValue: number) => void;
   children: React.ReactNode[];
 }

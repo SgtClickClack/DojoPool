@@ -22,6 +22,7 @@ export interface ErrorReportResponse {
 }
 
 import logger from './loggerService';
+import React from 'react';
 
 class ErrorReportingService {
   private baseUrl: string;

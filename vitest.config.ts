@@ -1,41 +1,28 @@
 import { defineConfig } from 'vitest/config';
+import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [],
   test: {
     environment: 'jsdom',
-    setupFiles: ['./src/tests/setup.ts'],
+    setupFiles: ['./tests/setup/test-setup.ts'],
     globals: true,
-    environmentOptions: {
-      jsdom: {
-        url: 'http://localhost:3000',
-      },
+    include: ['tests/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/coverage/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      exclude: ['node_modules/', 'tests/', '**/*.d.ts'],
+      thresholds: {
+        global: { branches: 85, functions: 85, lines: 85, statements: 85 }
+      }
     },
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/coverage/**',
-      'src/tests/integration/**',
-      // Exclude problematic third-party tests
-      '**/tsconfig-paths/**',
-      '**/@react-google-maps/**',
-      '**/__tests__/utils/injectscript.test.ts',
-      '**/__tests__/components/circle.test.tsx',
-      '**/__tests__/filesystem.test.ts',
-      '**/__tests__/match-path-async.test.ts',
-      '**/__tests__/mapping-entry.test.ts',
-    ],
-    include: [
-      'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      'services/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      '!src/**/node_modules/**',
-      '!services/**/node_modules/**',
-    ],
+    testTimeout: 10000,
+    retry: 2
   },
   resolve: {
     alias: {
-      '@': '/src',
-    },
-  },
+      '@': resolve(__dirname, './src'),
+      '@tests': resolve(__dirname, './tests')
+    }
+  }
 });

@@ -74,7 +74,7 @@ export type WebSocketEventData = Record<string, unknown>;
 export class WebSocketService {
   private socket: Socket | null = null;
   private isConnected: boolean = false;
-  private eventListeners: Map<string, Set<(data: WebSocketEventData) => void>> = new Map();
+  private eventListeners: Map<string, Set<(_data: WebSocketEventData) => void>> = new Map();
   private messageActivityListeners: Set<() => void> = new Set();
   private reconnectAttempts: number = 0;
   private maxReconnectAttempts: number = 5;
@@ -82,14 +82,14 @@ export class WebSocketService {
   private currentMatchId: string | null = null;
 
   constructor(
-    private serverUrl: string = process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
+    private _serverUrl: string = process.env.NEXT_PUBLIC_WEBSOCKET_URL ||
       'http://localhost:3002'
   ) {}
 
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        this.socket = io(`${this.serverUrl}/world-map`, {
+        this.socket = io(`${this._serverUrl}/world-map`, {
           transports: ['websocket', 'polling'],
           timeout: 10000,
         });
@@ -144,7 +144,7 @@ export class WebSocketService {
           this.socket.disconnect();
         }
 
-        this.socket = io(`${this.serverUrl}/match`, {
+        this.socket = io(`${this._serverUrl}/match`, {
           transports: ['websocket', 'polling'],
           timeout: 10000,
         });

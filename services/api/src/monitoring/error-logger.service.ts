@@ -95,7 +95,7 @@ export class ErrorLoggerService {
         );
       } catch (error) {
         this.consoleLogger.warn(
-          `Failed to create file transports for logging: ${error.message}. Falling back to console-only logging.`
+          `Failed to create file transports for logging: ${(error as Error).message}. Falling back to console-only logging.`
         );
       }
     }

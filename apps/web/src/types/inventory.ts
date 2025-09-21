@@ -2,6 +2,8 @@ export type ItemRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
 export type ItemType = 'cosmetic' | 'equipment' | 'emote';
 
+export type EquipmentSlot = 'head' | 'body' | 'legs' | 'feet' | 'hands' | 'accessory';
+
 export interface InventoryItem {
   id: string;
   name: string;
@@ -14,7 +16,7 @@ export interface InventoryItem {
   updatedAt?: string;
 }
 
-export interface EquipmentSlot {
+export interface EquipmentSlotItem {
   id: string;
   name: string;
   type: ItemType;

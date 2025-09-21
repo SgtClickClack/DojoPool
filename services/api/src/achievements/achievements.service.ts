@@ -7,11 +7,11 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AchievementsService {
   private readonly logger = new Logger(AchievementsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private _prisma: PrismaService) {}
 
   async findAllAchievements() {
     try {
-      return await this.prisma.achievement.findMany({
+      return await this._prisma.achievement.findMany({
         orderBy: { points: 'desc' },
       });
     } catch (err) {
@@ -24,7 +24,7 @@ export class AchievementsService {
 
   async findUserAchievements(userId: string) {
     try {
-      return await this.prisma.userAchievement.findMany({
+      return await this._prisma.userAchievement.findMany({
         where: { userId },
         include: {
           achievement: true,
@@ -117,7 +117,7 @@ export class AchievementsService {
 
   private async getPlayerStats(playerId: string) {
     // Get total wins
-    const totalWins = await this.prisma.match.count({
+    const totalWins = await this._prisma.match.count({
       where: {
         OR: [
           { playerAId: playerId, winnerId: playerId },
@@ -127,7 +127,7 @@ export class AchievementsService {
     });
 
     // Get current win streak
-    const matches = await this.prisma.match.findMany({
+    const matches = await this._prisma.match.findMany({
       where: {
         OR: [{ playerAId: playerId }, { playerBId: playerId }],
       },
@@ -144,7 +144,7 @@ export class AchievementsService {
     }
 
     // Get tournament wins
-    const tournamentWins = await this.prisma.tournamentParticipant.count({
+    const tournamentWins = await this._prisma.tournamentParticipant.count({
       where: {
         userId: playerId,
         finalRank: 1,
@@ -152,7 +152,7 @@ export class AchievementsService {
     });
 
     // Get territories controlled
-    const territoriesControlled = await this.prisma.territory.count({
+    const territoriesControlled = await this._prisma.territory.count({
       where: { ownerId: playerId },
     });
 
@@ -170,7 +170,7 @@ export class AchievementsService {
   ): Promise<boolean> {
     try {
       // Check if achievement exists
-      const achievement = await this.prisma.achievement.findUnique({
+      const achievement = await this._prisma.achievement.findUnique({
         where: { key: achievementKey },
       });
 
@@ -181,7 +181,7 @@ export class AchievementsService {
 
       // Check if user already has this achievement
       const existingUserAchievement =
-        await this.prisma.userAchievement.findUnique({
+        await this._prisma.userAchievement.findUnique({
           where: {
             userId_achievementId: {
               userId,
@@ -195,7 +195,7 @@ export class AchievementsService {
       }
 
       // Award the achievement
-      await this.prisma.userAchievement.create({
+      await this._prisma.userAchievement.create({
         data: {
           userId,
           achievementId: achievement.id,
@@ -220,7 +220,7 @@ export class AchievementsService {
 
   async createAchievement(data: Prisma.AchievementCreateInput) {
     try {
-      return await this.prisma.achievement.create({ data });
+      return await this._prisma.achievement.create({ data });
     } catch (err) {
       this.logger.error(
         ErrorUtils.formatErrorMessage('create achievement', undefined, err)
@@ -231,7 +231,7 @@ export class AchievementsService {
 
   async updateAchievement(id: string, data: Prisma.AchievementUpdateInput) {
     try {
-      return await this.prisma.achievement.update({
+      return await this._prisma.achievement.update({
         where: { id },
         data,
       });
@@ -245,7 +245,7 @@ export class AchievementsService {
 
   async deleteAchievement(id: string): Promise<void> {
     try {
-      await this.prisma.achievement.delete({
+      await this._prisma.achievement.delete({
         where: { id },
       });
     } catch (err) {

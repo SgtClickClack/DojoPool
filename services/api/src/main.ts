@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { GlobalErrorHandler } from './common/error-handler.middleware';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { corsOptions } from './config/cors.config';
 import { ErrorLoggerService } from './monitoring/error-logger.service';
 import { RedisService } from './redis/redis.service';
@@ -162,6 +163,9 @@ async function bootstrap() {
 
   // Apply global error handler
   app.useGlobalFilters(new GlobalErrorHandler(app.get(ErrorLoggerService)));
+
+  // Apply global response interceptor for consistent API responses
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
   // WebSocket adapter configuration
   try {

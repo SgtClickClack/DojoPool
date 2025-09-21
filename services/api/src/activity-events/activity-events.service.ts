@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ActivityEventsService {
   private readonly logger = new Logger(ActivityEventsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private _prisma: PrismaService) {}
 
   async createActivityEvent(data: {
     type: string;
@@ -18,7 +18,7 @@ export class ActivityEventsService {
     metadata?: string;
   }) {
     try {
-      const created = await this.prisma.activityEvent.create({
+      const created = await this._prisma.activityEvent.create({
         data: {
           type: data.type,
           message: data.message,
@@ -61,7 +61,7 @@ export class ActivityEventsService {
 
   async getActivityFeed(userId: string, limit = 20) {
     try {
-      const events = await this.prisma.activityEvent.findMany({
+      const events = await this._prisma.activityEvent.findMany({
         where: {
           OR: [
             { userId },
@@ -89,7 +89,7 @@ export class ActivityEventsService {
   }
 
   private async getUserVenueIds(userId: string): Promise<string[]> {
-    const venues = await this.prisma.venue.findMany({
+    const venues = await this._prisma.venue.findMany({
       where: { ownerId: userId },
       select: { id: true },
     });
@@ -97,7 +97,7 @@ export class ActivityEventsService {
   }
 
   private async getUserClanIds(userId: string): Promise<string[]> {
-    const memberships = await this.prisma.clanMember.findMany({
+    const memberships = await this._prisma.clanMember.findMany({
       where: { userId },
       select: { clanId: true },
     });

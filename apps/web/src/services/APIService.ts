@@ -99,7 +99,7 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${token}`;
           return axios(originalRequest);
         }
-      } catch (refreshError) {
+      } catch (_refreshError) {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
         window.location.href = '/login';
@@ -540,12 +540,12 @@ export const unregisterFromTournament = async (
 export interface EquipItemRequest {
   userId: string;
   itemId: string;
-  equipmentSlot: EquipmentSlot['id'];
+  equipmentSlot: EquipmentSlot;
 }
 
 export interface UnequipItemRequest {
   userId: string;
-  equipmentSlot: EquipmentSlot['id'];
+  equipmentSlot: EquipmentSlot;
 }
 
 export interface PlayerLoadout {

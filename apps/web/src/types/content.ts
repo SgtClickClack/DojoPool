@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export enum ContentType {
   // User-generated content
   MATCH_REPLAY = 'MATCH_REPLAY',

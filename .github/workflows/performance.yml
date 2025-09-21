@@ -85,12 +85,29 @@ jobs:
             // For push events, create a commit status instead of a comment
             if (context.eventName === 'push') {
               const status = results.regressions.length > 0 ? 'failure' : 'success';
-              await github.rest.repos.createCommitStatus({
-                owner: context.repo.owner,
-                repo: context.repo.name,
-                sha: context.sha,
-                state: status,
-                description: results.regressions.length > 0 ? 'Performance regressions detected' : 'Performance tests passed',
-                context: 'performance-tests'
-              });
+              
+              // Extract repository owner and name from the full repository string
+              const repoParts = context.repository.split('/');
+              const owner = repoParts[0];
+              const repo = repoParts[1];
+              
+              // Only create commit status if we have valid repository information
+              if (owner && repo) {
+                try {
+                  await github.rest.repos.createCommitStatus({
+                    owner: owner,
+                    repo: repo,
+                    sha: context.sha,
+                    state: status,
+                    description: results.regressions.length > 0 ? 'Performance regressions detected' : 'Performance tests passed',
+                    context: 'performance-tests'
+                  });
+                  console.log('Commit status created successfully');
+                } catch (error) {
+                  console.log('Failed to create commit status:', error.message);
+                  console.log('Continuing without commit status...');
+                }
+              } else {
+                console.log('Repository information not available, skipping commit status creation');
+              }
             }

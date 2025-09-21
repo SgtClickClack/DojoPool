@@ -17,7 +17,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 const ProfilePage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -27,13 +27,7 @@ const ProfilePage: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
 
-  useEffect(() => {
-    if (user) {
-      loadProfile();
-    }
-  }, [user]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       setLoading(true);
       // For now, create a mock profile since we don't have the full API yet
@@ -57,7 +51,13 @@ const ProfilePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadProfile();
+    }
+  }, [user, loadProfile]);
 
   // Avoid router usage during SSR to prevent build-time errors
   useEffect(() => {

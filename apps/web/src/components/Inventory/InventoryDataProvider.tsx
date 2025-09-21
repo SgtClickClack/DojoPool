@@ -189,7 +189,7 @@ export const InventoryDataProvider: React.FC<InventoryDataProviderProps> = ({
       await APIService.equipItem({
         userId: user.id,
         itemId,
-        equipmentSlot,
+        equipmentSlot: equipmentSlot as EquipmentSlot,
       });
 
       enqueueSnackbar('Item equipped successfully!', { variant: 'success' });
@@ -217,7 +217,7 @@ export const InventoryDataProvider: React.FC<InventoryDataProviderProps> = ({
       setEquipping(equipmentSlot);
       await APIService.unequipItem({
         userId: user.id,
-        equipmentSlot,
+        equipmentSlot: equipmentSlot as EquipmentSlot,
       });
 
       enqueueSnackbar('Item unequipped successfully!', { variant: 'success' });

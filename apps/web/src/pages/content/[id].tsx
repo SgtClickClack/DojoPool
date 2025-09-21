@@ -28,7 +28,7 @@ import {
 } from '@mui/material';
 import { type NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 const contentTypeLabels = {
   MATCH_REPLAY: '🎮 Match Replay',
@@ -58,13 +58,7 @@ const ContentDetailPage: NextPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [liking, setLiking] = useState(false);
 
-  useEffect(() => {
-    if (id && typeof id === 'string') {
-      loadContent();
-    }
-  }, [id]);
-
-  const loadContent = async () => {
+  const loadContent = useCallback(async () => {
     try {
       setLoading(true);
       const contentData = await getContentById(id as string);
@@ -79,7 +73,13 @@ const ContentDetailPage: NextPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (id && typeof id === 'string') {
+      loadContent();
+    }
+  }, [id, loadContent]);
 
   const handleLike = async () => {
     if (!content) return;
@@ -110,7 +110,7 @@ const ContentDetailPage: NextPage = () => {
   const handleShare = async () => {
     if (!content) return;
 
-    const shareWithIds = prompt(
+    const shareWithIds = window.prompt(
       'Enter user IDs to share with (comma-separated):'
     );
     if (!shareWithIds?.trim()) return;

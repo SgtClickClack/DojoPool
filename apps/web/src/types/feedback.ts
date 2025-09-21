@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export enum FeedbackCategory {
   BUG = 'BUG',
   FEATURE_REQUEST = 'FEATURE_REQUEST',
@@ -19,6 +20,7 @@ export const {
   PERFORMANCE_ISSUE,
 } = FeedbackCategory;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export enum FeedbackStatus {
   PENDING = 'PENDING',
   IN_REVIEW = 'IN_REVIEW',
@@ -38,6 +40,7 @@ export const {
   REJECTED,
 } = FeedbackStatus;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export enum FeedbackPriority {
   LOW = 'LOW',
   NORMAL = 'NORMAL',

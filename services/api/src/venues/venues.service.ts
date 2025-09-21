@@ -32,22 +32,20 @@ export class VenuesService {
 
   // Missing methods that tests are calling
   async getVenues(filters?: any): Promise<any[]> {
-    return this.prisma.venue.findMany({
+    return this._prisma.venue.findMany({
       where: filters,
       include: {
         owner: { select: { id: true, username: true } },
-        controllingClan: { select: { id: true, name: true } },
         _count: { select: { tablesList: true } },
       },
     });
   }
 
   async getVenueById(id: string): Promise<any> {
-    const venue = await this.prisma.venue.findUnique({
+    const venue = await this._prisma.venue.findUnique({
       where: { id },
       include: {
         owner: { select: { id: true, username: true } },
-        controllingClan: { select: { id: true, name: true } },
         tablesList: true,
       },
     });
@@ -61,7 +59,7 @@ export class VenuesService {
     if (!data.name || !data.address) {
       throw new BadRequestException('Name and address are required');
     }
-    return this.prisma.venue.create({
+    return this._prisma.venue.create({
       data: {
         ...data,
         ownerId: userId,
@@ -73,18 +71,18 @@ export class VenuesService {
   }
 
   async deleteVenue(id: string, userId: string): Promise<any> {
-    const venue = await this.prisma.venue.findUnique({ where: { id } });
+    const venue = await this._prisma.venue.findUnique({ where: { id } });
     if (!venue) {
       throw new NotFoundException('Venue not found');
     }
     if (venue.ownerId !== userId) {
       throw new ForbiddenException('You can only delete your own venue');
     }
-    return this.prisma.venue.delete({ where: { id } });
+    return this._prisma.venue.delete({ where: { id } });
   }
 
   async updateTable(tableId: string, venueId: string, data: any): Promise<any> {
-    const table = await this.prisma.table.findUnique({
+    const table = await this._prisma.table.findUnique({
       where: { id: tableId },
     });
     if (!table) {
@@ -93,28 +91,28 @@ export class VenuesService {
     if (table.venueId !== venueId) {
       throw new ForbiddenException('Table does not belong to this venue');
     }
-    return this.prisma.table.update({
+    return this._prisma.table.update({
       where: { id: tableId },
       data,
     });
   }
 
   async getVenueSpecials(venueId: string): Promise<any[]> {
-    return this.prisma.venueSpecial.findMany({
+    return this._prisma.venueSpecial.findMany({
       where: { venueId },
       orderBy: { createdAt: 'desc' },
     });
   }
 
   async createVenueSpecial(venueId: string, data: any, userId: string): Promise<any> {
-    const venue = await this.prisma.venue.findUnique({ where: { id: venueId } });
+    const venue = await this._prisma.venue.findUnique({ where: { id: venueId } });
     if (!venue) {
       throw new NotFoundException('Venue not found');
     }
     if (venue.ownerId !== userId) {
       throw new ForbiddenException('You can only create specials for your own venue');
     }
-    return this.prisma.venueSpecial.create({
+    return this._prisma.venueSpecial.create({
       data: {
         ...data,
         venueId,
@@ -123,35 +121,35 @@ export class VenuesService {
   }
 
   async updateVenueSpecial(specialId: string, venueId: string, data: any, userId: string): Promise<any> {
-    const venue = await this.prisma.venue.findUnique({ where: { id: venueId } });
+    const venue = await this._prisma.venue.findUnique({ where: { id: venueId } });
     if (!venue) {
       throw new NotFoundException('Venue not found');
     }
     if (venue.ownerId !== userId) {
       throw new ForbiddenException('You can only update specials for your own venue');
     }
-    return this.prisma.venueSpecial.update({
+    return this._prisma.venueSpecial.update({
       where: { id: specialId },
       data,
     });
   }
 
   async deleteVenueSpecial(specialId: string, venueId: string, userId: string): Promise<any> {
-    const venue = await this.prisma.venue.findUnique({ where: { id: venueId } });
+    const venue = await this._prisma.venue.findUnique({ where: { id: venueId } });
     if (!venue) {
       throw new NotFoundException('Venue not found');
     }
     if (venue.ownerId !== userId) {
       throw new ForbiddenException('You can only delete specials for your own venue');
     }
-    return this.prisma.venueSpecial.delete({ where: { id: specialId } });
+    return this._prisma.venueSpecial.delete({ where: { id: specialId } });
   }
 
   async getVenueStatistics(): Promise<any> {
     const [totalVenues, totalTables, venueStats] = await Promise.all([
-      this.prisma.venue.count(),
-      this.prisma.table.count(),
-      this.prisma.table.groupBy({
+      this._prisma.venue.count(),
+      this._prisma.table.count(),
+      this._prisma.table.groupBy({
         by: ['venueId'],
         _count: {
           venueId: true,
@@ -167,7 +165,7 @@ export class VenuesService {
     // Calculate average tables per venue
     const totalVenuesWithTables = venueStats.length;
     const averageTablesPerVenue = totalVenuesWithTables > 0
-      ? venueStats.reduce((sum, stat) => sum + (stat._count?.venueId || 0), 0) / totalVenuesWithTables
+      ? venueStats.reduce((sum: number, stat: any) => sum + (stat._count?.venueId || 0), 0) / totalVenuesWithTables
       : 0;
 
     return {
@@ -178,7 +176,7 @@ export class VenuesService {
   }
 
   async validateVenueOwnership(venueId: string, userId: string): Promise<boolean> {
-    const venue = await this.prisma.venue.findUnique({
+    const venue = await this._prisma.venue.findUnique({
       where: { id: venueId },
       select: { ownerId: true },
     });
@@ -186,7 +184,7 @@ export class VenuesService {
   }
 
   async validateVenueAdminRole(venueId: string, userId: string): Promise<boolean> {
-    const venue = await this.prisma.venue.findUnique({
+    const venue = await this._prisma.venue.findUnique({
       where: { id: venueId },
       select: { ownerId: true },
     });
@@ -194,7 +192,7 @@ export class VenuesService {
   }
 
   private async getVenueTables(venueId: string) {
-    return this.prisma.table.findMany({
+    return this._prisma.table.findMany({
       where: { venueId },
       orderBy: { createdAt: 'asc' },
     });
@@ -207,14 +205,14 @@ export class VenuesService {
     }
 
     // Optional: ensure venue exists
-    const venue = await this.prisma.venue.findUnique({
+    const venue = await this._prisma.venue.findUnique({
       where: { id: venueId },
     });
     if (!venue) {
       throw new NotFoundException('Venue not found');
     }
 
-    const newTable = await this.prisma.table.create({
+    const newTable = await this._prisma.table.create({
       data: {
         venueId,
         // Remove tableNumber as it doesn't exist in schema
@@ -226,7 +224,7 @@ export class VenuesService {
     const tables = await this.getVenueTables(venueId);
 
     try {
-      this.matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
+      this._matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
     } catch (err: unknown) {
       this.logger.warn(
         `Failed to emit tablesUpdated event: ${
@@ -243,7 +241,7 @@ export class VenuesService {
     tableId: string,
     data: { name?: string; status?: string }
   ) {
-    const table = await this.prisma.table.findUnique({
+    const table = await this._prisma.table.findUnique({
       where: { id: tableId },
     });
     if (!table) {
@@ -262,7 +260,7 @@ export class VenuesService {
       throw new BadRequestException('No changes provided');
     }
 
-    await this.prisma.table.update({
+    await this._prisma.table.update({
       where: { id: tableId },
       data: updateData,
     });
@@ -270,7 +268,7 @@ export class VenuesService {
     const tables = await this.getVenueTables(venueId);
 
     try {
-      this.matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
+      this._matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
     } catch (err: unknown) {
       this.logger.warn(
         `Failed to emit tablesUpdated event: ${
@@ -283,7 +281,7 @@ export class VenuesService {
   }
 
   async deleteTable(venueId: string, tableId: string) {
-    const table = await this.prisma.table.findUnique({
+    const table = await this._prisma.table.findUnique({
       where: { id: tableId },
     });
     if (!table) {
@@ -295,7 +293,7 @@ export class VenuesService {
       );
     }
 
-    const deletedTable = await this.prisma.$transaction(async (tx) => {
+    const deletedTable = await this._prisma.$transaction(async (tx: any) => {
       // Nullify references in matches first to avoid foreign key constraint issues
       await tx.match.updateMany({
         where: { tableId },
@@ -307,7 +305,7 @@ export class VenuesService {
     const tables = await this.getVenueTables(venueId);
 
     try {
-      this.matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
+      this._matchesGateway.broadcastVenueTablesUpdated(venueId, tables);
     } catch (err: unknown) {
       this.logger.warn(
         `Failed to emit tablesUpdated event: ${
@@ -331,7 +329,7 @@ export class VenuesService {
     }
 
     // Ensure the table exists and belongs to this venue
-    const table = await this.prisma.table.findUnique({
+    const table = await this._prisma.table.findUnique({
       where: { id: tableId },
     });
     if (!table) {
@@ -345,7 +343,7 @@ export class VenuesService {
 
     // Optional: if matchId provided, ensure match exists and belongs to this venue
     if (matchId) {
-      const match = await this.prisma.match.findUnique({
+      const match = await this._prisma.match.findUnique({
         where: { id: matchId },
       });
       if (!match) {
@@ -359,7 +357,7 @@ export class VenuesService {
     }
 
     // Update within a transaction to maintain consistency if matchId provided
-    const result = await this.prisma.$transaction(async (tx) => {
+    const result = await this._prisma.$transaction(async (tx: any) => {
       const _updatedTable = await tx.table.update({
         where: { id: tableId },
         data: { status: status as any },
@@ -390,7 +388,7 @@ export class VenuesService {
 
     // Emit real-time update to venue room (legacy single-table event)
     try {
-      this.matchesGateway.broadcastVenueTableUpdate(venueId, result);
+      this._matchesGateway.broadcastVenueTableUpdate(venueId, result);
     } catch (err) {
       this.logger.warn(
         `Failed to emit tableUpdated event: ${
@@ -442,7 +440,7 @@ export class VenuesService {
       throw new BadRequestException('lat and lng must be valid numbers');
     }
 
-    const venue = await this.prisma.venue.findUnique({
+    const venue = await this._prisma.venue.findUnique({
       where: { id: venueId },
     });
     if (!venue) {
@@ -460,7 +458,7 @@ export class VenuesService {
       throw new ForbiddenException('You are too far away to check in.');
     }
 
-    await this.prisma.dojoCheckIn.create({
+    await this._prisma.dojoCheckIn.create({
       data: {
         userId,
         venueId,
@@ -481,19 +479,19 @@ export class VenuesService {
     keyGenerator: (userId: string) => CacheKey('owned', userId),
   })
   async getOwnedVenues(userId: string) {
-    return this.prisma.venue.findMany({ where: { ownerId: userId } });
+    return this._prisma.venue.findMany({ where: { ownerId: userId } });
   }
 
   @CacheInvalidate(['venues', 'venues:owned'])
   async updateVenue(id: string, userId: string, data: any) {
-    const venue = await this.prisma.venue.findUnique({ where: { id } });
+    const venue = await this._prisma.venue.findUnique({ where: { id } });
     if (!venue || venue.ownerId !== userId) throw new ForbiddenException();
-    return this.prisma.venue.update({ where: { id }, data });
+    return this._prisma.venue.update({ where: { id }, data });
   }
 
   // New: get the single venue owned by the authenticated user
   async getMyVenue(userId: string) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) {
@@ -504,7 +502,7 @@ export class VenuesService {
 
   // New: update the authenticated user's venue profile
   async updateMyVenue(userId: string, data: any) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) {
@@ -520,16 +518,16 @@ export class VenuesService {
     if (Object.keys(allowed).length === 0) {
       throw new BadRequestException('No valid profile fields provided');
     }
-    return this.prisma.venue.update({ where: { id: venue.id }, data: allowed });
+    return this._prisma.venue.update({ where: { id: venue.id }, data: allowed });
   }
 
   // New: list specials for the authenticated user's venue
   async listMySpecials(userId: string) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
-    return this.prisma.venueSpecial.findMany({
+    return this._prisma.venueSpecial.findMany({
       where: { venueId: venue.id },
       orderBy: { validUntil: 'asc' },
     });
@@ -537,7 +535,7 @@ export class VenuesService {
 
   // New: create a special for the authenticated user's venue
   async createMySpecial(userId: string, data: any) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
@@ -555,7 +553,7 @@ export class VenuesService {
         throw new BadRequestException('validUntil must be a valid date');
       validUntil = parsed;
     }
-    return this.prisma.venueSpecial.create({
+    return this._prisma.venueSpecial.create({
       data: {
         venueId: venue.id,
         title,
@@ -570,13 +568,13 @@ export class VenuesService {
 
   // New: delete a special ensuring it belongs to the authenticated user's venue
   async deleteMySpecial(userId: string, specialId: string) {
-    const special = await this.prisma.venueSpecial.findUnique({
+    const special = await this._prisma.venueSpecial.findUnique({
       where: { id: specialId },
       include: { venue: { select: { id: true, ownerId: true } } },
     });
     if (!special) throw new NotFoundException('Special not found');
     if (special.venue?.ownerId !== userId) throw new ForbiddenException();
-    await this.prisma.venueSpecial.delete({
+    await this._prisma.venueSpecial.delete({
       where: { id: specialId },
     });
     return { status: 'ok' };
@@ -588,12 +586,12 @@ export class VenuesService {
     tournamentId: string,
     sponsorBannerUrl?: string
   ) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
 
-    const tournament = await this.prisma.tournament.findUnique({
+    const tournament = await this._prisma.tournament.findUnique({
       where: { id: tournamentId },
     });
     if (!tournament) throw new NotFoundException('Tournament not found');
@@ -605,7 +603,7 @@ export class VenuesService {
       `Simulating sponsorship payment for venue ${venue.id} on tournament ${tournamentId}`
     );
 
-    const updated = await this.prisma.tournament.update({
+    const updated = await this._prisma.tournament.update({
       where: { id: tournamentId },
       data: {
         isSponsored: true,
@@ -625,7 +623,7 @@ export class VenuesService {
 
   // Quests: create a quest for the authenticated venue owner
   async createMyQuest(userId: string, data: any) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
@@ -640,7 +638,7 @@ export class VenuesService {
       );
     }
 
-    const quest = await this.prisma.venueQuest.create({
+    const quest = await this._prisma.venueQuest.create({
       data: {
         venueId: venue.id,
         title,
@@ -656,7 +654,7 @@ export class VenuesService {
 
   // Quests: delete a quest if it belongs to the owner's venue
   async deleteMyQuest(userId: string, questId: string) {
-    const quest = await this.prisma.venueQuest.findUnique({
+    const quest = await this._prisma.venueQuest.findUnique({
       where: { id: questId },
       include: { venue: { select: { id: true, ownerId: true } } },
     });
@@ -664,7 +662,7 @@ export class VenuesService {
     if (quest.venue?.ownerId !== userId)
       throw new ForbiddenException('You are not allowed to delete this quest');
 
-    await this.prisma.venueQuest.delete({ where: { id: questId } });
+    await this._prisma.venueQuest.delete({ where: { id: questId } });
     return { status: 'ok' };
   }
 
@@ -727,10 +725,10 @@ export class VenuesService {
     }
 
     // Get total count for pagination
-    const total = await this.prisma.venue.count({ where });
+    const total = await this._prisma.venue.count({ where });
 
     // Get venues with related data
-    const venues = await this.prisma.venue.findMany({
+    const venues = await this._prisma.venue.findMany({
       where,
       skip,
       take: limit,
@@ -749,7 +747,7 @@ export class VenuesService {
     const totalPages = Math.ceil(total / limit);
 
     // Transform data to match frontend expectations
-    const transformedVenues = venues.map((venue) => ({
+    const transformedVenues = venues.map((venue: any) => ({
       id: venue.id,
       name: venue.name,
       description: venue.description,
@@ -779,7 +777,7 @@ export class VenuesService {
     keyGenerator: (id: string) => CacheKey('venue', id),
   })
   async getVenue(id: string) {
-    const venue = await this.prisma.venue.findUnique({
+    const venue = await this._prisma.venue.findUnique({
       where: { id },
       include: {
         // tables: true, // Tables stored as field, not relation
@@ -817,7 +815,7 @@ export class VenuesService {
     if (!venueId || typeof venueId !== 'string') {
       throw new BadRequestException('venueId is required');
     }
-    return this.prisma.venueQuest.findMany({
+    return this._prisma.venueQuest.findMany({
       where: { venueId, isActive: true },
       orderBy: { createdAt: 'desc' },
     });
@@ -827,12 +825,12 @@ export class VenuesService {
 
   // List tournaments for the authenticated venue owner
   async listMyTournaments(userId: string) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
     
-    return this.prisma.tournament.findMany({
+    return this._prisma.tournament.findMany({
       where: { venueId: venue.id },
       include: {
         _count: {
@@ -845,7 +843,7 @@ export class VenuesService {
 
   // Create a tournament for the authenticated venue owner
   async createMyTournament(userId: string, data: any) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
@@ -864,7 +862,7 @@ export class VenuesService {
       throw new BadRequestException('startTime must be a valid date');
     }
 
-    const tournament = await this.prisma.tournament.create({
+    const tournament = await this._prisma.tournament.create({
       data: {
         venueId: venue.id,
         name,
@@ -887,12 +885,12 @@ export class VenuesService {
 
   // Update a tournament for the authenticated venue owner
   async updateMyTournament(userId: string, tournamentId: string, data: any) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
 
-    const tournament = await this.prisma.tournament.findUnique({
+    const tournament = await this._prisma.tournament.findUnique({
       where: { id: tournamentId },
     });
     if (!tournament) throw new NotFoundException('Tournament not found');
@@ -926,7 +924,7 @@ export class VenuesService {
     if (data.format) updateData.format = data.format;
     if (data.rewards !== undefined) updateData.rewards = data.rewards;
 
-    return this.prisma.tournament.update({
+    return this._prisma.tournament.update({
       where: { id: tournamentId },
       data: updateData,
     });
@@ -934,12 +932,12 @@ export class VenuesService {
 
   // Start a tournament for the authenticated venue owner
   async startMyTournament(userId: string, tournamentId: string, _options?: { shuffleParticipants?: boolean }) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
 
-    const tournament = await this.prisma.tournament.findUnique({
+    const tournament = await this._prisma.tournament.findUnique({
       where: { id: tournamentId },
       include: {
         participants: {
@@ -961,7 +959,7 @@ export class VenuesService {
     }
 
     // Update tournament status to ACTIVE
-    const updatedTournament = await this.prisma.tournament.update({
+    const updatedTournament = await this._prisma.tournament.update({
       where: { id: tournamentId },
       data: { 
         status: 'ACTIVE',
@@ -980,12 +978,12 @@ export class VenuesService {
 
   // Get a single tournament for the authenticated venue owner
   async getMyTournament(userId: string, tournamentId: string) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
 
-    const tournament = await this.prisma.tournament.findUnique({
+    const tournament = await this._prisma.tournament.findUnique({
       where: { id: tournamentId },
       include: {
         participants: {
@@ -1016,12 +1014,12 @@ export class VenuesService {
 
   // Delete a tournament for the authenticated venue owner
   async deleteMyTournament(userId: string, tournamentId: string) {
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) throw new NotFoundException('You do not own a venue');
 
-    const tournament = await this.prisma.tournament.findUnique({
+    const tournament = await this._prisma.tournament.findUnique({
       where: { id: tournamentId },
     });
     if (!tournament) throw new NotFoundException('Tournament not found');
@@ -1032,7 +1030,7 @@ export class VenuesService {
       throw new BadRequestException('Cannot delete an active tournament');
     }
 
-    await this.prisma.tournament.delete({
+    await this._prisma.tournament.delete({
       where: { id: tournamentId },
     });
 

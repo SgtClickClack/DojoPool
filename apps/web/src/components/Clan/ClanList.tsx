@@ -39,9 +39,9 @@ interface Clan {
 
 interface ClanListProps {
   clans: Clan[];
-  onJoinClan?: (clanId: string) => void;
-  onViewClan?: (clanId: string) => void;
-  onLeaveClan?: (clanId: string) => void;
+  onJoinClan?: (_clanId: string) => void;
+  onViewClan?: (_clanId: string) => void;
+  onLeaveClan?: (_clanId: string) => void;
   onCreateClan?: () => void;
 }
 

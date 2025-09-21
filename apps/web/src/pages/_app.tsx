@@ -1,3 +1,4 @@
+import React from 'react';
 import GlobalErrorBoundary from '@/components/ErrorBoundary/GlobalErrorBoundary';
 import Layout from '@/components/Layout/Layout';
 import { ChatProvider } from '@/contexts/ChatContext';

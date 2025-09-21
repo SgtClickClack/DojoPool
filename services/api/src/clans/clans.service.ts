@@ -115,12 +115,12 @@ export class ClansService {
         throw new NotFoundException(`Clan with ID ${clanId} not found`);
       }
 
-      // Check if clan is at max capacity
+      // Check if clan is at max capacity (using default max of 50)
       const memberCount = await this.prisma.clanMember.count({
         where: { clanId },
       });
 
-      if (memberCount >= clan.maxMembers) {
+      if (memberCount >= 50) { // Default max members
         throw new BadRequestException('Clan is at maximum capacity');
       }
 

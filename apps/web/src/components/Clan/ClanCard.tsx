@@ -36,9 +36,9 @@ interface ClanCardProps {
   warLosses: number;
   members: ClanMember[];
   isMember: boolean;
-  onJoin?: (clanId: string) => void;
-  onView?: (clanId: string) => void;
-  onLeave?: (clanId: string) => void;
+  onJoin?: (_clanId: string) => void;
+  onView?: (_clanId: string) => void;
+  onLeave?: (_clanId: string) => void;
 }
 
 const ClanCard: React.FC<ClanCardProps> = ({

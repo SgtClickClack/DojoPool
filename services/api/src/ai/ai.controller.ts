@@ -38,7 +38,7 @@ export class AiController {
       round: number;
     }
   ) {
-    return await this.aiService.generateMatchAnalysis(matchData);
+    return await this._aiService.generateMatchAnalysis(matchData);
   }
 
   @Post('analyze/shot')
@@ -53,7 +53,7 @@ export class AiController {
       shotType?: string;
     }
   ) {
-    return await this.aiService.generateLiveCommentary(shotData);
+    return await this._aiService.generateLiveCommentary(shotData);
   }
 
   @Post('analyze/table')
@@ -73,6 +73,6 @@ export class AiController {
       throw new BadRequestException('File size must be less than 10MB');
     }
 
-    return await this.aiService.analyzeTableImage(file.buffer!, file.mimetype);
+    return await this._aiService.analyzeTableImage(file.buffer!, file.mimetype);
   }
 }

@@ -1,7 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 const HomePage: React.FC = () => {
   const { user, loading } = useAuth();
