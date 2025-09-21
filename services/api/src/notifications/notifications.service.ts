@@ -30,7 +30,7 @@ export class NotificationsService {
     message: string,
     payload?: Record<string, any>
   ): Promise<Notification> {
-    const notification = await this._prisma.notification.create({
+    const notification = await this.prisma.notification.create({
       data: {
         recipientId,
         userId: recipientId, // recipientId is actually the userId
@@ -88,16 +88,16 @@ export class NotificationsService {
     const skip = (page - 1) * limit;
 
     const [notifications, totalCount, unreadCount] = await Promise.all([
-      this._prisma.notification.findMany({
+      this.prisma.notification.findMany({
         where: { recipientId: userId },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      this._prisma.notification.count({
+      this.prisma.notification.count({
         where: { recipientId: userId },
       }),
-      this._prisma.notification.count({
+      this.prisma.notification.count({
         where: { recipientId: userId, isRead: false },
       }),
     ]);
@@ -129,20 +129,20 @@ export class NotificationsService {
       CacheKey('notifications', 'read', id, userId),
   })
   async markRead(id: string, userId: string): Promise<Notification> {
-    const existing = await this._prisma.notification.findUnique({
+    const existing = await this.prisma.notification.findUnique({
       where: { id },
     });
     if (!existing) throw new NotFoundException('Notification not found');
     if (existing.recipientId !== userId)
       throw new ForbiddenException('Not allowed');
-    return this._prisma.notification.update({
+    return this.prisma.notification.update({
       where: { id },
       data: { isRead: true },
     });
   }
 
   async markAllRead(userId: string): Promise<{ count: number }> {
-    const res = await this._prisma.notification.updateMany({
+    const res = await this.prisma.notification.updateMany({
       where: { recipientId: userId, isRead: false },
       data: { isRead: true },
     });
@@ -150,18 +150,18 @@ export class NotificationsService {
   }
 
   async deleteNotification(id: string, userId: string): Promise<void> {
-    const existing = await this._prisma.notification.findUnique({
+    const existing = await this.prisma.notification.findUnique({
       where: { id },
     });
     if (!existing) throw new NotFoundException('Notification not found');
     if (existing.recipientId !== userId)
       throw new ForbiddenException('Not allowed');
 
-    await this._prisma.notification.delete({ where: { id } });
+    await this.prisma.notification.delete({ where: { id } });
   }
 
   async getUnreadCount(userId: string): Promise<number> {
-    return this._prisma.notification.count({
+    return this.prisma.notification.count({
       where: { recipientId: userId, isRead: false },
     });
   }
