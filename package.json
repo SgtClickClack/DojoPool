@@ -53,7 +53,7 @@
     "lint": "eslint apps/web/src/ services/api/src/ --max-warnings 0",
     "lint:fix": "eslint apps/web/src/ services/api/src/ --fix",
     "lint:strict": "eslint apps/web/src/ services/api/src/ --max-warnings 0",
-    "type-check": "cd apps/web && yarn type-check && cd ../../services/api && yarn lint",
+    "type-check": "yarn type-check:web && yarn type-check:api",
     "type-check:web": "tsc -p apps/web/tsconfig.json --noEmit",
     "type-check:api": "tsc -p services/api/tsconfig.json --noEmit",
     "format": "prettier --write .",
