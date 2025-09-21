@@ -10,7 +10,6 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useRouter } from 'next/router';
 import React, { useState, useMemo } from 'react';
 
 interface Dojo {
@@ -48,14 +47,13 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
   userLocation = { lat: -37.8136, lng: 144.9631 }, // Melbourne CBD
   dojos = [],
 }) => {
-  const router = useRouter();
   const [selectedDojo, setSelectedDojo] = useState<Dojo | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<
     'all' | 'available' | 'nearby'
   >('all');
-  const [mapCenter, setMapCenter] = useState(userLocation);
+  const [, setMapCenter] = useState(userLocation);
 
   // Mock data if none provided
   const mockDojos: Dojo[] = [
@@ -144,38 +142,47 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
     });
   }, [displayDojos, searchQuery, selectedFilter]);
 
-  const getDifficultyColor = useMemo(() => (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy':
-        return 'text-green-600 bg-green-100';
-      case 'medium':
-        return 'text-yellow-600 bg-yellow-100';
-      case 'hard':
-        return 'text-red-600 bg-red-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
-  }, []);
+  const getDifficultyColor = useMemo(
+    () => (difficulty: string) => {
+      switch (difficulty) {
+        case 'easy':
+          return 'text-green-600 bg-green-100';
+        case 'medium':
+          return 'text-yellow-600 bg-yellow-100';
+        case 'hard':
+          return 'text-red-600 bg-red-100';
+        default:
+          return 'text-gray-600 bg-gray-100';
+      }
+    },
+    []
+  );
 
-  const getStatusColor = useMemo(() => (status: string) => {
-    switch (status) {
-      case 'available':
-        return 'bg-green-500';
-      case 'occupied':
-        return 'bg-red-500';
-      case 'maintenance':
-        return 'bg-yellow-500';
-      default:
-        return 'bg-gray-500';
-    }
-  }, []);
+  const getStatusColor = useMemo(
+    () => (status: string) => {
+      switch (status) {
+        case 'available':
+          return 'bg-green-500';
+        case 'occupied':
+          return 'bg-red-500';
+        case 'maintenance':
+          return 'bg-yellow-500';
+        default:
+          return 'bg-gray-500';
+      }
+    },
+    []
+  );
 
-  const formatDistance = useMemo(() => (meters: number) => {
-    if (meters < 1000) {
-      return `${meters}m`;
-    }
-    return `${(meters / 1000).toFixed(1)}km`;
-  }, []);
+  const formatDistance = useMemo(
+    () => (meters: number) => {
+      if (meters < 1000) {
+        return `${meters}m`;
+      }
+      return `${(meters / 1000).toFixed(1)}km`;
+    },
+    []
+  );
 
   return (
     <div className="mobile-first min-h-screen bg-gray-50">
@@ -255,9 +262,7 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
         {/* Simplified Map Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-green-100">
           {/* Grid overlay */}
-          <div
-            className="absolute inset-0 opacity-20 map-grid"
-          />
+          <div className="absolute inset-0 opacity-20 map-grid" />
 
           {/* Dojo Markers */}
           {filteredDojos.map((dojo, index) => (
@@ -356,6 +361,7 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
                   <button
                     onClick={() => setSelectedDojo(null)}
                     className="p-2 hover:bg-gray-100 rounded-full"
+                    aria-label="Close dojo details"
                   >
                     <XMarkIcon className="w-5 h-5 text-gray-500" />
                   </button>

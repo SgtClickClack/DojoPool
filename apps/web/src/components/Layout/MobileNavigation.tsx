@@ -215,6 +215,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
                   <button
                     onClick={() => setIsMenuOpen(false)}
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    aria-label="Close menu"
                   >
                     <XMarkIcon className="w-5 h-5 text-gray-500" />
                   </button>

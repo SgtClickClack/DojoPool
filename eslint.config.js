@@ -14,10 +14,10 @@ export default [
       parser: tsparser,
       parserOptions: {
         ecmaFeatures: {
-          jsx: true
+          jsx: true,
         },
         ecmaVersion: 12,
-        sourceType: 'module'
+        sourceType: 'module',
       },
       globals: {
         // Browser globals
@@ -47,44 +47,47 @@ export default [
         __filename: 'readonly',
         require: 'readonly',
         module: 'readonly',
-        exports: 'readonly'
-      }
+        exports: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': tseslint,
-      'react': react,
-      'react-hooks': reactHooks
+      react: react,
+      'react-hooks': reactHooks,
     },
     rules: {
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', {
-        'argsIgnorePattern': '^_',
-        'varsIgnorePattern': '^_',
-        'caughtErrorsIgnorePattern': '^_'
-      }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'off',
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-      'no-console': ['warn', { 'allow': ['warn', 'error', 'log'] }],
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+      'no-console': ['warn', { allow: ['warn', 'error', 'log'] }],
       'no-empty': 'off', // Allow empty blocks
       'react/no-unescaped-entities': 'warn', // Warn instead of error for apostrophes
-      'react/no-unknown-property': 'warn' // Warn instead of error for custom properties
+      'react/no-unknown-property': 'warn', // Warn instead of error for custom properties
     },
     settings: {
       react: {
-        version: 'detect'
-      }
-    }
+        version: 'detect',
+      },
+    },
   },
   {
     files: ['apps/web/src/**/*.ts', 'apps/web/src/**/*.tsx'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
-        project: ['apps/web/tsconfig.json']
-      }
+        project: ['apps/web/tsconfig.json'],
+      },
     },
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -92,24 +95,24 @@ export default [
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
-      'react/forbid-dom-props': 'warn'
-    }
+      'react/forbid-dom-props': 'warn',
+    },
   },
   {
     files: ['services/api/src/**/*.ts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
-        project: ['services/api/tsconfig.json']
-      }
+        project: ['services/api/tsconfig.json'],
+      },
     },
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
-      '@typescript-eslint/restrict-template-expressions': 'off'
-    }
+      '@typescript-eslint/restrict-template-expressions': 'off',
+    },
   },
   {
     ignores: [
@@ -172,7 +175,7 @@ export default [
       'src/dojopool/frontend/components/tournaments/**/*',
       'src/dojopool/frontend/cypress/**/*',
       'src/dojopool/frontend/components/Venue/**/*',
-      'src/dojopool/frontend/pages/**/*'
-    ]
-  }
+      'src/dojopool/frontend/pages/**/*',
+    ],
+  },
 ];

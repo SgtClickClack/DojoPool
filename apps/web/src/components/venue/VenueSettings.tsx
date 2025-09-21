@@ -116,7 +116,7 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Venue Settings</h2>
           <p className="text-gray-600">
-            Manage your venue's information and preferences
+            Manage your venue&apos;s information and preferences
           </p>
         </div>
       </div>
@@ -182,10 +182,14 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
                   {/* Basic Information */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="venue-name"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Venue Name
                       </label>
                       <input
+                        id="venue-name"
                         type="text"
                         defaultValue={venue.name}
                         disabled={!isEditing}
@@ -194,10 +198,14 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="venue-address"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Address
                       </label>
                       <input
+                        id="venue-address"
                         type="text"
                         defaultValue={venue.address}
                         disabled={!isEditing}
@@ -208,10 +216,14 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
 
                   {/* Description */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="venue-description"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Description
                     </label>
                     <textarea
+                      id="venue-description"
                       rows={4}
                       defaultValue={venue.description}
                       disabled={!isEditing}
@@ -222,12 +234,16 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
                   {/* Contact Information */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="venue-phone"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Phone Number
                       </label>
                       <div className="relative">
                         <PhoneIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
+                          id="venue-phone"
                           type="tel"
                           defaultValue={venue.contactInfo.phone}
                           disabled={!isEditing}
@@ -237,12 +253,16 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="venue-email"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Email Address
                       </label>
                       <div className="relative">
                         <EnvelopeIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
+                          id="venue-email"
                           type="email"
                           defaultValue={venue.contactInfo.email}
                           disabled={!isEditing}
@@ -252,12 +272,16 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="venue-website"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Website
                       </label>
                       <div className="relative">
                         <GlobeAltIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
+                          id="venue-website"
                           type="url"
                           defaultValue={venue.contactInfo.website || ''}
                           disabled={!isEditing}
@@ -339,15 +363,19 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
                           {isEditing ? (
                             <div className="flex items-center space-x-2">
                               <input
+                                id={`venue-${day}-open`}
                                 type="time"
                                 defaultValue={dayHours.open}
                                 className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                aria-label={`${day} opening time`}
                               />
                               <span className="text-gray-500">to</span>
                               <input
+                                id={`venue-${day}-close`}
                                 type="time"
                                 defaultValue={dayHours.close}
                                 className="px-2 py-1 border border-gray-300 rounded text-sm"
+                                aria-label={`${day} closing time`}
                               />
                             </div>
                           ) : (
@@ -401,9 +429,11 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
                             <span className="text-gray-700">{rate.label}</span>
                             {isEditing ? (
                               <input
+                                id={`rate-${rate.label.toLowerCase().replace(/\s+/g, '-')}`}
                                 type="text"
                                 defaultValue={rate.value}
                                 className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-right"
+                                aria-label={`${rate.label} price`}
                               />
                             ) : (
                               <span className="font-medium text-gray-900">
@@ -433,9 +463,11 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
                             <span className="text-gray-700">{fee.label}</span>
                             {isEditing ? (
                               <input
+                                id={`fee-${fee.label.toLowerCase().replace(/\s+/g, '-')}`}
                                 type="text"
                                 defaultValue={fee.value}
                                 className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-right"
+                                aria-label={`${fee.label} fee`}
                               />
                             ) : (
                               <span className="font-medium text-gray-900">
@@ -517,11 +549,15 @@ const VenueSettings: React.FC<VenueSettingsProps> = ({ venue }) => {
 
                   {isEditing && (
                     <div className="border-t border-gray-200 pt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        htmlFor="custom-amenity"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
                         Add Custom Amenity
                       </label>
                       <div className="flex space-x-2">
                         <input
+                          id="custom-amenity"
                           type="text"
                           placeholder="Enter amenity name"
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
