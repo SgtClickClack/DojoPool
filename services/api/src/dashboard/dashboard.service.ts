@@ -30,23 +30,23 @@ export interface CdnCostResponse {
 export class DashboardService {
   private readonly logger = new Logger(DashboardService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly _prisma: PrismaService) {}
 
   async getStats(userId: string): Promise<DashboardStats> {
     try {
       const [user, wins, losses, tournamentsJoined] = await Promise.all([
-        this.prisma.user.findUnique({
+        this._prisma.user.findUnique({
           where: { id: userId },
           select: { dojoCoinBalance: true },
         }),
-        this.prisma.match.count({
+        this._prisma.match.count({
           where: { winnerId: userId, status: 'COMPLETED' },
         }),
-        this.prisma.match.count({
+        this._prisma.match.count({
           where: { loserId: userId, status: 'COMPLETED' },
         }),
         // If model/table doesn't exist in some environments, this will throw; we guard below
-        this.prisma.tournamentParticipant.count({ where: { userId } }),
+        this._prisma.tournamentParticipant.count({ where: { userId } }),
       ]);
 
       const dojoCoinBalance = user?.dojoCoinBalance ?? 0;

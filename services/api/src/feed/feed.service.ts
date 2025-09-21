@@ -12,7 +12,7 @@ export interface FeedQuery {
 export class FeedService {
   private readonly logger = new Logger(FeedService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private _prisma: PrismaService) {}
 
   async getFeed(query: FeedQuery) {
     const page = Math.max(1, Number(query.page ?? 1));
@@ -24,7 +24,7 @@ export class FeedService {
       if (!query.userId)
         throw new Error('userId is required for friends filter');
       // find accepted friendships involving current user
-      const accepted = await this.prisma.friendship.findMany({
+      const accepted = await this._prisma.friendship.findMany({
         where: {
           status: 'ACCEPTED',
           OR: [{ requesterId: query.userId }, { addresseeId: query.userId }],
@@ -40,7 +40,7 @@ export class FeedService {
       where.userId = { in: friendIds };
     }
 
-    const items = await this.prisma.activityEvent.findMany({
+    const items = await this._prisma.activityEvent.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       skip,

@@ -36,13 +36,13 @@ export interface ShotData {
 export class GameSessionsService {
   private readonly logger = new Logger(GameSessionsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly _prisma: PrismaService) {}
 
   async createGameSession(
     createDto: CreateGameSessionDto
   ): Promise<GameSession> {
     try {
-      const gameSession = await this.prisma.gameSession.create({
+      const gameSession = await this._prisma.gameSession.create({
         data: {
           playerId: createDto.playerIds[0], // Use first player as the session owner
           gameId: createDto.gameId,
@@ -81,7 +81,7 @@ export class GameSessionsService {
   }
 
   async getGameSession(sessionId: string): Promise<GameSession> {
-    const session = await this.prisma.gameSession.findUnique({
+    const session = await this._prisma.gameSession.findUnique({
       where: { id: sessionId },
     });
 
@@ -93,7 +93,7 @@ export class GameSessionsService {
   }
 
   async getActiveGameSession(gameId: string): Promise<GameSession | null> {
-    return this.prisma.gameSession.findFirst({
+    return this._prisma.gameSession.findFirst({
       where: {
         gameId,
         status: 'ACTIVE',
@@ -124,7 +124,7 @@ export class GameSessionsService {
         processedData.events = JSON.stringify(processedData.events);
       }
 
-      const updatedSession = await this.prisma.gameSession.update({
+      const updatedSession = await this._prisma.gameSession.update({
         where: { id: sessionId },
         data: {
           ...processedData,
@@ -160,7 +160,7 @@ export class GameSessionsService {
       },
     ];
 
-    const updatedSession = await this.prisma.gameSession.update({
+    const updatedSession = await this._prisma.gameSession.update({
       where: { id: sessionId },
       data: {
         totalShots: session.totalShots + 1,
@@ -201,7 +201,7 @@ export class GameSessionsService {
       },
     ];
 
-    const updatedSession = await this.prisma.gameSession.update({
+    const updatedSession = await this._prisma.gameSession.update({
       where: { id: sessionId },
       data: {
         fouls: JSON.stringify(updatedFouls),
@@ -226,7 +226,7 @@ export class GameSessionsService {
       (endTime.getTime() - (session.startTime?.getTime() || 0)) / 1000
     );
 
-    const updatedSession = await this.prisma.gameSession.update({
+    const updatedSession = await this._prisma.gameSession.update({
       where: { id: sessionId },
       data: {
         status: 'COMPLETED',

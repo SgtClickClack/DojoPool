@@ -348,9 +348,9 @@ export class ClansService {
   async getClanStatistics() {
     try {
       const [totalClans, totalMembers, clanStats] = await Promise.all([
-        this.prisma.clan.count(),
-        this.prisma.clanMember.count(),
-        this.prisma.clanMember.groupBy({
+        this._prisma.clan.count(),
+        this._prisma.clanMember.count(),
+        this._prisma.clanMember.groupBy({
           by: ['clanId'],
           _count: {
             clanId: true,

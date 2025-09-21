@@ -6,12 +6,12 @@ import { ErrorUtils } from '../common';
 export class PlayersService {
   private readonly logger = new Logger(PlayersService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private _prisma: PrismaService) {}
 
   async getPlayerById(playerId: string): Promise<any> {
     try {
       // Get basic user information
-      const user = await this.prisma.user.findUnique({
+      const user = await this._prisma.user.findUnique({
         where: { id: playerId },
         select: {
           id: true,
@@ -26,7 +26,7 @@ export class PlayersService {
 
       // Get tournament participation
       const tournamentParticipations =
-        await this.prisma.tournamentParticipant.findMany({
+        await this._prisma.tournamentParticipant.findMany({
           where: { userId: playerId },
           include: {
             tournament: {
@@ -49,7 +49,7 @@ export class PlayersService {
         });
 
       // Get match history
-      const matches = await this.prisma.match.findMany({
+      const matches = await this._prisma.match.findMany({
         where: {
           OR: [{ playerAId: playerId }, { playerBId: playerId }],
         },

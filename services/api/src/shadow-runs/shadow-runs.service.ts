@@ -13,7 +13,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ShadowRunsService {
   private readonly logger = new Logger(ShadowRunsService.name);
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly _prisma: PrismaService,
     private readonly notifications: NotificationsService
   ) {}
 
@@ -41,7 +41,7 @@ export class ShadowRunsService {
     const type = runType;
     const cost = this.getRunCost(type);
 
-    return this.prisma.$transaction(async (tx) => {
+    return this._prisma.$transaction(async (tx) => {
       // Determine initiating clan: prefer a clan where user is leader, else first membership
       const leaderClan = await tx.clan.findFirst({
         where: { leaderId: userId },
@@ -177,7 +177,7 @@ export class ShadowRunsService {
   }
 
   async getRunsForClan(clanId: string) {
-    return this.prisma.shadowRun.findMany({
+    return this._prisma.shadowRun.findMany({
       where: {
         OR: [
           { initiatingClanId: clanId },

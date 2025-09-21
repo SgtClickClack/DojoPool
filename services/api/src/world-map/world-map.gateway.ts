@@ -57,7 +57,7 @@ export class WorldMapGateway
 {
   constructor(
     private readonly featureFlags: FeatureFlagsConfig,
-    private readonly prisma: PrismaService
+    private readonly _prisma: PrismaService
   ) {}
 
   @WebSocketServer()
@@ -247,7 +247,7 @@ export class WorldMapGateway
   // Resource tick: periodic resource accrual and strategic updates
   async tickResourcesForAllTerritories() {
     try {
-      const territories = await this.prisma.territory.findMany({
+      const territories = await this._prisma.territory.findMany({
         select: {
           id: true,
           resources: true,
@@ -287,7 +287,7 @@ export class WorldMapGateway
           );
         }
 
-        await this.prisma.territory.update({
+        await this._prisma.territory.update({
           where: { id: t.id },
           data: { resources: JSON.stringify(next), lastTickAt: now },
         });

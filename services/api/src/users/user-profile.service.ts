@@ -19,7 +19,7 @@ export class UserProfileService {
   private readonly logger = new Logger(UserProfileService.name);
 
   constructor(
-    private prisma: PrismaService,
+    private _prisma: PrismaService,
     @Optional() private cacheService?: CacheService
   ) {
     // Configure Cloudinary once
@@ -44,7 +44,7 @@ export class UserProfileService {
   ): Promise<User> {
     try {
       // First check if user exists
-      const existingUser = await this.prisma.user.findUnique({
+      const existingUser = await this._prisma.user.findUnique({
         where: { id: userId },
         include: { profile: true },
       });
@@ -78,12 +78,12 @@ export class UserProfileService {
       };
 
       // Use transaction to update both user and profile
-      const result = await this.prisma.$transaction([
-        this.prisma.user.update({
+      const result = await this._prisma.$transaction([
+        this._prisma.user.update({
           where: { id: userId },
           data: userUpdateData,
         }),
-        this.prisma.profile.upsert(profileUpdateData),
+        this._prisma.profile.upsert(profileUpdateData),
       ]);
 
       return result[0] as User;
@@ -116,7 +116,7 @@ export class UserProfileService {
     }
 
     // Ensure user exists
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this._prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
@@ -187,7 +187,7 @@ export class UserProfileService {
       const result = await uploadFromBuffer();
       const avatarUrl = result.secure_url;
 
-      await this.prisma.profile.upsert({
+      await this._prisma.profile.upsert({
         where: { userId },
         update: { avatarUrl },
         create: { userId, avatarUrl },

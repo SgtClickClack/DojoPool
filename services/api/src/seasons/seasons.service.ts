@@ -14,12 +14,12 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class SeasonsService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly _prisma: PrismaService,
     private readonly cacheHelper: CacheHelper
   ) {}
 
   async getActiveSeason() {
-    const season = await this.prisma.season.findFirst({
+    const season = await this._prisma.season.findFirst({
       where: { isActive: true },
       orderBy: { startDate: 'desc' },
     });
@@ -27,11 +27,11 @@ export class SeasonsService {
   }
 
   async getAllSeasons() {
-    return this.prisma.season.findMany({ orderBy: { startDate: 'desc' } });
+    return this._prisma.season.findMany({ orderBy: { startDate: 'desc' } });
   }
 
   async getSeasonById(id: string) {
-    const season = await this.prisma.season.findUnique({ where: { id } });
+    const season = await this._prisma.season.findUnique({ where: { id } });
     if (!season) throw new NotFoundException('Season not found');
     return season;
   }
@@ -48,7 +48,7 @@ export class SeasonsService {
     const activeSeason = await this.getActiveSeason();
 
     // Fetch top clans by seasonalPoints
-    const clans = await this.prisma.clan.findMany({
+    const clans = await this._prisma.clan.findMany({
       orderBy: { seasonalPoints: 'desc' },
       take: Math.max(1, Math.min(limit, 100)),
       include: {
@@ -89,17 +89,17 @@ export class SeasonsService {
     if (!Number.isFinite(points) || points <= 0)
       throw new BadRequestException('points must be a positive number');
 
-    const clan = await this.prisma.clan.findUnique({ where: { id: clanId } });
+    const clan = await this._prisma.clan.findUnique({ where: { id: clanId } });
     if (!clan) throw new NotFoundException('Clan not found');
 
-    const updated = await this.prisma.clan.update({
+    const updated = await this._prisma.clan.update({
       where: { id: clanId },
       data: { seasonalPoints: { increment: Math.floor(points) } },
     });
 
     // Optionally, record an activity event
     try {
-      await this.prisma.activityEvent.create({
+      await this._prisma.activityEvent.create({
         data: {
           type: 'SEASON_POINTS_AWARDED',
           message: `Awarded ${Math.floor(points)} seasonal points to clan ${updated.name}${reason ? `: ${reason}` : ''}`,

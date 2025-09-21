@@ -18,7 +18,7 @@ export class UserWalletService {
   private readonly logger = new Logger(UserWalletService.name);
 
   constructor(
-    private prisma: PrismaService,
+    private _prisma: PrismaService,
     @Optional() private cacheService?: CacheService
   ) {}
 
@@ -27,7 +27,7 @@ export class UserWalletService {
    */
   async getBalance(userId: string): Promise<number> {
     try {
-      const user = await this.prisma.user.findUnique({
+      const user = await this._prisma.user.findUnique({
         where: { id: userId },
         select: { dojoCoinBalance: true },
       });
@@ -60,7 +60,7 @@ export class UserWalletService {
     }
 
     try {
-      const user = await this.prisma.user.update({
+      const user = await this._prisma.user.update({
         where: { id: userId },
         data: {
           dojoCoinBalance: {
@@ -112,7 +112,7 @@ export class UserWalletService {
         throw new Error(`Insufficient balance. Current: ${currentBalance}, Required: ${amount}`);
       }
 
-      const user = await this.prisma.user.update({
+      const user = await this._prisma.user.update({
         where: { id: userId },
         data: {
           dojoCoinBalance: {
@@ -160,7 +160,7 @@ export class UserWalletService {
 
     try {
       // Use transaction to ensure atomicity
-      const result = await this.prisma.$transaction(async (tx) => {
+      const result = await this._prisma.$transaction(async (tx) => {
         // Check if sender has sufficient balance
         const fromUser = await tx.user.findUnique({
           where: { id: fromUserId },

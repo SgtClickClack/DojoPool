@@ -73,7 +73,7 @@ export class CommunityService {
   private readonly logger = new Logger(CommunityService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly _prisma: PrismaService,
     private readonly cacheHelper: CacheHelper,
     private readonly notificationsService: NotificationsService
   ) {}
@@ -87,7 +87,7 @@ export class CommunityService {
     designFileUrl?: string,
     previewImageUrl?: string
   ): Promise<CommunityCosmeticItem> {
-    const item = await this.prisma.communityCosmeticItem.create({
+    const item = await this._prisma.communityCosmeticItem.create({
       data: {
         creatorId,
         title: dto.title,
@@ -152,7 +152,7 @@ export class CommunityService {
     const skip = (page - 1) * limit;
 
     const [items, totalCount] = await Promise.all([
-      this.prisma.communityCosmeticItem.findMany({
+      this._prisma.communityCosmeticItem.findMany({
         where: { creatorId },
         include: {
           creator: {
@@ -173,7 +173,7 @@ export class CommunityService {
         skip,
         take: limit,
       }),
-      this.prisma.communityCosmeticItem.count({ where: { creatorId } }),
+      this._prisma.communityCosmeticItem.count({ where: { creatorId } }),
     ]);
 
     const itemsWithLikes = await Promise.all(
@@ -241,7 +241,7 @@ export class CommunityService {
     const where = this.buildWhereClause(filters);
 
     const [items, totalCount, pendingCount] = await Promise.all([
-      this.prisma.communityCosmeticItem.findMany({
+      this._prisma.communityCosmeticItem.findMany({
         where,
         include: {
           creator: {
@@ -262,8 +262,8 @@ export class CommunityService {
         skip,
         take: limit,
       }),
-      this.prisma.communityCosmeticItem.count({ where }),
-      this.prisma.communityCosmeticItem.count({
+      this._prisma.communityCosmeticItem.count({ where }),
+      this._prisma.communityCosmeticItem.count({
         where: { ...where, status: SubmissionStatus.PENDING },
       }),
     ]);
@@ -360,7 +360,7 @@ export class CommunityService {
     }
 
     const [items, totalCount] = await Promise.all([
-      this.prisma.communityCosmeticItem.findMany({
+      this._prisma.communityCosmeticItem.findMany({
         where,
         include: {
           creator: {
@@ -375,7 +375,7 @@ export class CommunityService {
         skip,
         take: limit,
       }),
-      this.prisma.communityCosmeticItem.count({ where }),
+      this._prisma.communityCosmeticItem.count({ where }),
     ]);
 
     const itemsWithLikes = await Promise.all(
@@ -384,7 +384,7 @@ export class CommunityService {
         let userLiked = false;
 
         if (userId) {
-          const like = await this.prisma.cosmeticItemLike.findUnique({
+          const like = await this._prisma.cosmeticItemLike.findUnique({
             where: {
               userId_cosmeticItemId: {
                 userId,
@@ -431,7 +431,7 @@ export class CommunityService {
     userId: string,
     dto: UpdateCosmeticItemDto
   ): Promise<CommunityCosmeticItem> {
-    const existingItem = await this.prisma.communityCosmeticItem.findUnique({
+    const existingItem = await this._prisma.communityCosmeticItem.findUnique({
       where: { id },
       include: { creator: true },
     });
@@ -454,7 +454,7 @@ export class CommunityService {
       );
     }
 
-    const item = await this.prisma.communityCosmeticItem.update({
+    const item = await this._prisma.communityCosmeticItem.update({
       where: { id },
       data: {
         ...(dto.title && { title: dto.title }),
@@ -493,7 +493,7 @@ export class CommunityService {
     reviewerId: string,
     dto: ReviewCosmeticItemDto
   ): Promise<CommunityCosmeticItem> {
-    const existingItem = await this.prisma.communityCosmeticItem.findUnique({
+    const existingItem = await this._prisma.communityCosmeticItem.findUnique({
       where: { id },
       include: { creator: true },
     });
@@ -502,7 +502,7 @@ export class CommunityService {
       throw new NotFoundException('Cosmetic item not found');
     }
 
-    const item = await this.prisma.$transaction(async (tx) => {
+    const item = await this._prisma.$transaction(async (tx) => {
       // Update the submission status
       const updatedItem = await tx.communityCosmeticItem.update({
         where: { id },
@@ -565,7 +565,7 @@ export class CommunityService {
     cosmeticItemId: string,
     userId: string
   ): Promise<{ liked: boolean }> {
-    const existingLike = await this.prisma.cosmeticItemLike.findUnique({
+    const existingLike = await this._prisma.cosmeticItemLike.findUnique({
       where: {
         userId_cosmeticItemId: {
           userId,
@@ -576,11 +576,11 @@ export class CommunityService {
 
     if (existingLike) {
       // Unlike
-      await this.prisma.$transaction([
-        this.prisma.cosmeticItemLike.delete({
+      await this._prisma.$transaction([
+        this._prisma.cosmeticItemLike.delete({
           where: { id: existingLike.id },
         }),
-        this.prisma.communityCosmeticItem.update({
+        this._prisma.communityCosmeticItem.update({
           where: { id: cosmeticItemId },
           data: { likes: { decrement: 1 } },
         }),
@@ -588,21 +588,21 @@ export class CommunityService {
       return { liked: false };
     } else {
       // Like
-      await this.prisma.$transaction([
-        this.prisma.cosmeticItemLike.create({
+      await this._prisma.$transaction([
+        this._prisma.cosmeticItemLike.create({
           data: {
             userId,
             cosmeticItemId,
           },
         }),
-        this.prisma.communityCosmeticItem.update({
+        this._prisma.communityCosmeticItem.update({
           where: { id: cosmeticItemId },
           data: { likes: { increment: 1 } },
         }),
       ]);
 
       // Notify creator
-      const item = await this.prisma.communityCosmeticItem.findUnique({
+      const item = await this._prisma.communityCosmeticItem.findUnique({
         where: { id: cosmeticItemId },
         include: { creator: true },
       });
@@ -637,20 +637,20 @@ export class CommunityService {
   }> {
     const [total, pending, approved, rejected, requiresChanges, stats] =
       await Promise.all([
-        this.prisma.communityCosmeticItem.count(),
-        this.prisma.communityCosmeticItem.count({
+        this._prisma.communityCosmeticItem.count(),
+        this._prisma.communityCosmeticItem.count({
           where: { status: SubmissionStatus.PENDING },
         }),
-        this.prisma.communityCosmeticItem.count({
+        this._prisma.communityCosmeticItem.count({
           where: { status: SubmissionStatus.APPROVED },
         }),
-        this.prisma.communityCosmeticItem.count({
+        this._prisma.communityCosmeticItem.count({
           where: { status: SubmissionStatus.REJECTED },
         }),
-        this.prisma.communityCosmeticItem.count({
+        this._prisma.communityCosmeticItem.count({
           where: { status: SubmissionStatus.REQUIRES_CHANGES },
         }),
-        this.prisma.communityCosmeticItem.aggregate({
+        this._prisma.communityCosmeticItem.aggregate({
           _sum: {
             likes: true,
             views: true,
@@ -673,7 +673,7 @@ export class CommunityService {
    * Increment view count
    */
   async incrementViews(id: string): Promise<void> {
-    await this.prisma.communityCosmeticItem.update({
+    await this._prisma.communityCosmeticItem.update({
       where: { id },
       data: { views: { increment: 1 } },
     });
@@ -722,7 +722,7 @@ export class CommunityService {
     item: CommunityCosmeticItem & { creator: any }
   ): Promise<void> {
     try {
-      const admins = await this.prisma.user.findMany({
+      const admins = await this._prisma.user.findMany({
         where: { role: 'ADMIN' },
         select: { id: true },
       });

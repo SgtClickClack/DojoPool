@@ -19,10 +19,10 @@ export interface DirectMessagePayload {
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly _prisma: PrismaService) {}
 
   private async verifyFriendship(senderId: string, receiverId: string) {
-    const f = await this.prisma.friendship.findFirst({
+    const f = await this._prisma.friendship.findFirst({
       where: {
         status: 'ACCEPTED',
         OR: [
@@ -52,7 +52,7 @@ export class ChatService {
 
     await this.verifyFriendship(senderId, receiverId);
 
-    const dm = await this.prisma.directMessage.create({
+    const dm = await this._prisma.directMessage.create({
       data: {
         content: content.trim(),
         senderId,
@@ -75,7 +75,7 @@ export class ChatService {
 
     await this.verifyFriendship(userId, friendId);
 
-    const items = await this.prisma.directMessage.findMany({
+    const items = await this._prisma.directMessage.findMany({
       where: {
         OR: [
           { senderId: userId, receiverId: friendId },

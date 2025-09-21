@@ -22,7 +22,7 @@ export class FriendsService {
   private fallback: FallbackFriendship[] = [];
 
   constructor(
-    private prisma: PrismaService,
+    private _prisma: PrismaService,
     private notifications: NotificationsService,
     private notificationTemplates: NotificationTemplatesService
   ) {}
@@ -40,7 +40,7 @@ export class FriendsService {
     this.validateNotSelf(currentUserId, addresseeId);
     try {
       // Prevent duplicates in either direction
-      const existing = await this.prisma.friendship.findFirst({
+      const existing = await this._prisma.friendship.findFirst({
         where: {
           OR: [
             { requesterId: currentUserId, addresseeId },
@@ -51,14 +51,14 @@ export class FriendsService {
       if (existing) {
         throw new BadRequestException('Friendship already exists');
       }
-      const created = await this.prisma.friendship.create({
+      const created = await this._prisma.friendship.create({
         data: { requesterId: currentUserId, addresseeId, status: 'PENDING' },
       });
 
       // Create a notification for the recipient (addressee)
       try {
         // Get requester username for the notification
-        const requester = await this.prisma.user.findUnique({
+        const requester = await this._prisma.user.findUnique({
           where: { id: currentUserId },
           select: { username: true },
         });
@@ -126,7 +126,7 @@ export class FriendsService {
 
   async listIncomingRequests(currentUserId: string): Promise<Friendship[]> {
     try {
-      return await this.prisma.friendship.findMany({
+      return await this._prisma.friendship.findMany({
         where: { addresseeId: currentUserId, status: 'PENDING' },
       });
     } catch (err: any) {
@@ -147,7 +147,7 @@ export class FriendsService {
     action: 'accept' | 'decline'
   ): Promise<Friendship> {
     try {
-      const request = await this.prisma.friendship.findUnique({
+      const request = await this._prisma.friendship.findUnique({
         where: { id },
       });
       if (!request) throw new NotFoundException('Request not found');
@@ -156,7 +156,7 @@ export class FriendsService {
           'Not authorized to respond to this request'
         );
       const status = action === 'accept' ? 'ACCEPTED' : 'DECLINED';
-      return await this.prisma.friendship.update({
+      return await this._prisma.friendship.update({
         where: { id },
         data: { status },
       });
@@ -186,7 +186,7 @@ export class FriendsService {
     currentUserId: string
   ): Promise<Pick<User, 'id' | 'username' | 'email'>[]> {
     try {
-      const accepted = await this.prisma.friendship.findMany({
+      const accepted = await this._prisma.friendship.findMany({
         where: {
           status: 'ACCEPTED',
           OR: [{ requesterId: currentUserId }, { addresseeId: currentUserId }],
@@ -196,7 +196,7 @@ export class FriendsService {
         f.requesterId === currentUserId ? f.addresseeId : f.requesterId
       );
       if (friendIds.length === 0) return [] as any;
-      return (await this.prisma.user.findMany({
+      return (await this._prisma.user.findMany({
         where: { id: { in: friendIds } },
         select: { id: true, username: true, email: true },
       })) as any;

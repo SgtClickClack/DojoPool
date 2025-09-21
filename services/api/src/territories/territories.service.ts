@@ -9,14 +9,14 @@ export class TerritoriesService {
   private readonly logger = new Logger(TerritoriesService.name);
 
   constructor(
-    private prisma: PrismaService,
+    private _prisma: PrismaService,
     private notifications: NotificationsService,
     private notificationTemplates: NotificationTemplatesService
   ) {}
 
   async findAllTerritories(): Promise<any[]> {
     try {
-      return await this.prisma.territory.findMany({
+      return await this._prisma.territory.findMany({
         select: {
           id: true,
           name: true,
@@ -41,7 +41,7 @@ export class TerritoriesService {
 
   async getTerritoriesByClan(clanId: string) {
     try {
-      const territories = await this.prisma.territory.findMany({
+      const territories = await this._prisma.territory.findMany({
         where: { clanId },
         include: {
           venue: {
@@ -64,7 +64,7 @@ export class TerritoriesService {
 
   async getTerritoriesByVenue(venueId: string) {
     try {
-      return await this.prisma.territory.findMany({
+      return await this._prisma.territory.findMany({
         where: { venueId },
         include: {
           owner: {
@@ -94,7 +94,7 @@ export class TerritoriesService {
   ) {
     try {
       // Find or create territory for this venue
-      let territory = await this.prisma.territory.findFirst({
+      let territory = await this._prisma.territory.findFirst({
         where: { venueId },
       });
 
@@ -102,7 +102,7 @@ export class TerritoriesService {
 
       if (!territory) {
         // Create new territory
-        territory = await this.prisma.territory.create({
+        territory = await this._prisma.territory.create({
           data: {
             name: `Territory of ${venueId}`,
             venueId,
@@ -111,7 +111,7 @@ export class TerritoriesService {
         });
       } else {
         // Update existing territory
-        territory = await this.prisma.territory.update({
+        territory = await this._prisma.territory.update({
           where: { id: territory.id },
           data: { ownerId: winnerId },
         });
@@ -120,7 +120,7 @@ export class TerritoriesService {
       // Update venue controlling clan
       const winnerClan = await this.getUserClan(winnerId);
       if (winnerClan) {
-        await this.prisma.venue.update({
+        await this._prisma.venue.update({
           where: { id: venueId },
           data: { controllingClanId: winnerClan.id },
         });
@@ -130,11 +130,11 @@ export class TerritoriesService {
       if (previousOwnerId !== winnerId) {
         // Get venue and user details for notifications
         const [venue, winner] = await Promise.all([
-          this.prisma.venue.findUnique({
+          this._prisma.venue.findUnique({
             where: { id: venueId },
             select: { name: true },
           }),
-          this.prisma.user.findUnique({
+          this._prisma.user.findUnique({
             where: { id: winnerId },
             select: { username: true },
           }),
@@ -198,7 +198,7 @@ export class TerritoriesService {
 
   private async getUserClan(userId: string) {
     try {
-      const membership = await this.prisma.clanMember.findFirst({
+      const membership = await this._prisma.clanMember.findFirst({
         where: { userId },
         include: { clan: true },
       });
@@ -214,7 +214,7 @@ export class TerritoriesService {
   // Strategic map methods
   async getStrategicMap(bbox?: string) {
     // For now, return all territories with minimal shape; bbox can be parsed later
-    const territories = await this.prisma.territory.findMany({
+    const territories = await this._prisma.territory.findMany({
       include: {
         venue: { select: { id: true, name: true, lat: true, lng: true } },
         clan: { select: { id: true, name: true } },
@@ -238,7 +238,7 @@ export class TerritoriesService {
 
   async scoutTerritory(territoryId: string, playerId: string) {
     // No-op for permissions for now; record an event
-    const event = await this.prisma.territoryEvent.create({
+    const event = await this._prisma.territoryEvent.create({
       data: {
         territoryId,
         type: 'CLAIM',
@@ -259,7 +259,7 @@ export class TerritoriesService {
   ) {
     switch (action) {
       case 'upgrade_defense': {
-        const updated = await this.prisma.territory.update({
+        const updated = await this._prisma.territory.update({
           where: { id: territoryId },
           data: {
             defenseScore: { increment: 1 },
@@ -273,7 +273,7 @@ export class TerritoriesService {
         };
       }
       case 'allocate_resources': {
-        const current = await this.prisma.territory.findUnique({
+        const current = await this._prisma.territory.findUnique({
           where: { id: territoryId },
           select: { resources: true },
         });
@@ -281,7 +281,7 @@ export class TerritoriesService {
           ...(current?.resources as any),
           ...(payload?.resources || {}),
         };
-        await this.prisma.territory.update({
+        await this._prisma.territory.update({
           where: { id: territoryId },
           data: { resources },
         });
@@ -290,7 +290,7 @@ export class TerritoriesService {
       case 'transfer_ownership': {
         const newOwnerId: string | undefined = payload?.newOwnerId;
         if (!newOwnerId) throw new Error('newOwnerId required');
-        await this.prisma.territory.update({
+        await this._prisma.territory.update({
           where: { id: territoryId },
           data: { ownerId: newOwnerId },
         });

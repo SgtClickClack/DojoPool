@@ -24,7 +24,7 @@ export interface JournalResult {
 export class JournalService {
   private readonly logger = new Logger(JournalService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly _prisma: PrismaService) {}
 
   private clampPage(page?: number) {
     const p = Number.isFinite(page as number) ? (page as number) : 1;
@@ -47,8 +47,8 @@ export class JournalService {
     const take = pageNum * limitNum; // fetch enough from each source to build the combined page
 
     const [activityTotal, notificationTotal] = await Promise.all([
-      this.prisma.activityEvent.count({ where: { userId } }),
-      this.prisma.notification.count({ where: { recipientId: userId } }),
+      this._prisma.activityEvent.count({ where: { userId } }),
+      this._prisma.notification.count({ where: { recipientId: userId } }),
     ]);
 
     const total = activityTotal + notificationTotal;
@@ -68,7 +68,7 @@ export class JournalService {
     }
 
     const [activities, notifications] = await Promise.all([
-      this.prisma.activityEvent.findMany({
+      this._prisma.activityEvent.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
         take,
@@ -83,7 +83,7 @@ export class JournalService {
           clanId: true,
         },
       }),
-      this.prisma.notification.findMany({
+      this._prisma.notification.findMany({
         where: { recipientId: userId },
         orderBy: { createdAt: 'desc' },
         take,

@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class VenueOwnerGuard implements CanActivate {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly _prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
@@ -22,7 +22,7 @@ export class VenueOwnerGuard implements CanActivate {
     const specialId: string | undefined = req?.params?.specialId;
 
     if (specialId) {
-      const special = await (this.prisma as any).venueSpecial.findUnique({
+      const special = await (this._prisma as any).venueSpecial.findUnique({
         where: { id: specialId },
         include: { venue: { select: { id: true, ownerId: true } } },
       });
@@ -40,7 +40,7 @@ export class VenueOwnerGuard implements CanActivate {
     }
 
     // Default: authorize based on owning a venue
-    const venue = await this.prisma.venue.findFirst({
+    const venue = await this._prisma.venue.findFirst({
       where: { ownerId: userId },
     });
     if (!venue) {

@@ -14,7 +14,7 @@ export class ChallengesService {
   private readonly logger = new Logger(ChallengesService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly _prisma: PrismaService,
     private readonly notifications: NotificationsService,
     private readonly notificationTemplates: NotificationTemplatesService
   ) {}
@@ -23,7 +23,7 @@ export class ChallengesService {
     const { challengerId, defenderId, venueId } = dto;
 
     // Verify friendship (friend-only challenges)
-    const friendship = await this.prisma.friendship.findFirst({
+    const friendship = await this._prisma.friendship.findFirst({
       where: {
         status: 'ACCEPTED',
         OR: [
@@ -41,7 +41,7 @@ export class ChallengesService {
 
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
 
-    const challenge = await this.prisma.challenge.create({
+    const challenge = await this._prisma.challenge.create({
       data: {
         challengerId,
         defenderId,
@@ -55,11 +55,11 @@ export class ChallengesService {
     try {
       // Get challenger and venue details for the notification
       const [challenger, venue] = await Promise.all([
-        this.prisma.user.findUnique({
+        this._prisma.user.findUnique({
           where: { id: challengerId },
           select: { username: true },
         }),
-        this.prisma.venue.findUnique({
+        this._prisma.venue.findUnique({
           where: { id: venueId },
           select: { name: true },
         }),

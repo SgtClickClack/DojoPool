@@ -6,13 +6,13 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TasksService {
   private readonly logger = new Logger(TasksService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly _prisma: PrismaService) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
   async expirePendingChallenges() {
     const now = new Date();
 
-    const result = await this.prisma.challenge.updateMany({
+    const result = await this._prisma.challenge.updateMany({
       where: {
         status: 'PENDING',
         expiresAt: {
@@ -38,7 +38,7 @@ export class TasksService {
       10
     );
     try {
-      const venues = await this.prisma.venue.findMany({
+      const venues = await this._prisma.venue.findMany({
         where: { controllingClanId: { not: null } },
         select: { controllingClanId: true, incomeModifier: true },
       });
@@ -62,13 +62,13 @@ export class TasksService {
       if (totals.size === 0) return;
 
       const ops = Array.from(totals.entries()).map(([clanId, amount]) =>
-        this.prisma.clan.update({
+        this._prisma.clan.update({
           where: { id: clanId },
           data: { dojoCoinBalance: { increment: amount } },
         })
       );
 
-      await this.prisma.$transaction(ops);
+      await this._prisma.$transaction(ops);
       this.logger.log(
         `Accrued Dojo income for ${totals.size} clan(s); total venues: ${venues.length}`
       );

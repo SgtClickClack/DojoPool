@@ -7,7 +7,7 @@ export class StrategicMapService {
   private readonly logger = new Logger(StrategicMapService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly _prisma: PrismaService,
     private readonly worldMap: WorldMapGateway
   ) {}
 
@@ -16,7 +16,7 @@ export class StrategicMapService {
   }
 
   async getOverview() {
-    const territories = await this.prisma.territory.findMany({
+    const territories = await this._prisma.territory.findMany({
       include: {
         venue: { select: { id: true, name: true, lat: true, lng: true } },
         clan: { select: { id: true, name: true } },
