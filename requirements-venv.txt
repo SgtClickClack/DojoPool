@@ -19,7 +19,7 @@ pytest==7.4.4  # Updated for security (within compatible range)
 pytest-cov==4.1.0  # Updated for security
 
 # Development
-black==23.12.1  # Updated for security
+black==25.9.0  # Updated for security
 flake8==6.1.0  # Updated for security
 mypy==1.8.0  # Updated for security
 
