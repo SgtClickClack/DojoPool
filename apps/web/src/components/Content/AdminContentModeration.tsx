@@ -9,10 +9,16 @@ import {
   type ContentListResponse,
   type ContentStats,
   ContentStatus,
-  ContentType,
-  ContentVisibility,
   type ModerateContentRequest,
 } from '@/types/content';
+import { Alert, Box, CircularProgress, Pagination, Paper, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { withErrorBoundary } from '@/components/ErrorBoundary/withErrorBoundary';
+import ContentModerationStats from './AdminContentModeration/ContentModerationStats';
+import ContentModerationFilters from './AdminContentModeration/ContentModerationFilters';
+import ContentModerationTable from './AdminContentModeration/ContentModerationTable';
+import ContentModerationDialog from './AdminContentModeration/ContentModerationDialog';
+
 interface AxiosError {
   response?: {
     data?: {
@@ -20,76 +26,6 @@ interface AxiosError {
     };
   };
 }
-
-import {
-  CheckCircle as ApproveIcon,
-  Archive as ArchiveIcon,
-  Cancel as RejectIcon,
-  Visibility as ViewIcon,
-} from '@mui/icons-material';
-import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  Grid,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Pagination,
-  Paper,
-  Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-} from '@mui/material';
-import React, { useEffect, useState } from 'react';
-
-const statusColors = {
-  [ContentStatus.PENDING]: {
-    bg: 'warning.light',
-    color: 'warning.contrastText',
-  },
-  [ContentStatus.APPROVED]: {
-    bg: 'success.light',
-    color: 'success.contrastText',
-  },
-  [ContentStatus.REJECTED]: { bg: 'error.light', color: 'error.contrastText' },
-  [ContentStatus.ARCHIVED]: { bg: 'grey.400', color: 'grey.contrastText' },
-} as const;
-
-const contentTypeLabels = {
-  [ContentType.MATCH_REPLAY]: '🎮 Match',
-  [ContentType.CUSTOM_ITEM]: '🎨 Custom',
-  [ContentType.HIGH_SCORE]: '🏆 Score',
-  [ContentType.ACHIEVEMENT]: '🎯 Achievement',
-  [ContentType.TOURNAMENT_HIGHLIGHT]: '🏟️ Tournament',
-  [ContentType.VENUE_REVIEW]: '🏢 Venue',
-  [ContentType.GENERAL]: '💬 General',
-  [ContentType.EVENT]: '📅 Event',
-  [ContentType.NEWS_ARTICLE]: '📰 News',
-  [ContentType.SYSTEM_MESSAGE]: '📢 System',
-};
-
-const visibilityLabels = {
-  [ContentVisibility.PUBLIC]: '🌐 Public',
-  [ContentVisibility.FRIENDS_ONLY]: '👥 Friends',
-  [ContentVisibility.PRIVATE]: '🔒 Private',
-};
 
 interface AdminContentModerationProps {
   onContentUpdated?: () => void;
@@ -176,13 +112,19 @@ export const AdminContentModeration: React.FC<AdminContentModerationProps> = ({
     }
   };
 
-  const openModerateDialog = (content: Content) => {
+  const openModerateDialog = (content: Content, status: ContentStatus = ContentStatus.APPROVED) => {
     setSelectedContent(content);
     setModerationData({
-      status: ContentStatus.APPROVED,
+      status,
       moderationNotes: '',
     });
     setModerateDialogOpen(true);
+  };
+
+  const handleViewContent = (content: Content) => {
+    if (content.fileUrl) {
+      window.open(content.fileUrl, '_blank');
+    }
   };
 
   if (loading && !content) {

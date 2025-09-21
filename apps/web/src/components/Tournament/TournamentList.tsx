@@ -9,7 +9,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import TournamentCard from './TournamentCard';
 
 interface Tournament {

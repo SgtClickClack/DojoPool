@@ -28,7 +28,7 @@ interface GameSessionViewProps {
   onSessionEnd?: (winnerId: string) => void;
 }
 
-const GameSessionView: React.FC<GameSessionViewProps> = ({
+const GameSessionView: React.FC<GameSessionViewProps> = React.memo(({
   sessionId,
   onSessionEnd,
 }) => {
@@ -458,6 +458,8 @@ const GameSessionView: React.FC<GameSessionViewProps> = ({
       )}
     </Box>
   );
-};
+});
+
+GameSessionView.displayName = 'GameSessionView';
 
 export default GameSessionView;
