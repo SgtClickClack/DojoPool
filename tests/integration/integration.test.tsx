@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { theme, TextField, UserList, UserForm, App, Button } from '@components';
 import { renderWithProviders } from '../utils/test-utils';
 import { http, HttpResponse } from 'msw';
