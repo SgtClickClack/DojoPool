@@ -147,311 +147,21 @@ export const AdminContentModeration: React.FC<AdminContentModerationProps> = ({
         </Alert>
       )}
 
-      {/* Stats Cards */}
-      {stats && (
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" color="primary">
-                  {stats.total}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Total Content
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" color="warning.main">
-                  {stats.pending}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Pending Review
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" color="success.main">
-                  {stats.approved}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Approved
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" color="error.main">
-                  {stats.rejected}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Rejected
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      )}
+      {stats && <ContentModerationStats stats={stats} />}
 
-      {/* Filters */}
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          Filters
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          <TextField
-            label="Search"
-            size="small"
-            value={filters.search || ''}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                search: e.target.value || undefined,
-              }))
-            }
-            placeholder="Search content..."
-          />
+      <ContentModerationFilters
+        filters={filters}
+        onFiltersChange={setFilters}
+      />
 
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={filters.status || ''}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  status: (e.target.value as ContentStatus) || undefined,
-                }))
-              }
-              label="Status"
-            >
-              <MenuItem value="">All</MenuItem>
-              {Object.values(ContentStatus).map((status) => (
-                <MenuItem key={status} value={status}>
-                  {status.replace('_', ' ')}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Type</InputLabel>
-            <Select
-              value={filters.contentType || ''}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  contentType: (e.target.value as ContentType) || undefined,
-                }))
-              }
-              label="Type"
-            >
-              <MenuItem value="">All Types</MenuItem>
-              {Object.entries(contentTypeLabels).map(([value, label]) => (
-                <MenuItem key={value} value={value}>
-                  {label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Visibility</InputLabel>
-            <Select
-              value={filters.visibility || ''}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  visibility:
-                    (e.target.value as ContentVisibility) || undefined,
-                }))
-              }
-              label="Visibility"
-            >
-              <MenuItem value="">All</MenuItem>
-              {Object.entries(visibilityLabels).map(([value, label]) => (
-                <MenuItem key={value} value={value}>
-                  {label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <Button
-            variant="outlined"
-            onClick={() => setFilters({})}
-            size="small"
-          >
-            Clear Filters
-          </Button>
-        </Box>
+      <Paper>
+        <ContentModerationTable
+          content={content?.content || []}
+          onModerate={openModerateDialog}
+          onViewContent={handleViewContent}
+        />
       </Paper>
 
-      {/* Content Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Content</TableCell>
-              <TableCell>User</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Visibility</TableCell>
-              <TableCell>Stats</TableCell>
-              <TableCell>Created</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {content?.content.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>
-                  <Box>
-                    <Typography
-                      variant="body2"
-                      fontWeight="bold"
-                      sx={{
-                        maxWidth: 200,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {item.title}
-                    </Typography>
-                    {item.description && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{
-                          maxWidth: 200,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: 'block',
-                        }}
-                      >
-                        {item.description}
-                      </Typography>
-                    )}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar
-                      src={item.user.avatarUrl}
-                      sx={{ width: 32, height: 32, mr: 1 }}
-                    >
-                      {item.user.username.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <Typography variant="body2">
-                      {item.user.username}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={contentTypeLabels[item.contentType]}
-                    size="small"
-                    variant="outlined"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={item.status.replace('_', ' ')}
-                    size="small"
-                    sx={{
-                      bgcolor: statusColors[item.status].bg,
-                      color: statusColors[item.status].color,
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Typography variant="caption">
-                    {visibilityLabels[item.visibility]}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Box>
-                    <Typography variant="caption" display="block">
-                      ❤️ {item.likes} 👍 {item.shares}
-                    </Typography>
-                    <Typography variant="caption" display="block">
-                      👁️ {item.views}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="caption">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <IconButton
-                      size="small"
-                      onClick={() => window.open(item.fileUrl || '#', '_blank')}
-                      disabled={!item.fileUrl}
-                    >
-                      <ViewIcon />
-                    </IconButton>
-
-                    {item.status === ContentStatus.PENDING && (
-                      <>
-                        <IconButton
-                          size="small"
-                          color="success"
-                          onClick={() => openModerateDialog(item)}
-                        >
-                          <ApproveIcon />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => {
-                            setSelectedContent(item);
-                            setModerationData({
-                              status: ContentStatus.REJECTED,
-                              moderationNotes: '',
-                            });
-                            setModerateDialogOpen(true);
-                          }}
-                        >
-                          <RejectIcon />
-                        </IconButton>
-                      </>
-                    )}
-
-                    {item.status === ContentStatus.APPROVED && (
-                      <IconButton
-                        size="small"
-                        color="default"
-                        onClick={() => {
-                          setSelectedContent(item);
-                          setModerationData({
-                            status: ContentStatus.ARCHIVED,
-                            moderationNotes: '',
-                          });
-                          setModerateDialogOpen(true);
-                        }}
-                      >
-                        <ArchiveIcon />
-                      </IconButton>
-                    )}
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Pagination */}
       {content && content.pagination.totalPages > 1 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
           <Pagination
@@ -463,108 +173,22 @@ export const AdminContentModeration: React.FC<AdminContentModerationProps> = ({
         </Box>
       )}
 
-      {/* Moderation Dialog */}
-      <Dialog
+      <ContentModerationDialog
         open={moderateDialogOpen}
         onClose={() => setModerateDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Moderate Content: {selectedContent?.title}</DialogTitle>
-        <DialogContent>
-          {selectedContent && (
-            <Box sx={{ pt: 2 }}>
-              <Typography variant="h6" gutterBottom>
-                Content Details
-              </Typography>
-
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  <strong>Creator:</strong> {selectedContent.user.username}
-                </Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  <strong>Type:</strong>{' '}
-                  {contentTypeLabels[selectedContent.contentType]}
-                </Typography>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  <strong>Visibility:</strong>{' '}
-                  {visibilityLabels[selectedContent.visibility]}
-                </Typography>
-                <Typography variant="body2" sx={{ mb: 2 }}>
-                  <strong>Created:</strong>{' '}
-                  {new Date(selectedContent.createdAt).toLocaleString()}
-                </Typography>
-
-                {selectedContent.description && (
-                  <Typography variant="body2" sx={{ mb: 2 }}>
-                    <strong>Description:</strong> {selectedContent.description}
-                  </Typography>
-                )}
-
-                {selectedContent.fileUrl && (
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>File:</strong>
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() =>
-                        window.open(selectedContent.fileUrl!, '_blank')
-                      }
-                    >
-                      View File
-                    </Button>
-                  </Box>
-                )}
-              </Box>
-
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Action</InputLabel>
-                <Select
-                  value={moderationData.status}
-                  onChange={(e) =>
-                    setModerationData((prev) => ({
-                      ...prev,
-                      status: e.target.value as ContentStatus,
-                    }))
-                  }
-                  label="Action"
-                >
-                  <MenuItem value={ContentStatus.APPROVED}>✅ Approve</MenuItem>
-                  <MenuItem value={ContentStatus.REJECTED}>❌ Reject</MenuItem>
-                  <MenuItem value={ContentStatus.ARCHIVED}>📁 Archive</MenuItem>
-                </Select>
-              </FormControl>
-
-              <TextField
-                label="Moderation Notes (Optional)"
-                multiline
-                rows={3}
-                fullWidth
-                value={moderationData.moderationNotes}
-                onChange={(e) =>
-                  setModerationData((prev) => ({
-                    ...prev,
-                    moderationNotes: e.target.value,
-                  }))
-                }
-                placeholder="Add notes about your moderation decision..."
-              />
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setModerateDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleModerate}
-            variant="contained"
-            disabled={moderating}
-          >
-            {moderating ? <CircularProgress size={20} /> : 'Moderate Content'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onSubmit={handleModerate}
+        selectedContent={selectedContent}
+        moderationData={moderationData}
+        onModerationDataChange={setModerationData}
+        moderating={moderating}
+      />
     </Box>
   );
 };
+
+export default withErrorBoundary(AdminContentModeration, {
+  componentName: 'AdminContentModeration',
+  showRetry: true,
+  showHome: true,
+  showReport: true,
+});

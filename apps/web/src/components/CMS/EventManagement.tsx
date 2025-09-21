@@ -1,36 +1,10 @@
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  Event as EventIcon,
-  LocationOn as LocationIcon,
-  People as PeopleIcon,
-} from '@mui/icons-material';
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  Grid,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { Box, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { withErrorBoundary } from '@/components/ErrorBoundary/withErrorBoundary';
+import EventManagementHeader from './EventManagement/EventManagementHeader';
+import EventGrid from './EventManagement/EventGrid';
+import EventFormDialog from './EventManagement/EventFormDialog';
+import EventManagementAlerts from './EventManagement/EventManagementAlerts';
 
 interface Event {
   id: string;
@@ -255,19 +229,6 @@ const EventManagement: React.FC = () => {
     setEditingEvent(null);
   };
 
-  const getEventTypeColor = (type: string) => {
-    switch (type) {
-      case 'TOURNAMENT':
-        return 'primary';
-      case 'SOCIAL':
-        return 'secondary';
-      case 'MAINTENANCE':
-        return 'warning';
-      default:
-        return 'default';
-    }
-  };
-
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" p={4}>
@@ -277,294 +238,38 @@ const EventManagement: React.FC = () => {
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box>
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-            {error}
-          </Alert>
-        )}
+    <Box>
+      <EventManagementAlerts
+        error={error}
+        success={success}
+        onClearError={() => setError(null)}
+        onClearSuccess={() => setSuccess(null)}
+      />
 
-        {success && (
-          <Alert
-            severity="success"
-            sx={{ mb: 2 }}
-            onClose={() => setSuccess(null)}
-          >
-            {success}
-          </Alert>
-        )}
+      <EventManagementHeader onCreateEvent={handleCreateEvent} />
 
-        <Box
-          sx={{
-            mb: 3,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Typography variant="h6" component="h2">
-            Event Management
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreateEvent}
-          >
-            Create Event
-          </Button>
-        </Box>
+      <EventGrid
+        events={events}
+        onEditEvent={handleEditEvent}
+        onDeleteEvent={handleDeleteEvent}
+      />
 
-        <Grid container spacing={3}>
-          {events.map((event) => (
-            <Grid item xs={12} md={6} lg={4} key={event.id}>
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <EventIcon sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography
-                      variant="h6"
-                      component="h3"
-                      sx={{ flexGrow: 1 }}
-                    >
-                      {event.title}
-                    </Typography>
-                    <Chip
-                      label={event.eventType || 'EVENT'}
-                      color={
-                        getEventTypeColor(event.eventType || 'EVENT') as 'primary' | 'secondary' | 'warning' | 'default'
-                      }
-                      size="small"
-                    />
-                  </Box>
-
-                  {event.description && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mb: 2 }}
-                    >
-                      {event.description}
-                    </Typography>
-                  )}
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 1,
-                      mb: 2,
-                    }}
-                  >
-                    {event.eventDate && (
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <EventIcon
-                          sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }}
-                        />
-                        <Typography variant="body2">
-                          {new Date(event.eventDate).toLocaleDateString()} at{' '}
-                          {new Date(event.eventDate).toLocaleTimeString()}
-                        </Typography>
-                      </Box>
-                    )}
-
-                    {event.location && (
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <LocationIcon
-                          sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }}
-                        />
-                        <Typography variant="body2">
-                          {event.location}
-                        </Typography>
-                      </Box>
-                    )}
-
-                    {event.maxAttendees && parseInt(event.maxAttendees) > 0 && (
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <PeopleIcon
-                          sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }}
-                        />
-                        <Typography variant="body2">
-                          Max: {event.maxAttendees} attendees
-                        </Typography>
-                      </Box>
-                    )}
-                  </Box>
-
-                  {event.tags && event.tags.length > 0 && (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: 0.5,
-                        mb: 2,
-                      }}
-                    >
-                      {event.tags.map((tag, index) => (
-                        <Chip
-                          key={index}
-                          label={tag}
-                          size="small"
-                          variant="outlined"
-                        />
-                      ))}
-                    </Box>
-                  )}
-                </CardContent>
-
-                <CardActions>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleEditEvent(event)}
-                    color="primary"
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleDeleteEvent(event.id)}
-                    color="error"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-
-        {/* Create/Edit Event Dialog */}
-        <Dialog
-          open={dialogOpen}
-          onClose={handleCloseDialog}
-          maxWidth="md"
-          fullWidth
-        >
-          <DialogTitle>
-            {editingEvent ? 'Edit Event' : 'Create New Event'}
-          </DialogTitle>
-          <DialogContent>
-            <Box
-              sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}
-            >
-              <TextField
-                fullWidth
-                label="Title"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                required
-              />
-
-              <TextField
-                fullWidth
-                label="Description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                multiline
-                rows={3}
-              />
-
-              <FormControl fullWidth>
-                <InputLabel>Event Type</InputLabel>
-                <Select
-                  value={formData.eventType}
-                  label="Event Type"
-                  onChange={(e) =>
-                    setFormData({ ...formData, eventType: e.target.value })
-                  }
-                >
-                  <MenuItem value="TOURNAMENT">Tournament</MenuItem>
-                  <MenuItem value="SOCIAL">Social Event</MenuItem>
-                  <MenuItem value="MAINTENANCE">Maintenance</MenuItem>
-                  <MenuItem value="ANNOUNCEMENT">Announcement</MenuItem>
-                </Select>
-              </FormControl>
-
-              <DateTimePicker
-                label="Event Date & Time"
-                value={formData.eventDate}
-                onChange={(date) =>
-                  setFormData({ ...formData, eventDate: date })
-                }
-                slotProps={{ textField: { fullWidth: true } }}
-              />
-
-              <FormControl fullWidth>
-                <InputLabel>Venue</InputLabel>
-                <Select
-                  value={formData.venueId}
-                  label="Venue"
-                  onChange={(e) =>
-                    setFormData({ ...formData, venueId: e.target.value })
-                  }
-                >
-                  {mockVenues.map((venue) => (
-                    <MenuItem key={venue.id} value={venue.id}>
-                      {venue.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <TextField
-                fullWidth
-                label="Location (if different from venue)"
-                value={formData.location}
-                onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
-                }
-              />
-
-              <TextField
-                fullWidth
-                label="Max Attendees"
-                type="number"
-                value={formData.maxAttendees}
-                onChange={(e) =>
-                  setFormData({ ...formData, maxAttendees: e.target.value })
-                }
-              />
-
-              <DateTimePicker
-                label="Registration Deadline"
-                value={formData.registrationDeadline}
-                onChange={(date) =>
-                  setFormData({ ...formData, registrationDeadline: date })
-                }
-                slotProps={{ textField: { fullWidth: true } }}
-              />
-
-              <TextField
-                fullWidth
-                label="Tags (comma-separated)"
-                value={formData.tags.join(', ')}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    tags: e.target.value
-                      .split(',')
-                      .map((tag) => tag.trim())
-                      .filter((tag) => tag),
-                  })
-                }
-                helperText="Enter tags separated by commas"
-              />
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={handleSubmit} variant="contained">
-              {editingEvent ? 'Update' : 'Create'} Event
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
-    </LocalizationProvider>
+      <EventFormDialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        onSubmit={handleSubmit}
+        editingEvent={editingEvent}
+        formData={formData}
+        onFormDataChange={setFormData}
+        venues={mockVenues}
+      />
+    </Box>
   );
 };
 
-export default EventManagement;
+export default withErrorBoundary(EventManagement, {
+  componentName: 'EventManagement',
+  showRetry: true,
+  showHome: true,
+  showReport: true,
+});

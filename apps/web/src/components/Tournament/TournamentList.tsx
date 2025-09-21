@@ -43,6 +43,18 @@ const TournamentList: React.FC<TournamentListProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [locationFilter, setLocationFilter] = useState<string>('all');
 
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  }, []);
+
+  const handleStatusChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStatusFilter(e.target.value);
+  }, []);
+
+  const handleLocationChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLocationFilter(e.target.value);
+  }, []);
+
   const filteredTournaments = useMemo(() => {
     return tournaments.filter((tournament) => {
       const matchesSearch =
@@ -112,7 +124,7 @@ const TournamentList: React.FC<TournamentListProps> = ({
               fullWidth
               label="Search tournaments"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
               placeholder="Search by name or description..."
             />
           </Box>
@@ -123,7 +135,7 @@ const TournamentList: React.FC<TournamentListProps> = ({
               <Select
                 value={statusFilter}
                 label="Status"
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={handleStatusChange}
               >
                 <MenuItem value="all">All ({getStatusCount('all')})</MenuItem>
                 <MenuItem value="upcoming">
@@ -148,7 +160,7 @@ const TournamentList: React.FC<TournamentListProps> = ({
               <Select
                 value={locationFilter}
                 label="Location"
-                onChange={(e) => setLocationFilter(e.target.value)}
+                onChange={handleLocationChange}
               >
                 <MenuItem value="all">All Locations</MenuItem>
                 {uniqueLocations.map((location) => (

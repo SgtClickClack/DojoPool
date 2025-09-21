@@ -11,7 +11,6 @@ export interface ActivityEvent {
   isPublic: boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export enum ActivityEventType {
   GAME_COMPLETED = 'game_completed',
   TOURNAMENT_JOINED = 'tournament_joined',

@@ -11,7 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 interface Dojo {
   id: string;
@@ -129,20 +129,22 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
 
   const displayDojos = dojos.length > 0 ? dojos : mockDojos;
 
-  const filteredDojos = displayDojos.filter((dojo) => {
-    const matchesSearch =
-      dojo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dojo.location.address.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredDojos = useMemo(() => {
+    return displayDojos.filter((dojo) => {
+      const matchesSearch =
+        dojo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        dojo.location.address.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesFilter =
-      selectedFilter === 'all' ||
-      (selectedFilter === 'available' && dojo.status === 'available') ||
-      (selectedFilter === 'nearby' && (dojo.distance || 0) < 1000);
+      const matchesFilter =
+        selectedFilter === 'all' ||
+        (selectedFilter === 'available' && dojo.status === 'available') ||
+        (selectedFilter === 'nearby' && (dojo.distance || 0) < 1000);
 
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    });
+  }, [displayDojos, searchQuery, selectedFilter]);
 
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyColor = useMemo(() => (difficulty: string) => {
     switch (difficulty) {
       case 'easy':
         return 'text-green-600 bg-green-100';
@@ -153,9 +155,9 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
       default:
         return 'text-gray-600 bg-gray-100';
     }
-  };
+  }, []);
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = useMemo(() => (status: string) => {
     switch (status) {
       case 'available':
         return 'bg-green-500';
@@ -166,14 +168,14 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
       default:
         return 'bg-gray-500';
     }
-  };
+  }, []);
 
-  const formatDistance = (meters: number) => {
+  const formatDistance = useMemo(() => (meters: number) => {
     if (meters < 1000) {
       return `${meters}m`;
     }
     return `${(meters / 1000).toFixed(1)}km`;
-  };
+  }, []);
 
   return (
     <div className="mobile-first min-h-screen bg-gray-50">

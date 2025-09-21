@@ -9,7 +9,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import ClanCard from './ClanCard';
 
 interface ClanMember {
@@ -56,6 +56,22 @@ const ClanList: React.FC<ClanListProps> = ({
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [levelFilter, setLevelFilter] = useState<string>('all');
   const [memberFilter, setMemberFilter] = useState<string>('all');
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  }, []);
+
+  const handleLocationChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLocationFilter(e.target.value);
+  }, []);
+
+  const handleLevelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLevelFilter(e.target.value);
+  }, []);
+
+  const handleMemberChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setMemberFilter(e.target.value);
+  }, []);
 
   const filteredClans = useMemo(() => {
     return clans.filter((clan) => {
@@ -146,7 +162,7 @@ const ClanList: React.FC<ClanListProps> = ({
               fullWidth
               label="Search clans"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
               placeholder="Search by name or description..."
             />
           </Box>
@@ -157,7 +173,7 @@ const ClanList: React.FC<ClanListProps> = ({
               <Select
                 value={locationFilter}
                 label="Location"
-                onChange={(e) => setLocationFilter(e.target.value)}
+                onChange={handleLocationChange}
               >
                 <MenuItem value="all">All Locations</MenuItem>
                 {uniqueLocations.map((location) => (
@@ -175,7 +191,7 @@ const ClanList: React.FC<ClanListProps> = ({
               <Select
                 value={levelFilter}
                 label="Level"
-                onChange={(e) => setLevelFilter(e.target.value)}
+                onChange={handleLevelChange}
               >
                 <MenuItem value="all">All Levels</MenuItem>
                 {uniqueLevels.map((level) => (
@@ -193,7 +209,7 @@ const ClanList: React.FC<ClanListProps> = ({
               <Select
                 value={memberFilter}
                 label="Status"
-                onChange={(e) => setMemberFilter(e.target.value)}
+                onChange={handleMemberChange}
               >
                 <MenuItem value="all">All ({getMemberCount('all')})</MenuItem>
                 <MenuItem value="member">

@@ -34,7 +34,6 @@ export interface ClanMember {
   contributionScore: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export enum ClanRole {
   LEADER = 'leader',
   OFFICER = 'officer',
