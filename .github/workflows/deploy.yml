@@ -62,7 +62,7 @@ jobs:
         run: yarn test:unit
 
       - name: Run integration tests
-        run: yarn test:int
+        run: yarn test:integration
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/dojopool_test
           REDIS_URL: redis://localhost:6379
