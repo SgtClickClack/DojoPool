@@ -2,8 +2,8 @@
 
 import { type DojoData, type PlayerData, dojoService } from '@/services/dojoService';
 import { getMapboxToken, handleMapboxError, MAPBOX_PERFORMANCE_CONFIG } from '@/config/mapbox';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import mapboxgl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import React, { useCallback, useEffect, useRef, useState, memo } from 'react';
 import styles from './MapboxWorldHubMap.module.css';
 
@@ -79,7 +79,7 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = memo(({
       return;
     }
 
-    mapboxgl.accessToken = token;
+    // maplibre-gl doesn't require accessToken, but we'll keep it for compatibility
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
@@ -90,9 +90,8 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = memo(({
       // Performance optimizations
       ...MAPBOX_PERFORMANCE_CONFIG,
       // Additional performance settings
-      maxTileCacheSize: MAPBOX_PERFORMANCE_CONFIG.maxTileCacheSize,
+      maxTileCacheSize: MAPBOX_PERFORMANCE_CONFIG.maxTileCacheSize,      
       renderWorldCopies: MAPBOX_PERFORMANCE_CONFIG.renderWorldCopies,
-      preserveDrawingBuffer: MAPBOX_PERFORMANCE_CONFIG.preserveDrawingBuffer,
     });
 
     // Add error handling

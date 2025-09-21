@@ -24,12 +24,20 @@ const nextConfig = {
     // scrollRestoration: true,
     // workerThreads: true,
   },
-  // Enable standalone output for Docker
-  output: 'standalone',
+  // Enable static export for Firebase
+  output: 'export',
+  trailingSlash: true,
   // Enable build tracing for standalone output
   outputFileTracing: true,
   // Configure pages directory
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+
+  // Enable experimental features for better performance
+  experimental: {
+    optimizePackageImports: ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
+    optimizeCss: true,
+    scrollRestoration: true,
+  },
 
   // Webpack optimizations for Windows file handling
   webpack: (config, { dev, isServer }) => {
@@ -58,21 +66,50 @@ const nextConfig = {
             chunks: 'all',
             priority: 20,
           },
+          charts: {
+            test: /[\\/]node_modules[\\/](chart\.js|recharts|@ant-design\/charts)[\\/]/,
+            name: 'charts',
+            chunks: 'all',
+            priority: 15,
+          },
+          maps: {
+            test: /[\\/]node_modules[\\/](mapbox-gl|maplibre-gl|@vis\.gl|@react-google-maps)[\\/]/,
+            name: 'maps',
+            chunks: 'all',
+            priority: 15,
+          },
+          heavy: {
+            test: /[\\/]node_modules[\\/](konva|react-konva|lottie-web|jspdf|react-quill)[\\/]/,
+            name: 'heavy-libs',
+            chunks: 'all',
+            priority: 15,
+          },
         },
       },
     };
 
-    // Increase memory limits
+    // Increase memory limits and add optimizations
     config.performance = {
       ...config.performance,
       maxEntrypointSize: 512000,
       maxAssetSize: 512000,
     };
 
-    // Mapbox to Maplibre alias
+    // Tree shaking optimizations
+    config.optimization = {
+      ...config.optimization,
+      usedExports: true,
+      sideEffects: true,
+    };
+
+    // Resolve aliases for better tree shaking and compatibility
     config.resolve = config.resolve || {};
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
+      // Alias commonly used libraries for better bundling
+      'react': require.resolve('react'),
+      'react-dom': require.resolve('react-dom'),
+      // Mapbox to Maplibre alias for compatibility
       'mapbox-gl': 'maplibre-gl',
     };
 
