@@ -161,7 +161,6 @@ export class WebSocketService {
         });
 
         this.socket.on('disconnect', () => {
-          console.log('WebSocket disconnected from match namespace');
           this.isConnected = false;
           this.currentMatchId = null;
           this.handleReconnect();
@@ -183,7 +182,6 @@ export class WebSocketService {
 
         // Handle shot errors
         this.socket.on('shot_error', (error) => {
-          console.error('Shot error:', error);
           this.handleMessage({ type: 'shot_error', data: error });
         });
 
@@ -193,7 +191,6 @@ export class WebSocketService {
           this.handleMessage({ type: eventName, data });
         });
       } catch (error) {
-        console.error('Failed to create match WebSocket connection:', error);
         reject(error);
       }
     });
@@ -206,7 +203,6 @@ export class WebSocketService {
         matchId,
         playerId: this.currentMatchId,
       });
-      console.log(`Joined match room: ${matchId}`);
     }
   }
 
@@ -214,7 +210,6 @@ export class WebSocketService {
   leaveMatchRoom(matchId: string): void {
     if (this.socket && this.isConnected) {
       this.socket.emit('leave_match', { matchId });
-      console.log(`Left match room: ${matchId}`);
     }
   }
 
