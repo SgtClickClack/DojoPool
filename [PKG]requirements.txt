@@ -1,6 +1,6 @@
 # Core dependencies
 Flask==2.0.1
-SQLAlchemy==1.4.23
+SQLAlchemy==2.0.43
 python-dotenv==0.19.0
 Flask-Login==0.5.0
 Flask-SQLAlchemy==2.5.1
