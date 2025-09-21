@@ -1,6 +1,8 @@
 import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { server } from './mocks/server';
+import * as msw from 'msw';
+import * as mswNode from 'msw/node';
 
 // Setup MSW
 beforeAll(() => server.listen());
@@ -28,7 +30,7 @@ global.IntersectionObserver = class IntersectionObserver {
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -39,3 +41,12 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Expose MSW helpers to global scope for tests using `server`, `http`, `HttpResponse`
+// This matches usage patterns seen in integration tests
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).server = server;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).http = msw.http;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).HttpResponse = msw.HttpResponse;
