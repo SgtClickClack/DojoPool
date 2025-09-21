@@ -33,7 +33,7 @@ jobs:
       - name: Generate Prisma client for tests
         run: |
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
-          yarn workspace @dojopool/api prisma:generate
+          npx prisma generate --schema=packages/prisma/schema.prisma
 
       - name: Build Docker images for E2E
         run: |
@@ -127,7 +127,7 @@ jobs:
       - name: Generate Prisma client
         run: |
           export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dojopool_test"
-          yarn workspace @dojopool/api prisma:generate
+          npx prisma generate --schema=packages/prisma/schema.prisma
 
       - name: Build application
         run: yarn build:backend && cd apps/web && yarn build
