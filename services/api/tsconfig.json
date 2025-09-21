@@ -13,7 +13,9 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "typeRoots": ["./node_modules/@types", "./types"],
-    "paths": {},
+    "paths": {
+      "@prisma/client": ["../../node_modules/.prisma/client"]
+    },
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
