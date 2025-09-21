@@ -743,7 +743,7 @@ __metadata:
     "@types/bcryptjs": "npm:^2.4.6"
     "@types/dompurify": "npm:3.0.5"
     "@types/multer": "npm:^2.0.0"
-    "@types/node": "npm:^20.19.0"
+    "@types/node": "npm:^24.5.2"
     "@types/passport": "npm:^1.0.16"
     "@types/passport-jwt": "npm:^4.0.1"
     "@types/supertest": "npm:^6.0.3"
@@ -4322,21 +4322,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=10.0.0":
+"@types/node@npm:*, @types/node@npm:>=10.0.0, @types/node@npm:^24.5.2":
   version: 24.5.2
   resolution: "@types/node@npm:24.5.2"
   dependencies:
     undici-types: "npm:~7.12.0"
   checksum: 10c0/96baaca6564d39c6f7f6eddd73ce41e2a7594ef37225cd52df3be36fad31712af8ae178387a72d0b80f2e2799e7fd30c014bc0ae9eb9f962d9079b691be00c48
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^20.1.3, @types/node@npm:^20.19.0":
-  version: 20.19.17
-  resolution: "@types/node@npm:20.19.17"
-  dependencies:
-    undici-types: "npm:~6.21.0"
-  checksum: 10c0/ab4c5dd8bdeacb1c04c2724c75023eec0ac9469583b39032f5daaf56768a31ee6fa3a0bfcc597e4a3e74eb49744deeb9d5eb760f30e984e25088f6d895e0811d
   languageName: node
   linkType: hard
 
@@ -7622,7 +7613,7 @@ __metadata:
     "@types/babel__core": "npm:^7"
     "@types/file-saver": "npm:^2.0.7"
     "@types/jest": "npm:^29.5.1"
-    "@types/node": "npm:^20.1.3"
+    "@types/node": "npm:^24.5.2"
     "@types/react": "npm:18.3.1"
     "@types/react-dom": "npm:18.3.1"
     "@types/react-image-crop": "npm:^8.1.6"
@@ -15737,13 +15728,6 @@ __metadata:
     has-symbols: "npm:^1.1.0"
     which-boxed-primitive: "npm:^1.1.1"
   checksum: 10c0/7dbd35ab02b0e05fe07136c72cb9355091242455473ec15057c11430129bab38b7b3624019b8778d02a881c13de44d63cd02d122ee782fb519e1de7775b5b982
-  languageName: node
-  linkType: hard
-
-"undici-types@npm:~6.21.0":
-  version: 6.21.0
-  resolution: "undici-types@npm:6.21.0"
-  checksum: 10c0/c01ed51829b10aa72fc3ce64b747f8e74ae9b60eafa19a7b46ef624403508a54c526ffab06a14a26b3120d055e1104d7abe7c9017e83ced038ea5cf52f8d5e04
   languageName: node
   linkType: hard
 
