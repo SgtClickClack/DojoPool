@@ -1,6 +1,6 @@
 # Core dependencies
 Flask==2.3.3  # Updated for security fixes
-SQLAlchemy==1.4.53  # Latest 1.x for compatibility
+SQLAlchemy==2.0.43  # Latest 1.x for compatibility
 python-dotenv==1.0.1  # Updated for security
 Flask-Login==0.6.3  # Updated for security
 Flask-SQLAlchemy==2.5.1
