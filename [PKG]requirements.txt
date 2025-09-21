@@ -21,7 +21,7 @@ pytest-cov==2.12.1
 # Development
 black==21.7b0
 flake8==3.9.2
-mypy==0.910
+mypy==1.18.2
 
 # Image Processing
 Pillow>=10.1.0
