@@ -1,8 +1,9 @@
 name: PR AI Description
 
-on:
-  pull_request:
-    types: [opened, edited, synchronize, labeled]
+# Temporarily disabled - non-critical workflow
+# on:
+#   pull_request:
+#     types: [opened, edited, synchronize, labeled]
 
 jobs:
   generate-pr-description:

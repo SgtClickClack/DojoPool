@@ -1,8 +1,9 @@
 name: PR AI Review
 
-on:
-  pull_request:
-    types: [opened, synchronize, labeled]
+# Temporarily disabled - non-critical workflow
+# on:
+#   pull_request:
+#     types: [opened, synchronize, labeled]
 
 jobs:
   ai-review:
