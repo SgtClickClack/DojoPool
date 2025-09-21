@@ -22,6 +22,9 @@
     "lint": "eslint src/ tests/ --ext .ts,.tsx",
     "lint:fix": "eslint src/ tests/ --ext .ts,.tsx --fix",
     "check-deps": "node scripts/check-dependencies.js",
+    "env:check": "node scripts/validate-env.mjs",
+    "env:check:strict": "node scripts/validate-env.mjs --strict",
+    "build:backend": "cd services/api && yarn build",
     "build": "next build",
     "start": "next start",
     "dev": "next dev"
