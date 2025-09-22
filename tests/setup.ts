@@ -92,42 +92,8 @@ vi.mock('firebase/storage', () => ({
   getDownloadURL: vi.fn(() => Promise.resolve('mock-url')),
 }));
 
-// Remove ws mock from global setup
-/*
-jest.mock('ws', () => {
-    const EventEmitter = require('events');
-    class MockWebSocket extends EventEmitter {
-        constructor(url: string) {
-            super();
-            setTimeout(() => this.emit('open'), 1);
-        }
-        send = jest.fn();
-        close = jest.fn(() => { setTimeout(() => this.emit('close'), 1); });
-        readyState = 1;
-    }
-    class MockWebSocketServer extends EventEmitter {
-        constructor(options: { port: number }) {
-            super();
-            setTimeout(() => this.emit('listening'), 1);
-        }
-        on = jest.fn(super.on);
-        emit = jest.fn(super.emit);
-        close = jest.fn((cb) => { if(cb) cb(); });
-        clients = new Set();
-    }
-    return {
-        __esModule: true,
-        default: {
-            Server: MockWebSocketServer,
-            WebSocket: MockWebSocket
-        },
-        Server: MockWebSocketServer,
-    };
-});
-*/
-
 // Now import MSW server (needs structuredClone potentially)
-import { server } from './tests/setup/mocks/server';
+import { server } from './setup/mocks/server';
 
 // Set default timeout for performance tests
 vi.setConfig({ testTimeout: 60000 });
@@ -149,8 +115,36 @@ configure({
   // asyncUtilTimeout: 2000, // Example: increase timeout for async utils
 });
 
-// Optional: Global test setup, e.g., mocking modules
-// jest.mock('some-module', () => ({ /* ...mock implementation */ }));
+// Only mock browser globals when running in jsdom environment
+if (typeof window !== 'undefined') {
+  declare global {
+    interface Window {
+      ResizeObserver: any;
+    }
+  }
+
+  // Mock window.ResizeObserver
+  window.ResizeObserver = vi.fn().mockImplementation(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  }));
+
+  // Mock window.matchMedia
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
 
 // Jest global setup for Vite env compatibility
 Object.defineProperty(globalThis, 'import', {
@@ -165,4 +159,54 @@ Object.defineProperty(globalThis, 'import.meta', {
     },
   },
   writable: true,
+});
+
+// Import test configuration utilities
+import { MockFactoryRegistry } from './mocks/mock-factory';
+import { TestDataManager } from './fixtures/test-data-manager';
+
+// Global test configuration
+beforeAll(async () => {
+  // Initialize all mock factories
+  MockFactoryRegistry.resetAll();
+
+  // Initialize test data manager
+  TestDataManager.initialize();
+
+  // Set test environment variables
+  process.env.NODE_ENV = 'test';
+  process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
+  process.env.JWT_SECRET = 'test-secret';
+  process.env.REDIS_URL = 'redis://localhost:6379';
+
+  // Configure global test timeouts
+  vi.setConfig({ testTimeout: 30000 });
+});
+
+// Cleanup after all tests
+afterAll(async () => {
+  // Reset all mocks
+  MockFactoryRegistry.resetAll();
+
+  // Clean up test environment
+  vi.clearAllMocks();
+  vi.resetModules();
+});
+
+// Setup before each test
+beforeEach(() => {
+  // Reset all mocks before each test
+  MockFactoryRegistry.resetAll();
+
+  // Clear all vi mocks
+  vi.clearAllMocks();
+});
+
+// Cleanup after each test
+afterEach(() => {
+  // Reset all mocks after each test
+  MockFactoryRegistry.resetAll();
+
+  // Clear any cached data
+  vi.clearAllTimers();
 });
