@@ -7,8 +7,10 @@ if (!(global as any).jest) {
   (global as any).jest = {
     ...vi,
     fn: vi.fn,
-    mock: vi.mock,
+    mock: vi.fn,
+    spyOn: vi.fn,
     setTimeout: (ms: number) => {},
+    clearTimeout: (id: any) => {},
   };
 }
 
@@ -35,59 +37,59 @@ if (typeof global.structuredClone !== 'function') {
 }
 
 // Mock Firebase Initialization
-jest.mock('firebase/app', () => ({
-  initializeApp: jest.fn(() => ({
+vi.mock('firebase/app', () => ({
+  initializeApp: vi.fn(() => ({
     options: { apiKey: process.env.FIREBASE_API_KEY || 'test-mock-key' },
     name: 'mock-app',
   })),
-  getApps: jest.fn(() => []),
-  getApp: jest.fn(() => ({
+  getApps: vi.fn(() => []),
+  getApp: vi.fn(() => ({
     options: { apiKey: process.env.FIREBASE_API_KEY || 'test-mock-key' },
     name: 'mock-app',
   })),
-  _getProvider: jest.fn().mockReturnValue({
-    getImmediate: jest.fn((options?: { optional: boolean }) => {
+  _getProvider: vi.fn().mockReturnValue({
+    getImmediate: vi.fn((options?: { optional: boolean }) => {
       if (options?.optional) return null;
       return {
-        getFunctions: jest.fn(() => ({
+        getFunctions: vi.fn(() => ({
           /* mock functions instance */
         })),
       };
     }),
   }),
 }));
-jest.mock('firebase/functions', () => ({
-  getFunctions: jest.fn(() => ({
+vi.mock('firebase/functions', () => ({
+  getFunctions: vi.fn(() => ({
     /* mock functions instance */
   })),
 }));
-jest.mock('firebase/auth', () => ({
-  getAuth: jest.fn(() => ({ settings: {} })),
-  onAuthStateChanged: jest.fn(() => jest.fn()),
-  sendPasswordResetEmail: jest.fn(() => Promise.resolve()),
-  updateProfile: jest.fn(() => Promise.resolve()),
+vi.mock('firebase/auth', () => ({
+  getAuth: vi.fn(() => ({ settings: {} })),
+  onAuthStateChanged: vi.fn(() => vi.fn()),
+  sendPasswordResetEmail: vi.fn(() => Promise.resolve()),
+  updateProfile: vi.fn(() => Promise.resolve()),
   // Add mocks for Auth providers
-  GoogleAuthProvider: jest.fn(),
-  FacebookAuthProvider: jest.fn(),
-  TwitterAuthProvider: jest.fn(),
-  GithubAuthProvider: jest.fn(),
-  OAuthProvider: jest.fn(), // Added OAuthProvider
+  GoogleAuthProvider: vi.fn(),
+  FacebookAuthProvider: vi.fn(),
+  TwitterAuthProvider: vi.fn(),
+  GithubAuthProvider: vi.fn(),
+  OAuthProvider: vi.fn(), // Added OAuthProvider
 }));
-jest.mock('firebase/firestore', () => ({
-  getFirestore: jest.fn(() => ({})),
-  collection: jest.fn(),
-  doc: jest.fn(),
-  getDoc: jest.fn(() =>
+vi.mock('firebase/firestore', () => ({
+  getFirestore: vi.fn(() => ({})),
+  collection: vi.fn(),
+  doc: vi.fn(),
+  getDoc: vi.fn(() =>
     Promise.resolve({ exists: () => false, data: () => ({}) })
   ),
-  enableIndexedDbPersistence: jest.fn(() => Promise.resolve()), // Ensure this exists and returns Promise
-  initializeFirestore: jest.fn(), // Add if used
+  enableIndexedDbPersistence: vi.fn(() => Promise.resolve()), // Ensure this exists and returns Promise
+  initializeFirestore: vi.fn(), // Add if used
 }));
-jest.mock('firebase/storage', () => ({
-  getStorage: jest.fn(() => ({})),
-  ref: jest.fn(),
-  uploadBytes: jest.fn(() => Promise.resolve({})),
-  getDownloadURL: jest.fn(() => Promise.resolve('mock-url')),
+vi.mock('firebase/storage', () => ({
+  getStorage: vi.fn(() => ({})),
+  ref: vi.fn(),
+  uploadBytes: vi.fn(() => Promise.resolve({})),
+  getDownloadURL: vi.fn(() => Promise.resolve('mock-url')),
 }));
 
 // Remove ws mock from global setup
@@ -125,10 +127,10 @@ jest.mock('ws', () => {
 */
 
 // Now import MSW server (needs structuredClone potentially)
-import { server } from './src/__tests__/mocks/server';
+import { server } from './tests/setup/mocks/server';
 
 // Set default timeout for performance tests
-jest.setTimeout(60000);
+vi.setConfig({ testTimeout: 60000 });
 
 // Establish API mocking before all tests.
 beforeAll(() => server.listen());

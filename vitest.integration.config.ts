@@ -6,7 +6,7 @@ export default defineConfig({
     environment: 'node',
     setupFiles: [
       './jest.setup.ts',
-      './tests/setupTests.ts',
+      './tests/setup/test-setup.ts',
       './tests/setup/test-config.ts',
     ],
     globals: true,
