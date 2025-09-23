@@ -1,5 +1,5 @@
 import React from 'react';
-import GlobalErrorBoundary from '@/components/ErrorBoundary/GlobalErrorBoundary';
+import dynamic from 'next/dynamic';
 import Layout from '@/components/Layout/Layout';
 import { ChatProvider } from '@/contexts/ChatContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
@@ -13,6 +13,12 @@ import { theme } from '@/styles/theme';
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import type { AppProps } from 'next/app';
+
+// Dynamic import for GlobalErrorBoundary to avoid SSR issues with framer-motion
+const GlobalErrorBoundary = dynamic(
+  () => import('@/components/ErrorBoundary/GlobalErrorBoundary'),
+  { ssr: false }
+);
 
 // Error handler for GlobalErrorBoundary
 const handleGlobalError = (error: Error, errorInfo: React.ErrorInfo) => {
