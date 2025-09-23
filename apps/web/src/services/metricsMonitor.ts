@@ -21,6 +21,7 @@ export interface MetricAlert {
   severity: AlertSeverity;
   message: string;
   timestamp: Date;
+  acknowledged?: boolean;
   data?: AlertData;
 }
 
@@ -34,4 +35,8 @@ export const metrics_monitor = {
   },
 
   getAlerts: (): MetricAlert[] => [],
+
+  acknowledgeAlert: (alertId: string, userId: string) => {
+    console.log(`Alert ${alertId} acknowledged by user ${userId}`);
+  },
 };

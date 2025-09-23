@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { performance_monitor } from '../../core/monitoring/performance';
-import { metrics_monitor } from '../../core/monitoring/metrics_monitor';
+import { performance_monitor } from '../services/performanceMonitor';
+import { metrics_monitor } from '../services/metricsMonitor';
 
 export interface ComponentPerformanceMetrics {
   componentName: string;

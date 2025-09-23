@@ -1,3 +1,4 @@
+// Territory-related type definitions for DojoPool platform
 export interface Territory {
   id: string;
   name: string;

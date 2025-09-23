@@ -88,7 +88,7 @@ dojopool/
 - Node.js 20.x (pinned via .nvmrc at the repository root)
 - Python 3.11+ (required for Flask/AI services; see pyproject.toml requires-python)
 - npm
-- A running PostgreSQL database instance
+- PostgreSQL 14+ (required for all environments - development, testing, and production)
 
 #### Node version management (Windows/macOS/Linux)
 
@@ -96,6 +96,23 @@ dojopool/
   - Windows (nvm-windows): `nvm install 20` then `nvm use 20`
   - macOS/Linux (nvm): `nvm install` then `nvm use`
 - Alternatively, you can use Volta to pin and enforce versions globally: `volta pin node@20`
+
+#### PostgreSQL setup (Required)
+
+- **Windows**: Download and install from [postgresql.org](https://www.postgresql.org/download/windows/)
+- **macOS**: `brew install postgresql` or download from postgresql.org
+- **Linux**: `sudo apt-get install postgresql postgresql-contrib` (Ubuntu/Debian)
+
+**Quick setup for development:**
+```bash
+# Run the automated setup script (Windows PowerShell)
+.\scripts\setup-postgres-dev.ps1
+
+# Or manually:
+# 1. Create database: createdb dojopool_dev
+# 2. Set DATABASE_URL=postgresql://postgres:postgres@localhost:5432/dojopool_dev
+# 3. Run migrations: npx prisma migrate deploy
+```
 
 ### Installation & Setup
 

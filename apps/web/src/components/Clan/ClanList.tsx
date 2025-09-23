@@ -6,6 +6,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   TextField,
   Typography,
 } from '@mui/material';
@@ -61,16 +62,16 @@ const ClanList: React.FC<ClanListProps> = ({
     setSearchTerm(e.target.value);
   }, []);
 
-  const handleLocationChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLocationFilter(e.target.value);
+  const handleLocationChange = useCallback((event: SelectChangeEvent<string>) => {
+    setLocationFilter(event.target.value);
   }, []);
 
-  const handleLevelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLevelFilter(e.target.value);
+  const handleLevelChange = useCallback((event: SelectChangeEvent<string>) => {
+    setLevelFilter(event.target.value);
   }, []);
 
-  const handleMemberChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setMemberFilter(e.target.value);
+  const handleMemberChange = useCallback((event: SelectChangeEvent<string>) => {
+    setMemberFilter(event.target.value);
   }, []);
 
   const filteredClans = useMemo(() => {

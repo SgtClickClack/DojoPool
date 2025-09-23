@@ -1,6 +1,32 @@
+// Code coverage support (optional)
+try {
+  require('@cypress/code-coverage/support');
+} catch (error) {
+  console.log('Code coverage support not available');
+}
+
 import '@percy/cypress';
+import '@percy/cypress/task';
 import '@testing-library/cypress/add-commands';
 import './commands';
+
+// Global test configuration
+beforeEach(() => {
+  // Set up default viewport
+  cy.viewport(1280, 720);
+});
+
+// Global error handling
+Cypress.on('uncaught:exception', (err, runnable) => {
+  // Don't fail tests on uncaught exceptions from the app
+  if (err.message.includes('ResizeObserver loop limit exceeded')) {
+    return false;
+  }
+  if (err.message.includes('Non-Error promise rejection')) {
+    return false;
+  }
+  return true;
+});
 
 // Custom command to login
 Cypress.Commands.add(

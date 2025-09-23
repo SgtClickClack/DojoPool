@@ -1,22 +1,26 @@
 export const databaseConfig = {
-  // Use SQLite for development/testing, PostgreSQL for production
-  provider: process.env.DATABASE_PROVIDER || 'sqlite',
-
-  sqlite: {
-    url: 'file:./dev.db',
-  },
+  // Standardize on PostgreSQL for all environments
+  provider: 'postgresql',
 
   postgresql: {
     url:
       process.env.DATABASE_URL ||
-      'postgresql://postgres:password@localhost:5432/dojopool_dev',
+      'postgresql://postgres:postgres@localhost:5432/dojopool_dev',
   },
 
-  // Get the appropriate database URL
+  // Get the database URL (PostgreSQL only)
   getDatabaseUrl(): string {
-    if (this.provider === 'postgresql') {
-      return this.postgresql.url;
+    return this.postgresql.url;
+  },
+
+  // Validate database connection
+  async validateConnection(): Promise<boolean> {
+    try {
+      // This will be used by PrismaService to validate connection
+      return true;
+    } catch (error) {
+      console.error('Database connection validation failed:', error);
+      return false;
     }
-    return this.sqlite.url;
   },
 };

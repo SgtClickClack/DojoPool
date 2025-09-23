@@ -4,6 +4,10 @@ import ErrorBoundary from '@/components/Common/ErrorBoundary';
 interface ErrorBoundaryOptions {
   fallback?: React.ReactNode;
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+  componentName?: string;
+  showRetry?: boolean;
+  showHome?: boolean;
+  showReport?: boolean;
 }
 
 interface ErrorBoundaryState {

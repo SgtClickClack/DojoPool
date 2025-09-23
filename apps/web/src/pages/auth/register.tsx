@@ -90,7 +90,12 @@ const RegisterPage: React.FC = () => {
     setIsGoogleLoading(true);
     try {
       // Redirect to Google OAuth
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || '/api/v1'}/auth/google`;
+      const baseUrl = (
+        process.env.NEXT_PUBLIC_API_URL || '/api/v1'
+      )
+        .trim()
+        .replace(/\/$/, '');
+      window.location.href = `${baseUrl}/auth/google`;
     } catch (err) {
       setIsGoogleLoading(false);
     }

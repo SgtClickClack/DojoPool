@@ -42,25 +42,41 @@ export const mockUser = {
 export const mockTournament = {
   id: '1',
   name: 'Test Tournament',
-  status: 'ACTIVE' as const,
-  participants: [],
-  maxParticipants: 16,
-  entryFee: 100,
-  prizePool: 1000,
+  description: 'A test tournament',
   startDate: new Date().toISOString(),
   endDate: new Date(Date.now() + 86400000).toISOString(),
+  location: 'Test Venue',
+  maxParticipants: 16,
+  currentParticipants: 0,
+  entryFee: 100,
+  prizePool: 1000,
+  status: 'REGISTRATION' as const,
 };
 
 export const mockVenue = {
   id: '1',
   name: 'Test Venue',
-  lat: 40.7128,
-  lng: -74.006,
+  description: 'A test venue',
+  status: 'ACTIVE' as const,
+  address: {
+    street: '123 Test St',
+    city: 'Test City',
+    state: 'TS',
+    postalCode: '12345',
+    coordinates: {
+      latitude: 40.7128,
+      longitude: -74.006,
+    },
+  },
+  images: [],
+  rating: 4.5,
+  reviewCount: 10,
   tables: 4,
-  address: '123 Test St',
-  city: 'Test City',
-  state: 'TS',
-  zipCode: '12345',
+  features: ['pool', 'bar'],
+  amenities: ['parking', 'food'],
+  isVerified: true,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 };
 
 export const mockClan = {

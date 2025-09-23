@@ -1,4 +1,3 @@
-import { CMSDashboard } from '@/components/CMS';
 import ProtectedRoute from '@/components/Common/ProtectedRoute';
 import {
   Box,
@@ -17,6 +16,10 @@ import {
 } from '@mui/material';
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
+
+const CMSDashboard = dynamic(() => import('@/components/CMS').then(mod => ({ default: mod.CMSDashboard })), {
+  loading: () => <div>Loading CMS...</div>,
+});
 
 const AdminPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);

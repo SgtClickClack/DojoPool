@@ -111,6 +111,9 @@
   "references": [
     {
       "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tests/tsconfig.json"
     }
   ],
   "ts-node": {

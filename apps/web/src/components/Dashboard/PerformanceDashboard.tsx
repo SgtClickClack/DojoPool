@@ -27,8 +27,8 @@ import {
   Memory as MemoryIcon,
   Speed as SpeedIcon,
 } from '@mui/icons-material';
-import { performance_monitor } from '../../core/monitoring/performance';
-import { metrics_monitor, AlertSeverity } from '../../core/monitoring/metrics_monitor';
+import { performance_monitor } from '../../services/performanceMonitor';
+import { metrics_monitor, AlertSeverity } from '../../services/metricsMonitor';
 
 interface PerformanceDashboardProps {
   refreshInterval?: number; // milliseconds
@@ -61,6 +61,7 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = React.m
       [AlertSeverity.INFO]: 0,
       [AlertSeverity.WARNING]: 0,
       [AlertSeverity.ERROR]: 0,
+      [AlertSeverity.CRITICAL]: 0,
     };
     
     alerts.forEach(alert => {
@@ -287,9 +288,9 @@ export const PerformanceDashboard: React.FC<PerformanceDashboardProps> = React.m
                         <Typography variant="body2">
                           {alert.message}
                         </Typography>
-                        {alert.details && (
+                        {alert.data && (
                           <Typography variant="caption" color="text.secondary">
-                            {JSON.stringify(alert.details)}
+                            {JSON.stringify(alert.data)}
                           </Typography>
                         )}
                       </TableCell>

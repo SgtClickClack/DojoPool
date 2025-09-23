@@ -25,17 +25,17 @@
   "rules": {
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "error",
     "@typescript-eslint/no-unused-vars": [
       "error",
       { "argsIgnorePattern": "^_" }
     ],
-    "@typescript-eslint/no-explicit-any": "off",
-    "no-unreachable": "warn",
+    "@typescript-eslint/no-explicit-any": "error",
+    "no-unreachable": "error",
     "@typescript-eslint/prefer-const": "error",
     "prettier/prettier": "error",
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "error"
   },
   "settings": {
     "react": {

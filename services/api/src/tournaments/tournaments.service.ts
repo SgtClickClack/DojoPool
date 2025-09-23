@@ -5,13 +5,62 @@ import { CacheHelper } from '../cache/cache.helper';
 export interface Tournament {
   id: string;
   name: string;
-  status: 'upcoming' | 'active' | 'completed';
+  description?: string;
+  status: 'REGISTRATION' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   participants: number;
   maxParticipants: number;
   startDate: Date;
   endDate: Date;
   venueId: string;
   prizePool: number;
+  entryFee: number;
+  tournamentType: 'SINGLE_ELIMINATION' | 'DOUBLE_ELIMINATION' | 'ROUND_ROBIN' | 'SWISS';
+  bracket?: TournamentBracket;
+  matches?: TournamentMatch[];
+  prizes?: PrizeDistribution[];
+}
+
+export interface TournamentBracket {
+  id: string;
+  tournamentId: string;
+  rounds: BracketRound[];
+  currentRound: number;
+  totalRounds: number;
+}
+
+export interface BracketRound {
+  roundNumber: number;
+  matches: BracketMatch[];
+  isComplete: boolean;
+}
+
+export interface BracketMatch {
+  id: string;
+  roundNumber: number;
+  matchNumber: number;
+  player1Id?: string;
+  player2Id?: string;
+  winnerId?: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+  scheduledTime?: Date;
+}
+
+export interface TournamentMatch {
+  id: string;
+  tournamentId: string;
+  player1Id: string;
+  player2Id: string;
+  winnerId?: string;
+  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED';
+  scheduledTime: Date;
+  matchData?: any;
+}
+
+export interface PrizeDistribution {
+  position: number;
+  amount: number;
+  percentage: number;
+  playerId?: string;
 }
 
 export interface TournamentListParams {
@@ -166,6 +215,296 @@ export class TournamentsService {
     ];
 
     return tournaments;
+  }
+
+  /**
+   * Generate tournament bracket based on tournament type and participants
+   */
+  async generateBracket(tournamentId: string, participantIds: string[]): Promise<TournamentBracket> {
+    this.logger.debug(`Generating bracket for tournament ${tournamentId} with ${participantIds.length} participants`);
+    
+    const tournament = await this.getTournamentById(tournamentId);
+    if (!tournament) {
+      throw new Error('Tournament not found');
+    }
+
+    const bracket: TournamentBracket = {
+      id: `bracket-${tournamentId}`,
+      tournamentId,
+      rounds: [],
+      currentRound: 1,
+      totalRounds: this.calculateTotalRounds(participantIds.length, tournament.tournamentType)
+    };
+
+    // Generate rounds based on tournament type
+    switch (tournament.tournamentType) {
+      case 'SINGLE_ELIMINATION':
+        bracket.rounds = this.generateSingleEliminationRounds(participantIds);
+        break;
+      case 'DOUBLE_ELIMINATION':
+        bracket.rounds = this.generateDoubleEliminationRounds(participantIds);
+        break;
+      case 'ROUND_ROBIN':
+        bracket.rounds = this.generateRoundRobinRounds(participantIds);
+        break;
+      case 'SWISS':
+        bracket.rounds = this.generateSwissRounds(participantIds);
+        break;
+    }
+
+    return bracket;
+  }
+
+  /**
+   * Calculate total rounds needed for tournament type
+   */
+  private calculateTotalRounds(participantCount: number, tournamentType: string): number {
+    switch (tournamentType) {
+      case 'SINGLE_ELIMINATION':
+        return Math.ceil(Math.log2(participantCount));
+      case 'DOUBLE_ELIMINATION':
+        return Math.ceil(Math.log2(participantCount)) * 2;
+      case 'ROUND_ROBIN':
+        return participantCount - 1;
+      case 'SWISS':
+        return Math.ceil(Math.log2(participantCount));
+      default:
+        return 1;
+    }
+  }
+
+  /**
+   * Generate single elimination bracket rounds
+   */
+  private generateSingleEliminationRounds(participantIds: string[]): BracketRound[] {
+    const rounds: BracketRound[] = [];
+    const totalRounds = Math.ceil(Math.log2(participantIds.length));
+    
+    // First round - handle byes
+    const firstRoundParticipants = [...participantIds];
+    const firstRoundMatches: BracketMatch[] = [];
+    
+    for (let i = 0; i < firstRoundParticipants.length; i += 2) {
+      const match: BracketMatch = {
+        id: `match-${rounds.length + 1}-${Math.floor(i / 2) + 1}`,
+        roundNumber: 1,
+        matchNumber: Math.floor(i / 2) + 1,
+        player1Id: firstRoundParticipants[i],
+        player2Id: firstRoundParticipants[i + 1] || undefined, // Bye if odd number
+        status: 'PENDING'
+      };
+      firstRoundMatches.push(match);
+    }
+
+    rounds.push({
+      roundNumber: 1,
+      matches: firstRoundMatches,
+      isComplete: false
+    });
+
+    // Generate subsequent rounds
+    for (let round = 2; round <= totalRounds; round++) {
+      const matchesInRound = Math.ceil(firstRoundMatches.length / Math.pow(2, round - 1));
+      const roundMatches: BracketMatch[] = [];
+      
+      for (let match = 1; match <= matchesInRound; match++) {
+        roundMatches.push({
+          id: `match-${round}-${match}`,
+          roundNumber: round,
+          matchNumber: match,
+          status: 'PENDING'
+        });
+      }
+      
+      rounds.push({
+        roundNumber: round,
+        matches: roundMatches,
+        isComplete: false
+      });
+    }
+
+    return rounds;
+  }
+
+  /**
+   * Generate double elimination bracket rounds
+   */
+  private generateDoubleEliminationRounds(participantIds: string[]): BracketRound[] {
+    // Simplified double elimination - creates winners and losers brackets
+    const winnersRounds = this.generateSingleEliminationRounds(participantIds);
+    const losersRounds = this.generateSingleEliminationRounds(participantIds.slice(0, Math.floor(participantIds.length / 2)));
+    
+    // Adjust round numbers for losers bracket
+    losersRounds.forEach(round => {
+      round.roundNumber += winnersRounds.length;
+      round.matches.forEach(match => {
+        match.roundNumber += winnersRounds.length;
+      });
+    });
+
+    return [...winnersRounds, ...losersRounds];
+  }
+
+  /**
+   * Generate round robin rounds
+   */
+  private generateRoundRobinRounds(participantIds: string[]): BracketRound[] {
+    const rounds: BracketRound[] = [];
+    const totalRounds = participantIds.length - 1;
+    
+    for (let round = 1; round <= totalRounds; round++) {
+      const matches: BracketMatch[] = [];
+      const participants = [...participantIds];
+      
+      // Rotate participants for round robin
+      for (let i = 0; i < participants.length / 2; i++) {
+        const player1 = participants[i];
+        const player2 = participants[participants.length - 1 - i];
+        
+        matches.push({
+          id: `match-${round}-${i + 1}`,
+          roundNumber: round,
+          matchNumber: i + 1,
+          player1Id: player1,
+          player2Id: player2,
+          status: 'PENDING'
+        });
+      }
+      
+      rounds.push({
+        roundNumber: round,
+        matches,
+        isComplete: false
+      });
+    }
+    
+    return rounds;
+  }
+
+  /**
+   * Generate Swiss system rounds
+   */
+  private generateSwissRounds(participantIds: string[]): BracketRound[] {
+    const rounds: BracketRound[] = [];
+    const totalRounds = Math.ceil(Math.log2(participantIds.length));
+    
+    for (let round = 1; round <= totalRounds; round++) {
+      const matches: BracketMatch[] = [];
+      const participants = [...participantIds];
+      
+      // Pair participants (simplified Swiss pairing)
+      for (let i = 0; i < participants.length; i += 2) {
+        matches.push({
+          id: `match-${round}-${Math.floor(i / 2) + 1}`,
+          roundNumber: round,
+          matchNumber: Math.floor(i / 2) + 1,
+          player1Id: participants[i],
+          player2Id: participants[i + 1] || undefined,
+          status: 'PENDING'
+        });
+      }
+      
+      rounds.push({
+        roundNumber: round,
+        matches,
+        isComplete: false
+      });
+    }
+    
+    return rounds;
+  }
+
+  /**
+   * Assign matches to players in the bracket
+   */
+  async assignMatches(tournamentId: string, bracket: TournamentBracket): Promise<TournamentMatch[]> {
+    this.logger.debug(`Assigning matches for tournament ${tournamentId}`);
+    
+    const matches: TournamentMatch[] = [];
+    let matchCounter = 1;
+    
+    for (const round of bracket.rounds) {
+      for (const bracketMatch of round.matches) {
+        if (bracketMatch.player1Id && bracketMatch.player2Id) {
+          const match: TournamentMatch = {
+            id: `tournament-match-${matchCounter}`,
+            tournamentId,
+            player1Id: bracketMatch.player1Id,
+            player2Id: bracketMatch.player2Id,
+            status: 'SCHEDULED',
+            scheduledTime: new Date(Date.now() + (matchCounter * 30 * 60 * 1000)) // 30 min intervals
+          };
+          matches.push(match);
+          matchCounter++;
+        }
+      }
+    }
+    
+    return matches;
+  }
+
+  /**
+   * Calculate prize distribution based on tournament results
+   */
+  async calculatePrizeDistribution(tournamentId: string, finalStandings: string[]): Promise<PrizeDistribution[]> {
+    this.logger.debug(`Calculating prize distribution for tournament ${tournamentId}`);
+    
+    const tournament = await this.getTournamentById(tournamentId);
+    if (!tournament) {
+      throw new Error('Tournament not found');
+    }
+
+    const prizes: PrizeDistribution[] = [];
+    const totalPrizePool = tournament.prizePool;
+    
+    // Standard prize distribution percentages
+    const prizePercentages = [
+      { position: 1, percentage: 0.50 }, // 50% for 1st
+      { position: 2, percentage: 0.30 }, // 30% for 2nd
+      { position: 3, percentage: 0.15 }, // 15% for 3rd
+      { position: 4, percentage: 0.05 }  // 5% for 4th
+    ];
+
+    for (let i = 0; i < Math.min(finalStandings.length, prizePercentages.length); i++) {
+      const standing = finalStandings[i];
+      const prizeInfo = prizePercentages[i];
+      
+      prizes.push({
+        position: prizeInfo.position,
+        amount: Math.floor(totalPrizePool * prizeInfo.percentage),
+        percentage: prizeInfo.percentage,
+        playerId: standing
+      });
+    }
+
+    return prizes;
+  }
+
+  /**
+   * Distribute prizes to winners
+   */
+  async distributePrizes(tournamentId: string, prizes: PrizeDistribution[]): Promise<boolean> {
+    this.logger.debug(`Distributing prizes for tournament ${tournamentId}`);
+    
+    try {
+      // In a real implementation, this would:
+      // 1. Transfer Dojo Coins to winners' wallets
+      // 2. Update tournament status
+      // 3. Send notifications to winners
+      // 4. Log the transaction
+      
+      for (const prize of prizes) {
+        if (prize.playerId && prize.amount > 0) {
+          this.logger.debug(`Distributing ${prize.amount} Dojo Coins to player ${prize.playerId} for position ${prize.position}`);
+          // TODO: Implement actual wallet transfer
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to distribute prizes for tournament ${tournamentId}:`, error);
+      return false;
+    }
   }
 
   /**

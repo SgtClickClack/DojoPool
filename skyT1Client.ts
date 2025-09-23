@@ -1,5 +1,5 @@
-import axios from 'axios'; // Assuming axios is available
-import { RefereeInput, RefereeResult, FoulType } from './AIRefereeService';
+import axios from 'axios';
+import { RefereeInput, RefereeResult, FoulType } from './services/api/src/ai/ai-referee.service';
 import { logger } from './src/utils/logger';
 import { CONFIG } from './src/config/constants';
 
@@ -32,27 +32,43 @@ export const skyT1AnalyzeShot = async (
         headers: {
           'Content-Type': 'application/json',
           // Add any necessary authentication headers here (e.g., API Key)
-          // 'Authorization': `Bearer ${process.env.SKY_T1_API_KEY}`
+          'Authorization': `Bearer ${process.env.SKY_T1_API_KEY || ''}`,
         },
       }
     );
 
-    // Basic validation of the response structure
+    // Enhanced validation of the response structure
     if (
       response.data &&
-      typeof response.data.foul !== 'undefined' && // Check for null explicitly if needed
       typeof response.data.isBallInHand === 'boolean' &&
-      typeof response.data.nextPlayerId === 'string'
+      typeof response.data.nextPlayerId === 'string' &&
+      typeof response.data.reason === 'string' &&
+      typeof response.data.confidence === 'number' &&
+      response.data.confidence >= 0 &&
+      response.data.confidence <= 1 &&
+      response.data.analysis &&
+      typeof response.data.analysis.shotValid === 'boolean'
     ) {
       logger.info('Sky-T1 API analysis completed successfully', {
         isBallInHand: response.data.isBallInHand,
         nextPlayerId: response.data.nextPlayerId,
-        foul: response.data.foul,
+        foul: response.data.foul?.type || 'NONE',
+        confidence: response.data.confidence,
       });
       return response.data;
     } else {
       logger.error('Invalid response structure from Sky-T1 API', {
         responseData: response.data,
+        validationErrors: [
+          !response.data ? 'Missing response data' : null,
+          typeof response.data.isBallInHand !== 'boolean' ? 'Invalid isBallInHand type' : null,
+          typeof response.data.nextPlayerId !== 'string' ? 'Invalid nextPlayerId type' : null,
+          typeof response.data.reason !== 'string' ? 'Invalid reason type' : null,
+          typeof response.data.confidence !== 'number' ? 'Invalid confidence type' : null,
+          response.data.confidence < 0 || response.data.confidence > 1 ? 'Invalid confidence range' : null,
+          !response.data.analysis ? 'Missing analysis object' : null,
+          typeof response.data.analysis.shotValid !== 'boolean' ? 'Invalid shotValid type' : null,
+        ].filter(Boolean),
       });
       throw new Error('Invalid response structure received from Sky-T1 API.');
     }
@@ -79,18 +95,26 @@ export const skyT1AnalyzeShot = async (
       errorMessage = `Sky-T1 Client Error: ${error.message}`;
     }
 
-    // Rethrow a more specific error or return a default state?
-    // Rethrowing for now to let the caller handle it.
-    throw new Error(errorMessage);
-
-    /* Alternatively, return a default error state:
+    // Return a structured fallback result instead of throwing
     const opponentPlayerId = Object.keys(input.tableStateAfterShot.players).find(id => id !== input.currentPlayerId) || input.currentPlayerId;
+    
+    logger.warn('Returning fallback result due to Sky-T1 API failure', {
+      errorMessage,
+      fallbackPlayerId: opponentPlayerId,
+    });
+
     return {
-        foul: null,
-        reason: `Error: ${errorMessage}`,
-        isBallInHand: true, // Award ball-in-hand on error?
-        nextPlayerId: opponentPlayerId, 
+      foul: null,
+      reason: `Error: ${errorMessage}`,
+      isBallInHand: true, // Award ball-in-hand on error for safety
+      nextPlayerId: opponentPlayerId,
+      confidence: 0.5, // Low confidence for fallback
+      analysis: {
+        shotValid: false,
+        ballsPocketed: [],
+        cueBallFinalPosition: { x: 0, y: 0 },
+        ruleViolations: ['API_ERROR'],
+      },
     };
-    */
   }
 };

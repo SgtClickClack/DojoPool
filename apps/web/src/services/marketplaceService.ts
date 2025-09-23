@@ -37,7 +37,7 @@ export interface CartItem extends MarketplaceItem {
 class MarketplaceService {
   async getMarketplaceItems(): Promise<MarketplaceItem[]> {
     try {
-      const response = await apiClient.get('/marketplace/items');
+      const response = await apiClient.get('/api/v1/marketplace/items');
       return response.data;
     } catch (error) {
       console.error('Error fetching marketplace items:', error);
@@ -50,8 +50,14 @@ class MarketplaceService {
     itemId: string
   ): Promise<{ success: boolean; message: string; newBalance?: number }> {
     try {
-      const response = await apiClient.post(`/marketplace/items/${itemId}/buy`);
-      return response.data;
+      const response = await apiClient.post(`/api/v1/marketplace/items/${itemId}/buy`, {
+        userId: 'mock_user' // In production, this would come from auth context
+      });
+      return {
+        success: true,
+        message: response.data.message || 'Item purchased successfully!',
+        newBalance: response.data.newBalance,
+      };
     } catch (error: any) {
       const message =
         error.response?.data?.message ||
@@ -74,7 +80,7 @@ class MarketplaceService {
 
   async getUserBalance(): Promise<UserBalance> {
     try {
-      const response = await apiClient.get('/user/balance');
+      const response = await apiClient.get('/api/v1/user/balance');
       return response.data;
     } catch (error) {
       console.error('Error fetching user balance:', error);

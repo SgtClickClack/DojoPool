@@ -1,3 +1,25 @@
+# Ignore all node_modules directories
+**/node_modules
+
+# Ignore build outputs
+.next/
+dist/
+.vercel/
+build/
+
+# Ignore local environment files
+.env*.local
+.env
+
+# Ignore logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+.DS_Store
+
 # Ignore all git related files
 .git
 .gitignore

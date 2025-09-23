@@ -1,5 +1,5 @@
-import { beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
-import { cleanup } from '@testing-library/react';
+// Vitest test setup configuration
+import { beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 import { server } from './mocks/server';
 import * as msw from 'msw';
 import * as mswNode from 'msw/node';
@@ -8,9 +8,17 @@ import * as mswNode from 'msw/node';
 beforeAll(() => server.listen());
 afterEach(() => {
   server.resetHandlers();
-  cleanup();
+  // Cleanup is handled automatically by vitest when globals: true
 });
 afterAll(() => server.close());
+
+// Mock window object
+Object.defineProperty(global, 'window', {
+  value: {
+    matchMedia: vi.fn(),
+  },
+  writable: true,
+});
 
 // Global test utilities
 global.ResizeObserver = class ResizeObserver {

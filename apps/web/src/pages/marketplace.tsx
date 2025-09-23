@@ -15,6 +15,7 @@ import {
 import { useEffect, useState } from 'react';
 
 export default function MarketplacePage() {
+  // Force rebuild - updated for production
   const [items, setItems] = useState<MarketplaceItem[]>([]);
   const [userBalance, setUserBalance] = useState<UserBalance | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -145,7 +146,7 @@ export default function MarketplacePage() {
               component="h1"
               sx={{ color: 'white', fontWeight: 'bold', mb: 1 }}
             >
-              Marketplace
+              🛍️ DojoPool Store
             </Typography>
             <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)' }}>
               Buy and sell Dojo items, skins, and collectibles

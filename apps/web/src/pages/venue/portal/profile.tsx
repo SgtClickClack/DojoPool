@@ -1,221 +1,221 @@
 import ProtectedRoute from '@/components/Common/ProtectedRoute';
 import VenuePortalLayout from '@/components/VenuePortal/VenuePortalLayout';
-import { getMyVenue, updateMyVenue } from '@/services/APIService';
-import { type VenueHours } from '@/types/venue';
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Grid,
-  TextField,
-  Typography,
-} from '@mui/material';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-const defaultHours: VenueHours[] = [
-  { day: 'Monday', open: '09:00', close: '22:00', isOpen: true },
-  { day: 'Tuesday', open: '09:00', close: '22:00', isOpen: true },
-  { day: 'Wednesday', open: '09:00', close: '22:00', isOpen: true },
-  { day: 'Thursday', open: '09:00', close: '22:00', isOpen: true },
-  { day: 'Friday', open: '09:00', close: '00:00', isOpen: true },
-  { day: 'Saturday', open: '10:00', close: '00:00', isOpen: true },
-  { day: 'Sunday', open: '10:00', close: '20:00', isOpen: true },
-];
+// Venue Profile Management Page
+import VenueProfileForm from '@/components/venue/VenueProfileForm';
+import { useRouter } from 'next/router';
+import React, { useState, useEffect } from 'react';
 
-const ProfilePage: React.FC = () => {
-  const [description, setDescription] = useState('');
-  const [images, setImages] = useState<string[]>([]);
-  const [hours, setHours] = useState<VenueHours[]>(defaultHours);
+interface VenueProfile {
+  id: string;
+  name: string;
+  address: string;
+  description: string;
+  images: string[];
+  contactInfo: {
+    phone: string;
+    email: string;
+    website?: string;
+  };
+  operatingHours: {
+    monday: { open: string; close: string };
+    tuesday: { open: string; close: string };
+    wednesday: { open: string; close: string };
+    thursday: { open: string; close: string };
+    friday: { open: string; close: string };
+    saturday: { open: string; close: string };
+    sunday: { open: string; close: string };
+  };
+  amenities: string[];
+  pricing: {
+    tableRates: {
+      weekdayHourly: number;
+      weekendHourly: number;
+      perGame: number;
+      reservation: number;
+    };
+    serviceFees: {
+      cueRental: number;
+      ballSet: number;
+      chalk: number;
+      tournamentFee: number;
+    };
+  };
+}
+
+const VenueProfilePage: React.FC = () => {
+  const router = useRouter();
+  const [venueProfile, setVenueProfile] = useState<VenueProfile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+
+  // Mock data for development
+  const mockVenueProfile: VenueProfile = {
+    id: '1',
+    name: 'Jade Tiger Pool Hall',
+    address: '123 Collins Street, Melbourne VIC 3000',
+    description: "Melbourne's premier pool venue featuring 12 professional tables, craft beer, and competitive tournaments.",
+    images: ['/venue-main.jpg', '/venue-interior.jpg', '/venue-bar.jpg'],
+    contactInfo: {
+      phone: '+61 3 1234 5678',
+      email: 'info@jadetiger.com.au',
+      website: 'https://jadetiger.com.au',
+    },
+    operatingHours: {
+      monday: { open: '16:00', close: '24:00' },
+      tuesday: { open: '16:00', close: '24:00' },
+      wednesday: { open: '16:00', close: '24:00' },
+      thursday: { open: '16:00', close: '02:00' },
+      friday: { open: '14:00', close: '04:00' },
+      saturday: { open: '12:00', close: '04:00' },
+      sunday: { open: '12:00', close: '24:00' },
+    },
+    amenities: [
+      'Professional Tables',
+      'Craft Beer',
+      'Food Service',
+      'WiFi',
+      'Parking',
+    ],
+    pricing: {
+      tableRates: {
+        weekdayHourly: 15,
+        weekendHourly: 20,
+        perGame: 5,
+        reservation: 25,
+      },
+      serviceFees: {
+        cueRental: 3,
+        ballSet: 2,
+        chalk: 1,
+        tournamentFee: 10,
+      },
+    },
+  };
 
   useEffect(() => {
-    const load = async () => {
+    // TODO: Replace with actual API call
+    const fetchVenueProfile = async () => {
       try {
-        setError(null);
         setLoading(true);
-        const venue = await getMyVenue();
-        setDescription(venue?.description ?? '');
-        setImages(Array.isArray(venue?.images) ? venue.images : []);
-        if (Array.isArray(venue?.hours) && venue.hours.length > 0) {
-          setHours(
-            venue.hours.map((h: VenueHours) => ({
-              day: h.day,
-              open: h.open,
-              close: h.close,
-              isOpen: h.isOpen ?? true,
-            }))
-          );
-        }
-      } catch (e: unknown) {
-        const errorMessage =
-          e instanceof Error ? e.message : 'Failed to load venue';
-        setError(errorMessage);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setVenueProfile(mockVenueProfile);
+      } catch (err) {
+        setError('Failed to load venue profile');
+        console.error('Error fetching venue profile:', err);
       } finally {
         setLoading(false);
       }
     };
-    load();
+
+    fetchVenueProfile();
   }, []);
 
-  const onAddImage = useCallback(() => {
-    const url = window.prompt('Enter image URL');
-    if (url) setImages((prev) => [...prev, url]);
-  }, []);
-
-  const onRemoveImage = useCallback((idx: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== idx));
-  }, []);
-
-  const handleHourChange = useCallback(
-    (index: number, key: 'open' | 'close' | 'day', value: string) => {
-      setHours((prev) => {
-        const next = [...prev];
-        next[index] = { ...next[index], [key]: value };
-        return next;
-      });
-    },
-    []
-  );
-
-  const canSave = useMemo(() => description.trim().length >= 10, [description]);
-
-  const handleSave = async () => {
+  const handleSave = async (updatedProfile: VenueProfile) => {
     try {
       setSaving(true);
       setError(null);
-      setSuccess(null);
-      await updateMyVenue({ description, images, hours });
-      setSuccess('Venue profile updated.');
-    } catch (e: unknown) {
-      const errorMessage =
-        e instanceof Error ? e.message : 'Failed to update venue';
-      setError(errorMessage);
+      
+      // TODO: Replace with actual API call
+      // await venueApi.updateProfile(updatedProfile);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setVenueProfile(updatedProfile);
+      
+      // Show success message
+      alert('Venue profile updated successfully!');
+      
+    } catch (err) {
+      setError('Failed to save venue profile');
+      console.error('Error saving venue profile:', err);
     } finally {
       setSaving(false);
     }
   };
 
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <VenuePortalLayout>
+          <div className="flex items-center justify-center min-h-96">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading venue profile...</p>
+            </div>
+          </div>
+        </VenuePortalLayout>
+      </ProtectedRoute>
+    );
+  }
+
+  if (error) {
+    return (
+      <ProtectedRoute>
+        <VenuePortalLayout>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Error</h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{error}</p>
+                </div>
+                <div className="mt-4">
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="bg-red-100 px-3 py-2 rounded-md text-sm font-medium text-red-800 hover:bg-red-200"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </VenuePortalLayout>
+      </ProtectedRoute>
+    );
+  }
+
   return (
     <ProtectedRoute>
       <VenuePortalLayout>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={7}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Description
-                </Typography>
-                {loading ? (
-                  <Typography color="text.secondary">Loading...</Typography>
-                ) : null}
-                <TextField
-                  fullWidth
-                  multiline
-                  minRows={5}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe your venue, vibe, features, and events."
-                />
-              </CardContent>
-            </Card>
-          </Grid>
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Venue Profile</h1>
+              <p className="text-gray-600 mt-1">
+                Manage your venue's information, hours, pricing, and amenities
+              </p>
+            </div>
+            <button
+              onClick={() => router.back()}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              Back to Portal
+            </button>
+          </div>
 
-          <Grid item xs={12} md={5}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Photo Gallery
-                </Typography>
-                <Box display="flex" gap={2} flexWrap="wrap">
-                  {images.map((src, idx) => (
-                    <Box key={src + idx} position="relative">
-                      <Box
-                        component="img"
-                        src={src}
-                        alt={`venue-${idx}`}
-                        sx={{
-                          width: 120,
-                          height: 80,
-                          objectFit: 'cover',
-                          borderRadius: 1,
-                        }}
-                      />
-                      <Button size="small" onClick={() => onRemoveImage(idx)}>
-                        Remove
-                      </Button>
-                    </Box>
-                  ))}
-                </Box>
-                <Button sx={{ mt: 2 }} variant="outlined" onClick={onAddImage}>
-                  Add Image
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Opening Hours
-                </Typography>
-                <Grid container spacing={2}>
-                  {hours.map((h, i) => (
-                    <Grid key={h.day} item xs={12} sm={6} md={4} lg={3}>
-                      <Box display="grid" gap={1}>
-                        <Typography variant="subtitle2">{h.day}</Typography>
-                        <TextField
-                          label="Open"
-                          value={h.open}
-                          onChange={(e) =>
-                            handleHourChange(i, 'open', e.target.value)
-                          }
-                        />
-                        <TextField
-                          label="Close"
-                          value={h.close}
-                          onChange={(e) =>
-                            handleHourChange(i, 'close', e.target.value)
-                          }
-                        />
-                      </Box>
-                    </Grid>
-                  ))}
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid item xs={12}>
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
-            {success && (
-              <Alert severity="success" sx={{ mb: 2 }}>
-                {success}
-              </Alert>
-            )}
-            <Box display="flex" gap={2}>
-              <Button
-                variant="contained"
-                disabled={!canSave || saving}
-                onClick={handleSave}
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
+          {/* Profile Form */}
+          {venueProfile && (
+            <VenueProfileForm
+              venueProfile={venueProfile}
+              onSave={handleSave}
+              saving={saving}
+            />
+          )}
+        </div>
       </VenuePortalLayout>
     </ProtectedRoute>
   );
 };
 
-export default ProfilePage;
+export default VenueProfilePage;

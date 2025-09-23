@@ -16,7 +16,8 @@
       "@/constants/*": ["src/constants/*"]
     },
     "allowJs": true,
-    "incremental": true
+    "incremental": true,
+    "types": []
   },
   "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx"],
   "exclude": [

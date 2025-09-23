@@ -35,6 +35,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dynamic from 'next/dynamic';
+import { sanitizeHtml } from '@/utils/sanitize';
 import React, { useEffect, useState } from 'react';
 
 // Dynamically import ReactQuill to avoid SSR issues
@@ -679,7 +680,7 @@ const NewsManagement: React.FC = () => {
                     p: 2,
                     minHeight: '300px',
                   }}
-                  dangerouslySetInnerHTML={{ __html: formData.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(formData.content) }}
                 />
 
                 {formData.tags.length > 0 && (

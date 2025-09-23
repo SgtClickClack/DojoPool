@@ -17,12 +17,16 @@ export class HealthController {
       timestamp: new Date().toISOString(),
     };
 
-    // Check database connectivity
+    // Check database connectivity with PostgreSQL-specific query
     try {
-      await this.prismaService.$queryRaw`SELECT 1`;
+      // Use a PostgreSQL-specific query that works with Prisma
+      await this.prismaService.$queryRaw`SELECT 1 as health_check`;
       checks.database = true;
     } catch (error) {
       console.warn('Database health check failed:', error);
+      // Log additional details for debugging
+      console.warn('Database URL:', process.env.DATABASE_URL ? 'Set' : 'Not set');
+      console.warn('Error details:', error.message);
     }
 
     // Check Redis connectivity

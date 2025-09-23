@@ -6,6 +6,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   TextField,
   Typography,
 } from '@mui/material';
@@ -47,12 +48,12 @@ const TournamentList: React.FC<TournamentListProps> = ({
     setSearchTerm(e.target.value);
   }, []);
 
-  const handleStatusChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setStatusFilter(e.target.value);
+  const handleStatusChange = useCallback((event: SelectChangeEvent<string>) => {
+    setStatusFilter(event.target.value);
   }, []);
 
-  const handleLocationChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLocationFilter(e.target.value);
+  const handleLocationChange = useCallback((event: SelectChangeEvent<string>) => {
+    setLocationFilter(event.target.value);
   }, []);
 
   const filteredTournaments = useMemo(() => {
