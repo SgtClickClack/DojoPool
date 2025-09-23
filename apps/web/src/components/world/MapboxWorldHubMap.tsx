@@ -100,7 +100,7 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = memo(
           const mapboxgl = (await import('maplibre-gl')).default;
 
           const map = new mapboxgl.Map({
-            container: mapContainer.current,
+            container: mapContainer.current!,
             style: getMapboxTheme(selectedTheme),
             center: [153.0251, -27.4698], // [lng, lat] for Mapbox
             zoom: 13,
