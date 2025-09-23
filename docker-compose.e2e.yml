@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # Test Database
+  db-e2e:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=dojopool_test
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_e2e_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d dojopool_test']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Test Redis
+  redis-e2e:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    ports:
+      - '6380:6379'
+    volumes:
+      - redis_e2e_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # API Service for E2E Tests
+  api-e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+      target: api-e2e
+    image: dojopool-api-e2e
+    ports:
+      - '3003:3002'
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db-e2e:5432/dojopool_test
+      - JWT_SECRET=e2e_jwt_secret_test
+      - SESSION_SECRET=e2e_session_secret_test
+      - LOG_DIR=/tmp/logs
+      - PORT=3002
+      - NODE_ENV=test
+      - CORS_ORIGINS=http://localhost:3000
+      - FRONTEND_URL=http://localhost:3000
+      - REDIS_URL=redis://redis-e2e:6379
+      - NEXT_PUBLIC_API_URL=http://localhost:3003/api/v1
+    depends_on:
+      db-e2e:
+        condition: service_healthy
+      redis-e2e:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - .:/app
+      - /app/node_modules
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
+
+  # Web Service for E2E Tests
+  web-e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+      target: web-e2e
+    image: dojopool-web-e2e
+    ports:
+      - '3001:3000'
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3003/api/v1
+      - NEXT_PUBLIC_WEBSOCKET_URL=http://localhost:3003
+      - NODE_ENV=test
+      - NODE_PATH=/app/node_modules
+    depends_on:
+      - api-e2e
+    restart: unless-stopped
+    working_dir: /app/apps/web
+    command: ['node', 'server.js']
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
+
+volumes:
+  postgres_e2e_data:
+  redis_e2e_data:

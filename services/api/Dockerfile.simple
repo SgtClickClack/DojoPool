@@ -1,4 +1,4 @@
-﻿# Simplified DojoPool API Dockerfile
+# Simplified DojoPool API Dockerfile
 FROM node:20-alpine AS base
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN mkdir -p packages/prisma packages/types packages/config
 
 # Install API dependencies only
 RUN yarn init -y
-RUN yarn add 
+RUN yarn add $(cat package.json | grep -o '"[^"]*": "[^"]*"' | grep -v '"name"' | grep -v '"version"' | sed 's/": "/@/g' | sed 's/"//g' | tr '\n' ' ')
 
 # Copy source code
 COPY packages/ ./packages/
@@ -54,6 +54,7 @@ USER nestjs
 EXPOSE 3002
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD node -e "require('http').get('http://localhost:3002/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3002/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 CMD ["node", "dist/main.js"]
