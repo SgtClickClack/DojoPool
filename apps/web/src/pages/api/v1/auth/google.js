@@ -1,3 +1,4 @@
+/* eslint-env node */
 // Google OAuth API endpoint
 export default function handler(req, res) {
   if (req.method !== 'GET') {
@@ -5,14 +6,17 @@ export default function handler(req, res) {
   }
 
   // Basic Google OAuth redirect implementation
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.headers.origin}/api/v1/auth/callback`;
-  
+  const clientId = process.env.GOOGLE_CLIENT_ID; // eslint-disable-line no-undef
+  const redirectUri =
+    process.env.GOOGLE_REDIRECT_URI ||
+    `${req.headers.origin}/api/v1/auth/callback`; // eslint-disable-line no-undef
+
   if (!clientId) {
     return res.status(500).json({ error: 'Google OAuth not configured' });
   }
 
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+  const authUrl =
+    `https://accounts.google.com/o/oauth2/v2/auth?` +
     `client_id=${clientId}&` +
     `redirect_uri=${encodeURIComponent(redirectUri)}&` +
     `response_type=code&` +
