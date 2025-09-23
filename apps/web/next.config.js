@@ -33,6 +33,8 @@ const nextConfig = {
     // Removed optimizePackageImports due to ESM directory import issues with MUI during SSR
     optimizeCss: true,
     scrollRestoration: true,
+    // Force ESM compatibility for MUI packages - disabled for MUI compatibility
+    esmExternals: false,
   },
   // Enable static export for Firebase
   // output: 'export',
@@ -106,10 +108,22 @@ const nextConfig = {
       ...(config.resolve.alias || {}),
       // Mapbox to Maplibre alias for compatibility
       'mapbox-gl': 'maplibre-gl',
-      // Fix MUI ESM directory import in SSR - use more specific patterns
-      '@mui/material/utils': '@mui/material/node/utils',
+      // Fix MUI ESM directory import in SSR - comprehensive patterns
+      '@mui/material/utils': '@mui/material/node/utils/index.js',
       '@mui/material/utils/': '@mui/material/node/utils/',
+      // Additional MUI directory imports that might cause issues
+      '@mui/material/styles': '@mui/material/node/styles/index.js',
+      '@mui/material/styles/': '@mui/material/node/styles/',
+      '@mui/material/colors': '@mui/material/node/colors/index.js',
+      '@mui/material/colors/': '@mui/material/node/colors/',
     };
+
+    // Add fallback for MUI directory imports
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+    };
+
+    // MUI directory imports are now handled by disabling esmExternals
 
     return config;
   },
