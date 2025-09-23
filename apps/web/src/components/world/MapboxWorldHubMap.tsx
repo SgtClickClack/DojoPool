@@ -13,13 +13,7 @@ import {
 import React, { useCallback, useEffect, useRef, useState, memo } from 'react';
 
 // Dynamically import maplibre-gl to reduce initial bundle size
-let mapboxgl: any;
-if (typeof window !== 'undefined') {
-  import('maplibre-gl').then((mod) => {
-    mapboxgl = mod.default;
-    // CSS will be imported in the component when needed
-  });
-}
+// This will be loaded asynchronously in the useEffect
 
 // Type declaration for mapboxgl
 interface MapboxMap {
@@ -60,7 +54,7 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = memo(
     const [selectedTheme, setSelectedTheme] = useState<
       'dark' | 'light' | 'vintage'
     >('dark');
-    const [_mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null);
+    const [_mapInstance, setMapInstance] = useState<MapboxMap | null>(null);
     const [mapError, setMapError] = useState<string | null>(null);
     const mapContainer = useRef<HTMLDivElement>(null);
 
@@ -100,62 +94,81 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = memo(
         return;
       }
 
-      // maplibre-gl doesn't require accessToken, but we'll keep it for compatibility
+      // Dynamically import maplibre-gl and initialize map
+      const initializeMap = async () => {
+        try {
+          const mapboxgl = (await import('maplibre-gl')).default;
 
-      const map = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: getMapboxTheme(selectedTheme),
-        center: [153.0251, -27.4698], // [lng, lat] for Mapbox
-        zoom: 13,
-        attributionControl: false,
-        // Performance optimizations
-        ...MAPBOX_PERFORMANCE_CONFIG,
-        // Additional performance settings
-        maxTileCacheSize: MAPBOX_PERFORMANCE_CONFIG.maxTileCacheSize,
-        renderWorldCopies: MAPBOX_PERFORMANCE_CONFIG.renderWorldCopies,
-      });
+          // Import CSS
+          await import('maplibre-gl/dist/maplibre-gl.css');
 
-      // Add error handling
-      map.on('error', (e: any) => {
-        handleMapboxError(e);
-        setMapError(`Map error: ${e.error?.message || 'Unknown error'}`);
-      });
+          const map = new mapboxgl.Map({
+            container: mapContainer.current,
+            style: getMapboxTheme(selectedTheme),
+            center: [153.0251, -27.4698], // [lng, lat] for Mapbox
+            zoom: 13,
+            attributionControl: false,
+            // Performance optimizations
+            ...MAPBOX_PERFORMANCE_CONFIG,
+            // Additional performance settings
+            maxTileCacheSize: MAPBOX_PERFORMANCE_CONFIG.maxTileCacheSize,
+            renderWorldCopies: MAPBOX_PERFORMANCE_CONFIG.renderWorldCopies,
+          });
 
-      map.on('load', () => {
-        setMapInstance(map);
-        setMapError(null); // Clear any previous errors
+          // Add error handling
+          map.on('error', (e: any) => {
+            handleMapboxError(e);
+            setMapError(`Map error: ${e.error?.message || 'Unknown error'}`);
+          });
 
-        // Add dojo markers
-        dojos.forEach((dojo) => {
-          const el = document.createElement('div');
-          el.className = 'dojo-marker';
-          el.style.width = '32px';
-          el.style.height = '32px';
-          el.style.borderRadius = '50%';
-          el.style.cursor = 'pointer';
+          map.on('load', () => {
+            setMapInstance(map);
+            setMapError(null); // Clear any previous errors
 
-          // Set marker color based on dojo status
-          if (dojo.isLocked) {
-            el.style.backgroundColor = '#e74c3c';
-          } else if (dojo.controllingClanId) {
-            el.style.backgroundColor = '#f39c12';
-          } else {
-            el.style.backgroundColor = '#27ae60';
-          }
+            // Add dojo markers
+            dojos.forEach((dojo) => {
+              const el = document.createElement('div');
+              el.className = 'dojo-marker';
+              el.style.width = '32px';
+              el.style.height = '32px';
+              el.style.borderRadius = '50%';
+              el.style.cursor = 'pointer';
 
-          // Add marker to map
-          new mapboxgl.Marker(el)
-            .setLngLat([dojo.coordinates.lng, dojo.coordinates.lat])
-            .addTo(map);
+              // Set marker color based on dojo status
+              if (dojo.isLocked) {
+                el.style.backgroundColor = '#e74c3c';
+              } else if (dojo.controllingClanId) {
+                el.style.backgroundColor = '#f39c12';
+              } else {
+                el.style.backgroundColor = '#27ae60';
+              }
 
-          // Add click event
-          el.addEventListener('click', () => handleMarkerClick(dojo));
-        });
-      });
+              // Add marker to map
+              new mapboxgl.Marker(el)
+                .setLngLat([dojo.coordinates.lng, dojo.coordinates.lat])
+                .addTo(map);
 
-      map.on('error', (e: any) => {
-        console.error('Mapbox error:', e);
-        setMapError('Failed to load map');
+              // Add click event
+              el.addEventListener('click', () => handleMarkerClick(dojo));
+            });
+          });
+
+          map.on('error', (e: any) => {
+            console.error('Mapbox error:', e);
+            setMapError('Failed to load map');
+          });
+
+          return map;
+        } catch (error) {
+          console.error('Failed to load maplibre-gl:', error);
+          setMapError('Failed to load map library');
+          return null;
+        }
+      };
+
+      let map: any = null;
+      initializeMap().then((initializedMap) => {
+        map = initializedMap;
       });
 
       return () => {
