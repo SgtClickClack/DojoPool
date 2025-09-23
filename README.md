@@ -104,6 +104,7 @@ dojopool/
 - **Linux**: `sudo apt-get install postgresql postgresql-contrib` (Ubuntu/Debian)
 
 **Quick setup for development:**
+
 ```bash
 # Run the automated setup script (Windows PowerShell)
 .\scripts\setup-postgres-dev.ps1
@@ -367,3 +368,6 @@ Our frontend uses the standard Double Submit Cookie pattern for CSRF protection 
 - Ensure the frontend includes the `X-CSRF-Token` header and requests are sent with `credentials: 'include'`; the API CORS config allows credentials and the custom header.
 
 This approach aligns with a stateless JWT setup and avoids server-side CSRF state. For additional hardening, consider SameSite/Lax cookies and HTTPS-only environments in production.
+#   V e r c e l   d e p l o y m e n t   f i x 
+ 
+ 
