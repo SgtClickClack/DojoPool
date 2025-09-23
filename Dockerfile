@@ -1,5 +1,5 @@
 # 1. Base Stage
-FROM node:20-slim AS base
+FROM node:24-slim AS base
 WORKDIR /app
 
 # 2. Dependencies Stage (Completely Offline)
