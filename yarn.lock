@@ -9268,6 +9268,7 @@ __metadata:
     socket.io-client: "npm:^4.6.1"
     swr: "npm:^2.2.4"
     typescript: "npm:^5.3.3"
+    uuid: "npm:^13.0.0"
   languageName: unknown
   linkType: soft
 
@@ -18309,7 +18310,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:*":
+"uuid@npm:*, uuid@npm:^13.0.0":
   version: 13.0.0
   resolution: "uuid@npm:13.0.0"
   bin:
