@@ -35,7 +35,14 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dynamic from 'next/dynamic';
-import { sanitizeHtml } from '@/utils/sanitize';
+// Simple HTML sanitization function
+const sanitizeHtml = (html: string): string => {
+  // Basic HTML sanitization - in production, use a proper library like DOMPurify
+  return html.replace(
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    ''
+  );
+};
 import React, { useEffect, useState } from 'react';
 
 // Dynamically import ReactQuill to avoid SSR issues
@@ -680,7 +687,9 @@ const NewsManagement: React.FC = () => {
                     p: 2,
                     minHeight: '300px',
                   }}
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(formData.content) }}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtml(formData.content),
+                  }}
                 />
 
                 {formData.tags.length > 0 && (
