@@ -2,9 +2,17 @@
 
 import { type DojoData, type PlayerData, dojoService } from '@/services/dojoService';
 import { getMapboxToken, handleMapboxError, MAPBOX_PERFORMANCE_CONFIG } from '@/config/mapbox';
-import mapboxgl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
 import React, { useCallback, useEffect, useRef, useState, memo } from 'react';
+
+// Dynamically import maplibre-gl to reduce initial bundle size
+let mapboxgl: any;
+if (typeof window !== 'undefined') {
+  import('maplibre-gl').then(mod => {
+    mapboxgl = mod.default;
+    // Import CSS dynamically
+    import('maplibre-gl/dist/maplibre-gl.css');
+  });
+}
 import styles from './MapboxWorldHubMap.module.css';
 
 interface MapboxWorldHubMapProps {
@@ -34,12 +42,12 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = memo(({
   const heightClass = getHeightClass(height);
   const [dojos, setDojos] = useState<DojoData[]>([]);
   const [selectedDojo, setSelectedDojo] = useState<DojoData | null>(null);
-  const [playerData, setPlayerData] = useState<PlayerData | null>(null);
+  const [_playerData, setPlayerData] = useState<PlayerData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTheme, setSelectedTheme] = useState<
     'dark' | 'light' | 'vintage'
   >('dark');
-  const [mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null);
+  const [_mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
 

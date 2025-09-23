@@ -17,9 +17,7 @@ import {
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 
-const CMSDashboard = dynamic(() => import('@/components/CMS').then(mod => ({ default: mod.CMSDashboard })), {
-  loading: () => <div>Loading CMS...</div>,
-});
+import { DynamicCMSDashboard } from '@/components/Common/DynamicImports';
 
 const AdminPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -226,7 +224,7 @@ const AdminPage: React.FC = () => {
         </Box>
 
         {tabValue === 0 && <SystemOverviewTab />}
-        {tabValue === 1 && <CMSDashboard />}
+        {tabValue === 1 && <DynamicCMSDashboard />}
       </Container>
     </ProtectedRoute>
   );

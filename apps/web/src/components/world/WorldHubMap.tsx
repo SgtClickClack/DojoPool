@@ -3,13 +3,26 @@ import { useAuth } from '@/hooks/useAuth';
 import { useMapData } from '@/hooks/useMapData';
 import { type PlayerPosition } from '@/services/WebSocketService';
 import { type DojoData } from '@/services/dojoService';
-import {
-  GoogleMap,
-  InfoWindow,
-  LoadScript,
-  Marker,
-} from '@react-google-maps/api';
+import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
+
+// Dynamically import Google Maps components to reduce initial bundle size
+const GoogleMap = dynamic(() => import('@react-google-maps/api').then(mod => ({ default: mod.GoogleMap })), {
+  ssr: false,
+  loading: () => <div>Loading map...</div>,
+});
+
+const InfoWindow = dynamic(() => import('@react-google-maps/api').then(mod => ({ default: mod.InfoWindow })), {
+  ssr: false,
+});
+
+const LoadScript = dynamic(() => import('@react-google-maps/api').then(mod => ({ default: mod.LoadScript })), {
+  ssr: false,
+});
+
+const Marker = dynamic(() => import('@react-google-maps/api').then(mod => ({ default: mod.Marker })), {
+  ssr: false,
+});
 import { ShadowRunModal } from './ShadowRunModal';
 import { ConnectionStatusBar } from './ConnectionStatusBar';
 import { DojoInfoWindow } from './DojoInfoWindow';
@@ -57,7 +70,7 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
     return 'h100'; // default fallback
   };
 
-  const heightClass = getHeightClass(height);
+  const _heightClass = getHeightClass(height);
 
   // Check for required environment variables first
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
@@ -65,13 +78,13 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
   // Use the new useMapData hook for real-time data
   const {
     dojos,
-    playerData,
+    playerData: _playerData,
     playerPositions,
     isLoading,
     error,
     isWebSocketConnected,
     messageActivity,
-    updatePlayerPosition,
+    updatePlayerPosition: _updatePlayerPosition,
     refreshData,
   } = useMapData(center.lat, center.lng, 10000);
 

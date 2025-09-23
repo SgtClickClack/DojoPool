@@ -34,7 +34,6 @@ import {
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import dynamic from 'next/dynamic';
 // Simple HTML sanitization function
 const sanitizeHtml = (html: string): string => {
   // Basic HTML sanitization - in production, use a proper library like DOMPurify
@@ -45,13 +44,9 @@ const sanitizeHtml = (html: string): string => {
 };
 import React, { useEffect, useState } from 'react';
 
-// Dynamically import ReactQuill to avoid SSR issues
-const ReactQuill = dynamic(() => import('react-quill'), {
-  ssr: false,
-  loading: () => <div>Loading editor...</div>,
-});
+import { DynamicReactQuill } from '@/components/Common/DynamicImports';
 
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 
 interface NewsArticle {
   id: string;
@@ -568,7 +563,7 @@ const NewsManagement: React.FC = () => {
                     Content
                   </Typography>
                   <Box sx={{ border: '1px solid #ccc', borderRadius: 1 }}>
-                    <ReactQuill
+                    <DynamicReactQuill
                       value={formData.content}
                       onChange={(content) =>
                         setFormData({ ...formData, content })

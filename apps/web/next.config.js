@@ -20,7 +20,6 @@ const nextConfig = {
     '@mui/material',
     '@mui/system',
     '@mui/icons-material',
-    '@mui/lab',
     '@mui/x-date-pickers',
   ],
   compiler: {
@@ -30,7 +29,7 @@ const nextConfig = {
   },
   // Enable experimental features for better performance
   experimental: {
-    // Removed optimizePackageImports due to ESM directory import issues with MUI during SSR
+    optimizePackageImports: ['@mui/material', '@mui/icons-material', '@mui/system'],
     optimizeCss: true,
     scrollRestoration: true,
     // Force ESM compatibility for MUI packages - disabled for MUI compatibility
@@ -73,42 +72,42 @@ const nextConfig = {
       splitChunks: {
         chunks: 'all',
         minSize: 20000,
-        maxSize: 200000, // Reduced from 244000
+        maxSize: 150000, // Further reduced for better splitting
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             chunks: 'all',
             priority: 10,
-            maxSize: 200000,
+            maxSize: 150000,
           },
           mui: {
             test: /[\\/]node_modules[\\/]@mui[\\/]/,
             name: 'mui',
             chunks: 'all',
             priority: 20,
-            maxSize: 200000,
-          },
-          charts: {
-            test: /[\\/]node_modules[\\/](chart\.js|recharts|@ant-design\/charts)[\\/]/,
-            name: 'charts',
-            chunks: 'all',
-            priority: 15,
-            maxSize: 200000,
+            maxSize: 150000,
           },
           maps: {
             test: /[\\/]node_modules[\\/](mapbox-gl|maplibre-gl|@vis\.gl|@react-google-maps)[\\/]/,
             name: 'maps',
             chunks: 'all',
             priority: 15,
-            maxSize: 200000,
+            maxSize: 150000,
           },
-          heavy: {
-            test: /[\\/]node_modules[\\/](konva|react-konva|lottie-web|jspdf|react-quill)[\\/]/,
-            name: 'heavy-libs',
+          editor: {
+            test: /[\\/]node_modules[\\/](react-quill-new|quill)[\\/]/,
+            name: 'editor',
             chunks: 'all',
             priority: 15,
-            maxSize: 200000,
+            maxSize: 150000,
+          },
+          motion: {
+            test: /[\\/]node_modules[\\/](framer-motion)[\\/]/,
+            name: 'motion',
+            chunks: 'all',
+            priority: 15,
+            maxSize: 150000,
           },
         },
       },
