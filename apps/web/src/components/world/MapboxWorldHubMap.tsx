@@ -99,9 +99,6 @@ const MapboxWorldHubMap: React.FC<MapboxWorldHubMapProps> = memo(
         try {
           const mapboxgl = (await import('maplibre-gl')).default;
 
-          // Import CSS
-          await import('maplibre-gl/dist/maplibre-gl.css');
-
           const map = new mapboxgl.Map({
             container: mapContainer.current,
             style: getMapboxTheme(selectedTheme),
