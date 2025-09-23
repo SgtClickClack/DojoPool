@@ -7,22 +7,44 @@ import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 
 // Dynamically import Google Maps components to reduce initial bundle size
-const GoogleMap = dynamic(() => import('@react-google-maps/api').then(mod => ({ default: mod.GoogleMap })), {
-  ssr: false,
-  loading: () => <div>Loading map...</div>,
-});
+const GoogleMap = dynamic(
+  () =>
+    import('@react-google-maps/api').then((mod) => ({
+      default: mod.GoogleMap,
+    })),
+  {
+    ssr: false,
+    loading: () => <div>Loading map...</div>,
+  }
+);
 
-const InfoWindow = dynamic(() => import('@react-google-maps/api').then(mod => ({ default: mod.InfoWindow })), {
-  ssr: false,
-});
+const InfoWindow = dynamic(
+  () =>
+    import('@react-google-maps/api').then((mod) => ({
+      default: mod.InfoWindow,
+    })),
+  {
+    ssr: false,
+  }
+);
 
-const LoadScript = dynamic(() => import('@react-google-maps/api').then(mod => ({ default: mod.LoadScript })), {
-  ssr: false,
-});
+const LoadScript = dynamic(
+  () =>
+    import('@react-google-maps/api').then((mod) => ({
+      default: mod.LoadScript,
+    })),
+  {
+    ssr: false,
+  }
+);
 
-const Marker = dynamic(() => import('@react-google-maps/api').then(mod => ({ default: mod.Marker })), {
-  ssr: false,
-});
+const Marker = dynamic(
+  () =>
+    import('@react-google-maps/api').then((mod) => ({ default: mod.Marker })),
+  {
+    ssr: false,
+  }
+);
 import { ShadowRunModal } from './ShadowRunModal';
 import { ConnectionStatusBar } from './ConnectionStatusBar';
 import { DojoInfoWindow } from './DojoInfoWindow';
@@ -202,7 +224,10 @@ const WorldHubMap: React.FC<WorldHubMapProps> = ({ height = '100%' }) => {
         playerCount={playerPositions.length}
       />
 
-      <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY_INLINE}>
+      <LoadScript
+        googleMapsApiKey={GOOGLE_MAPS_API_KEY_INLINE}
+        id="google-maps-script"
+      >
         <GoogleMap
           mapContainerClassName={styles.mapContainer}
           center={center}

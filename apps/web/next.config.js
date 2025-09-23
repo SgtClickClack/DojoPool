@@ -29,7 +29,11 @@ const nextConfig = {
   },
   // Enable experimental features for better performance
   experimental: {
-    optimizePackageImports: ['@mui/material', '@mui/icons-material', '@mui/system'],
+    optimizePackageImports: [
+      '@mui/material',
+      '@mui/icons-material',
+      '@mui/system',
+    ],
     optimizeCss: true,
     scrollRestoration: true,
     // Force ESM compatibility for MUI packages - disabled for MUI compatibility
@@ -40,8 +44,6 @@ const nextConfig = {
   trailingSlash: true,
   // Disable build tracing to reduce build size for Vercel deployment
   outputFileTracing: false,
-  // Disable webpack cache completely for Vercel deployment
-  webpack5: false,
   // Configure pages directory
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 
