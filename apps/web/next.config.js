@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+// eslint-disable-next-line no-undef
 const { randomBytes } = require('crypto');
 
 const nextConfig = {
@@ -15,9 +15,17 @@ const nextConfig = {
   swcMinify: true,
   poweredByHeader: false,
   compress: true,
-  transpilePackages: ['@dojopool/types', '@mui/material', '@mui/system', '@mui/icons-material'],
+  transpilePackages: [
+    '@dojopool/types',
+    '@mui/material',
+    '@mui/system',
+    '@mui/icons-material',
+    '@mui/lab',
+    '@mui/x-date-pickers',
+  ],
   compiler: {
     styledComponents: true,
+    // eslint-disable-next-line no-undef
     removeConsole: process.env.NODE_ENV === 'production',
   },
   // Enable experimental features for better performance
@@ -35,7 +43,7 @@ const nextConfig = {
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 
   // Webpack optimizations for Windows file handling
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config) => {
     // Increase file watching limits for Windows
     config.watchOptions = {
       poll: 1000,
@@ -98,8 +106,9 @@ const nextConfig = {
       ...(config.resolve.alias || {}),
       // Mapbox to Maplibre alias for compatibility
       'mapbox-gl': 'maplibre-gl',
-      // Fix MUI ESM directory import in SSR (exact match)
-      '@mui/material/utils$': '@mui/material/node/utils/index.js',
+      // Fix MUI ESM directory import in SSR - use more specific patterns
+      '@mui/material/utils': '@mui/material/node/utils',
+      '@mui/material/utils/': '@mui/material/node/utils/',
     };
 
     return config;
@@ -193,6 +202,7 @@ const nextConfig = {
   },
 };
 
+// eslint-disable-next-line no-undef
 module.exports = nextConfig;
 function getCsp() {
   const nonce = randomBytes(16).toString('base64');
