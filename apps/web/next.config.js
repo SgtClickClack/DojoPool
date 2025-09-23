@@ -39,13 +39,18 @@ const nextConfig = {
   // Enable static export for Firebase
   // output: 'export',
   trailingSlash: true,
-  // Enable build tracing for standalone output
-  outputFileTracing: true,
+  // Disable build tracing to reduce build size for Vercel deployment
+  outputFileTracing: false,
+  // Disable webpack cache completely for Vercel deployment
+  webpack5: false,
   // Configure pages directory
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 
   // Webpack optimizations for Windows file handling
   webpack: (config) => {
+    // Disable webpack cache to reduce build size
+    config.cache = false;
+
     // Increase file watching limits for Windows
     config.watchOptions = {
       poll: 1000,
@@ -53,53 +58,60 @@ const nextConfig = {
       ignored: ['**/node_modules', '**/.next', '**/dist'],
     };
 
-    // Optimize file processing and tree shaking
+    // Optimize memory limits for Vercel deployment
+    config.performance = {
+      ...config.performance,
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000,
+    };
+
+    // Add optimizations to reduce bundle size
     config.optimization = {
       ...config.optimization,
       usedExports: true,
-      sideEffects: true,
+      sideEffects: false,
       splitChunks: {
         chunks: 'all',
+        minSize: 20000,
+        maxSize: 200000, // Reduced from 244000
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             chunks: 'all',
             priority: 10,
+            maxSize: 200000,
           },
           mui: {
             test: /[\\/]node_modules[\\/]@mui[\\/]/,
             name: 'mui',
             chunks: 'all',
             priority: 20,
+            maxSize: 200000,
           },
           charts: {
             test: /[\\/]node_modules[\\/](chart\.js|recharts|@ant-design\/charts)[\\/]/,
             name: 'charts',
             chunks: 'all',
             priority: 15,
+            maxSize: 200000,
           },
           maps: {
             test: /[\\/]node_modules[\\/](mapbox-gl|maplibre-gl|@vis\.gl|@react-google-maps)[\\/]/,
             name: 'maps',
             chunks: 'all',
             priority: 15,
+            maxSize: 200000,
           },
           heavy: {
             test: /[\\/]node_modules[\\/](konva|react-konva|lottie-web|jspdf|react-quill)[\\/]/,
             name: 'heavy-libs',
             chunks: 'all',
             priority: 15,
+            maxSize: 200000,
           },
         },
       },
-    };
-
-    // Increase memory limits and add optimizations
-    config.performance = {
-      ...config.performance,
-      maxEntrypointSize: 512000,
-      maxAssetSize: 512000,
     };
 
     // Resolve aliases for better tree shaking and compatibility
