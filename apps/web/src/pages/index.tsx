@@ -8,8 +8,9 @@ const HomePage: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
-      router.push('/dashboard');
+    // Ensure this runs only on the client and only when a real user exists
+    if (typeof window !== 'undefined' && !loading && user && user.id) {
+      void router.replace('/dashboard');
     }
   }, [user, loading, router]);
 
@@ -23,7 +24,7 @@ const HomePage: React.FC = () => {
     );
   }
 
-  if (user) {
+  if (user && user.id) {
     return null; // Will redirect to dashboard
   }
 
