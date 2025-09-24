@@ -89,13 +89,8 @@ const RegisterPage: React.FC = () => {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      // Redirect to Google OAuth
-      const baseUrl = (
-        process.env.NEXT_PUBLIC_API_URL || '/api/v1'
-      )
-        .trim()
-        .replace(/\/$/, '');
-      window.location.href = `${baseUrl}/auth/google`;
+      // Always route through Next.js API to avoid base URL issues
+      window.location.href = '/api/v1/auth/google';
     } catch (err) {
       setIsGoogleLoading(false);
     }

@@ -57,13 +57,8 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      // Redirect to Google OAuth
-      const baseUrl = (
-        process.env.NEXT_PUBLIC_API_URL || '/api/v1'
-      )
-        .trim()
-        .replace(/\/$/, '');
-      window.location.href = `${baseUrl}/auth/google`;
+      // Always route through Next.js API to avoid base URL misconfig
+      window.location.href = '/api/v1/auth/google';
     } catch (_err) {
       setError('Google sign-in failed. Please try again.');
       setIsGoogleLoading(false);
