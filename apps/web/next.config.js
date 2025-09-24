@@ -1,6 +1,4 @@
 /** @type {import('next').NextConfig} */
-// eslint-disable-next-line no-undef
-const { randomBytes } = require('crypto');
 
 const nextConfig = {
   eslint: {
@@ -182,10 +180,6 @@ const nextConfig = {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains',
           },
-          {
-            key: 'Content-Security-Policy',
-            value: getCsp(),
-          },
         ],
       },
       {
@@ -231,25 +225,3 @@ const nextConfig = {
 
 // eslint-disable-next-line no-undef
 module.exports = nextConfig;
-function getCsp() {
-  const nonce = randomBytes(16).toString('base64');
-  // IMPORTANT: In a real app, you would generate a new nonce for each request.
-  // For this implementation, we will pass it via a custom header that the
-  // _document can read. A more complex but robust solution would use middleware.
-  // This approach is a pragmatic balance for Vercel deployments.
-
-  const directives = [
-    `default-src 'self'`,
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: http: 'unsafe-inline'`,
-    `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: https:`,
-    `font-src 'self' data: https://fonts.gstatic.com https://maps.gstatic.com`,
-    `connect-src 'self' https://vitals.vercel-insights.com https://maps.googleapis.com https://maps.gstatic.com https://maps.google.com ws: wss:`,
-    `object-src 'none'`,
-    `base-uri 'self'`,
-    `form-action 'self'`,
-    `frame-ancestors 'none'`,
-  ];
-
-  return directives.join('; ');
-}

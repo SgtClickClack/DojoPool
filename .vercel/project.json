@@ -1,16 +1,1 @@
-{
-  "projectId": "prj_dKlUDxFWLJyyrbrtvIJVHBtZOwUD",
-  "orgId": "team_jMakeI9yr1Y829jqlBgOOIWL",
-  "projectName": "dojopool",
-  "settings": {
-    "createdAt": 1758237259878,
-    "framework": "nextjs",
-    "devCommand": null,
-    "installCommand": "yarn install --immutable",
-    "buildCommand": "yarn workspace dojopool-frontend build",
-    "outputDirectory": "apps/web/.next",
-    "rootDirectory": null,
-    "directoryListing": false,
-    "nodeVersion": "22.x"
-  }
-}
+{"projectId":"prj_ofCGBhHLc9HyxJbQSnVfH3F9c71X","orgId":"team_7iI7BsreyvIVa3Ze11mJBJDN","projectName":"dojo-pool-web"}
