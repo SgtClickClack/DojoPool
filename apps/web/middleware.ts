@@ -2,6 +2,14 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  // Enforce canonical apex domain
+  const host = request.headers.get('host') || '';
+  if (host.startsWith('www.')) {
+    const url = new URL(request.url);
+    url.host = host.replace(/^www\./, '');
+    return NextResponse.redirect(url, 308);
+  }
+
   // Generate per-request nonce using Web Crypto (Edge runtime-safe)
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
