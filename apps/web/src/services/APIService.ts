@@ -37,18 +37,31 @@ import type {
   TerritoryScoutResult,
   TerritoryManageResult,
 } from '@/types/territory';
-import type { Venue, VenueSearchFilters, VenueSearchResponse } from '@/types/venue';
+import type {
+  Venue,
+  VenueSearchFilters,
+  VenueSearchResponse,
+} from '@/types/venue';
 import type {
   VenueSpecial,
   CreateVenueSpecialRequest,
 } from '@/types/venue-special';
-import type { ActivityEvent, ActivityEventType, ActivityFeedResponse, ActivityFeedFilters } from '@/types/activity';
-import type { InventoryItem, EquipmentSlot, UserInventory } from '@/types/inventory';
+import type {
+  ActivityEvent,
+  ActivityEventType,
+  ActivityFeedResponse,
+  ActivityFeedFilters,
+} from '@/types/activity';
+import type {
+  InventoryItem,
+  EquipmentSlot,
+  UserInventory,
+} from '@/types/inventory';
 import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 // Create axios instance with default config
 const apiBaseUrl =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:3002/api';
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '/api';
 
 const api: AxiosInstance = axios.create({
   baseURL: apiBaseUrl,
@@ -118,7 +131,9 @@ export const createClan = async (clanData: Partial<Clan>): Promise<Clan> => {
   return response.data;
 };
 
-export const getClans = async (filters?: ClanFilters): Promise<ClanListResponse> => {
+export const getClans = async (
+  filters?: ClanFilters
+): Promise<ClanListResponse> => {
   const response = await api.get('/v1/clans', { params: filters });
   return response.data;
 };
@@ -215,18 +230,20 @@ export const getActivityFeed = async (
   const pageNumber: number = Number(raw.page ?? page);
   const pageSize: number = Number(raw.pageSize ?? limit);
 
-  const entries = items.map((it: RawActivityItem): ActivityEvent => ({
-    id: it.id,
-    type: it.type as ActivityEventType,
-    title: it.type?.toString().replace(/_/g, ' ') || 'activity',
-    description: it.message ?? '',
-    userId: it.user?.id ?? it.userId ?? '',
-    username: it.user?.username ?? 'Unknown',
-    userAvatar: undefined,
-    metadata: it.metadata ?? {},
-    createdAt: it.createdAt,
-    isPublic: true,
-  }));
+  const entries = items.map(
+    (it: RawActivityItem): ActivityEvent => ({
+      id: it.id,
+      type: it.type as ActivityEventType,
+      title: it.type?.toString().replace(/_/g, ' ') || 'activity',
+      description: it.message ?? '',
+      userId: it.user?.id ?? it.userId ?? '',
+      username: it.user?.username ?? 'Unknown',
+      userAvatar: undefined,
+      metadata: it.metadata ?? {},
+      createdAt: it.createdAt,
+      isPublic: true,
+    })
+  );
 
   return {
     entries,
@@ -361,7 +378,7 @@ export interface DashboardStats {
 }
 
 export const getDashboardStats = async (): Promise<DashboardStats> => {
-  const response = await api.post('/v1/dashboard/stats');
+  const response = await api.get('/v1/dashboard/stats');
   return response.data;
 };
 
@@ -398,7 +415,9 @@ export const getCdnCostStats = async (): Promise<CdnCostStats> => {
 };
 
 // Venue API functions
-export const getVenues = async (params?: VenueSearchFilters): Promise<VenueSearchResponse> => {
+export const getVenues = async (
+  params?: VenueSearchFilters
+): Promise<VenueSearchResponse> => {
   const response = await api.get('/v1/venues', { params });
   return response.data;
 };
@@ -445,7 +464,9 @@ export const getMyVenue = async (): Promise<Venue> => {
   return response.data;
 };
 
-export const createVenueSpecial = async (data: CreateVenueSpecialRequest): Promise<VenueSpecial> => {
+export const createVenueSpecial = async (
+  data: CreateVenueSpecialRequest
+): Promise<VenueSpecial> => {
   const response = await api.post('/v1/venues/me/specials', data);
   return response.data;
 };
@@ -558,12 +579,23 @@ export const getAllItems = async (): Promise<InventoryItem[]> => {
   return response.data ?? [];
 };
 
-export const getPlayerInventory = async (userId: string): Promise<UserInventory> => {
+export const getPlayerInventory = async (
+  userId: string
+): Promise<UserInventory> => {
   const response = await api.get(`/v1/inventory/${userId}`);
-  return response.data ?? { items: [], equippedItems: {}, totalItems: 0, maxSlots: 50 };
+  return (
+    response.data ?? {
+      items: [],
+      equippedItems: {},
+      totalItems: 0,
+      maxSlots: 50,
+    }
+  );
 };
 
-export const getPlayerLoadout = async (userId: string): Promise<PlayerLoadout | null> => {
+export const getPlayerLoadout = async (
+  userId: string
+): Promise<PlayerLoadout | null> => {
   const response = await api.get(`/v1/inventory/${userId}/loadout`);
   return response.data ?? null;
 };
@@ -862,7 +894,11 @@ export interface CreateSystemMessageRequest {
 export const getCMSEvents = async (
   page: number = 1,
   limit: number = 20
-): Promise<{ content: CMSEvent[]; totalCount: number; pagination: ActivityFeedResponse['pagination'] }> => {
+): Promise<{
+  content: CMSEvent[];
+  totalCount: number;
+  pagination: ActivityFeedResponse['pagination'];
+}> => {
   const response = await api.get('/cms/events', {
     params: { page, limit },
   });

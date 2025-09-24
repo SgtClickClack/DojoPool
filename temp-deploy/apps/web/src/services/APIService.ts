@@ -27,7 +27,8 @@ import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 // Create axios instance with default config
 const apiBaseUrl =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:3002/api';
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') ||
+  'http://localhost:3002/api';
 
 const api: AxiosInstance = axios.create({
   baseURL: apiBaseUrl,
@@ -339,7 +340,7 @@ export interface DashboardStats {
 }
 
 export const getDashboardStats = async (): Promise<DashboardStats> => {
-  const response = await api.post('/v1/dashboard/stats');
+  const response = await api.get('/v1/dashboard/stats');
   return response.data;
 };
 
