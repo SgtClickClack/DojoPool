@@ -25,116 +25,50 @@ const nextConfig = {
     // eslint-disable-next-line no-undef
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  // Enable experimental features for better performance
+  // Disable experimental features that cause chunk issues
   experimental: {
-    optimizePackageImports: [
-      '@mui/material',
-      '@mui/icons-material',
-      '@mui/system',
-    ],
-    optimizeCss: true,
+    // Disable all optimizations that might cause chunk resolution issues
+    optimizePackageImports: false,
+    optimizeCss: false,
     scrollRestoration: true,
-    // Force ESM compatibility for MUI packages - disabled for MUI compatibility
     esmExternals: false,
   },
   // Enable static export for Firebase
   // output: 'export',
-  trailingSlash: true,
+  trailingSlash: false, // Disabled for API routes compatibility
   // Disable build tracing to reduce build size for Vercel deployment
   outputFileTracing: false,
   // Configure pages directory
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 
-  // Webpack optimizations for Windows file handling
+  // Completely disable webpack optimizations for Vercel compatibility
   webpack: (config) => {
-    // Disable webpack cache to reduce build size
+    // Disable webpack cache completely
     config.cache = false;
 
-    // Increase file watching limits for Windows
-    config.watchOptions = {
-      poll: 1000,
-      aggregateTimeout: 300,
-      ignored: ['**/node_modules', '**/.next', '**/dist'],
-    };
-
-    // Optimize memory limits for Vercel deployment
-    config.performance = {
-      ...config.performance,
-      maxEntrypointSize: 512000,
-      maxAssetSize: 512000,
-    };
-
-    // Add optimizations to reduce bundle size
+    // Completely disable all optimizations that cause chunk issues
     config.optimization = {
-      ...config.optimization,
-      usedExports: true,
+      minimize: false,
+      usedExports: false,
       sideEffects: false,
-      splitChunks: {
-        chunks: 'all',
-        minSize: 20000,
-        maxSize: 150000, // Further reduced for better splitting
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            priority: 10,
-            maxSize: 150000,
-          },
-          mui: {
-            test: /[\\/]node_modules[\\/]@mui[\\/]/,
-            name: 'mui',
-            chunks: 'all',
-            priority: 20,
-            maxSize: 150000,
-          },
-          maps: {
-            test: /[\\/]node_modules[\\/](mapbox-gl|maplibre-gl|@vis\.gl|@react-google-maps)[\\/]/,
-            name: 'maps',
-            chunks: 'all',
-            priority: 15,
-            maxSize: 150000,
-          },
-          editor: {
-            test: /[\\/]node_modules[\\/](react-quill-new|quill)[\\/]/,
-            name: 'editor',
-            chunks: 'all',
-            priority: 15,
-            maxSize: 150000,
-          },
-          motion: {
-            test: /[\\/]node_modules[\\/](framer-motion)[\\/]/,
-            name: 'motion',
-            chunks: 'all',
-            priority: 15,
-            maxSize: 150000,
-          },
-        },
-      },
+      splitChunks: false,
+      concatenateModules: false,
+      moduleIds: 'named',
+      chunkIds: 'named',
     };
 
-    // Resolve aliases for better tree shaking and compatibility
+    // Disable performance hints
+    config.performance = {
+      hints: false,
+    };
+
+    // Resolve aliases for compatibility
     config.resolve = config.resolve || {};
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       // Mapbox to Maplibre alias for compatibility
       'mapbox-gl': 'maplibre-gl',
-      // Fix MUI ESM directory import in SSR - comprehensive patterns
-      '@mui/material/utils': '@mui/material/node/utils/index.js',
-      '@mui/material/utils/': '@mui/material/node/utils/',
-      // Additional MUI directory imports that might cause issues
-      '@mui/material/styles': '@mui/material/node/styles/index.js',
-      '@mui/material/styles/': '@mui/material/node/styles/',
-      '@mui/material/colors': '@mui/material/node/colors/index.js',
-      '@mui/material/colors/': '@mui/material/node/colors/',
     };
-
-    // Add fallback for MUI directory imports
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-    };
-
-    // MUI directory imports are now handled by disabling esmExternals
 
     return config;
   },

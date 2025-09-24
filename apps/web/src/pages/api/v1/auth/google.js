@@ -1,4 +1,5 @@
 /* eslint-env node */
+/* global process, console */
 // Google OAuth API endpoint
 export default function handler(req, res) {
   if (req.method !== 'GET') {
@@ -12,7 +13,11 @@ export default function handler(req, res) {
     `${req.headers.origin}/api/v1/auth/callback`; // eslint-disable-line no-undef
 
   if (!clientId) {
-    return res.status(500).json({ error: 'Google OAuth not configured' });
+    console.error('Google OAuth not configured: GOOGLE_CLIENT_ID is missing');
+    return res.status(500).json({
+      error: 'Google OAuth not configured',
+      message: 'Please configure GOOGLE_CLIENT_ID environment variable',
+    });
   }
 
   const authUrl =
