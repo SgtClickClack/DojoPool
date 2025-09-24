@@ -2,12 +2,22 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // Enforce canonical apex domain
+  const url = new URL(request.url);
+
+  // Enforce canonical apex domain for ALL routes (incl. /api)
   const host = request.headers.get('host') || '';
   if (host.startsWith('www.')) {
-    const url = new URL(request.url);
     url.host = host.replace(/^www\./, '');
     return NextResponse.redirect(url, 308);
+  }
+
+  // Skip CSP/header injection for API and Next internals
+  if (
+    url.pathname.startsWith('/api') ||
+    url.pathname.startsWith('/_next/') ||
+    url.pathname === '/favicon.ico'
+  ) {
+    return NextResponse.next();
   }
 
   // Generate per-request nonce using Web Crypto (Edge runtime-safe)
@@ -53,14 +63,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/(:path*)'],
 };
