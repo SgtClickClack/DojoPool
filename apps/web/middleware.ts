@@ -52,7 +52,7 @@ export function middleware(request: NextRequest) {
     "connect-src 'self' https://vitals.vercel-insights.com https://maps.googleapis.com https://maps.gstatic.com https://maps.google.com ws: wss:",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self'",
+    "form-action 'self' https://accounts.google.com https://*.google.com",
     "frame-ancestors 'none'",
   ].join('; ');
 
