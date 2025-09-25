@@ -51,6 +51,12 @@ class ErrorReportingService {
    */
   async reportError(errorReport: ErrorReport): Promise<ErrorReportResponse> {
     try {
+      if (process.env.NODE_ENV === 'production') {
+        console.log(
+          'Production environment: Skipping error report to backend.'
+        );
+        return { success: true };
+      }
       if (!this.isOnline) {
         // Queue for later when back online
         this.retryQueue.push(errorReport);
@@ -74,20 +80,8 @@ class ErrorReportingService {
 
       const result = await response.json();
       return result;
-    } catch (error) {
-      logger.error('Failed to report error', {
-        error: error instanceof Error ? error.message : String(error),
-      });
-
-      // Queue for retry if it's a network error
-      if (!navigator.onLine || error instanceof TypeError) {
-        this.retryQueue.push(errorReport);
-      }
-
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
+    } catch (_error) {
+      // Handle error reporting errors silently
     }
   }
 

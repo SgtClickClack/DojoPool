@@ -1,4 +1,4 @@
-import authService, { type User } from '@/services/authService';
+import { useSession, signIn, signOut, getSession } from 'next-auth/react';
 import React, {
   type ReactNode,
   createContext,
@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 
 interface AuthContextType {
-  user: User | null;
+  user: any | null; // Adjust type based on NextAuth User
   loading: boolean;
   isAdmin: boolean;
   error: string | null;
@@ -19,7 +19,6 @@ interface AuthContextType {
     username: string
   ) => Promise<void>;
   logout: () => Promise<void>;
-  setToken: (token: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -30,41 +29,39 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const { data: session, status } = useSession();
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check if user is already authenticated on app load
     const checkAuth = async () => {
-      try {
-        if (authService.isAuthenticated()) {
-          const currentUser = await authService.getCurrentUser();
-          if (currentUser) {
-            setUser(currentUser);
-            setIsAdmin(currentUser.isAdmin || false);
-          }
-        }
-      } catch (err) {
-        // Handle auth check errors silently
-      } finally {
-        setLoading(false);
+      if (status === 'loading') return;
+      if (session) {
+        setUser(session.user);
+        setIsAdmin(session.user.role === 'ADMIN'); // Adjust based on role
       }
+      setLoading(false);
     };
-
     checkAuth();
-  }, []);
+  }, [session, status]);
 
   const login = async (email: string, password: string) => {
     try {
       setError(null);
-      const response = await authService.login({ email, password });
-      setUser(response.user);
-      setIsAdmin(response.user.isAdmin || false);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Login failed';
-      setError(errorMessage);
+      const res = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+      if (res?.error) {
+        setError('Invalid credentials');
+        throw new Error('Login failed');
+      }
+      // Session will update automatically
+    } catch (err) {
+      setError('Login failed');
       throw err;
     }
   };
@@ -76,48 +73,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   ) => {
     try {
       setError(null);
-      const response = await authService.register({
+      setLoading(true);
+      const registerResponse = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, username }),
+      });
+
+      if (!registerResponse.ok) {
+        const errorData = await registerResponse.json();
+        setError(errorData.message || 'Registration failed');
+        return;
+      }
+
+      // Auto sign in
+      const signInResponse = await signIn('credentials', {
         email,
         password,
-        username,
+        redirect: false,
       });
-      setUser(response.user);
-      setIsAdmin(response.user.isAdmin || false);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Registration failed';
-      setError(errorMessage);
+
+      if (signInResponse?.error) {
+        setError('Registration successful, but login failed.');
+      } else {
+        // Session updates
+      }
+    } catch (err) {
+      setError('Registration failed');
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = async () => {
     try {
-      await authService.logout();
+      await signOut({ redirect: false });
       setUser(null);
       setIsAdmin(false);
     } catch (err) {
-      // Handle logout errors silently
-      // Force logout even if API call fails
       setUser(null);
       setIsAdmin(false);
-    }
-  };
-
-  const setToken = async (token: string) => {
-    try {
-      setError(null);
-      // Store the token
-      authService.setToken(token);
-      // Get user info with the new token
-      const currentUser = await authService.getCurrentUser();
-      if (currentUser) {
-        setUser(currentUser);
-        setIsAdmin(currentUser.isAdmin || false);
-      }
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Token validation failed';
-      setError(errorMessage);
-      throw err;
     }
   };
 
@@ -126,14 +122,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const value: AuthContextType = {
-    user,
-    loading,
+    user: session?.user || null,
+    loading: status === 'loading',
     isAdmin,
     error,
     login,
     register,
     logout,
-    setToken,
     clearError,
   };
 

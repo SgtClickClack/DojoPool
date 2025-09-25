@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
+import { signIn } from 'next-auth/react';
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -44,25 +45,45 @@ const RegisterPage: React.FC = () => {
     setPasswordError('');
 
     try {
-      await register(email, password, name);
-      // Redirect to dashboard on successful registration
-      router.push('/dashboard');
+      setLoading(true);
+      // Register via API
+      const registerResponse = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, username: name }),
+      });
+
+      if (!registerResponse.ok) {
+        const errorData = await registerResponse.json();
+        setError(errorData.message || 'Registration failed');
+        return;
+      }
+
+      // Auto sign in after registration
+      const signInResponse = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInResponse?.error) {
+        setError(
+          'Registration successful, but login failed. Please log in manually.'
+        );
+      } else {
+        router.push('/dashboard');
+      }
     } catch (_err) {
-      // Error is already handled by the context
-      console.error('Registration error:', _err);
+      setError('Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      // Redirect to Google OAuth
-      const baseUrl = (
-        process.env.NEXT_PUBLIC_API_URL || '/api/v1'
-      )
-        .trim()
-        .replace(/\/$/, '');
-      window.location.href = `${baseUrl}/auth/google`;
+      await signIn('google', { callbackUrl: '/dashboard' });
     } catch (_err) {
       setIsGoogleLoading(false);
     }
@@ -81,7 +102,12 @@ const RegisterPage: React.FC = () => {
         <Typography variant="h5" gutterBottom align="center">
           Create Account
         </Typography>
-        <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          align="center"
+          sx={{ mb: 3 }}
+        >
           Join DojoPool and start your pool journey
         </Typography>
 

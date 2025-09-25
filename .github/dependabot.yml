@@ -1,80 +1,21 @@
 version: 2
 updates:
-  # Enable version updates for yarn
-  - package-ecosystem: 'yarn'
+  # Enable version updates for yarn in the root directory
+  - package-ecosystem: 'npm' # Use "npm" for yarn v2+
     directory: '/'
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-    open-pull-requests-limit: 10
-    reviewers:
-      - 'SgtClickClack'
-    assignees:
-      - 'SgtClickClack'
-    commit-message:
-      prefix: 'chore(deps)'
-      prefix-development: 'chore(deps-dev)'
-    labels:
-      - 'dependencies'
-      - 'yarn'
-    ignore:
-      # Ignore major version updates for stable dependencies
-      - dependency-name: 'react'
-        update-types: ['version-update:semver-major']
-      - dependency-name: 'react-dom'
-        update-types: ['version-update:semver-major']
-
-  # Enable version updates for pip
-  - package-ecosystem: 'pip'
-    directory: '/'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '10:00'
-    open-pull-requests-limit: 10
-    reviewers:
-      - 'SgtClickClack'
-    assignees:
-      - 'SgtClickClack'
-    commit-message:
-      prefix: 'chore(deps)'
-    labels:
-      - 'dependencies'
-      - 'python'
-
-  # Enable version updates for GitHub Actions
-  - package-ecosystem: 'github-actions'
-    directory: '/'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '11:00'
-    open-pull-requests-limit: 5
-    reviewers:
-      - 'SgtClickClack'
-    assignees:
-      - 'SgtClickClack'
-    commit-message:
-      prefix: 'chore(ci)'
-    labels:
-      - 'dependencies'
-      - 'github-actions'
-
-  # Enable version updates for Docker
-  - package-ecosystem: 'docker'
-    directory: '/'
-    schedule:
-      interval: 'weekly'
-      day: 'tuesday'
-      time: '09:00'
-    open-pull-requests-limit: 5
-    reviewers:
-      - 'SgtClickClack'
-    assignees:
-      - 'SgtClickClack'
-    commit-message:
-      prefix: 'chore(docker)'
-    labels:
-      - 'dependencies'
-      - 'docker'
+      interval: 'daily'
+    # Group updates to reduce noise
+    groups:
+      # Group all patch and minor updates for dev dependencies
+      dev-dependencies:
+        dependency-type: 'development'
+        update-types:
+          - 'patch'
+          - 'minor'
+      # Group all production dependency updates
+      prod-dependencies:
+        dependency-type: 'production'
+        update-types:
+          - 'patch'
+          - 'minor'
