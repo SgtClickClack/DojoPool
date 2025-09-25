@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { signIn } from 'next-auth/react';
 
 const RegisterPage: React.FC = () => {
   const { register, user, loading } = useAuth();
@@ -89,8 +90,7 @@ const RegisterPage: React.FC = () => {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      // Always route through Next.js API to avoid base URL issues
-      window.location.href = '/api/v1/auth/google';
+      await signIn('google');
     } catch (err) {
       setIsGoogleLoading(false);
     }
