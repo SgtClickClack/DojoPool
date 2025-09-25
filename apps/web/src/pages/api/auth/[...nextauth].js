@@ -12,6 +12,19 @@ export const authOptions = {
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
+  pages: {
+    signIn: '/login',
+    error: '/login',
+  },
+  debug: process.env.NODE_ENV !== 'production',
 };
 
 export default NextAuth(authOptions);
+
+// Ensure NextAuth can handle provider callbacks that POST urlencoded payloads
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
