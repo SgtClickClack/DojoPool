@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
+import { signIn } from 'next-auth/react';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -57,8 +58,7 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      // Always route through Next.js API to avoid base URL misconfig
-      window.location.href = '/api/v1/auth/google';
+      await signIn('google');
     } catch (_err) {
       setError('Google sign-in failed. Please try again.');
       setIsGoogleLoading(false);
