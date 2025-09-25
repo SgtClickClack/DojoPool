@@ -20,7 +20,7 @@ const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { register, error, loading, clearError } = useAuth();
+  const { register: contextRegister, error, loading, clearError } = useAuth();
   const [passwordError, setPasswordError] = useState('');
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
@@ -45,38 +45,11 @@ const RegisterPage: React.FC = () => {
     setPasswordError('');
 
     try {
-      setLoading(true);
-      // Register via API
-      const registerResponse = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, username: name }),
-      });
-
-      if (!registerResponse.ok) {
-        const errorData = await registerResponse.json();
-        setError(errorData.message || 'Registration failed');
-        return;
-      }
-
-      // Auto sign in after registration
-      const signInResponse = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (signInResponse?.error) {
-        setError(
-          'Registration successful, but login failed. Please log in manually.'
-        );
-      } else {
-        router.push('/dashboard');
-      }
-    } catch (_err) {
-      setError('Registration failed. Please try again.');
-    } finally {
-      setLoading(false);
+      await contextRegister(email, password, name);
+      router.push('/dashboard');
+    } catch (err) {
+      // Error is already set by context register
+      console.error('Registration error:', err);
     }
   };
 
