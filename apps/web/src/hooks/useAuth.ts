@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       if (status === 'loading') return;
-      if (session) {
+      if (session && session.user) {
         setUser(session.user);
         setIsAdmin(session.user.role === 'ADMIN'); // Adjust based on role
       }
