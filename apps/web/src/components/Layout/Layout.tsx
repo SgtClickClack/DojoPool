@@ -12,7 +12,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Check if we're on a mobile-first page or using mobile layout
   const isMobileFirstPage =
-    router.pathname.startsWith('/dashboard') ||
     router.pathname.startsWith('/tournaments') ||
     router.pathname.startsWith('/world') ||
     router.pathname.startsWith('/profile');
