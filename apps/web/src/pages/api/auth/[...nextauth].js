@@ -17,7 +17,7 @@ export const authOptions = {
     signIn: '/login',
     error: '/login',
   },
-  debug: process.env.NODE_ENV !== 'production',
+  debug: true,
 };
 
 export default NextAuth(authOptions);
@@ -28,3 +28,6 @@ export const config = {
     bodyParser: false,
   },
 };
+
+// Ensure Node.js runtime (not Edge) for NextAuth handler
+export const runtime = 'nodejs';
