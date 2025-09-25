@@ -1,7 +1,9 @@
 import NotificationBell from '@/components/Common/NotificationBell';
 import { useChat } from '@/contexts/ChatContext';
 import { useAuth } from '@/hooks/useAuth';
-import marketplaceService, { type UserBalance } from '@/services/marketplaceService';
+import marketplaceService, {
+  type UserBalance,
+} from '@/services/marketplaceService';
 import { AttachMoney as MoneyIcon } from '@mui/icons-material';
 import {
   type AppBarProps,
@@ -118,7 +120,7 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
                 sx={{ color: 'inherit', textTransform: 'none' }}
                 startIcon={
                   <Avatar sx={{ width: 24, height: 24, fontSize: '0.875rem' }}>
-                    {user.username.charAt(0).toUpperCase()}
+                    {user?.username?.charAt(0)?.toUpperCase() || '?'}
                   </Avatar>
                 }
               >
