@@ -13,6 +13,7 @@ import { theme } from '@/styles/theme';
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import type { AppProps } from 'next/app';
+import { SessionProvider } from 'next-auth/react';
 
 // Dynamic import for GlobalErrorBoundary to avoid SSR issues with framer-motion
 const GlobalErrorBoundary = dynamic(
@@ -35,19 +36,23 @@ if (typeof window !== 'undefined') {
 }
 
 export default function App({ Component, pageProps }: AppProps) {
+  // Support NextAuth session propagation to pages
+  const { session, ...restPageProps } = pageProps as any;
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <GlobalErrorBoundary onError={handleGlobalError}>
-        <AuthProvider>
-          <ChatProvider>
-            <NotificationProvider>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            </NotificationProvider>
-          </ChatProvider>
-        </AuthProvider>
+        <SessionProvider session={session}>
+          <AuthProvider>
+            <ChatProvider>
+              <NotificationProvider>
+                <Layout>
+                  <Component {...restPageProps} />
+                </Layout>
+              </NotificationProvider>
+            </ChatProvider>
+          </AuthProvider>
+        </SessionProvider>
       </GlobalErrorBoundary>
     </ThemeProvider>
   );
