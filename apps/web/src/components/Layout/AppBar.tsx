@@ -72,19 +72,19 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
 
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <Link href="/">
-            <Button color="inherit">World Map</Button>
+            <Button sx={{ color: 'white' }}>World Map</Button>
           </Link>
           <Link href="/tournaments">
-            <Button color="inherit">Tournaments</Button>
+            <Button sx={{ color: 'white' }}>Tournaments</Button>
           </Link>
           <Link href="/clan-wars">
-            <Button color="inherit">Clan Wars</Button>
+            <Button sx={{ color: 'white' }}>Clan Wars</Button>
           </Link>
           <Link href="/marketplace">
-            <Button color="inherit">Marketplace</Button>
+            <Button sx={{ color: 'white' }}>Marketplace</Button>
           </Link>
           <Link href="/messages">
-            <Button color="inherit">
+            <Button sx={{ color: 'white' }}>
               Messages
               {unreadCount > 0 && (
                 <Badge badgeContent={unreadCount} color="error" />
@@ -117,7 +117,7 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
 
               <Button
                 onClick={handleMenu}
-                sx={{ color: 'inherit', textTransform: 'none' }}
+                sx={{ color: 'white', textTransform: 'none' }}
                 startIcon={
                   <Avatar sx={{ width: 24, height: 24, fontSize: '0.875rem' }}>
                     {user?.username?.charAt(0)?.toUpperCase() || '?'}
@@ -185,7 +185,7 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
                 </Button>
               </Link>
               <Link href="/login">
-                <Button color="inherit" variant="outlined">
+                <Button sx={{ color: 'white' }} variant="outlined">
                   Login
                 </Button>
               </Link>
