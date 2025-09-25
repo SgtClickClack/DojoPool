@@ -90,8 +90,28 @@ const RegisterPage: React.FC = () => {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      await signIn('google', { callbackUrl: '/auth/success' });
+      const callbackUrl = '/auth/success';
+      const fallbackUrl = `/api/auth/signin/google?callbackUrl=${encodeURIComponent(
+        callbackUrl
+      )}`;
+      await signIn('google', { callbackUrl });
+      // Fallback in case NextAuth client-side redirect is blocked
+      setTimeout(() => {
+        if (typeof window !== 'undefined') {
+          window.location.assign(fallbackUrl);
+        }
+      }, 300);
     } catch (err) {
+      try {
+        const callbackUrl = '/auth/success';
+        const fallbackUrl = `/api/auth/signin/google?callbackUrl=${encodeURIComponent(
+          callbackUrl
+        )}`;
+        if (typeof window !== 'undefined') {
+          window.location.assign(fallbackUrl);
+          return;
+        }
+      } catch (_ignored) {}
       setIsGoogleLoading(false);
     }
   };

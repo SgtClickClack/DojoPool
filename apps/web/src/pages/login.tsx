@@ -58,8 +58,25 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      await signIn('google', { callbackUrl: '/auth/success' });
+      const callbackUrl = '/auth/success';
+      const fallbackUrl = `/api/auth/signin/google?callbackUrl=${encodeURIComponent(
+        callbackUrl
+      )}`;
+      await signIn('google', { callbackUrl });
+      setTimeout(() => {
+        if (typeof window !== 'undefined') {
+          window.location.assign(fallbackUrl);
+        }
+      }, 300);
     } catch (_err) {
+      try {
+        const callbackUrl = '/auth/success';
+        const fallbackUrl = `/api/auth/signin/google?callbackUrl=${encodeURIComponent(
+          callbackUrl
+        )}`;
+        if (typeof window !== 'undefined') window.location.assign(fallbackUrl);
+        return;
+      } catch (_ignored) {}
       setError('Google sign-in failed. Please try again.');
       setIsGoogleLoading(false);
     }
