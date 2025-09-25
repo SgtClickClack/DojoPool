@@ -49,6 +49,9 @@
     "swr": "^2.2.4",
     "typescript": "^5.3.3"
   },
+  "prisma": {
+    "schema": "../../packages/prisma/schema.prisma"
+  },
   "devDependencies": {
     "@testing-library/cypress": "^10.0.3",
     "@testing-library/jest-dom": "^5.16.5",
