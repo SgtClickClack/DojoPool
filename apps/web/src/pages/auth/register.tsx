@@ -90,7 +90,7 @@ const RegisterPage: React.FC = () => {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      await signIn('google');
+      await signIn('google', { callbackUrl: '/auth/success' });
     } catch (err) {
       setIsGoogleLoading(false);
     }

@@ -58,7 +58,7 @@ const LoginPage: React.FC = () => {
     setError('');
 
     try {
-      await signIn('google');
+      await signIn('google', { callbackUrl: '/auth/success' });
     } catch (_err) {
       setError('Google sign-in failed. Please try again.');
       setIsGoogleLoading(false);
