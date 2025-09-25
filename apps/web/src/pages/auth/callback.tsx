@@ -7,13 +7,13 @@ import { useEffect, useState } from 'react';
 const AuthCallback: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [_isProcessing, setIsProcessing] = useState(true);
-  const { setToken } = useAuth();
+  // const { setToken } = useAuth(); // Removed setToken usage
   const router = useRouter();
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const { token, error: urlError } = router.query;
+        const { error: urlError } = router.query;
 
         if (urlError) {
           setError('Authentication failed. Please try again.');
@@ -21,16 +21,8 @@ const AuthCallback: React.FC = () => {
           return;
         }
 
-        if (token && typeof token === 'string') {
-          // Set the token in auth context
-          await setToken(token);
-
-          // Redirect to home page
-          router.push('/');
-        } else {
-          setError('No authentication token received.');
-          setIsProcessing(false);
-        }
+        // On success, redirect to home - session will update automatically via NextAuth
+        router.push('/');
       } catch (err: any) {
         console.error('Auth callback error:', err);
         setError('Authentication failed. Please try again.');
@@ -41,7 +33,7 @@ const AuthCallback: React.FC = () => {
     if (router.isReady) {
       handleCallback();
     }
-  }, [router.isReady, router.query, setToken, router]);
+  }, [router.isReady, router.query, router]);
 
   if (error) {
     return (

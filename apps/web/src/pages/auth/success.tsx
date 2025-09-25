@@ -17,7 +17,7 @@ interface GoogleUserData {
 }
 
 const AuthSuccessPage: React.FC = () => {
-  const { setToken } = useAuth();
+  // const { setToken } = useAuth(); // Removed setToken
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,13 @@ const AuthSuccessPage: React.FC = () => {
   useEffect(() => {
     const handleGoogleAuthSuccess = async () => {
       try {
-        const { user: userParam } = router.query;
+        const { user: userParam, error } = router.query;
+
+        if (error) {
+          setError('Google authentication failed. Please try again.');
+          setLoading(false);
+          return;
+        }
 
         if (!userParam || typeof userParam !== 'string') {
           console.error('No user data received from Google');
@@ -36,37 +42,17 @@ const AuthSuccessPage: React.FC = () => {
           return;
         }
 
-        const userData: GoogleUserData = JSON.parse(
-          decodeURIComponent(userParam)
-        );
+        // Parse user data for logging, but no token needed
+        try {
+          const userData: GoogleUserData = JSON.parse(
+            decodeURIComponent(userParam)
+          );
+          console.log('Google auth success for user:', userData.email);
+        } catch (parseErr) {
+          console.error('Failed to parse user data:', parseErr);
+        }
 
-        // For now, we'll create a simple token based on the Google user data
-        // In a real implementation, you would:
-        // 1. Send the user data to your backend
-        // 2. Create or find the user in your database
-        // 3. Generate a proper JWT token
-        // 4. Return the token to the frontend
-
-        // Create a temporary token (this is not secure for production)
-        const tempToken = btoa(
-          JSON.stringify({
-            sub: userData.id,
-            email: userData.email,
-            name: userData.name,
-            picture: userData.picture,
-            iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
-          })
-        );
-
-        console.log('Setting token for user:', userData.email);
-
-        // Set the token in the auth context
-        await setToken(tempToken);
-
-        console.log('Token set, redirecting to dashboard');
-
-        // Redirect to dashboard
+        // Redirect to dashboard - NextAuth session should be updated
         router.push('/dashboard');
       } catch (err) {
         console.error('Google auth success error:', err);
@@ -78,7 +64,7 @@ const AuthSuccessPage: React.FC = () => {
     if (router.isReady) {
       handleGoogleAuthSuccess();
     }
-  }, [router, setToken]);
+  }, [router]);
 
   if (loading) {
     return (
