@@ -28,7 +28,7 @@ const nextConfig = {
   // Disable experimental features that cause chunk issues
   experimental: {
     // Disable all optimizations that might cause chunk resolution issues
-    optimizePackageImports: false,
+    optimizePackageImports: [],
     optimizeCss: false,
     scrollRestoration: true,
     esmExternals: false,

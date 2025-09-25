@@ -82,6 +82,7 @@ class ErrorReportingService {
       return result;
     } catch (_error) {
       // Handle error reporting errors silently
+      return { success: false, error: 'Failed to report error' };
     }
   }
 
