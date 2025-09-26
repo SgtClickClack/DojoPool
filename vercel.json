@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "installCommand": "yarn install --immutable",
+  "root": "DojoPool",
+  "installCommand": "yarn install",
   "buildCommand": "yarn workspace dojopool-frontend build",
   "outputDirectory": "apps/web/.next"
 }
