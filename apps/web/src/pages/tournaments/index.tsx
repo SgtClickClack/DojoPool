@@ -4,7 +4,7 @@ import TournamentList from '@/components/Tournament/TournamentList';
 import { useAuth } from '@/hooks/useAuth';
 import { getTournaments, registerForTournament } from '@/services/APIService';
 import type { Tournament as APITournament } from '@/services/APIService';
-import type { Tournament } from '@/types/tournament';
+import type { Tournament } from '../../../types/tournament';
 
 // Type adapter to convert APIService Tournament to component Tournament
 const adaptTournament = (apiTournament: APITournament): Tournament => ({
