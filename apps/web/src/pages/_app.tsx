@@ -38,6 +38,12 @@ if (typeof window !== 'undefined') {
 export default function App({ Component, pageProps }: AppProps) {
   // Support NextAuth session propagation to pages
   const { session, ...restPageProps } = pageProps as any;
+
+  // Allow pages to define their own layout or use default
+  const getLayout =
+    Component.getLayout ||
+    ((page: React.ReactElement) => <Layout>{page}</Layout>);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -46,9 +52,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <AuthProvider>
             <ChatProvider>
               <NotificationProvider>
-                <Layout>
-                  <Component {...restPageProps} />
-                </Layout>
+                {getLayout(<Component {...restPageProps} />)}
               </NotificationProvider>
             </ChatProvider>
           </AuthProvider>
