@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import Layout from '@/components/Layout/Layout';
 import { ChatProvider } from '@/contexts/ChatContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
-import { AuthProvider } from '@/hooks/useAuth';
 import errorReportingService from '@/services/errorReportingService';
 import '@/styles/index.css';
 import '@/styles/mobile-responsive.css';
@@ -21,12 +20,8 @@ const GlobalErrorBoundary = dynamic(
   { ssr: false }
 );
 
-type NextPageWithLayout = ComponentType & {
-  getLayout?: (page: React.ReactElement) => React.ReactNode;
-};
-
 type AppPropsWithLayout = AppProps & {
-  Component: NextPageWithLayout;
+  Component: ComponentType;
 };
 
 // Error handler for GlobalErrorBoundary
@@ -48,22 +43,18 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const { session, ...restPageProps } = pageProps as any;
 
   // Allow pages to define their own layout or use default
-  const getLayout =
-    Component.getLayout ||
-    ((page: React.ReactElement) => <Layout>{page}</Layout>);
+  const getLayout = (page: React.ReactElement) => <Layout>{page}</Layout>;
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <SessionProvider session={session}>
         <GlobalErrorBoundary onError={handleGlobalError}>
-          <AuthProvider>
-            <ChatProvider>
-              <NotificationProvider>
-                {getLayout(<Component {...restPageProps} />)}
-              </NotificationProvider>
-            </ChatProvider>
-          </AuthProvider>
+          <ChatProvider>
+            <NotificationProvider>
+              {getLayout(<Component {...restPageProps} />)}
+            </NotificationProvider>
+          </ChatProvider>
         </GlobalErrorBoundary>
       </SessionProvider>
     </ThemeProvider>

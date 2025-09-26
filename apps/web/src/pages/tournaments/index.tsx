@@ -1,119 +1,104 @@
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import TournamentList from '@/components/Tournament/TournamentList';
 import { useAuth } from '@/hooks/useAuth';
-import { type Tournament, getTournaments } from '@/services/APIService';
-import { Add as AddIcon } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Typography,
-} from '@mui/material';
-import { useRouter } from 'next/router';
-import { enqueueSnackbar } from 'notistack';
-import React, { useEffect, useState } from 'react';
+import APIService from '@/services/APIService';
+import type { Tournament as APITournament } from '@/services/APIService';
 
-const TournamentDashboard: React.FC = () => {
-  const { user: _user, isAdmin } = useAuth();
-  const router = useRouter();
+// Type adapter to convert APIService Tournament to component Tournament
+const adaptTournament = (apiTournament: APITournament): Tournament => ({
+  id: apiTournament.id,
+  name: apiTournament.name,
+  description: apiTournament.description,
+  venueId: apiTournament.venue?.id,
+  startDate: apiTournament.startDate,
+  endDate: apiTournament.endDate,
+  status: apiTournament.status as any, // Map to TournamentStatus as needed
+  maxPlayers: apiTournament.maxParticipants || 0,
+  entryFee: apiTournament.entryFee || 0,
+  prizePool: apiTournament.prizePool || 0,
+  participants: apiTournament.participants || [],
+  createdAt: apiTournament.createdAt,
+  updatedAt: apiTournament.updatedAt,
+});
 
+export default function TournamentsPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const router = useRouter();
 
-  const handleCreateTournament = () => {
-    router.push('/tournaments/create');
+  useEffect(() => {
+    const fetchTournaments = async () => {
+      try {
+        setLoading(true);
+        if (user) {
+          // Use APIService to fetch tournaments
+          const apiTournaments: APITournament[] = await APIService.tournaments.getAll();
+          // Adapt the API tournaments to component format
+          const adaptedTournaments = apiTournaments.map(adaptTournament);
+          setTournaments(adaptedTournaments);
+        } else {
+          setTournaments([]);
+        }
+      } catch (err) {
+        setError('Failed to load tournaments');
+        console.error('Error fetching tournaments:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTournaments();
+  }, [user]);
+
+  const handleJoinTournament = async (tournamentId: string) => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      await APIService.tournaments.join(tournamentId);
+      // Refresh tournaments list
+      const apiTournaments: APITournament[] = await APIService.tournaments.getAll();
+      const adaptedTournaments = apiTournaments.map(adaptTournament);
+      setTournaments(adaptedTournaments);
+    } catch (err) {
+      setError('Failed to join tournament');
+      console.error('Error joining tournament:', err);
+    }
   };
 
   const handleViewTournament = (tournamentId: string) => {
     router.push(`/tournaments/${tournamentId}`);
   };
 
-  const fetchTournaments = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getTournaments();
-      setTournaments(data);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to load tournaments';
-      setError(message);
-      enqueueSnackbar(message, { variant: 'error' });
-    } finally {
-      setLoading(false);
-    }
+  const handleFilterTournaments = (filter: string) => {
+    // Implement filtering logic
+    console.log('Filtering tournaments by:', filter);
   };
 
-  useEffect(() => {
-    fetchTournaments();
-  }, []);
-
   if (loading) {
-    return (
-      <Container maxWidth="xl" sx={{ py: 4, textAlign: 'center' }}>
-        <CircularProgress size={60} />
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          Loading tournaments...
-        </Typography>
-      </Container>
-    );
+    return <div>Loading tournaments...</div>;
   }
 
   if (error) {
-    return (
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Typography variant="h4" color="error" gutterBottom>
-          Error Loading Tournaments
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          {error}
-        </Typography>
-        <Button variant="contained" sx={{ mt: 2 }} onClick={fetchTournaments}>
-          Try Again
-        </Button>
-      </Container>
-    );
+    return <div>{error}</div>;
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Header */}
-      <Box
-        sx={{
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <Box>
-          <Typography variant="h3" gutterBottom>
-            Tournament Hub
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary">
-            Compete, Challenge, Conquer
-          </Typography>
-        </Box>
-        {isAdmin && (
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreateTournament}
-          >
-            Create Tournament
-          </Button>
-        )}
-      </Box>
-
-      {/* Tournament List */}
+    <div>
+      <h1>Tournaments</h1>
       <TournamentList
         tournaments={tournaments}
-        onViewTournament={handleViewTournament}
-        onCreateTournament={handleCreateTournament}
+        onJoin={handleJoinTournament}
+        onView={handleViewTournament}
+        onFilter={handleFilterTournaments}
+        loading={loading}
+        error={error}
       />
-    </Container>
+    </div>
   );
-};
-
-export default TournamentDashboard;
+}

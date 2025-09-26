@@ -1,0 +1,962 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "./generated/client"
+  engineType    = "binary"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model User {
+  id                     String                  @id @default(uuid())
+  email                  String                  @unique
+  username               String                  @unique
+  passwordHash           String
+  role                   UserRole                @default(USER)
+  isBanned               Boolean                 @default(false)
+  avatarUrl              String?
+  profile                Profile?
+  settings               UserSettings?
+  wallets                Wallet[]
+  nfts                   UserNFT[]
+  achievements           UserAchievement[]
+  memberships            ClanMember[]
+  territories            Territory[]             @relation("TerritoryOwner")
+  checkIns               CheckIn[]
+  challengesAsChallenger Challenge[]             @relation("ChallengeChallenger")
+  challengesAsDefender   Challenge[]             @relation("ChallengeDefender")
+  ledClans               Clan[]                  @relation("ClanLeader")
+  matchesAsPlayerA       Match[]                 @relation("PlayerA")
+  matchesAsPlayerB       Match[]                 @relation("PlayerB")
+  tournaments            TournamentParticipant[]
+  transactions           Transaction[]
+  notifications          Notification[]
+  auditLogs              AuditLog[]
+  venues                 Venue[]
+  friendshipsAsRequester Friendship[]            @relation("FriendshipRequester")
+  friendshipsAsAddressee Friendship[]            @relation("FriendshipAddressee")
+  sentMessages           DirectMessage[]         @relation("MessageSender")
+  receivedMessages       DirectMessage[]         @relation("MessageReceiver")
+  activityEvents         ActivityEvent[]
+  gameSessions           GameSession[]
+  shadowRuns             ShadowRun[]
+  dojoCheckIns           DojoCheckIn[]
+  inventoryItems         UserInventoryItem[]
+  feedback               Feedback[]
+  resolvedFeedback       Feedback[]              @relation("FeedbackResolver")
+  content                Content[]
+  moderatedContent       Content[]               @relation("ContentModerator")
+  contentLikes           ContentLike[]
+  refreshTokens          RefreshToken[]
+  sharedContent          ContentShare[]          @relation("ContentSharer")
+  receivedShares         ContentShare[]          @relation("ContentShareReceiver")
+  communityItems         CommunityCosmeticItem[]
+  reviewedItems          CommunityCosmeticItem[] @relation("CosmeticItemReviewer")
+  cosmeticLikes          CosmeticItemLike[]
+  dojoCoinBalance        Int                     @default(0)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  emailVerified          DateTime?
+  image                  String?
+  accounts               Account[]
+  sessions               Session[]
+
+  @@index([role])
+  @@index([isBanned])
+  @@index([createdAt])
+}
+
+enum UserRole {
+  USER
+  VENUE_ADMIN
+  ADMIN
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName String?
+  bio         String?
+  avatarUrl   String?
+  location    String?
+  skillRating Int      @default(0)
+  clanTitle   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserSettings {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailNotifications Boolean  @default(true)
+  pushNotifications  Boolean  @default(true)
+  darkMode           Boolean  @default(false)
+  language           String   @default("en")
+  timezone           String   @default("UTC")
+  privacySettings    String   @default("{}")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Venue {
+  id                String          @id @default(uuid())
+  name              String
+  description       String?
+  lat               Float
+  lng               Float
+  address           String?
+  ownerId           String?
+  controllingClanId String?
+  incomeModifier    Float           @default(1.0)
+  defenseLevel      Int             @default(0)
+  status            String          @default("ACTIVE")
+  photos            String          @default("[]")
+  rating            Float           @default(0.0)
+  features          String          @default("[]")
+  tables            Int             @default(0)
+  reviews           String          @default("[]")
+  owner             User?           @relation(fields: [ownerId], references: [id])
+  controllingClan   Clan?           @relation(fields: [controllingClanId], references: [id])
+  tablesList        Table[]
+  tournaments       Tournament[]
+  territories       Territory[]
+  checkIns          CheckIn[]
+  challenges        Challenge[]
+  matches           Match[]
+  activityEvents    ActivityEvent[]
+  quests            VenueQuest[]
+  specials          VenueSpecial[]
+  dojoCheckIns      DojoCheckIn[]
+  shadowRuns        ShadowRun[]
+  gameSessions      GameSession[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([status])
+  @@index([ownerId])
+  @@index([controllingClanId])
+  @@index([createdAt])
+}
+
+model Table {
+  id        String      @id @default(uuid())
+  venueId   String
+  venue     Venue       @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  name      String
+  status    TableStatus @default(AVAILABLE)
+  matches   Match[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([venueId])
+  @@index([status])
+}
+
+enum TableStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+}
+
+model CheckIn {
+  id        String        @id @default(uuid())
+  userId    String
+  venueId   String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  venue     Venue         @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  via       CheckInMethod @default(QR)
+  createdAt DateTime      @default(now())
+}
+
+enum CheckInMethod {
+  QR
+  GEO
+  ADMIN
+}
+
+model Clan {
+  id               String          @id @default(uuid())
+  name             String          @unique
+  description      String?
+  tag              String          @unique
+  leaderId         String
+  maxMembers       Int             @default(50)
+  dojoCoinBalance  Int             @default(0)
+  seasonalPoints   Int             @default(0)
+  bannerUrl        String?
+  color            String          @default("#000000")
+  level            Int             @default(1)
+  experience       Int             @default(0)
+  reputation       Int             @default(0)
+  isActive         Boolean         @default(true)
+  leader           User            @relation("ClanLeader", fields: [leaderId], references: [id])
+  members          ClanMember[]
+  territories      Territory[]
+  controlledVenues Venue[]
+  activityEvents   ActivityEvent[]
+  shadowRuns       ShadowRun[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([seasonalPoints(sort: Desc)])
+  @@index([leaderId])
+  @@index([createdAt])
+}
+
+model ClanMember {
+  id       String   @id @default(uuid())
+  clanId   String
+  userId   String   @unique
+  clan     Clan     @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     ClanRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  @@unique([clanId, userId], name: "clanId_userId")
+  @@index([clanId])
+  @@index([userId])
+  @@index([role])
+}
+
+enum ClanRole {
+  MEMBER
+  OFFICER
+  COLEADER
+  LEADER
+}
+
+model Territory {
+  id             String           @id @default(uuid())
+  venueId        String
+  name           String           @default("")
+  ownerId        String?
+  venue          Venue            @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  owner          User?            @relation("TerritoryOwner", fields: [ownerId], references: [id])
+  clanId         String?
+  clan           Clan?            @relation(fields: [clanId], references: [id])
+  level          Int              @default(1)
+  defenseScore   Int              @default(0)
+  // Strategic Map extensions
+  resources      String           @default("{}") // e.g., { "gold": 100, "wood": 50, "iron": 20 }
+  strategicValue Int              @default(0) // composite score for targeting AI/players
+  resourceRate   String           @default("{}") // e.g., per-hour generation rates per resource
+  lastTickAt     DateTime? // last time periodic resource tick applied
+  events         TerritoryEvent[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model TerritoryEvent {
+  id          String             @id @default(uuid())
+  territoryId String
+  territory   Territory          @relation(fields: [territoryId], references: [id], onDelete: Cascade)
+  type        TerritoryEventType
+  metadata    String
+  createdAt   DateTime           @default(now())
+}
+
+enum TerritoryEventType {
+  CLAIM
+  DEFEND
+  LOSE
+  UPGRADE
+}
+
+model Tournament {
+  id               String                  @id @default(uuid())
+  venueId          String?
+  venue            Venue?                  @relation(fields: [venueId], references: [id])
+  name             String
+  status           TournamentStatus        @default(UPCOMING)
+  startTime        DateTime
+  endTime          DateTime?
+  participants     TournamentParticipant[]
+  matches          Match[]
+  activityEvents   ActivityEvent[]
+  isSponsored      Boolean                 @default(false)
+  sponsoredBy      String?
+  startDate        DateTime?
+  endDate          DateTime?
+  sponsorBannerUrl String?
+  maxPlayers       Int                     @default(8)
+  entryFee         Int                     @default(0)
+  rewards          String?
+  prizePool        Int                     @default(0)
+  format           String                  @default("SINGLE_ELIMINATION")
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  @@index([venueId])
+  @@index([status])
+  @@index([startDate])
+  @@index([createdAt])
+}
+
+enum TournamentStatus {
+  UPCOMING
+  REGISTRATION
+  ACTIVE
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+model TournamentParticipant {
+  id           String     @id @default(uuid())
+  tournamentId String
+  userId       String
+  seed         Int?
+  finalRank    Int?
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([tournamentId, userId])
+}
+
+model Match {
+  id             String          @id @default(uuid())
+  tournamentId   String?
+  tournament     Tournament?     @relation(fields: [tournamentId], references: [id])
+  venueId        String?
+  venue          Venue?          @relation(fields: [venueId], references: [id])
+  tableId        String?
+  table          Table?          @relation(fields: [tableId], references: [id])
+  playerAId      String
+  playerBId      String
+  playerA        User            @relation("PlayerA", fields: [playerAId], references: [id])
+  playerB        User            @relation("PlayerB", fields: [playerBId], references: [id])
+  winnerId       String?
+  loserId        String?
+  status         MatchStatus     @default(SCHEDULED)
+  scoreA         Int             @default(0)
+  scoreB         Int             @default(0)
+  events         MatchEvent[]
+  activityEvents ActivityEvent[]
+  round          Int?
+  wager          Int             @default(0)
+  aiAnalysisJson String?
+  startedAt      DateTime?
+  endedAt        DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+enum MatchStatus {
+  SCHEDULED
+  PENDING
+  IN_PROGRESS
+  LIVE
+  COMPLETED
+  CANCELLED
+  PAUSED
+}
+
+model MatchEvent {
+  id      String         @id @default(uuid())
+  matchId String
+  match   Match          @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  type    MatchEventType
+  payload String
+  ts      DateTime       @default(now())
+}
+
+enum MatchEventType {
+  SHOT
+  FOUL
+  RACK_START
+  RACK_END
+  COMMENTARY
+  SYSTEM
+}
+
+model Challenge {
+  id           String          @id @default(uuid())
+  challengerId String
+  defenderId   String
+  venueId      String?
+  status       ChallengeStatus @default(PENDING)
+  stakeCoins   Int             @default(0)
+  expiresAt    DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  challenger   User            @relation("ChallengeChallenger", fields: [challengerId], references: [id])
+  defender     User            @relation("ChallengeDefender", fields: [defenderId], references: [id])
+  venue        Venue?          @relation(fields: [venueId], references: [id])
+}
+
+enum ChallengeStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+model Wallet {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chain     String
+  address   String
+  createdAt DateTime @default(now())
+
+  @@unique([chain, address])
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int
+  currency  String   @default("DOJO")
+  type      TxType
+  metadata  String
+  createdAt DateTime @default(now())
+}
+
+enum TxType {
+  CREDIT
+  DEBIT
+  PRIZE
+  FEE
+  PURCHASE
+}
+
+model NFT {
+  id        String    @id @default(uuid())
+  contract  String
+  tokenId   String
+  chain     String
+  metadata  String
+  users     UserNFT[]
+  createdAt DateTime  @default(now())
+
+  @@unique([contract, tokenId, chain])
+}
+
+model UserNFT {
+  id        String   @id @default(uuid())
+  userId    String
+  nftId     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nft       NFT      @relation(fields: [nftId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, nftId])
+}
+
+model Achievement {
+  id          String            @id @default(uuid())
+  key         String            @unique
+  name        String
+  desc        String?
+  description String?
+  category    String            @default("GENERAL")
+  points      Int               @default(0)
+  users       UserAchievement[]
+  createdAt   DateTime          @default(now())
+}
+
+model UserAchievement {
+  id            String      @id @default(uuid())
+  userId        String
+  achievementId String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  earnedAt      DateTime    @default(now())
+
+  @@unique([userId, achievementId])
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String
+  message     String?
+  payload     String
+  read        Boolean  @default(false)
+  isRead      Boolean  @default(false)
+  recipientId String?
+  title       String?
+  priority    String   @default("NORMAL")
+  createdAt   DateTime @default(now())
+}
+
+model AuditLog {
+  id       String   @id @default(uuid())
+  actorId  String?
+  actor    User?    @relation(fields: [actorId], references: [id])
+  action   String
+  target   String?
+  metadata String
+  ts       DateTime @default(now())
+}
+
+model Friendship {
+  id          String           @id @default(uuid())
+  requesterId String
+  addresseeId String
+  requester   User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee   User             @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([requesterId, addresseeId])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  BLOCKED
+}
+
+model DirectMessage {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  content    String
+  read       Boolean  @default(false)
+  timestamp  DateTime @default(now())
+  createdAt  DateTime @default(now())
+}
+
+model ActivityEvent {
+  id           String      @id @default(uuid())
+  userId       String
+  type         String
+  message      String?
+  data         String
+  venueId      String?
+  matchId      String?
+  tournamentId String?
+  clanId       String?
+  metadata     String?
+  isPublic     Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  user         User?       @relation(fields: [userId], references: [id])
+  venue        Venue?      @relation(fields: [venueId], references: [id])
+  match        Match?      @relation(fields: [matchId], references: [id])
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id])
+  clan         Clan?       @relation(fields: [clanId], references: [id])
+}
+
+model VenueQuest {
+  id              String   @id @default(uuid())
+  venueId         String
+  venue           Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  title           String
+  description     String
+  reward          String   @default("")
+  rewardDojoCoins Int      @default(0)
+  active          Boolean  @default(true)
+  isActive        Boolean  @default(true)
+  requirements    String   @default("{}")
+  type            String   @default("DAILY")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([venueId])
+  @@index([isActive])
+}
+
+model GameSession {
+  id              String    @id @default(uuid())
+  playerId        String
+  player          User      @relation(fields: [playerId], references: [id])
+  gameId          String?
+  venueId         String?
+  venue           Venue?    @relation(fields: [venueId], references: [id])
+  status          String    @default("ACTIVE")
+  gameType        String?
+  rules           String
+  startTime       DateTime?
+  endTime         DateTime?
+  duration        Int?
+  playerIds       String
+  currentPlayerId String?
+  ballStates      String
+  fouls           String
+  score           String
+  events          String
+  totalShots      Int       @default(0)
+  totalFouls      Int       @default(0)
+  totalFrames     Int       @default(0)
+  lastUpdated     DateTime?
+  winnerId        String?
+  data            Json
+  frameCount      Int       @default(0)
+  shotCount       Int       @default(0)
+  foulCount       Int       @default(0)
+  shots           String
+  statistics      String
+  aiCommentary    String
+  matchId         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model MarketplaceItem {
+  id              String                 @id @default(uuid())
+  name            String
+  description     String?
+  price           Int
+  category        String
+  imageUrl        String?
+  available       Boolean                @default(true)
+  inventoryItems  UserInventoryItem[]
+  communityItemId String?
+  communityItem   CommunityCosmeticItem?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+}
+
+model CommunityCosmeticItem {
+  id              String             @id @default(uuid())
+  creatorId       String
+  creator         User               @relation(fields: [creatorId], references: [id])
+  title           String
+  description     String?
+  category        CosmeticCategory
+  designFileUrl   String?
+  previewImageUrl String?
+  status          SubmissionStatus   @default(PENDING)
+  rejectionReason String?
+  approvedItemId  String?            @unique
+  approvedItem    MarketplaceItem?   @relation(fields: [approvedItemId], references: [id])
+  reviewerId      String?
+  reviewer        User?              @relation("CosmeticItemReviewer", fields: [reviewerId], references: [id])
+  reviewedAt      DateTime?
+  metadata        String             @default("{}") // JSON string for additional cosmetic properties
+  tags            String             @default("[]") // JSON array of tags
+  likes           Int                @default(0)
+  views           Int                @default(0)
+  likedBy         CosmeticItemLike[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model CosmeticItemLike {
+  id             String                @id @default(uuid())
+  userId         String
+  user           User                  @relation(fields: [userId], references: [id])
+  cosmeticItemId String
+  cosmeticItem   CommunityCosmeticItem @relation(fields: [cosmeticItemId], references: [id])
+  createdAt      DateTime              @default(now())
+
+  @@unique([userId, cosmeticItemId])
+  @@map("cosmetic_item_like")
+}
+
+enum CosmeticCategory {
+  CUE_SKIN
+  BALL_SET
+  TABLE_THEME
+  TABLE_CLOTH
+  AVATAR_FRAME
+  PARTICLE_EFFECT
+  SOUND_PACK
+  OTHER
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REQUIRES_CHANGES
+}
+
+model Season {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([startDate])
+}
+
+model ShadowRun {
+  id               String    @id @default(uuid())
+  playerId         String
+  player           User      @relation(fields: [playerId], references: [id])
+  type             String
+  status           String    @default("PENDING")
+  cost             Int
+  reward           Int?
+  completedAt      DateTime?
+  initiatingClanId String?
+  initiatingClan   Clan?     @relation(fields: [initiatingClanId], references: [id])
+  targetVenueId    String?
+  targetVenue      Venue?    @relation(fields: [targetVenueId], references: [id])
+  outcome          String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model DojoCheckIn {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  venueId   String
+  venue     Venue    @relation(fields: [venueId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model VenueSpecial {
+  id          String    @id @default(uuid())
+  venueId     String
+  venue       Venue     @relation(fields: [venueId], references: [id])
+  title       String
+  description String?
+  type        String
+  isActive    Boolean   @default(true)
+  validUntil  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model UserInventoryItem {
+  id                String          @id @default(uuid())
+  userId            String
+  user              User            @relation(fields: [userId], references: [id])
+  marketplaceItemId String
+  marketplaceItem   MarketplaceItem @relation(fields: [marketplaceItemId], references: [id])
+  createdAt         DateTime        @default(now())
+}
+
+enum ShadowRunType {
+  SCOUT
+  SABOTAGE
+  STEAL
+}
+
+enum ShadowRunStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum NotificationType {
+  FRIEND_REQUEST
+  CHALLENGE
+  CHALLENGE_RECEIVED
+  MATCH_RESULT
+  TOURNAMENT_UPDATE
+  TOURNAMENT_INVITE
+  ACHIEVEMENT
+  ACHIEVEMENT_UNLOCKED
+  CLAN_INVITE
+  CLAN_WAR_UPDATE
+  VENUE_CHECKIN
+  TERRITORY_CHANGED
+  SYSTEM
+  SHADOW_RUN_COMPLETE
+  VENUE_QUEST_COMPLETE
+  DOJO_COIN_RECEIVED
+  DOJO_COIN_SPENT
+  NEW_FEEDBACK_SUBMITTED
+  NEW_CONTENT_SHARED
+  CONTENT_LIKED
+  CONTENT_SHARED_WITH_YOU
+}
+
+enum FeedbackCategory {
+  BUG
+  FEATURE_REQUEST
+  GENERAL_FEEDBACK
+  VENUE_ISSUE
+  TECHNICAL_SUPPORT
+  UI_UX_IMPROVEMENT
+  PERFORMANCE_ISSUE
+}
+
+model Feedback {
+  id         String           @id @default(uuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message    String
+  category   FeedbackCategory
+  status     FeedbackStatus   @default(PENDING)
+  priority   FeedbackPriority @default(NORMAL)
+  adminNotes String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  resolvedAt DateTime?
+  resolvedBy String?
+  resolver   User?            @relation("FeedbackResolver", fields: [resolvedBy], references: [id])
+
+  // Relations to User model
+  @@map("feedback")
+}
+
+enum FeedbackStatus {
+  PENDING
+  IN_REVIEW
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  REJECTED
+}
+
+enum FeedbackPriority {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+enum ContentType {
+  // User-generated content
+  MATCH_REPLAY
+  CUSTOM_ITEM
+  HIGH_SCORE
+  ACHIEVEMENT
+  TOURNAMENT_HIGHLIGHT
+  VENUE_REVIEW
+  GENERAL
+
+  // CMS-managed content
+  EVENT
+  NEWS_ARTICLE
+  SYSTEM_MESSAGE
+}
+
+enum ContentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum ContentVisibility {
+  PUBLIC
+  FRIENDS_ONLY
+  PRIVATE
+}
+
+model Content {
+  id              String            @id @default(uuid())
+  contentId       String            @unique @default(uuid())
+  userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  contentType     ContentType
+  fileUrl         String?
+  thumbnailUrl    String?
+  status          ContentStatus     @default(PENDING)
+  visibility      ContentVisibility @default(PUBLIC)
+  metadata        String            @default("{}")
+  tags            String            @default("[]")
+  likes           Int               @default(0)
+  shares          Int               @default(0)
+  views           Int               @default(0)
+  moderatedBy     String?
+  moderator       User?             @relation("ContentModerator", fields: [moderatedBy], references: [id])
+  moderatedAt     DateTime?
+  moderationNotes String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Reverse relations for likes and shares
+  likedBy       ContentLike[]
+  sharedEntries ContentShare[]
+
+  // Relations to User model
+  @@map("content")
+}
+
+model ContentLike {
+  id        String   @id @default(uuid())
+  contentId String
+  userId    String
+  likes     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([contentId, userId])
+  @@map("content_like")
+}
+
+model ContentShare {
+  id           String   @id @default(uuid())
+  contentId    String
+  userId       String
+  sharedWithId String
+  createdAt    DateTime @default(now())
+
+  content    Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  user       User    @relation("ContentSharer", fields: [userId], references: [id], onDelete: Cascade)
+  sharedWith User    @relation("ContentShareReceiver", fields: [sharedWithId], references: [id], onDelete: Cascade)
+
+  @@unique([contentId, userId, sharedWithId])
+  @@map("content_share")
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String   @unique
+  deviceId   String?
+  deviceInfo String? // JSON string with device fingerprint
+  expiresAt  DateTime
+  isRevoked  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("refresh_tokens")
+}

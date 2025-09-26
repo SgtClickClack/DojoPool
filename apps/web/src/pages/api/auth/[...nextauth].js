@@ -1,93 +1,77 @@
 /* eslint-env node */
 /* global process */
-import NextAuth from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs'; // Assume installed or add
+import NextAuth from "next-auth"
+import Google from "next-auth/providers/google"
+import Credentials from "next-auth/providers/credentials"
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { PrismaClient } from "@prisma/client"
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
-async function authorize(credentials) {
-  if (!credentials?.email || !credentials?.password) {
-    return null;
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { email: credentials.email },
-  });
-
-  if (!user || !user.passwordHash) {
-    return null;
-  }
-
-  const isValidPassword = await bcrypt.compare(
-    credentials.password,
-    user.passwordHash
-  );
-
-  if (!isValidPassword) {
-    return null;
-  }
-
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.username, // or add name field
-    role: user.role,
-  };
-}
-
-export const authOptions = {
+export default NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    CredentialsProvider({
-      name: 'credentials',
+    Credentials({
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
       },
-      authorize,
-    }),
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Missing credentials')
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email as string }
+        })
+
+        if (!user || user.passwordHash !== credentials.password) { // In production, use proper password hashing comparison
+          throw new Error('Invalid credentials')
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.username,
+          role: user.role
+        }
+      }
+    })
   ],
-  secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   callbacks: {
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-      }
-      return session;
-    },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        token.role = user.role
       }
-      return token;
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.role = token.role as string
+        session.user.username = token.name as string
+      }
+      return session
     },
   },
   pages: {
     signIn: '/login',
+    error: '/auth/error',
   },
-};
+  secret: process.env.NEXTAUTH_SECRET,
+})
 
-export default NextAuth(authOptions);
-
-// Ensure NextAuth can handle provider callbacks that POST urlencoded payloads
 export const config = {
   api: {
-    bodyParser: false,
+    externalResolver: true,
   },
-};
+}
 
 // Ensure Node.js runtime (not Edge) for NextAuth handler
 export const runtime = 'nodejs';

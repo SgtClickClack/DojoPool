@@ -15,6 +15,7 @@ const nextConfig = {
   compress: true,
   transpilePackages: [
     '@dojopool/types',
+    '@dojopool/ui',
     '@mui/material',
     '@mui/system',
     '@mui/icons-material',
@@ -68,6 +69,8 @@ const nextConfig = {
       ...(config.resolve.alias || {}),
       // Mapbox to Maplibre alias for compatibility
       'mapbox-gl': 'maplibre-gl',
+      // Add path alias for @/*
+      '@/*': require('path').resolve(__dirname, 'src'),
     };
 
     return config;

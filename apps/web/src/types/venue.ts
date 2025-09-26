@@ -12,12 +12,22 @@ export interface VenueAddress {
 
 export interface VenueTable {
   id: string;
-  name: string;
-  status: 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE' | 'RESERVED';
-  type: 'POOL' | 'SNOOKER' | 'CAROM';
-  size: '7_FOOT' | '8_FOOT' | '9_FOOT' | '12_FOOT';
-  hourlyRate?: number;
-  features?: string[];
+  venueId: string;
+  tableNumber: number;
+  status: 'AVAILABLE' | 'IN_USE' | 'MAINTENANCE' | 'RESERVED';
+  players: number;
+  maxPlayers: number;
+  currentGame?: {
+    id: string;
+    type: string;
+    status: string;
+    players: Array<{
+      id: string;
+      username: string;
+    }>;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface VenueReview {

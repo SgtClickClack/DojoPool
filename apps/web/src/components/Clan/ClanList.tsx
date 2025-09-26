@@ -1,280 +1,194 @@
-import { Add, FilterList, Group } from '@mui/icons-material';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   Box,
   Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
+  Card,
+  CardContent,
+  Grid,
   TextField,
   Typography,
+  Chip,
+  LinearProgress,
+  Skeleton,
+  Alert,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
-import React, { useMemo, useState, useCallback } from 'react';
+import { Search, FilterList, Sort } from '@mui/icons-material';
 import ClanCard from './ClanCard';
-
-interface ClanMember {
-  id: string;
-  name: string;
-  avatarUrl?: string;
-  role: 'leader' | 'officer' | 'member';
-  level: number;
-}
-
-interface Clan {
-  id: string;
-  name: string;
-  description: string;
-  location: string;
-  memberCount: number;
-  maxMembers: number;
-  level: number;
-  experience: number;
-  experienceToNext: number;
-  territoryCount: number;
-  warWins: number;
-  warLosses: number;
-  members: ClanMember[];
-  isMember: boolean;
-}
+import type { Clan } from '@/types/clan';
 
 interface ClanListProps {
   clans: Clan[];
-  onJoinClan?: (_clanId: string) => void;
-  onViewClan?: (_clanId: string) => void;
-  onLeaveClan?: (_clanId: string) => void;
-  onCreateClan?: () => void;
+  onJoin: (clanId: string) => void;
+  onView: (clanId: string) => void;
+  onLeave?: (clanId: string) => void;
+  onFilter?: (filter: string) => void;
+  onSort?: (sort: string) => void;
+  loading?: boolean;
+  error?: string;
+  userClanId?: string | null;
+  disabled?: boolean;
 }
 
 const ClanList: React.FC<ClanListProps> = ({
   clans,
-  onJoinClan,
-  onViewClan,
-  onLeaveClan,
-  onCreateClan,
+  onJoin,
+  onView,
+  onLeave,
+  onFilter,
+  onSort,
+  loading = false,
+  error,
+  userClanId,
+  disabled = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [locationFilter, setLocationFilter] = useState<string>('all');
-  const [levelFilter, setLevelFilter] = useState<string>('all');
-  const [memberFilter, setMemberFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('name');
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+    onFilter?.(e.target.value);
+  }, [onFilter]);
+
+  const handleStatusChange = useCallback((event: any) => {
+    setStatusFilter(event.target.value);
   }, []);
 
-  const handleLocationChange = useCallback((event: SelectChangeEvent<string>) => {
-    setLocationFilter(event.target.value);
-  }, []);
-
-  const handleLevelChange = useCallback((event: SelectChangeEvent<string>) => {
-    setLevelFilter(event.target.value);
-  }, []);
-
-  const handleMemberChange = useCallback((event: SelectChangeEvent<string>) => {
-    setMemberFilter(event.target.value);
-  }, []);
+  const handleSortChange = useCallback((event: any) => {
+    setSortBy(event.target.value);
+    onSort?.(event.target.value);
+  }, [onSort]);
 
   const filteredClans = useMemo(() => {
-    return clans.filter((clan) => {
-      const matchesSearch =
-        clan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        clan.description.toLowerCase().includes(searchTerm.toLowerCase());
+    let filtered = clans.filter(clan =>
+      clan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      clan.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      clan.tag.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-      const matchesLocation =
-        locationFilter === 'all' || clan.location === locationFilter;
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(clan => clan.isActive === (statusFilter === 'active'));
+    }
 
-      const matchesLevel =
-        levelFilter === 'all' || clan.level.toString() === levelFilter;
-
-      const matchesMember =
-        memberFilter === 'all' ||
-        (memberFilter === 'member' && clan.isMember) ||
-        (memberFilter === 'available' && !clan.isMember);
-
-      return matchesSearch && matchesLocation && matchesLevel && matchesMember;
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'level':
+          return b.level - a.level;
+        case 'members':
+          return (b.members?.length || 0) - (a.members?.length || 0);
+        case 'reputation':
+          return b.reputation - a.reputation;
+        default:
+          return 0;
+      }
     });
-  }, [clans, searchTerm, locationFilter, levelFilter, memberFilter]);
+  }, [clans, searchTerm, statusFilter, sortBy]);
 
-  const uniqueLocations = useMemo(() => {
-    const locations = new Set(clans.map((c) => c.location));
-    return Array.from(locations).sort();
-  }, [clans]);
+  const isUserMemberOfClan = useCallback((clanId: string) => {
+    return userClanId === clanId;
+  }, [userClanId]);
 
-  const uniqueLevels = useMemo(() => {
-    const levels = new Set(clans.map((c) => c.level));
-    return Array.from(levels).sort((a, b) => a - b);
-  }, [clans]);
+  if (loading) {
+    return (
+      <Box>
+        <Typography variant="h5" gutterBottom>Clans</Typography>
+        <Grid container spacing={3}>
+          {[...Array(6)].map((_, i) => (
+            <Grid item xs={12} sm={6} md={4} key={i}>
+              <Skeleton variant="rectangular" height={300} />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    );
+  }
 
-  const getMemberCount = (filter: string) => {
-    return clans.filter((c) => {
-      if (filter === 'all') return true;
-      if (filter === 'member') return c.isMember;
-      if (filter === 'available') return !c.isMember;
-      return false;
-    }).length;
-  };
+  if (error) {
+    return (
+      <Alert severity="error">
+        {error}
+      </Alert>
+    );
+  }
 
   return (
     <Box>
-      {/* Header */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 3,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Group sx={{ fontSize: 40, color: 'primary.main' }} />
-          <Box>
-            <Typography variant="h4" component="h1">
-              Clans
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Join forces with other players and dominate territories
-            </Typography>
-          </Box>
-        </Box>
-        {onCreateClan && (
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={onCreateClan}
-            size="large"
-          >
-            Create Clan
-          </Button>
-        )}
-      </Box>
-
-      {/* Filters */}
-      <Box sx={{ mb: 3 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 2,
-            alignItems: 'center',
-          }}
-        >
-          <Box sx={{ flex: '1 1 calc(25% - 6px)', minWidth: '200px' }}>
-            <TextField
-              fullWidth
-              label="Search clans"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              placeholder="Search by name or description..."
-            />
-          </Box>
-
-          <Box sx={{ flex: '1 1 calc(16.66% - 6px)', minWidth: '150px' }}>
-            <FormControl fullWidth>
-              <InputLabel>Location</InputLabel>
-              <Select
-                value={locationFilter}
-                label="Location"
-                onChange={handleLocationChange}
-              >
-                <MenuItem value="all">All Locations</MenuItem>
-                {uniqueLocations.map((location) => (
-                  <MenuItem key={location} value={location}>
-                    {location}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-
-          <Box sx={{ flex: '1 1 calc(16.66% - 6px)', minWidth: '150px' }}>
-            <FormControl fullWidth>
-              <InputLabel>Level</InputLabel>
-              <Select
-                value={levelFilter}
-                label="Level"
-                onChange={handleLevelChange}
-              >
-                <MenuItem value="all">All Levels</MenuItem>
-                {uniqueLevels.map((level) => (
-                  <MenuItem key={level} value={level}>
-                    Level {level}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-
-          <Box sx={{ flex: '1 1 calc(16.66% - 6px)', minWidth: '150px' }}>
-            <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={memberFilter}
-                label="Status"
-                onChange={handleMemberChange}
-              >
-                <MenuItem value="all">All ({getMemberCount('all')})</MenuItem>
-                <MenuItem value="member">
-                  Member ({getMemberCount('member')})
-                </MenuItem>
-                <MenuItem value="available">
-                  Available ({getMemberCount('available')})
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-
-          <Box sx={{ flex: '1 1 calc(25% - 6px)', minWidth: '200px' }}>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<FilterList />}
-              onClick={() => {
-                setSearchTerm('');
-                setLocationFilter('all');
-                setLevelFilter('all');
-                setMemberFilter('all');
-              }}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h5">Clans ({clans.length})</Typography>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            size="small"
+            placeholder="Search clans..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            InputProps={{
+              startAdornment: <Search sx={{ mr: 1, color: 'action.active' }} />,
+            }}
+            sx={{ minWidth: 200 }}
+          />
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={statusFilter}
+              label="Status"
+              onChange={handleStatusChange}
             >
-              Clear All Filters
-            </Button>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* Results count */}
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="body2" color="text.secondary">
-          Showing {filteredClans.length} of {clans.length} clans
-        </Typography>
-      </Box>
-
-      {/* Clan grid */}
-      {filteredClans.length > 0 ? (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-          {filteredClans.map((clan) => (
-            <Box
-              sx={{ flex: '1 1 calc(25% - 9px)', minWidth: '280px' }}
-              key={clan.id}
+              <MenuItem value="all">All Clans</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="inactive">Inactive</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Sort</InputLabel>
+            <Select
+              value={sortBy}
+              label="Sort"
+              onChange={handleSortChange}
             >
-              <ClanCard
-                {...clan}
-                onJoin={onJoinClan}
-                onView={onViewClan}
-                onLeave={onLeaveClan}
-              />
-            </Box>
-          ))}
+              <MenuItem value="name">Name</MenuItem>
+              <MenuItem value="level">Level</MenuItem>
+              <MenuItem value="members">Members</MenuItem>
+              <MenuItem value="reputation">Reputation</MenuItem>
+            </Select>
+          </FormControl>
         </Box>
-      ) : (
+      </Box>
+
+      {filteredClans.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Group sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
           <Typography variant="h6" color="text.secondary" gutterBottom>
             No clans found
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Try adjusting your search criteria or filters
+            Try adjusting your search or filters
           </Typography>
         </Box>
+      ) : (
+        <Grid container spacing={3}>
+          {filteredClans.map((clan) => (
+            <Grid item xs={12} sm={6} md={4} key={clan.id}>
+              <ClanCard
+                id={clan.id}
+                name={clan.name}
+                description={clan.description}
+                location={clan.location}
+                memberCount={clan.members.length}
+                treasury={clan.dojoCoinBalance || 0}
+                leader={clan.leader || { id: '', email: '', username: '' }}
+                clan={clan}
+                onJoin={(clanId) => onJoin(clanId)}
+                onView={(clanId) => onView(clanId)}
+                disabled={disabled}
+              />
+            </Grid>
+          ))}
+        </Grid>
       )}
     </Box>
   );

@@ -1,3 +1,34 @@
+export interface ClanMember {
+  id: string;
+  clanId: string;
+  userId: string;
+  role: 'MEMBER' | 'OFFICER' | 'LEADER';
+  joinedAt: string;
+}
+
+export interface ClanTerritory {
+  id: string;
+  venueId: string;
+  name: string;
+  ownerId?: string;
+  clanId: string;
+  level: number;
+  defenseScore: number;
+  resources: string;
+  strategicValue: number;
+  resourceRate: string;
+  lastTickAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClanLeader {
+  id: string;
+  email: string;
+  username: string;
+  // Add other user properties as needed
+}
+
 export interface Clan {
   id: string;
   name: string;
@@ -5,33 +36,25 @@ export interface Clan {
   motto?: string;
   logo?: string;
   banner?: string;
+  tag: string;
   leaderId: string;
-  leader?: {
-    id: string;
-    username: string;
-    avatarUrl?: string;
-  };
-  memberCount: number;
+  leader?: ClanLeader;
   maxMembers: number;
+  dojoCoinBalance?: number;
+  seasonalPoints?: number;
   level: number;
   experience: number;
-  dojoCoins: number;
-  dojoCoinBalance?: number;
+  experienceToNext: number;
   reputation: number;
-  territoriesControlled: number;
+  isActive: boolean;
+  location: string;
+  warWins: number;
+  warLosses: number;
+  territoryCount: number;
+  members: ClanMember[];
+  territories: ClanTerritory[];
   createdAt: string;
   updatedAt: string;
-}
-
-export interface ClanMember {
-  id: string;
-  userId: string;
-  username: string;
-  avatarUrl?: string;
-  role: ClanRole;
-  joinedAt: string;
-  lastActive: string;
-  contributionScore: number;
 }
 
 export enum ClanRole {

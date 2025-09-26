@@ -23,14 +23,46 @@ import {
 } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-interface GameSessionViewProps {
+export interface GameSessionViewProps {
   sessionId: string;
-  onSessionEnd?: (winnerId: string) => void;
+  match: {
+    id: string;
+    player1Id: string;
+    player2Id: string;
+    status: 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+    score1: number;
+    score2: number;
+    winnerId?: string;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+  currentUser: {
+    id: string;
+    email: string;
+    username: string;
+    profile: {
+      displayName?: string;
+      avatarUrl?: string;
+    };
+  };
+  onShot: (shotData: any) => void;
+  onEndGame: (winnerId: string) => void;
+  onLeave: () => void;
+  disabled?: boolean;
+}
+
+interface GameSessionViewState {
+  isConnected: boolean;
 }
 
 const GameSessionView: React.FC<GameSessionViewProps> = React.memo(({
   sessionId,
-  onSessionEnd,
+  match,
+  currentUser,
+  onShot,
+  onEndGame,
+  onLeave,
+  disabled = false,
 }) => {
   const { user } = useAuth();
   const {
@@ -79,11 +111,11 @@ const GameSessionView: React.FC<GameSessionViewProps> = React.memo(({
 
     try {
       await endSession(winnerId);
-      onSessionEnd?.(winnerId);
+      onEndGame?.(winnerId);
     } catch (error) {
       console.error('Failed to end session:', error);
     }
-  }, [gameSession, user, endSession, onSessionEnd]);
+  }, [gameSession, user, endSession, onEndGame]);
   // Real-time match status updates
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
