@@ -55,8 +55,8 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <GlobalErrorBoundary onError={handleGlobalError}>
-        <SessionProvider session={session}>
+      <SessionProvider session={session}>
+        <GlobalErrorBoundary onError={handleGlobalError}>
           <AuthProvider>
             <ChatProvider>
               <NotificationProvider>
@@ -64,8 +64,8 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
               </NotificationProvider>
             </ChatProvider>
           </AuthProvider>
-        </SessionProvider>
-      </GlobalErrorBoundary>
+        </GlobalErrorBoundary>
+      </SessionProvider>
     </ThemeProvider>
   );
 }
