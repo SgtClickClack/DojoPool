@@ -39,7 +39,7 @@
     "build": "next build",
     "start": "next start",
     "dev": "next dev",
-    "postinstall": "prisma generate --schema=packages/prisma/schema.prisma"
+    "postinstall": "npx prisma generate --schema=packages/prisma/schema.prisma"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
