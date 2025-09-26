@@ -16,6 +16,7 @@ const nextConfig = {
   transpilePackages: [
     '@dojopool/types',
     '@dojopool/ui',
+    '@dojopool/utils',
     '@mui/material',
     '@mui/system',
     '@mui/icons-material',
@@ -44,6 +45,12 @@ const nextConfig = {
 
   // Completely disable webpack optimizations for Vercel compatibility
   webpack: (config) => {
+    // Add Prisma binary target for Vercel
+    if (process.env.NODE_ENV === 'production') {
+      config.resolve.alias['@prisma/client'] = false;
+      config.resolve.alias['prisma'] = false;
+    }
+
     // Disable webpack cache completely
     config.cache = false;
 
@@ -79,6 +86,10 @@ const nextConfig = {
   // Rewrite rules for frontend routing
   async rewrites() {
     return [
+      {
+        source: '/api/:path*',
+        destination: '/pages/api/:path*',
+      },
       {
         source: '/store',
         destination: '/marketplace',

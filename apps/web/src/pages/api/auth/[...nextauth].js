@@ -1,14 +1,13 @@
-/* eslint-env node */
-/* global process */
-import NextAuth from "next-auth"
-import Google from "next-auth/providers/google"
-import Credentials from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import { PrismaClient } from "@prisma/client"
+import NextAuth from 'next-auth';
+import Google from 'next-auth/providers/google';
+import Credentials from 'next-auth/providers/credentials';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-export default NextAuth({
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     Google({
@@ -17,47 +16,56 @@ export default NextAuth({
     }),
     Credentials({
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Missing credentials')
+          throw new Error('Missing credentials');
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        })
+          where: { email: credentials.email },
+        });
 
-        if (!user || user.passwordHash !== credentials.password) { // In production, use proper password hashing comparison
-          throw new Error('Invalid credentials')
+        if (!user) {
+          throw new Error('No user found');
+        }
+
+        const isValidPassword = await bcrypt.compare(
+          credentials.password,
+          user.passwordHash
+        );
+
+        if (!isValidPassword) {
+          throw new Error('Invalid credentials');
         }
 
         return {
           id: user.id,
           email: user.email,
           name: user.username,
-          role: user.role
-        }
-      }
-    })
+          role: user.role,
+        };
+      },
+    }),
   ],
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role
+        token.role = user.role;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role
-        session.user.username = token.name
+        session.user.role = token.role;
+        session.user.username = token.name;
       }
-      return session
+      return session;
     },
   },
   pages: {
@@ -65,13 +73,8 @@ export default NextAuth({
     error: '/auth/error',
   },
   secret: process.env.NEXTAUTH_SECRET,
-})
+};
 
-export const config = {
-  api: {
-    externalResolver: true,
-  },
-}
+const handler = NextAuth(authOptions);
 
-// Ensure Node.js runtime (not Edge) for NextAuth handler
-export const runtime = 'nodejs';
+export default handler;
