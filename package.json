@@ -38,8 +38,7 @@
     "build:backend": "cd services/api && yarn build",
     "build": "next build",
     "start": "next start",
-    "dev": "next dev",
-    "postinstall": "npx prisma generate --schema=packages/prisma/schema.prisma"
+    "dev": "next dev"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
