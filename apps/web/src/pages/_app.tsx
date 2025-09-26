@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import Layout from '@/components/Layout/Layout';
 import { ChatProvider } from '@/contexts/ChatContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
-import { AuthProvider } from '@/contexts/AuthContext';
 import errorReportingService from '@/services/errorReportingService';
 import '@/styles/index.css';
 import '@/styles/mobile-responsive.css';
@@ -51,13 +50,11 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       <CssBaseline />
       <SessionProvider session={session}>
         <GlobalErrorBoundary onError={handleGlobalError}>
-          <AuthProvider>
-            <ChatProvider>
-              <NotificationProvider>
-                {getLayout(<Component {...restPageProps} />)}
-              </NotificationProvider>
-            </ChatProvider>
-          </AuthProvider>
+          <ChatProvider>
+            <NotificationProvider>
+              {getLayout(<Component {...restPageProps} />)}
+            </NotificationProvider>
+          </ChatProvider>
         </GlobalErrorBoundary>
       </SessionProvider>
     </ThemeProvider>
