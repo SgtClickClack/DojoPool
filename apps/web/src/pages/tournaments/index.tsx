@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import TournamentList from '@/components/Tournament/TournamentList';
 import { useAuth } from '@/hooks/useAuth';
-import APIService from '@/services/APIService';
+import { getTournaments, registerForTournament } from '@/services/APIService';
 import type { Tournament as APITournament } from '@/services/APIService';
 import type { Tournament } from '@/types/tournament';
 
@@ -15,10 +15,10 @@ const adaptTournament = (apiTournament: APITournament): Tournament => ({
   startDate: apiTournament.startDate,
   endDate: apiTournament.endDate,
   status: apiTournament.status as any, // Map to TournamentStatus as needed
-  maxPlayers: apiTournament.maxParticipants || 0,
+  maxPlayers: apiTournament.maxPlayers || 0,
   entryFee: apiTournament.entryFee || 0,
   prizePool: apiTournament.prizePool || 0,
-  participants: apiTournament.participants || [],
+  participants: [], // API doesn't provide participant list; fetch separately if needed
   createdAt: apiTournament.createdAt,
   updatedAt: apiTournament.updatedAt,
 });
@@ -26,7 +26,7 @@ const adaptTournament = (apiTournament: APITournament): Tournament => ({
 export default function TournamentsPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -36,7 +36,7 @@ export default function TournamentsPage() {
         setLoading(true);
         if (user) {
           // Use APIService to fetch tournaments
-          const apiTournaments: APITournament[] = await APIService.tournaments.getAll();
+          const apiTournaments: APITournament[] = await getTournaments();
           // Adapt the API tournaments to component format
           const adaptedTournaments = apiTournaments.map(adaptTournament);
           setTournaments(adaptedTournaments);
@@ -61,9 +61,9 @@ export default function TournamentsPage() {
     }
 
     try {
-      await APIService.tournaments.join(tournamentId);
+      await registerForTournament(tournamentId, user.id);
       // Refresh tournaments list
-      const apiTournaments: APITournament[] = await APIService.tournaments.getAll();
+      const apiTournaments: APITournament[] = await getTournaments();
       const adaptedTournaments = apiTournaments.map(adaptTournament);
       setTournaments(adaptedTournaments);
     } catch (err) {

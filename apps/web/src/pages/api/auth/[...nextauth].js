@@ -12,8 +12,8 @@ export default NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     Credentials({
       credentials: {
@@ -26,7 +26,7 @@ export default NextAuth({
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string }
+          where: { email: credentials.email }
         })
 
         if (!user || user.passwordHash !== credentials.password) { // In production, use proper password hashing comparison
@@ -54,8 +54,8 @@ export default NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role as string
-        session.user.username = token.name as string
+        session.user.role = token.role
+        session.user.username = token.name
       }
       return session
     },
