@@ -1,4 +1,5 @@
 import React from 'react';
+import type { AppProps, NextPage } from 'next/app';
 import dynamic from 'next/dynamic';
 import Layout from '@/components/Layout/Layout';
 import { ChatProvider } from '@/contexts/ChatContext';
@@ -12,7 +13,6 @@ import '@/styles/components.css';
 import { theme } from '@/styles/theme';
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
-import type { AppProps } from 'next/app';
 import { SessionProvider } from 'next-auth/react';
 
 // Dynamic import for GlobalErrorBoundary to avoid SSR issues with framer-motion
@@ -20,6 +20,14 @@ const GlobalErrorBoundary = dynamic(
   () => import('@/components/ErrorBoundary/GlobalErrorBoundary'),
   { ssr: false }
 );
+
+type NextPageWithLayout = NextPage & {
+  getLayout?: (page: React.ReactElement) => React.ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
 
 // Error handler for GlobalErrorBoundary
 const handleGlobalError = (error: Error, errorInfo: React.ErrorInfo) => {
@@ -35,7 +43,7 @@ if (typeof window !== 'undefined') {
   errorReportingService.setupGlobalHandlers();
 }
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps }: AppPropsWithLayout) {
   // Support NextAuth session propagation to pages
   const { session, ...restPageProps } = pageProps as any;
 
