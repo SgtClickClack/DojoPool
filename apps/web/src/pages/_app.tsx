@@ -1,5 +1,5 @@
-import React from 'react';
-import type { AppProps, NextPage } from 'next/app';
+import React, { type ComponentType } from 'react';
+import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
 import Layout from '@/components/Layout/Layout';
 import { ChatProvider } from '@/contexts/ChatContext';
@@ -21,7 +21,7 @@ const GlobalErrorBoundary = dynamic(
   { ssr: false }
 );
 
-type NextPageWithLayout = NextPage & {
+type NextPageWithLayout = ComponentType & {
   getLayout?: (page: React.ReactElement) => React.ReactNode;
 };
 
