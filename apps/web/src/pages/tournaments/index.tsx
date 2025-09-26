@@ -21,7 +21,7 @@ const adaptTournament = (apiTournament: APITournament): Tournament => ({
   participants: [], // API doesn't provide participant list; fetch separately if needed
   createdAt: apiTournament.createdAt,
   updatedAt: apiTournament.updatedAt,
-});
+}); // Fixed type import for Tournament
 
 export default function TournamentsPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
