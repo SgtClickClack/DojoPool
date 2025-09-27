@@ -25,6 +25,8 @@
 
 Tooling Update (Phase 2): Pre-commit automation for formatting and linting using Prettier, Husky, and lint-staged to maintain consistent code quality across the monorepo.
 
+Health Monitoring: Implement `/api/health` readiness probe supporting Cypress E2E orchestration and deployment health checks.
+
 ## Phase 3: Venue & Economy Systems
 
 - Venue management portal (profile, specials, tournaments, NFT trophies)
