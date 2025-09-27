@@ -15,12 +15,7 @@ export const databaseConfig = {
 
   // Validate database connection
   async validateConnection(): Promise<boolean> {
-    try {
-      // This will be used by PrismaService to validate connection
-      return true;
-    } catch (error) {
-      console.error('Database connection validation failed:', error);
-      return false;
-    }
+    // This will be used by PrismaService to validate connection
+    return true;
   },
 };
