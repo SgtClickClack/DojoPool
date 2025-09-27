@@ -55,7 +55,8 @@ const VenueProfilePage: React.FC = () => {
     id: '1',
     name: 'Jade Tiger Pool Hall',
     address: '123 Collins Street, Melbourne VIC 3000',
-    description: "Melbourne's premier pool venue featuring 12 professional tables, craft beer, and competitive tournaments.",
+    description:
+      "Melbourne's premier pool venue featuring 12 professional tables, craft beer, and competitive tournaments.",
     images: ['/venue-main.jpg', '/venue-interior.jpg', '/venue-bar.jpg'],
     contactInfo: {
       phone: '+61 3 1234 5678',
@@ -100,7 +101,7 @@ const VenueProfilePage: React.FC = () => {
       try {
         setLoading(true);
         // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         setVenueProfile(mockVenueProfile);
       } catch (err) {
         setError('Failed to load venue profile');
@@ -117,18 +118,17 @@ const VenueProfilePage: React.FC = () => {
     try {
       setSaving(true);
       setError(null);
-      
+
       // TODO: Replace with actual API call
       // await venueApi.updateProfile(updatedProfile);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       setVenueProfile(updatedProfile);
-      
+
       // Show success message
       alert('Venue profile updated successfully!');
-      
     } catch (err) {
       setError('Failed to save venue profile');
       console.error('Error saving venue profile:', err);
@@ -159,8 +159,16 @@ const VenueProfilePage: React.FC = () => {
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div className="ml-3">
@@ -191,9 +199,12 @@ const VenueProfilePage: React.FC = () => {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Venue Profile</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Venue Profile
+              </h1>
               <p className="text-gray-600 mt-1">
-                Manage your venue's information, hours, pricing, and amenities
+                Manage your venue&apos;s information, hours, pricing, and
+                amenities
               </p>
             </div>
             <button
