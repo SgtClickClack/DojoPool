@@ -22,6 +22,7 @@
 - In-app cutscenes and story events
 - Advanced wallet (cross-chain, hardware integration)
 - Production deployment
+- ✅ Definitive test environment refactor (Vitest + Cypress stabilization)
 
 Tooling Update (Phase 2): Pre-commit automation for formatting and linting using Prettier, Husky, and lint-staged to maintain consistent code quality across the monorepo.
 

@@ -4101,3 +4101,40 @@ Monitor v1.0.0 deployment and gather user feedback for post-launch improvements 
 Expected completion time: Ongoing monitoring and iterative improvements
 
 ---
+
+### 2025-09-27: Definitive Test Environment Refactor
+
+Stabilized the Vitest and Cypress stacks by installing missing dependencies, consolidating configuration, and introducing a shared test setup that centralizes mocks for NextAuth-driven flows.
+
+**Core Components Implemented:**
+
+- `apps/web/vitest.config.ts` single source of truth
+- `apps/web/tests/setup.ts` global test bootstrap
+- Installed `@percy/cypress`, `@testing-library/jest-dom`, and `@vitejs/plugin-react`
+
+**Key Features:**
+
+- Vitest runs in `jsdom` with shared aliases and setup
+- Central NextAuth mock eliminates `instanceof` and JSX parse errors
+- Cypress ready for Percy snapshots after dependency install
+
+**Integration Points:**
+
+- Frontend tests exercising components that consume `useAuth` / `useSession`
+- Percy visual diff pipeline via Cypress
+- Path alias resolution under `@`
+
+**File Paths:**
+
+- `apps/web/vitest.config.ts`
+- `apps/web/tests/setup.ts`
+- `apps/web/tests/hooks/api-hooks.test.ts`
+- `package.json`
+- `yarn.lock`
+
+**Next Priority Task:**
+Reconcile failing UI assertions (e.g., `ClanList`, `TournamentCard`, `VenueCard`, `GameSessionView`) to match current MUI markup now that the environment executes consistently.
+
+Expected completion time: 4 hours
+
+---
