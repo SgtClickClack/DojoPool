@@ -54,7 +54,7 @@ describe('Admin Panel Access', () => {
   describe('Non-Admin User Access', () => {
     beforeEach(() => {
       cy.login('regular-user.json');
-    cy.interceptAllApis();
+      cy.interceptAllApis();
     });
 
     it('should redirect non-admin users away from admin panel', () => {
@@ -90,7 +90,11 @@ describe('Admin Panel Access', () => {
     });
 
     it('should handle direct URL access attempts gracefully', () => {
-      const blockedRoutes = ['/admin/dashboard', '/admin/users', '/admin/settings'];
+      const blockedRoutes = [
+        '/admin/dashboard',
+        '/admin/users',
+        '/admin/settings',
+      ];
 
       blockedRoutes.forEach((route) => {
         cy.visit(route, { failOnStatusCode: false });
@@ -176,19 +180,30 @@ describe('Admin Panel Access', () => {
     });
 
     it('should handle admin API errors gracefully', () => {
-      // Mock admin stats API error
+      // Mock admin stats API error - set up error intercept BEFORE global intercepts
+      cy.logout();
+
+      // Set up the error intercept first to override the global one
       cy.intercept('GET', '/api/v1/admin/stats', {
         statusCode: 500,
         body: { error: 'Internal server error' },
       }).as('getAdminStatsError');
 
+      cy.intercept('GET', '/api/v1/admin/users', {
+        statusCode: 200,
+        body: adminUsers,
+      }).as('getAdminUsersErrorFlow');
+
+      // Now set up other global intercepts
+      cy.interceptAllApis();
+
+      cy.login();
+
       cy.visit('/admin', { failOnStatusCode: false });
       cy.wait('@getAdminStatsError');
+      cy.wait('@getAdminUsersErrorFlow');
 
       cy.findByRole('tab', { name: /content management/i }).click();
-
-      // Wait for failed stats API call
-      cy.wait('@getAdminStatsError');
 
       // Verify error message is displayed
       cy.findByText(/Error:/).should('exist');
