@@ -48,7 +48,8 @@ describe('Admin Panel Access', () => {
       statusCode: 200,
       body: adminUsers,
     }).as('getAdminUsers');
-    cy.visit('/admin');
+    // This dynamically constructs the full URL, respecting the port.
+    cy.visit(`${Cypress.config('baseUrl')}/admin`);
   });
 
   describe('Non-Admin User Access', () => {
@@ -57,9 +58,10 @@ describe('Admin Panel Access', () => {
       cy.interceptAllApis();
     });
 
-    it('should redirect non-admin users away from admin panel', () => {
+    it('should redirect non-admin users away from admin page', () => {
       // Attempt to visit admin panel
-      cy.visit('/admin');
+      // This dynamically constructs the full URL, respecting the port.
+      cy.visit(`${Cypress.config('baseUrl')}/admin`);
 
       // Wait for user validation
       cy.wait('@getUser');
@@ -79,7 +81,8 @@ describe('Admin Panel Access', () => {
     });
 
     it('should not show admin navigation elements to regular users', () => {
-      cy.visit('/dashboard');
+      // Change the relative path to dynamic baseUrl
+      cy.visit(`${Cypress.config('baseUrl')}/dashboard`);
 
       // Verify admin-related navigation is not present
       cy.findByText('Admin').should('not.exist');
@@ -105,7 +108,7 @@ describe('Admin Panel Access', () => {
 
   describe('Admin User Access', () => {
     beforeEach(() => {
-      cy.login();
+      cy.login('admin-user.json');
       cy.interceptAllApis();
       cy.intercept('GET', '/api/auth/session', {
         statusCode: 200,
@@ -123,10 +126,11 @@ describe('Admin Panel Access', () => {
         statusCode: 200,
         body: adminUsers,
       }).as('getAdminUsers');
-      cy.visit('/admin');
+      // This dynamically constructs the full URL, respecting the port.
+      cy.visit(`${Cypress.config('baseUrl')}/admin`);
     });
 
-    it('should allow admin users to access admin panel', () => {
+    it('should allow admin users to access admin page', () => {
       cy.wait('@getUser');
       // Verify admin panel is accessible and content is visible
       cy.get('[data-testid="admin-dashboard"]').should('exist');
@@ -197,7 +201,10 @@ describe('Admin Panel Access', () => {
 
       cy.login();
 
-      cy.visit('/admin', { failOnStatusCode: false });
+      // This dynamically constructs the full URL, respecting the port.
+      cy.visit(`${Cypress.config('baseUrl')}/admin`, {
+        failOnStatusCode: false,
+      });
 
       // Click on Content Management tab to trigger CMS stats API call
       cy.findByRole('tab', { name: /content management/i }).click();
@@ -225,7 +232,8 @@ describe('Admin Panel Access', () => {
         },
       }).as('getUserAdmin');
 
-      cy.visit('/admin');
+      // Change to dynamic baseUrl
+      cy.visit(`${Cypress.config('baseUrl')}/admin`);
 
       // Verify admin access
       cy.findByText('Admin Panel').should('exist');
@@ -243,7 +251,8 @@ describe('Admin Panel Access', () => {
       }).as('getUserRegular');
 
       // Trigger a new request (e.g., by navigating)
-      cy.visit('/admin/dashboard');
+      // Change to dynamic baseUrl
+      cy.visit(`${Cypress.config('baseUrl')}/admin/dashboard`);
 
       // Should be redirected away from admin
       cy.url().should('not.include', '/admin');
@@ -262,7 +271,8 @@ describe('Admin Panel Access', () => {
         },
       }).as('getUserInvalid');
 
-      cy.visit('/admin');
+      // Change to dynamic baseUrl
+      cy.visit(`${Cypress.config('baseUrl')}/admin`);
 
       // Should be redirected away from admin
       cy.url().should('not.include', '/admin');
@@ -285,7 +295,8 @@ describe('Admin Panel Access', () => {
         statusCode: 200,
         body: adminUsers,
       }).as('getAdminUsers');
-      cy.visit('/admin');
+      // This dynamically constructs the full URL, respecting the port.
+      cy.visit(`${Cypress.config('baseUrl')}/admin`);
     });
 
     it('should allow navigation between admin tabs', () => {
