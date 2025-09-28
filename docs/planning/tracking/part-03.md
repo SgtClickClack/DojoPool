@@ -1,3 +1,35 @@
+## 2025-09-28: Cypress Auth Specs Centralized Mock Hook
+
+Integrated the new global API intercept helper into the authentication Cypress specs to stabilize login scenarios and remove bespoke network stubbing duplication.
+
+**Core Components Implemented:**
+
+- Updated `cypress/e2e/auth.cy.ts` to initialize session and global intercepts before each test
+- Added `cypress/e2e/auth/authentication.cy.ts` coverage with shared login/intercept setup
+
+**Key Features:**
+
+- Centralized `cy.interceptAllApis()` usage for authentication flows
+- Consistent session seeding via `cy.login()` across auth specs
+- Preserved existing per-test behavior while eliminating redundant intercept declarations
+
+**Integration Points:**
+
+- Relies on shared Cypress support commands defined in `cypress/support/commands.ts`
+- Exercises NextAuth-protected routes served by the Next.js frontend
+- Validates mocked auth session responses consumed by dashboard navigation
+
+**File Paths:**
+
+- `cypress/e2e/auth.cy.ts`
+- `cypress/e2e/auth/authentication.cy.ts`
+
+**Next Priority Task:**
+
+Extend centralized intercept refactor to remaining Cypress suites, starting with admin access tests to remove legacy inline mocks.
+
+Expected completion time: 1 hour
+
 ## 2025-09-26: Frontend Architecture & State Management Audit
 
 Completed a focused audit of the Next.js frontend to map state orchestration, component composition, and API integration patterns ahead of the large-scale refactor. Documented high-priority refactor targets, including consolidation of authentication flows, extracting page-level data fetching into hooks, and breaking down oversized map/dashboard containers.

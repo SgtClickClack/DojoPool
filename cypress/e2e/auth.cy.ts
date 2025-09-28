@@ -1,5 +1,7 @@
 describe('Authentication', () => {
   beforeEach(() => {
+    cy.login();
+    cy.interceptAllApis();
     cy.visit('/login');
   });
 
