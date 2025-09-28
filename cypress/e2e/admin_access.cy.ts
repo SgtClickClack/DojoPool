@@ -146,8 +146,6 @@ describe('Admin Panel Access', () => {
     });
 
     it('should display user management table', () => {
-      cy.get('[data-testid="user-management-view-all"]').click();
-
       cy.get('[data-testid="recent-users-table"]').should('be.visible');
       cy.get('[data-testid="recent-users-table"] thead').within(() => {
         cy.contains('th', 'Username').should('be.visible');
@@ -180,14 +178,14 @@ describe('Admin Panel Access', () => {
     });
 
     it('should handle admin API errors gracefully', () => {
-      // Mock admin stats API error - set up error intercept BEFORE global intercepts
+      // Mock CMS stats API error - set up error intercept BEFORE global intercepts
       cy.logout();
 
       // Set up the error intercept first to override the global one
-      cy.intercept('GET', '/api/v1/admin/stats', {
+      cy.intercept('GET', '/cms/stats', {
         statusCode: 500,
         body: { error: 'Internal server error' },
-      }).as('getAdminStatsError');
+      }).as('getCMSStatsError');
 
       cy.intercept('GET', '/api/v1/admin/users', {
         statusCode: 200,
@@ -200,10 +198,12 @@ describe('Admin Panel Access', () => {
       cy.login();
 
       cy.visit('/admin', { failOnStatusCode: false });
-      cy.wait('@getAdminStatsError');
-      cy.wait('@getAdminUsersErrorFlow');
 
+      // Click on Content Management tab to trigger CMS stats API call
       cy.findByRole('tab', { name: /content management/i }).click();
+
+      // Wait for the CMS stats error
+      cy.wait('@getCMSStatsError');
 
       // Verify error message is displayed
       cy.findByText(/Error:/).should('exist');
