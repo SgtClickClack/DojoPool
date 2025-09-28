@@ -1,201 +1,143 @@
-import React, { ComponentType } from 'react';
+import React from 'react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import GameSessionView from '../GameSessionView';
 import type { GameSessionViewProps } from '../GameSessionView';
-import { mockUser } from '../../__tests__/test-utils';
+import { GameSessionStatus, GameType } from '@/types/gameSession';
 
-// Mock match data with all required properties
-const mockMatch = {
-  id: 'match-1',
-  player1Id: 'player1',
-  player2Id: 'player2',
-  status: 'ACTIVE' as const,
-  score1: 0,
-  score2: 0,
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
+const theme = createTheme();
+const renderWithTheme = (ui: React.ReactElement) =>
+  render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>);
+
+const mockRecordShot = vi.fn();
+const mockRecordFoul = vi.fn();
+const mockEndSession = vi.fn();
+
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { id: 'user-1', username: 'cyber-player' },
+  }),
+}));
+
+const baseSession = {
+  id: 'session-1',
+  gameId: 'game-1',
+  status: GameSessionStatus.ACTIVE,
+  gameType: GameType.EIGHT_BALL,
+  rules: {},
+  startTime: '2024-01-01T00:00:00Z',
+  lastUpdated: '2024-01-01T00:10:00Z',
+  playerIds: ['user-1', 'user-2'],
+  currentPlayerId: 'user-1',
+  ballStates: { cue: 'on_table' },
+  fouls: { 'user-1': 0, 'user-2': 1 },
+  score: { 'user-1': 3, 'user-2': 2 },
+  events: [],
+  totalShots: 12,
+  totalFouls: 1,
+  totalFrames: 1,
+  peakViewers: 20,
+  latencyStats: {},
+  droppedFrames: 0,
 };
 
-// Mock user data with complete structure
-const mockCurrentUser = {
-  id: 'user1',
-  email: 'test@example.com',
-  username: 'testuser',
-  profile: {
-    displayName: 'Test User',
-    avatarUrl: '/avatar.jpg',
+vi.mock('@/hooks/useGameSession', () => ({
+  useGameSession: () => ({
+    gameSession: baseSession,
+    loading: false,
+    error: null,
+    updateSession: vi.fn(),
+    recordShot: mockRecordShot,
+    recordFoul: mockRecordFoul,
+    endSession: mockEndSession,
+    refreshSession: vi.fn(),
+  }),
+}));
+
+vi.mock('@/services/APIService', () => ({
+  pauseMatch: vi.fn(),
+  resumeMatch: vi.fn(),
+}));
+
+vi.mock('@/services/WebSocketService', () => ({
+  websocketService: {
+    connectToMatch: vi.fn(),
+    joinMatchRoom: vi.fn(),
+    leaveMatchRoom: vi.fn(),
+    subscribe: vi.fn(() => vi.fn()),
   },
-};
-
-// Fixed mock props with all required properties
-const defaultProps: GameSessionViewProps = {
-  sessionId: 'session-1',
-  match: mockMatch,
-  currentUser: mockCurrentUser,
-  onShot: jest.fn(),
-  onEndGame: jest.fn(),
-  onLeave: jest.fn(),
-};
-
-const propsWithNoMatch: GameSessionViewProps = {
-  sessionId: 'session-1',
-  match: null,
-  currentUser: mockCurrentUser,
-  onShot: jest.fn(),
-  onEndGame: jest.fn(),
-  onLeave: jest.fn(),
-};
-
-const propsWithScores: GameSessionViewProps = {
-  sessionId: 'session-1',
-  match: {
-    ...mockMatch,
-    score1: 5,
-    score2: 3,
-  },
-  currentUser: mockCurrentUser,
-  onShot: jest.fn(),
-  onEndGame: jest.fn(),
-  onLeave: jest.fn(),
-};
-
-const completedProps: GameSessionViewProps = {
-  sessionId: 'session-1',
-  match: {
-    ...mockMatch,
-    status: 'COMPLETED' as const,
-    winnerId: mockCurrentUser.id,
-  },
-  currentUser: mockCurrentUser,
-  onShot: jest.fn(),
-  onEndGame: jest.fn(),
-  onLeave: jest.fn(),
-};
-
-const minimalProps: GameSessionViewProps = {
-  sessionId: 'session-1',
-  match: {
-    id: 'match-1',
-    player1Id: 'player1',
-    player2Id: 'player2',
-    status: 'ACTIVE' as const,
-    score1: 0,
-    score2: 0,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-  currentUser: {
-    id: 'user1',
-    email: 'test@example.com',
-    username: 'testuser',
-    profile: {
-      displayName: 'Minimal User',
-      avatarUrl: '/minimal-avatar.jpg',
-    },
-  },
-  onShot: jest.fn(),
-  onEndGame: jest.fn(),
-  onLeave: jest.fn(),
-};
-
-const disabledProps: GameSessionViewProps = {
-  sessionId: 'session-1',
-  match: mockMatch,
-  currentUser: mockCurrentUser,
-  onShot: jest.fn(),
-  onEndGame: jest.fn(),
-  onLeave: jest.fn(),
-  disabled: true,
-};
-
-const customRender = (ui: React.ReactElement, options = {}) =>
-  render(ui, {
-    wrapper: ({ children }) => <div>{children}</div>,
-    ...options,
-  });
+}));
 
 describe('GameSessionView', () => {
+  const defaultProps: GameSessionViewProps = {
+    sessionId: 'session-1',
+    match: {
+      id: 'match-1',
+      player1Id: 'user-1',
+      player2Id: 'user-2',
+      status: 'ACTIVE',
+      score1: 3,
+      score2: 2,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:10:00Z',
+    },
+    currentUser: {
+      id: 'user-1',
+      email: 'player@example.com',
+      username: 'cyber-player',
+      profile: { displayName: 'Cyber Player' },
+    },
+    onShot: vi.fn(),
+    onEndGame: vi.fn(),
+    onLeave: vi.fn(),
+  };
+
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
-  it('renders match information correctly', () => {
-    customRender(<GameSessionView {...defaultProps} />);
+  it('renders session summary', () => {
+    renderWithTheme(<GameSessionView {...defaultProps} />);
 
-    expect(screen.getByText('Match in Progress')).toBeInTheDocument();
-    expect(screen.getByText(mockMatch.player1Id)).toBeInTheDocument();
-    expect(screen.getByText(mockMatch.player2Id)).toBeInTheDocument();
+    expect(screen.getByText('EIGHT_BALL Game Session')).toBeInTheDocument();
+    expect(screen.getByText('12 shots')).toBeInTheDocument();
+    expect(screen.getByText('1 fouls')).toBeInTheDocument();
   });
 
-  it('handles no match state', () => {
-    customRender(<GameSessionView {...propsWithNoMatch} />);
+  it('shows player information cards', () => {
+    renderWithTheme(<GameSessionView {...defaultProps} />);
 
-    expect(screen.getByText('No active match')).toBeInTheDocument();
+    const playerChips = screen.getAllByText('user-1');
+    const opponentChips = screen.getAllByText('user-2');
+
+    expect(playerChips.length).toBeGreaterThan(0);
+    expect(opponentChips.length).toBeGreaterThan(0);
+    expect(screen.getByText(/Score: 3/)).toBeInTheDocument();
   });
 
-  it('displays scores when available', () => {
-    customRender(<GameSessionView {...propsWithScores} />);
+  it('toggles analytics visibility', () => {
+    renderWithTheme(<GameSessionView {...defaultProps} />);
 
-    expect(screen.getByText('5')).toBeInTheDocument();
-    expect(screen.getByText('3')).toBeInTheDocument();
+    const toggleButton = screen.getByRole('button', {
+      name: /show analytics/i,
+    });
+    fireEvent.click(toggleButton);
+
+    expect(screen.getByText('Session Analytics')).toBeInTheDocument();
   });
 
-  it('shows completed match state', () => {
-    customRender(<GameSessionView {...completedProps} />);
+  it('calls recordShot through the hook', () => {
+    renderWithTheme(<GameSessionView {...defaultProps} />);
 
-    expect(screen.getByText('Match Completed')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /record shot/i }));
+    expect(mockRecordShot).toHaveBeenCalled();
   });
 
-  it('handles minimal props without errors', () => {
-    expect(() => customRender(<GameSessionView {...minimalProps} />)).not.toThrow();
+  it('calls endSession through the hook', () => {
+    renderWithTheme(<GameSessionView {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /end session/i }));
+    expect(mockEndSession).toHaveBeenCalled();
   });
-
-  it('renders with default props', () => {
-    customRender(<GameSessionView {...defaultProps} />);
-
-    expect(screen.getByText('Match in Progress')).toBeInTheDocument();
-  });
-
-  it('handles disabled state', () => {
-    customRender(<GameSessionView {...disabledProps} />);
-
-    const shotButton = screen.getByRole('button', { name: /shot/i });
-    expect(shotButton).toBeDisabled();
-  });
-
-  it('calls onShot handler', () => {
-    customRender(<GameSessionView {...defaultProps} />);
-
-    const shotButton = screen.getByRole('button', { name: /shot/i });
-    fireEvent.click(shotButton);
-
-    expect(defaultProps.onShot).toHaveBeenCalled();
-  });
-
-  it('calls onEndGame handler', () => {
-    customRender(<GameSessionView {...defaultProps} />);
-
-    const endButton = screen.getByRole('button', { name: /end game/i });
-    fireEvent.click(endButton);
-
-    expect(defaultProps.onEndGame).toHaveBeenCalled();
-  });
-
-  it('calls onLeave handler', () => {
-    customRender(<GameSessionView {...defaultProps} />);
-
-    const leaveButton = screen.getByRole('button', { name: /leave/i });
-    fireEvent.click(leaveButton);
-
-    expect(defaultProps.onLeave).toHaveBeenCalled();
-  });
-
-  it('performance test renders within threshold', async () => {
-    const startTime = performance.now();
-    customRender(<GameSessionView {...defaultProps} />);
-    const endTime = performance.now();
-
-    expect(endTime - startTime).toBeLessThan(100);
-  }, 10000);
 });

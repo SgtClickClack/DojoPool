@@ -192,6 +192,41 @@ Compile final refactoring/hardening report summarizing architectural changes, pe
 
 Expected completion time: 3 hours
 
+### 2025-09-28: Cypress E2E Test Environment Secrets
+
+Established a dedicated environment configuration for Cypress to eliminate authentication route failures during end-to-end runs. Introduced `dotenv-cli` so the Next.js dev server can consume `.env.test` secrets, updated scripts to load them automatically, and ensured the env file stays local-only.
+
+**Core Components:**
+
+- Added `dotenv-cli` dev dependency at the workspace root for environment loading support
+- Created `apps/web/.env.test` containing test-only NextAuth and Google OAuth secrets
+- Updated root `package.json` with `dev:test` script and wired `test:e2e` to use it via `start-server-and-test`
+- Ignored `.env.test` in git to prevent accidental commits of secrets
+
+**Key Features:**
+
+- Cypress E2E suite now boots the Next.js server with stable authentication secrets
+- Test environment configuration isolated from development and production settings
+- Simplified command (`yarn test:e2e`) guarantees proper env injection without manual steps
+
+**Integration Points:**
+
+- NextAuth initialization via `NEXTAUTH_SECRET`, Google OAuth credentials in `.env.test`
+- Cypress orchestration through `start-server-and-test` targeting the new `dev:test` script
+- Environment management with `dotenv-cli` across the root workspace and `apps/web`
+
+**File Paths:**
+
+- `package.json`
+- `apps/web/.env.test`
+- `.gitignore`
+
+**Next Priority Task:**
+
+Run the Cypress E2E suite using `yarn test:e2e` to confirm authentication flows succeed with the dedicated secrets file.
+
+Expected completion time: 45 minutes
+
 ### 2025-09-27: Cypress Health Check Endpoint - COMPLETED
 
 Implemented the missing Next.js `/api/health` endpoint required by the Cypress test runner to validate server readiness before executing E2E specs.
@@ -218,6 +253,40 @@ Implemented the missing Next.js `/api/health` endpoint required by the Cypress t
 Run Cypress E2E suite to confirm readiness checks succeed end-to-end.
 
 Expected completion time: 0.5 hours
+
+### 2025-09-27: Cypress Programmatic Login Stabilization - COMPLETED
+
+Implemented a reusable Cypress `cy.login` command that seeds a session-backed authentication state before visiting protected routes, eliminating 404 errors in venue management flows.
+
+**Core Components Implemented:**
+
+- Session-scoped `cy.login` helper leveraging `cy.session`
+- Canonical admin user fixture aligned with authentication expectations
+- Updated venue management E2E spec to bootstrap authentication via shared command
+
+**Key Features:**
+
+- Consistent authenticated state across Cypress specs without UI login
+- Fixture-driven session mocking for `/api/auth/session`
+- Reduced duplication by centralizing login behavior
+
+**Integration Points:**
+
+- Cypress command registry (`cypress/support/commands.ts`)
+- Auth session intercept for `/api/auth/session`
+- Venue management E2E flow (`cypress/e2e/core/venue-management.cy.ts`)
+
+**File Paths:**
+
+- `cypress/fixtures/user.json`
+- `cypress/support/commands.ts`
+- `cypress/support/e2e.ts`
+- `cypress/e2e/core/venue-management.cy.ts`
+
+**Next Priority Task:**
+Roll the `cy.login` helper through remaining Cypress suites and prune legacy inline auth mocks.
+
+Expected completion time: 3 hours
 
 Extended frontend performance optimization with additional dynamic imports and integrated Percy visual regression coverage. Dashboard stat/activity cards now lazy load via `next/dynamic`, strategic map wrapper advertises loading fallback, and strategic map Percy snapshot added to Cypress visuals. Backend coverage validated via existing suites; Percy integration prepared for CI trigger.
 
@@ -4136,5 +4205,36 @@ Stabilized the Vitest and Cypress stacks by installing missing dependencies, con
 Reconcile failing UI assertions (e.g., `ClanList`, `TournamentCard`, `VenueCard`, `GameSessionView`) to match current MUI markup now that the environment executes consistently.
 
 Expected completion time: 4 hours
+
+---
+
+### 2025-09-27: Component Test Suite Alignment (MUI UI Refactor)
+
+Updated the core React component tests to match the current Material UI markup after the definitive test environment refactor. Assertions now target the actual rendered copy and button labels, ensuring the CI pipeline validates the true UI.
+
+**Core Components Implemented:**
+
+- Refreshed `ClanList` interaction tests (search, join/view) with themed render helper
+- Updated `TournamentCard` coverage for capacity, status, and callbacks
+- Rewritten `VenueCard` expectations for Tailwind-derived markup and leader controls
+- Modernized `GameSessionView` suite with hook mocks and analytics toggle coverage
+
+**Integration Points:**
+
+- MUI ThemeProvider applied in unit tests for consistent styling context
+- Vitest + Testing Library utilities (`vi`, `createTheme`, `render`, `fireEvent`)
+- Mocked `useAuth` / `useGameSession` hook contracts and API service effects
+
+**File Paths:**
+
+- `apps/web/src/components/Clan/__tests__/ClanList.test.tsx`
+- `apps/web/src/components/Tournament/__tests__/TournamentCard.test.tsx`
+- `apps/web/src/components/venue/__tests__/VenueCard.test.tsx`
+- `apps/web/src/components/GameSession/__tests__/GameSessionView.test.tsx`
+
+**Next Priority Task:**
+Expand coverage to remaining UI modules (World map, Inventory layouts) and reinstate end-to-end assertions once Percy/Cypress snapshots are green.
+
+Expected completion time: 3 hours
 
 ---

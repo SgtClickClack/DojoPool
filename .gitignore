@@ -21,6 +21,7 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.test
 
 # Logs
 npm-debug.log*
@@ -98,4 +99,4 @@ out/
 .cache/
 
 # Local env txt variants (do not commit)
-.env*.txt
+.env*.txt.env.test

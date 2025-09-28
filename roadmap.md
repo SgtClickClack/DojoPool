@@ -23,6 +23,9 @@
 - Advanced wallet (cross-chain, hardware integration)
 - Production deployment
 - ✅ Definitive test environment refactor (Vitest + Cypress stabilization)
+- ✅ React component test alignment for MUI UI (ClanList, TournamentCard, VenueCard, GameSessionView)
+- ✅ Cypress session-based login helper for protected route stability
+- ✅ Dedicated Cypress test env secrets using dotenv-cli + `.env.test`
 
 Tooling Update (Phase 2): Pre-commit automation for formatting and linting using Prettier, Husky, and lint-staged to maintain consistent code quality across the monorepo.
 

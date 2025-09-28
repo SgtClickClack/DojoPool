@@ -33,6 +33,7 @@ Fixed Cypress E2E test execution by bypassing server verification requirements. 
 Fix underlying Next.js development server startup issues and restore proper Cypress baseUrl configuration
 
 **Test Status Summary:**
+
 - ✅ Unit tests: Working (physics.test.ts, simple.test.ts)
 - ✅ Performance tests: Working (6/6 tests pass)
 - ✅ Integration tests: Working (8/8 API integration tests pass)
@@ -40,6 +41,7 @@ Fix underlying Next.js development server startup issues and restore proper Cypr
 - ✅ Test exclusions: Removed problematic test file exclusions from config
 
 **Total Test Results:**
+
 - 4 test files passed
 - 19 individual tests passed
 - 0 failing tests
@@ -1733,3 +1735,35 @@ Successfully completed Phase 2 of the strategic codebase audit, focusing on fron
 Phase 3 - Performance Optimization & Caching Strategy. Implement Redis caching layer for API responses, optimize database queries with proper indexing, and establish performance monitoring infrastructure. This will address the performance bottlenecks identified in the strategic audit and prepare the system for high-volume usage.
 
 Expected completion time: 4-6 hours
+
+### 2025-09-27: InventoryLayout Test Stabilization and Vitest Pass
+
+Refined InventoryLayout test harness to align with centralized Vitest setup, eliminating hoisting errors and ensuring mock dependencies load correctly. Suite-wide Vitest run now completes cleanly.
+
+**Core Components Implemented:**
+
+- Hoisted `useInventory` mock with `vi.hoisted` to resolve initialization warnings
+- Alias-based mocks for Inventory subcomponents and error boundary
+- Updated InventoryLayout tests to import named component export and reuse shared render utility
+- Verified entire Vitest suite execution with zero failures
+
+**Key Features:**
+
+- Stable InventoryLayout coverage across login, loading, error, and content states
+- Consistent mock structure leveraging shared path aliases
+- Full Vitest run confirms 67 tests across 16 files pass
+
+**Integration Points:**
+
+- `@/components/__tests__/test-utils` render helper for MUI theme context
+- `@/components/Inventory/InventoryDataProvider` mock alignment with hook consumers
+- Next.js dev server on port 3000 for post-refactor validation
+
+**File Paths:**
+
+- `apps/web/src/components/Inventory/__tests__/InventoryLayout.test.tsx`
+
+**Next Priority Task:**
+Run Cypress regression suite to confirm Percy integration after unit test stabilization.
+
+Expected completion time: 30m

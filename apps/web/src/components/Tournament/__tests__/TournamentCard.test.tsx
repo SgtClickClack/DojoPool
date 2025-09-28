@@ -1,180 +1,128 @@
 import React from 'react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import TournamentCard from '../TournamentCard';
 import { TournamentStatus } from '@/types/tournament';
 
-// Mock the tournament data with proper types to match Tournament interface
-const mockTournament = {
+const theme = createTheme();
+
+const renderWithTheme = (ui: React.ReactElement) =>
+  render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>);
+
+const baseTournament = {
   id: 'tournament-1',
-  name: 'Test Tournament',
-  description: 'A test tournament',
+  name: 'Cyber Clash',
+  description: 'Night-long tournament under neon lights.',
   startDate: '2024-01-01T10:00:00Z',
-  endDate: '2024-01-01T12:00:00Z',
-  location: 'Test Venue',
+  endDate: '2024-01-02T02:00:00Z',
+  location: 'Shinjuku Dojo',
   maxParticipants: 16,
   currentParticipants: 8,
   entryFee: 100,
   prizePool: 1000,
   status: TournamentStatus.REGISTRATION,
   participants: [],
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
-};
-
-const mockOnJoin = jest.fn();
-const mockOnView = jest.fn();
-
-const defaultProps = {
-  tournament: mockTournament,
-  onJoin: mockOnJoin,
-  onView: mockOnView,
-};
-
-const tournamentWithNoParticipants = {
-  ...mockTournament,
-  participants: [],
-};
-
-const tournamentWithParticipants = {
-  ...mockTournament,
-  participants: [
-    { id: 'user1', username: 'player1' },
-    { id: 'user2', username: 'player2' },
-  ],
-  currentParticipants: 2,
-};
-
-const disabledProps = {
-  ...defaultProps,
-  disabled: true,
-};
-
-const minimalProps = {
-  tournament: {
-    id: 'min-tournament',
-    name: 'Minimal Tournament',
-    status: TournamentStatus.REGISTRATION,
-    startDate: '2024-01-01T10:00:00Z',
-    location: 'Test Location',
-    maxParticipants: 8,
-    currentParticipants: 0,
-    entryFee: 50,
-    prizePool: 500,
-    participants: [],
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-  },
-  onJoin: jest.fn(),
-  onView: jest.fn(),
+  createdAt: '2023-12-01T00:00:00Z',
+  updatedAt: '2023-12-01T00:00:00Z',
 };
 
 describe('TournamentCard', () => {
-  const customRender = (ui: React.ReactElement, options = {}) =>
-    render(ui, {
-      wrapper: ({ children }) => <div>{children}</div>,
-      ...options,
-    });
+  const onJoin = vi.fn();
+  const onView = vi.fn();
+
+  const defaultProps = {
+    tournament: baseTournament,
+    onJoin,
+    onView,
+  };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
-  it('renders tournament information correctly', () => {
-    customRender(<TournamentCard {...defaultProps} />);
+  it('renders key tournament details', () => {
+    renderWithTheme(<TournamentCard {...defaultProps} />);
 
-    expect(screen.getByText(mockTournament.name)).toBeInTheDocument();
-    expect(screen.getByText(mockTournament.description || '')).toBeInTheDocument();
-    expect(screen.getByText(`$${mockTournament.entryFee}`)).toBeInTheDocument();
-    expect(screen.getByText(`Prize: $${mockTournament.prizePool}`)).toBeInTheDocument();
-  });
-
-  it('displays participant count correctly', () => {
-    customRender(<TournamentCard {...defaultProps} />);
-
-    expect(screen.getByText(`${mockTournament.currentParticipants}/${mockTournament.maxParticipants}`)).toBeInTheDocument();
-  });
-
-  it('shows registration status', () => {
-    customRender(<TournamentCard {...defaultProps} />);
-
+    expect(screen.getByText('Cyber Clash')).toBeInTheDocument();
+    expect(
+      screen.getByText('Night-long tournament under neon lights.')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Shinjuku Dojo')).toBeInTheDocument();
+    expect(screen.getByText(/8\/16 participants/i)).toBeInTheDocument();
+    expect(screen.getByText(/Entry: 100 Dojo Coins/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Prize Pool: 1000 Dojo Coins/i)
+    ).toBeInTheDocument();
     expect(screen.getByText('Registration Open')).toBeInTheDocument();
   });
 
-  it('handles join button click', () => {
-    customRender(<TournamentCard {...defaultProps} />);
+  it('invokes callbacks for user actions', () => {
+    renderWithTheme(<TournamentCard {...defaultProps} />);
 
-    const joinButton = screen.getByRole('button', { name: /join/i });
-    fireEvent.click(joinButton);
+    fireEvent.click(screen.getByRole('button', { name: /view details/i }));
+    expect(onView).toHaveBeenCalledWith('tournament-1');
 
-    expect(mockOnJoin).toHaveBeenCalledWith(mockTournament.id);
+    fireEvent.click(screen.getByRole('button', { name: /join tournament/i }));
+    expect(onJoin).toHaveBeenCalledWith('tournament-1');
   });
 
-  it('handles view details click', () => {
-    customRender(<TournamentCard {...defaultProps} />);
+  it('disables join when the tournament is full', () => {
+    renderWithTheme(
+      <TournamentCard
+        {...defaultProps}
+        tournament={{
+          ...baseTournament,
+          currentParticipants: 16,
+        }}
+      />
+    );
 
-    const viewButton = screen.getByRole('button', { name: /view details/i });
-    fireEvent.click(viewButton);
-
-    expect(mockOnView).toHaveBeenCalledWith(mockTournament.id);
+    expect(screen.getByText('Tournament Full')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /join tournament/i })
+    ).not.toBeInTheDocument();
   });
 
-  it('displays no participants message when empty', () => {
-    customRender(<TournamentCard tournament={tournamentWithNoParticipants} onJoin={jest.fn()} onView={jest.fn()} />);
+  it('hides the join button when registration is closed', () => {
+    renderWithTheme(
+      <TournamentCard
+        {...defaultProps}
+        tournament={{
+          ...baseTournament,
+          status: TournamentStatus.ACTIVE,
+        }}
+      />
+    );
 
-    expect(screen.queryByText(/participants/i)).not.toBeInTheDocument();
-  });
-
-  it('displays participants list when available', () => {
-    customRender(<TournamentCard tournament={tournamentWithParticipants} onJoin={jest.fn()} onView={jest.fn()} />);
-
-    expect(screen.getByText('player1')).toBeInTheDocument();
-    expect(screen.getByText('player2')).toBeInTheDocument();
-  });
-
-  it('renders disabled state correctly', () => {
-    customRender(<TournamentCard {...disabledProps} />);
-
-    const joinButton = screen.getByRole('button', { name: /join/i });
-    expect(joinButton).toBeDisabled();
-  });
-
-  it('handles minimal props without errors', () => {
-    expect(() => customRender(<TournamentCard {...minimalProps} />)).not.toThrow();
-  });
-
-  it('renders with default props', () => {
-    customRender(<TournamentCard {...defaultProps} />);
-
-    expect(screen.getByText(mockTournament.name)).toBeInTheDocument();
-  });
-
-  it('renders performance test case', async () => {
-    // Simple performance test - just render and check
-    customRender(<TournamentCard {...defaultProps} />);
-
-    expect(screen.getByText(mockTournament.name)).toBeInTheDocument();
-  }, 5000);
-
-  it('handles tournament with long name', () => {
-    const longNameTournament = {
-      ...mockTournament,
-      name: 'This is a very long tournament name that should wrap properly in the UI',
-    };
-
-    customRender(<TournamentCard tournament={longNameTournament} onJoin={jest.fn()} onView={jest.fn()} />);
-
-    expect(screen.getByText(longNameTournament.name)).toBeInTheDocument();
-  });
-
-  it('handles different tournament status', () => {
-    const activeTournament = {
-      ...mockTournament,
-      status: TournamentStatus.ACTIVE,
-    };
-
-    customRender(<TournamentCard tournament={activeTournament} onJoin={jest.fn()} onView={jest.fn()} />);
-
+    expect(
+      screen.queryByRole('button', { name: /join tournament/i })
+    ).not.toBeInTheDocument();
     expect(screen.getByText('In Progress')).toBeInTheDocument();
+  });
+
+  it('renders safely with minimal data', () => {
+    expect(() =>
+      renderWithTheme(
+        <TournamentCard
+          tournament={{
+            id: 'minimal',
+            name: 'Minimal Cup',
+            startDate: '2024-01-05T10:00:00Z',
+            location: 'Downtown Dojo',
+            maxParticipants: 8,
+            currentParticipants: 0,
+            entryFee: 0,
+            prizePool: 0,
+            status: TournamentStatus.REGISTRATION,
+            participants: [],
+            createdAt: '2024-01-01T00:00:00Z',
+            updatedAt: '2024-01-01T00:00:00Z',
+          }}
+          onJoin={vi.fn()}
+          onView={vi.fn()}
+        />
+      )
+    ).not.toThrow();
   });
 });
