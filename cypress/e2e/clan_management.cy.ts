@@ -62,6 +62,17 @@ describe('Clan Management', () => {
   });
 
   describe('Create Clan Flow', () => {
+    beforeEach(() => {
+      // Intercept the session call to ensure the component knows we are logged in.
+      cy.intercept('GET', '/api/auth/session', {
+        statusCode: 200,
+        body: {
+          user: { name: 'Test User', email: 'test@example.com', role: 'ADMIN' },
+          expires: '2099-12-31T23:59:59.999Z',
+        },
+      }).as('session');
+    });
+
     it('should complete the entire clan creation journey', () => {
       // Step 2: Navigate to clan creation page
       cy.visit('/clans/create');
