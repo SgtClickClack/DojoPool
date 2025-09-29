@@ -87,7 +87,7 @@ describe('Admin Panel Access', () => {
       body: adminUsers,
     }).as('getAdminUsers');
     // This dynamically constructs the full URL, respecting the port.
-    cy.visit(`${Cypress.config('baseUrl')}/admin`);
+    cy.visit('/admin');
   });
 
   describe('Non-Admin User Access', () => {
@@ -108,7 +108,7 @@ describe('Admin Panel Access', () => {
 
     it('should redirect non-admin users away from admin page', () => {
       // Attempt to visit admin panel
-      cy.visit(`${Cypress.config('baseUrl')}/admin`);
+      cy.visit('/admin');
 
       // Wait for user validation
       cy.wait('@getUser');
@@ -174,7 +174,7 @@ describe('Admin Panel Access', () => {
         body: adminUsers,
       }).as('getAdminUsers');
       // This dynamically constructs the full URL, respecting the port.
-      cy.visit(`${Cypress.config('baseUrl')}/admin`);
+      cy.visit('/admin');
     });
 
     it('should allow admin users to access admin page', () => {
@@ -249,7 +249,7 @@ describe('Admin Panel Access', () => {
       cy.login();
 
       // This dynamically constructs the full URL, respecting the port.
-      cy.visit(`${Cypress.config('baseUrl')}/admin`, {
+      cy.visit('/admin', {
         failOnStatusCode: false,
       });
 
@@ -281,7 +281,7 @@ describe('Admin Panel Access', () => {
       }).as('getUserAdmin');
 
       // Change to dynamic baseUrl
-      cy.visit(`${Cypress.config('baseUrl')}/admin`);
+      cy.visit('/admin');
 
       // Verify admin access
       cy.findByText('Admin Panel').should('exist');
@@ -299,7 +299,7 @@ describe('Admin Panel Access', () => {
       }).as('getUserRegular');
 
       // Trigger a new request (e.g., by navigating)
-      cy.visit(`${Cypress.config('baseUrl')}/admin`, {
+      cy.visit('/admin', {
         failOnStatusCode: false,
       });
 
@@ -323,7 +323,7 @@ describe('Admin Panel Access', () => {
       }).as('getUserInvalid');
 
       // Change to dynamic baseUrl
-      cy.visit(`${Cypress.config('baseUrl')}/admin`);
+      cy.visit('/admin');
 
       // Should be redirected away from admin
       cy.url().should('not.include', '/admin');
@@ -347,7 +347,7 @@ describe('Admin Panel Access', () => {
         body: adminUsers,
       }).as('getAdminUsers');
       // This dynamically constructs the full URL, respecting the port.
-      cy.visit(`${Cypress.config('baseUrl')}/admin`);
+      cy.visit('/admin');
     });
 
     it('should allow navigation between admin tabs', () => {
