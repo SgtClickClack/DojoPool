@@ -6,15 +6,7 @@ describe('Real Infrastructure E2E Tests', () => {
   });
 
   it('should connect to real database and load venues', () => {
-    // Set up API intercept for venues with query parameters
-    cy.intercept('GET', '/api/v1/venues*', { fixture: 'venues.json' }).as(
-      'getVenues'
-    );
-
     cy.visit('/venues');
-
-    // Wait for the API call to complete
-    cy.wait('@getVenues');
 
     // Check if the page loads without errors
     cy.get('body').should('be.visible');
