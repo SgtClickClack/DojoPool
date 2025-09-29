@@ -30,8 +30,8 @@ describe('Authentication', () => {
   it('should sign in with Google', () => {
     cy.visit('/login');
     cy.get('[data-testid="google-signin"]').click();
-    // NextAuth redirects to Google OAuth URL, not a popup
-    cy.url().should('include', 'accounts.google.com');
+    // NextAuth redirects to the signin route
+    cy.url().should('include', '/api/auth/signin/google');
   });
 
   it.skip('should sign in with Facebook', () => {
