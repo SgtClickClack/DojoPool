@@ -355,6 +355,35 @@ const TerritoryGameplayPage: React.FC = () => {
               </Box>
             </Paper>
 
+            {/* Territory Markers on Map */}
+            <Box sx={{ position: 'relative', height: 400, mb: 3 }}>
+              {territories.map((territory: any) => (
+                <Box
+                  key={territory.id}
+                  data-testid="territory-marker"
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    backgroundColor: 'primary.main',
+                    color: 'white',
+                    padding: 1,
+                    borderRadius: 1,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: 'primary.dark',
+                    },
+                  }}
+                  onClick={() => handleChallenge(territory.id)}
+                >
+                  <Typography variant="body2" data-testid="territory-name">
+                    {territory.name}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+
             <Grid container spacing={3}>
               {territories.map((territory: any) => (
                 <Grid item xs={12} md={6} key={territory.id}>
