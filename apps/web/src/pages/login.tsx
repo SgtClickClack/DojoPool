@@ -204,11 +204,11 @@ const LoginPage: React.FC = () => {
               Sign In
             </Button>
           </Box>
-          
+
           {/* Sign Up Link */}
           <Box sx={{ textAlign: 'center', mt: 3 }}>
             <Typography variant="body2" color="text.secondary">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/register" data-testid="signup-link" passHref>
                 <Typography
                   component="a"
