@@ -117,6 +117,7 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
 
               <Button
                 onClick={handleMenu}
+                data-testid="user-menu"
                 sx={{ color: 'white', textTransform: 'none' }}
                 startIcon={
                   <Avatar sx={{ width: 24, height: 24, fontSize: '0.875rem' }}>
@@ -157,7 +158,7 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
                     Inventory
                   </Link>
                 </MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                <MenuItem onClick={handleLogout} data-testid="signout-button">Logout</MenuItem>
               </Menu>
             </>
           ) : (

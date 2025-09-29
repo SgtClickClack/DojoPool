@@ -80,7 +80,7 @@ describe('Authentication', () => {
     cy.visit('/dashboard');
     cy.get('[data-testid="user-menu"]').click();
     cy.get('[data-testid="signout-button"]').click();
-    cy.url().should('eq', Cypress.config().baseUrl + '/auth/signin');
+    cy.url().should('eq', Cypress.config().baseUrl + '/login');
   });
 
   it('should handle invalid credentials', () => {
