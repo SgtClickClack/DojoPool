@@ -43,19 +43,19 @@ describe('Performance Tests', () => {
   // API Response Times
   describe('API Performance', () => {
     it('should load games list within performance budget', () => {
-      cy.intercept('GET', '/api/games/active').as('getGames');
+      cy.intercept('GET', '/v1/games/active').as('getGames');
       cy.visit('/games/active');
       cy.wait('@getGames').its('duration').should('be.lessThan', 1000);
     });
 
     it('should load venues list within performance budget', () => {
-      cy.intercept('GET', '/api/v1/venues').as('getVenues');
+      cy.intercept('GET', '/v1/venues').as('getVenues');
       cy.visit('/venues');
       cy.wait('@getVenues').its('duration').should('be.lessThan', 1000);
     });
 
     it('should load tournaments within performance budget', () => {
-      cy.intercept('GET', '/api/tournaments').as('getTournaments');
+      cy.intercept('GET', '/v1/tournaments').as('getTournaments');
       cy.visit('/tournaments');
       cy.wait('@getTournaments').its('duration').should('be.lessThan', 1000);
     });
