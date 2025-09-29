@@ -71,6 +71,7 @@ const TerritoryGameplayPage: React.FC = () => {
   const [challengeDialogOpen, setChallengeDialogOpen] = useState(false);
   const [selectedTerritory, setSelectedTerritory] = useState<string | null>(null);
   const [challengeNotification, setChallengeNotification] = useState<string | null>(null);
+  const [selectedTerritoryForChallenge, setSelectedTerritoryForChallenge] = useState<string | null>(null);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -79,6 +80,10 @@ const TerritoryGameplayPage: React.FC = () => {
   const handleSearch = () => {
     // Mock search functionality
     console.log('Searching for:', searchQuery);
+  };
+
+  const handleTerritoryClick = (territoryId: string) => {
+    setSelectedTerritoryForChallenge(territoryId);
   };
 
   const handleChallenge = (territoryId: string) => {
@@ -415,7 +420,7 @@ const TerritoryGameplayPage: React.FC = () => {
                       backgroundColor: 'primary.dark',
                     },
                   }}
-                  onClick={() => handleChallenge(territory.id)}
+                  onClick={() => handleTerritoryClick(territory.id)}
                 >
                   <Typography variant="body2" data-testid="territory-name">
                     {territory.name}
@@ -423,6 +428,20 @@ const TerritoryGameplayPage: React.FC = () => {
                 </Box>
               ))}
             </Box>
+
+            {/* Challenge Button for Selected Territory */}
+            {selectedTerritoryForChallenge && (
+              <Box sx={{ mb: 3, textAlign: 'center' }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => handleChallenge(selectedTerritoryForChallenge)}
+                  data-testid="challenge-button"
+                >
+                  Challenge {territories.find(t => t.id === selectedTerritoryForChallenge)?.name}
+                </Button>
+              </Box>
+            )}
 
             <Grid container spacing={3}>
               {territories.map((territory: any) => (
