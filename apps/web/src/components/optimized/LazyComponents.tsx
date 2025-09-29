@@ -1,6 +1,6 @@
 /**
  * Optimized Lazy Components
- * 
+ *
  * Provides efficient lazy loading with:
  * - Prefetching strategies
  * - Loading states
@@ -9,7 +9,6 @@
  */
 
 import React, { Suspense, ComponentType } from 'react';
-import { ErrorBoundary } from '@/components/Common/LoadingSpinner';
 import { CircularProgress, Box, Alert } from '@mui/material';
 
 interface LazyComponentOptions {
@@ -18,6 +17,42 @@ interface LazyComponentOptions {
   prefetch?: boolean;
   retries?: number;
   timeout?: number;
+}
+
+/**
+ * Simple error boundary for lazy components
+ */
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback?: React.ComponentType },
+  { hasError: boolean }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    console.error('Error in lazy component:', error, errorInfo);
+  }
+
+  render(): React.ReactNode {
+    if (this.state.hasError) {
+      const FallbackComponent = this.props.fallback;
+      return FallbackComponent ? (
+        <FallbackComponent />
+      ) : (
+        <Alert severity="error">
+          Component failed to load. Please refresh the page.
+        </Alert>
+      );
+    }
+
+    return this.props.children;
+  }
 }
 
 /**
@@ -37,59 +72,72 @@ export function createLazyComponent<T extends ComponentType<any>>({
   ) {
     const LazyComponent = React.lazy(async () => {
       let retryCount = 0;
-      
+
       while (retryCount <= retries) {
         try {
           const result = await Promise.race([
             importFunc(),
-            new Promise<never>((_, reject) => 
+            new Promise<never>((_, reject) =>
               setTimeout(() => reject(new Error('Import timeout')), timeout)
-            )
+            ),
           ]);
-          
+
           return result;
         } catch (error) {
           retryCount++;
-          
+
           if (retryCount > retries) {
-            console.error(`Failed to load component ${componentName} after ${retries} retries:`, error);
+            console.error(
+              `Failed to load component ${componentName} after ${retries} retries:`,
+              error
+            );
             throw error;
           }
-          
+
           // Exponential backoff
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+          await new Promise((resolve) =>
+            setTimeout(resolve, 1000 * retryCount)
+          );
         }
       }
-      
+
       throw new Error('Max retries exceeded');
     });
 
-    const WrappedComponent = React.forwardRef<any, React.ComponentProps<T>>((props, ref) => (
-      <ErrorBoundaryComponent 
-        fallback={
-          <Alert severity="error" sx={{ margin: 2 }}>
-            Failed to load {componentName || 'component'}. Please refresh the page.
-          </Alert>
-        }
-      >
-        <Suspense 
+    const WrappedComponent = React.forwardRef<any, React.ComponentProps<T>>(
+      (props, ref) => (
+        <ErrorBoundaryComponent
           fallback={
-            FallbackComponent ? (
-              <FallbackComponent />
-            ) : (
-              <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-                <CircularProgress />
-              </Box>
-            )
+            <Alert severity="error" sx={{ margin: 2 }}>
+              Failed to load {componentName || 'component'}. Please refresh the
+              page.
+            </Alert>
           }
         >
-          <LazyComponent {...props} ref={ref} />
-        </Suspense>
-      </ErrorBoundaryComponent>
-    ));
+          <Suspense
+            fallback={
+              FallbackComponent ? (
+                <FallbackComponent />
+              ) : (
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  minHeight="200px"
+                >
+                  <CircularProgress />
+                </Box>
+              )
+            }
+          >
+            <LazyComponent {...props} ref={ref} />
+          </Suspense>
+        </ErrorBoundaryComponent>
+      )
+    );
 
     WrappedComponent.displayName = `LazyLoaded${componentName || 'Component'}`;
-    
+
     // Add prefetching capability
     if (prefetch) {
       (WrappedComponent as any).prefetch = async () => {
@@ -100,7 +148,7 @@ export function createLazyComponent<T extends ComponentType<any>>({
         }
       };
     }
-    
+
     return WrappedComponent;
   };
 }
@@ -110,7 +158,12 @@ export function createLazyComponent<T extends ComponentType<any>>({
  */
 export const createLazyMapComponent = createLazyComponent({
   errorBoundary: ({ children, error }) => (
-    <Box display="flex" alignItems="center" justifyContent="center" height="400px">
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      height="400px"
+    >
       <Alert severity="error">
         Map failed to load: {error?.message || 'Unknown error'}
       </Alert>
@@ -163,10 +216,22 @@ const SkeletonMap = () => (
 
 const SkeletonDashboard = () => (
   <Box p={3}>
-    <Box width="100%" height="60px" bgcolor="grey.200" borderRadius={1} mb={2} />
+    <Box
+      width="100%"
+      height="60px"
+      bgcolor="grey.200"
+      borderRadius={1}
+      mb={2}
+    />
     <Box display="flex" gap={2} mb={3}>
       {[...Array(4)].map((_, i) => (
-        <Box key={i} flex={1} height="120px" bgcolor="grey.200" borderRadius={1} />
+        <Box
+          key={i}
+          flex={1}
+          height="120px"
+          bgcolor="grey.200"
+          borderRadius={1}
+        />
       ))}
     </Box>
     <Box height="300px" bgcolor="grey.100" borderRadius={1} />
@@ -247,7 +312,7 @@ export const prefetchComponents = {
       console.warn('Failed to prefetch map component:', error);
     }
   },
-  
+
   dashboard: async () => {
     try {
       await import('@/components/Dashboard/PerformanceDashboard');
@@ -255,7 +320,7 @@ export const prefetchComponents = {
       console.warn('Failed to prefetch dashboard component:', error);
     }
   },
-  
+
   inventory: async () => {
     try {
       await import('@/components/Inventory/InventoryLayout');
@@ -263,7 +328,7 @@ export const prefetchComponents = {
       console.warn('Failed to prefetch inventory component:', error);
     }
   },
-  
+
   admin: async () => {
     try {
       await import('@/pages/admin');
@@ -277,19 +342,24 @@ export const prefetchComponents = {
  * Hook for prefetching components on user interaction
  */
 export const usePrefetchComponents = () => {
-  const [prefetchedComponents, setPrefetchedComponents] = React.useState<string[]>([]);
-  
-  const prefetch = React.useCallback(async (componentName: keyof typeof prefetchComponents) => {
-    if (prefetchedComponents.includes(componentName)) return;
-    
-    try {
-      await prefetchComponents[componentName]();
-      setPrefetchedComponents(prev => [...prev, componentName]);
-    } catch (error) {
-      console.warn(`Failed to prefetch ${componentName}:`, error);
-    }
-  }, [prefetchedComponents]);
-  
+  const [prefetchedComponents, setPrefetchedComponents] = React.useState<
+    string[]
+  >([]);
+
+  const prefetch = React.useCallback(
+    async (componentName: keyof typeof prefetchComponents) => {
+      if (prefetchedComponents.includes(componentName)) return;
+
+      try {
+        await prefetchComponents[componentName]();
+        setPrefetchedComponents((prev) => [...prev, componentName]);
+      } catch (error) {
+        console.warn(`Failed to prefetch ${componentName}:`, error);
+      }
+    },
+    [prefetchedComponents]
+  );
+
   return { prefetch, prefetchedComponents };
 };
 
