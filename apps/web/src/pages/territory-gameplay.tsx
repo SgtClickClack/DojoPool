@@ -470,7 +470,6 @@ const TerritoryGameplayPage: React.FC = () => {
                         <Button
                           variant="contained"
                           onClick={() => handleChallenge(territory.id)}
-                          data-testid="challenge-button"
                         >
                           Challenge
                         </Button>
