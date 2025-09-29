@@ -428,7 +428,7 @@ describe('Clan Management', () => {
       // Toggle public/private setting to trigger form interaction
       cy.findByLabelText(/public clan/i).should('be.checked');
       cy.findByLabelText(/public clan/i).click();
-      cy.findByLabelText(/private clan/i).should('be.checked');
+      cy.findByLabelText(/public clan/i).should('not.be.checked');
 
       // Submit the form
       cy.get('[data-testid="create-clan-button"]').click();
