@@ -91,6 +91,7 @@ const RegisterPage: React.FC = () => {
           startIcon={<GoogleIcon />}
           onClick={handleGoogleSignIn}
           disabled={isGoogleLoading}
+          data-testid="google-signin"
           sx={{
             mb: 3,
             borderColor: '#4285f4',

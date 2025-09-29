@@ -118,6 +118,7 @@ const LoginPage: React.FC = () => {
             onClick={handleGoogleSignIn}
             component="a"
             href="/api/auth/signin/google?callbackUrl=%2Fauth%2Fsuccess"
+            data-testid="google-signin"
             sx={{
               mb: 3,
               borderColor: '#4285f4',
