@@ -25,7 +25,7 @@ import {
 } from '@mui/icons-material';
 import Head from 'next/head';
 import Layout from '@/components/Layout/Layout';
-import ProtectedRoute from '@/components/Auth/ProtectedRoute';
+import ProtectedRoute from '@/components/Common/ProtectedRoute';
 
 interface TabPanelProps {
   children?: React.ReactNode;
