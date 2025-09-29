@@ -1,5 +1,6 @@
 const resolveBaseUrl = () => {
-  const configuredBaseUrl = Cypress.config('baseUrl') || 'http://localhost:3000';
+  const configuredBaseUrl =
+    Cypress.config('baseUrl') || 'http://localhost:3000';
 
   if (!configuredBaseUrl.includes(':3000')) {
     return cy.wrap(null);
@@ -84,6 +85,15 @@ describe('Admin Panel Access', () => {
       resolveBaseUrl();
       cy.login('regular-user.json');
       cy.interceptAllApis();
+      cy.intercept('GET', '/api/users/me', {
+        statusCode: 200,
+        body: {
+          id: 'regular-user-1',
+          name: 'Regular User',
+          email: 'regular@example.com',
+          role: 'USER',
+        },
+      }).as('getUser');
     });
 
     it('should redirect non-admin users away from admin page', () => {
@@ -240,7 +250,9 @@ describe('Admin Panel Access', () => {
       cy.wait('@getCMSStatsError');
 
       // Verify error message is displayed
-      cy.findByText(/Failed to fetch CMS statistics/i, { timeout: 2000 }).should('exist');
+      cy.findByText(/Failed to fetch CMS statistics/i, {
+        timeout: 2000,
+      }).should('exist');
     });
   });
 
@@ -373,9 +385,10 @@ describe('Admin Panel Access', () => {
       // Switch to User Management tab
       cy.findByRole('tab', { name: /content management/i }).click();
       cy.get('[data-testid="content-management"]').should('exist');
-      cy.findByRole('heading', { name: /content management system/i, timeout: 10000 }).should(
-        'be.visible'
-      );
+      cy.findByRole('heading', {
+        name: /content management system/i,
+        timeout: 10000,
+      }).should('be.visible');
 
       // Verify tab remains active
       cy.findByRole('tab', { name: /content management/i }).should(
