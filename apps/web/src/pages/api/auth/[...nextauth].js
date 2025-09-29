@@ -8,7 +8,6 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
