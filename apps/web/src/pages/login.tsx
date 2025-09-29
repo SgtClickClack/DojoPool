@@ -192,7 +192,14 @@ const LoginPage: React.FC = () => {
                 autoComplete="email"
                 autoFocus
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (e.target.value && !validateEmail(e.target.value)) {
+                    setEmailError('Please enter a valid email address');
+                  } else {
+                    setEmailError('');
+                  }
+                }}
                 error={!!emailError}
                 helperText={emailError}
               />
@@ -229,7 +236,16 @@ const LoginPage: React.FC = () => {
                 inputProps={{ 'data-testid': 'login-password-input' }}
                 autoComplete="current-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (e.target.value && !validatePassword(e.target.value)) {
+                    setPasswordError(
+                      'Password must be at least 6 characters long'
+                    );
+                  } else {
+                    setPasswordError('');
+                  }
+                }}
                 error={!!passwordError}
                 helperText={passwordError}
               />
