@@ -123,9 +123,28 @@ const TerritoryGameplayPage: React.FC = () => {
     setSelectedTerritory(null);
   };
 
-  const handleAcceptChallenge = (challengeId: string) => {
-    // Mock accept challenge functionality
-    console.log('Accepting challenge:', challengeId);
+  const handleAcceptChallenge = async (challengeId: string) => {
+    try {
+      const response = await fetch(`/api/challenges/${challengeId}/accept`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // Update the challenge status in the local state
+        setChallenges(prev => 
+          prev.map(challenge => 
+            challenge.id === challengeId 
+              ? { ...challenge, status: 'accepted' }
+              : challenge
+          )
+        );
+      }
+    } catch (_error) {
+      console.error('Failed to accept challenge:', _error);
+    }
   };
 
   const handleDeclineChallenge = (challengeId: string) => {
