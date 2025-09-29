@@ -5,7 +5,7 @@ describe('Clan Management', () => {
     cy.visit('/');
 
     // Mock authentication and user data
-    cy.intercept('GET', '/api/auth/me', {
+    cy.intercept('GET', '/api/users/me', {
       statusCode: 200,
       body: {
         id: 'test-user-1',
