@@ -105,7 +105,7 @@ const LoginPage: React.FC = () => {
           </Typography>
 
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 2 }} data-testid="error-message">
               {error}
             </Alert>
           )}
