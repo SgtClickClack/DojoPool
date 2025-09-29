@@ -1,32 +1,12 @@
 describe('Territory Gameplay E2E Tests', () => {
   beforeEach(() => {
-    // Visit the main application
-    cy.visit('/');
-
-    // Mock authentication
-    cy.intercept('POST', '/api/auth/login', {
-      statusCode: 200,
-      body: {
-        user: {
-          id: 'test-user-1',
-          username: 'testuser',
-          email: 'test@example.com',
-          avatar: 'avatar-1',
-          clan: 'test-clan',
-        },
-        token: 'mock-jwt-token',
-      },
-    }).as('login');
-
-    // Login
-    cy.get('[data-testid="login-button"]').click();
-    cy.get('[data-testid="email-input"]').type('test@example.com');
-    cy.get('[data-testid="password-input"]').type(process.env.TEST_USER_PASSWORD || 'test-password');
-    cy.get('[data-testid="submit-login"]').click();
-    cy.wait('@login');
+    cy.login();
+    cy.interceptAllApis();
   });
 
   it('should display world map with territories', () => {
+    cy.visit('/');
+
     // Mock territories data
     cy.intercept('GET', '/api/territories', {
       statusCode: 200,
@@ -55,6 +35,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should allow user to challenge for territory', () => {
+    cy.visit('/');
+
     // Mock territories and challenge creation
     cy.intercept('GET', '/api/territories', {
       statusCode: 200,
@@ -101,6 +83,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should allow user to accept challenge', () => {
+    cy.visit('/');
+
     // Mock user challenges
     cy.intercept('GET', '/api/users/test-user-1/challenges', {
       statusCode: 200,
@@ -128,7 +112,6 @@ describe('Territory Gameplay E2E Tests', () => {
 
     // Navigate to challenges
     cy.get('[data-testid="challenges-tab"]').click();
-    cy.wait('@getUserChallenges');
 
     // Accept challenge
     cy.get('[data-testid="accept-challenge-button"]').first().click();
@@ -139,6 +122,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should allow user to decline challenge', () => {
+    cy.visit('/');
+
     // Mock user challenges
     cy.intercept('GET', '/api/users/test-user-1/challenges', {
       statusCode: 200,
@@ -166,7 +151,6 @@ describe('Territory Gameplay E2E Tests', () => {
 
     // Navigate to challenges
     cy.get('[data-testid="challenges-tab"]').click();
-    cy.wait('@getUserChallenges');
 
     // Decline challenge
     cy.get('[data-testid="decline-challenge-button"]').first().click();
@@ -177,6 +161,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should update territory ownership after match result', () => {
+    cy.visit('/');
+
     // Mock match result processing
     cy.intercept('POST', '/api/challenges/challenge-1/result', {
       statusCode: 200,
@@ -230,6 +216,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should display NFT requirements for territories', () => {
+    cy.visit('/');
+
     // Mock territories with NFT requirements
     cy.intercept('GET', '/api/territories', {
       statusCode: 200,
@@ -275,6 +263,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should show locked state for territories without required NFT', () => {
+    cy.visit('/');
+
     // Mock territories with NFT requirements
     cy.intercept('GET', '/api/territories', {
       statusCode: 200,
@@ -310,6 +300,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should display clan territories on map', () => {
+    cy.visit('/');
+
     // Mock territories by clan
     cy.intercept('GET', '/api/clans/test-clan/territories', {
       statusCode: 200,
@@ -336,6 +328,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should handle challenge expiration', () => {
+    cy.visit('/');
+
     // Mock expired challenge
     cy.intercept('GET', '/api/users/test-user-1/challenges', {
       statusCode: 200,
@@ -362,6 +356,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should display territory statistics', () => {
+    cy.visit('/');
+
     // Mock territory statistics
     cy.intercept('GET', '/api/territories/statistics', {
       statusCode: 200,
@@ -385,6 +381,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should search territories', () => {
+    cy.visit('/');
+
     // Mock territory search
     cy.intercept('GET', '/api/territories/search?q=test', {
       statusCode: 200,
@@ -414,6 +412,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should handle network errors gracefully', () => {
+    cy.visit('/');
+
     // Mock network error
     cy.intercept('GET', '/api/territories', {
       statusCode: 500,
@@ -430,6 +430,8 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should handle real-time updates via WebSocket', () => {
+    cy.visit('/');
+
     // Mock WebSocket connection
     cy.window().then((win) => {
       // Simulate WebSocket message

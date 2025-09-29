@@ -1,12 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent } from '@/components/__tests__/test-utils';
 import TournamentList from '../TournamentList';
 import type { Tournament } from '@/types/tournament';
 import { TournamentStatus } from '@/types/tournament';
 
-// Mock Tournament data with valid status values and proper Tournament interface
-const mockTournament: Tournament = {
+const baseTournament: Tournament = {
   id: 'tournament-1',
   name: 'Test Tournament 1',
   description: 'Test tournament description',
@@ -22,161 +21,69 @@ const mockTournament: Tournament = {
   updatedAt: '2024-01-01T00:00:00Z',
 };
 
-const mockTournamentInProgress: Tournament = {
-  id: 'tournament-2',
-  name: 'Active Tournament',
-  description: 'Tournament currently in progress',
-  venueId: 'venue-2',
-  startDate: '2024-01-01T10:00:00Z',
-  endDate: '2024-01-01T12:00:00Z',
-  status: TournamentStatus.ACTIVE,
-  maxPlayers: 16,
-  entryFee: 100,
-  prizePool: 1000,
-  participants: [
-    { id: 'user1', username: 'player1' },
-    { id: 'user2', username: 'player2' },
-  ],
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
-};
+const onJoin = vi.fn();
+const onView = vi.fn();
+const onFilter = vi.fn();
 
-const mockTournamentCompleted: Tournament = {
-  id: 'tournament-3',
-  name: 'Completed Tournament',
-  description: 'Tournament that has finished',
-  venueId: 'venue-3',
-  startDate: '2024-01-01T10:00:00Z',
-  endDate: '2024-01-01T12:00:00Z',
-  status: TournamentStatus.COMPLETED,
-  maxPlayers: 16,
-  entryFee: 100,
-  prizePool: 1000,
-  participants: [],
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
-};
-
-const mockOnJoin = jest.fn();
-const mockOnView = jest.fn();
-const mockOnFilter = jest.fn();
-
-const defaultProps = {
-  tournaments: [mockTournament],
-  onJoin: mockOnJoin,
-  onView: mockOnView,
-  onFilter: mockOnFilter,
-};
-
-const loadingProps = {
-  ...defaultProps,
-  loading: true,
-};
-
-const errorProps = {
-  ...defaultProps,
-  error: 'Failed to load tournaments',
-};
-
-const propsWithNoTournaments = {
-  ...defaultProps,
-  tournaments: [],
-};
-
-const propsWithUpdatedTournaments = {
-  ...defaultProps,
-  tournaments: [...defaultProps.tournaments, mockTournamentInProgress],
-};
-
-const disabledProps = {
-  ...defaultProps,
-  disabled: true,
-};
+const renderList = (overrides: Partial<React.ComponentProps<typeof TournamentList>> = {}) =>
+  render(
+    <TournamentList
+      tournaments={[baseTournament]}
+      onJoin={onJoin}
+      onView={onView}
+      onFilter={onFilter}
+      {...overrides}
+    />
+  );
 
 describe('TournamentList', () => {
-  const customRender = (ui: React.ReactElement, options = {}) =>
-    render(ui, {
-      wrapper: ({ children }) => <div>{children}</div>,
-      ...options,
-    });
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
-  it('renders tournament list correctly', () => {
-    customRender(<TournamentList {...defaultProps} />);
-    
-    expect(screen.getByText(mockTournament.name)).toBeInTheDocument();
+  it('renders tournaments with summary information', () => {
+    renderList();
+
+    expect(screen.getByText('Test Tournament 1')).toBeInTheDocument();
+    expect(screen.getByText('Test tournament description')).toBeInTheDocument();
+    expect(screen.getByText(/Status:\s+REGISTRATION/)).toBeInTheDocument();
   });
 
   it('shows loading state', () => {
-    customRender(<TournamentList {...loadingProps} />);
-    
+    renderList({ loading: true });
+
     expect(screen.getByText('Loading tournaments...')).toBeInTheDocument();
   });
 
   it('shows error state', () => {
-    customRender(<TournamentList {...errorProps} />);
-    
+    renderList({ error: 'Failed to load tournaments' });
+
     expect(screen.getByText('Failed to load tournaments')).toBeInTheDocument();
   });
 
   it('shows empty state when no tournaments', () => {
-    customRender(<TournamentList {...propsWithNoTournaments} />);
-    
+    renderList({ tournaments: [] });
+
     expect(screen.getByText('No tournaments available')).toBeInTheDocument();
   });
 
-  it('renders tournaments with different statuses', () => {
-    const tournaments = [mockTournament, mockTournamentInProgress, mockTournamentCompleted];
-    
-    customRender(<TournamentList {...defaultProps} tournaments={tournaments} />);
-    
-    expect(screen.getByText(mockTournament.name)).toBeInTheDocument();
-    expect(screen.getByText(mockTournamentInProgress.name)).toBeInTheDocument();
-    expect(screen.getByText(mockTournamentCompleted.name)).toBeInTheDocument();
+  it('calls join handler when join button is clicked', () => {
+    renderList();
+
+    fireEvent.click(screen.getByRole('button', { name: /join/i }));
+    expect(onJoin).toHaveBeenCalledWith('tournament-1');
   });
 
-  it('handles join button click', () => {
-    customRender(<TournamentList {...defaultProps} />);
-    
-    const firstJoinButton = screen.getAllByRole('button', { name: /join/i })[0];
-    fireEvent.click(firstJoinButton);
-    
-    expect(mockOnJoin).toHaveBeenCalledWith(mockTournament.id);
+  it('calls view handler when view button is clicked', () => {
+    renderList();
+
+    fireEvent.click(screen.getByRole('button', { name: /view/i }));
+    expect(onView).toHaveBeenCalledWith('tournament-1');
   });
 
-  it('handles view button click', () => {
-    customRender(<TournamentList {...defaultProps} />);
-    
-    const firstViewButton = screen.getAllByRole('button', { name: /view/i })[0];
-    fireEvent.click(firstViewButton);
-    
-    expect(mockOnView).toHaveBeenCalledWith(mockTournament.id);
-  });
+  it('handles disabled action buttons', () => {
+    renderList({ disabled: true });
 
-  it('filters tournaments by status', () => {
-    const tournaments = [mockTournament, mockTournamentInProgress];
-    
-    customRender(<TournamentList {...defaultProps} tournaments={tournaments} />);
-    
-    const filterButton = screen.getByRole('button', { name: /filter/i });
-    fireEvent.click(filterButton);
-    
-    expect(mockOnFilter).toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: /join/i })).toBeDisabled();
   });
-
-  it('handles disabled state', () => {
-    customRender(<TournamentList {...disabledProps} />);
-    
-    const joinButton = screen.getByRole('button', { name: /join/i });
-    expect(joinButton).toBeDisabled();
-  });
-
-  it('renders performance test case', async () => {
-    customRender(<TournamentList {...defaultProps} />);
-    
-    expect(screen.getByText(mockTournament.name)).toBeInTheDocument();
-  }, 5000);
 });

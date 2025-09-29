@@ -1,121 +1,93 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import JournalFeed from '../profile/JournalFeed';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, waitFor } from '@/components/__tests__/test-utils';
+import JournalFeed from '../JournalFeed';
+import { getMyJournal } from '@/services/APIService';
+import type { JournalResponse } from '@/types/journal';
+import { generateMockJournalResponse } from '@/utils/mockJournalData';
 
-// Mock the JournalFeed component since it doesn't exist yet
-jest.mock('../profile/JournalFeed', () => {
-  return function MockJournalFeed({ entries, onEntryClick, loading }: any) {
-    return (
-      <div data-testid="journal-feed">
-        {loading ? (
-          <div data-testid="loading">Loading journal...</div>
-        ) : (
-          <div data-testid="journal-entries">
-            {entries.map((entry: any) => (
-              <div key={entry.id} data-testid={`entry-${entry.id}`} onClick={() => onEntryClick(entry)}>
-                <h3>{entry.title}</h3>
-                <p>{entry.content}</p>
-                <span>{entry.date}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
+vi.mock('@/services/APIService', () => ({
+  getMyJournal: vi.fn(),
+}));
+
+vi.mock('@/utils/mockJournalData', () => ({
+  generateMockJournalResponse: vi.fn(),
+}));
+
+const mockedGetMyJournal = vi.mocked(getMyJournal);
+const mockedGenerateMockJournalResponse = vi.mocked(generateMockJournalResponse);
+
+const createResponse = (
+  entries: JournalResponse['entries'],
+  overrides: Partial<JournalResponse['pagination']> = {}
+): JournalResponse => ({
+  entries,
+  pagination: {
+    page: 1,
+    limit: 20,
+    total: entries.length,
+    totalPages: 1,
+    hasNext: false,
+    hasPrev: false,
+    ...overrides,
+  },
 });
 
-const mockEntries = [
-  {
-    id: 'entry-1',
-    title: 'First Journal Entry',
-    content: 'This is my first journal entry about my pool practice.',
-    date: '2024-01-01',
-  },
-  {
-    id: 'entry-2',
-    title: 'Tournament Reflection',
-    content: 'Reflections on my recent tournament performance.',
-    date: '2024-01-02',
-  },
-];
-
-const mockOnEntryClick = jest.fn();
-
-const defaultProps = {
-  entries: mockEntries,
-  onEntryClick: mockOnEntryClick,
-};
-
-const loadingProps = {
-  ...defaultProps,
-  loading: true,
-};
-
-const emptyProps = {
-  entries: [],
-  onEntryClick: mockOnEntryClick,
-};
-
 describe('JournalFeed', () => {
-  const customRender = (ui: React.ReactElement, options = {}) =>
-    render(ui, {
-      wrapper: ({ children }) => <div>{children}</div>,
-      ...options,
-    });
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockedGetMyJournal.mockReset();
+    mockedGenerateMockJournalResponse.mockReset();
+    mockedGenerateMockJournalResponse.mockReturnValue(
+      createResponse([
+        {
+          id: 'fallback-entry-1',
+          type: 'SYSTEM_EVENT',
+          message: 'System maintenance completed successfully',
+          metadata: {},
+          createdAt: '2024-01-02T00:00:00Z',
+          userId: 'system',
+        },
+      ])
+    );
   });
 
-  it('renders journal entries correctly', () => {
-    customRender(<JournalFeed {...defaultProps} />);
-    
-    expect(screen.getByText('First Journal Entry')).toBeInTheDocument();
-    expect(screen.getByText('Tournament Reflection')).toBeInTheDocument();
-    expect(screen.getByTestId('journal-feed')).toBeInTheDocument();
+  it('renders journal entries after loading', async () => {
+    mockedGetMyJournal.mockResolvedValue(
+      createResponse([
+        {
+          id: 'entry-1',
+          type: 'MATCH_PLAYED',
+          message: 'Won the Night Tournament',
+          metadata: {},
+          createdAt: '2024-01-01T00:00:00Z',
+          userId: 'user-1',
+        },
+      ])
+    );
+
+    render(<JournalFeed />);
+
+    expect(await screen.findByText(/Won the Night Tournament/i)).toBeInTheDocument();
   });
 
-  it('handles entry click', () => {
-    customRender(<JournalFeed {...defaultProps} />);
-    
-    const firstEntry = screen.getByTestId('entry-entry-1');
-    fireEvent.click(firstEntry);
-    
-    expect(mockOnEntryClick).toHaveBeenCalledWith(mockEntries[0]);
+  it('falls back to mock data when the API fails', async () => {
+    mockedGetMyJournal.mockRejectedValue(new Error('API Error'));
+
+    render(<JournalFeed />);
+
+    await waitFor(() =>
+      expect(mockedGenerateMockJournalResponse).toHaveBeenCalledWith(1, 20)
+    );
+    expect(
+      await screen.findByText(/System maintenance completed successfully/i)
+    ).toBeInTheDocument();
   });
 
-  it('displays loading state', () => {
-    customRender(<JournalFeed {...loadingProps} />);
-    
-    expect(screen.getByTestId('loading')).toBeInTheDocument();
-    expect(screen.queryByTestId('journal-entries')).not.toBeInTheDocument();
-  });
+  it('shows empty state when the API returns no entries', async () => {
+    mockedGetMyJournal.mockResolvedValue(createResponse([]));
 
-  it('handles empty entries list', () => {
-    customRender(<JournalFeed {...emptyProps} />);
-    
-    expect(screen.queryByTestId('journal-entries')).toBeInTheDocument();
-    expect(screen.getAllByTestId('entry-')).toHaveLength(0);
-  });
+    render(<JournalFeed />);
 
-  it('renders entry content correctly', () => {
-    customRender(<JournalFeed {...defaultProps} />);
-    
-    expect(screen.getByText('This is my first journal entry about my pool practice.')).toBeInTheDocument();
-    expect(screen.getByText('2024-01-01')).toBeInTheDocument();
+    expect(await screen.findByText(/No journal entries yet/i)).toBeInTheDocument();
   });
-
-  it('renders with minimal props', () => {
-    customRender(<JournalFeed entries={[]} onEntryClick={jest.fn()} />);
-    
-    expect(screen.getByTestId('journal-feed')).toBeInTheDocument();
-  });
-
-  it('performance test renders within threshold', async () => {
-    customRender(<JournalFeed {...defaultProps} />);
-    
-    expect(screen.getByText(mockEntries[0].title)).toBeInTheDocument();
-  }, 5000);
 });

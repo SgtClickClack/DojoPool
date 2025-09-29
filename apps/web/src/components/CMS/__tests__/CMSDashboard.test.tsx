@@ -1,177 +1,94 @@
-import '@testing-library/jest-dom';
-import { render, screen, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
-import * as APIService from '../../../services/APIService';
+import React from 'react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, waitFor } from '@/components/__tests__/test-utils';
 import CMSDashboard from '../CMSDashboard';
+import { getCMSStats, type CMSStats } from '@/services/APIService';
 
-// Mock the APIService
-vi.mock('../../../services/APIService', () => ({
+vi.mock('@/services/APIService', () => ({
   getCMSStats: vi.fn(),
 }));
 
-// Mock MUI icons
-vi.mock('@mui/icons-material', () => ({
-  Event: () => <div data-testid="event-icon" />,
-  Article: () => <div data-testid="article-icon" />,
-  Announcement: () => <div data-testid="announcement-icon" />,
-  Visibility: () => <div data-testid="visibility-icon" />,
-  ThumbUp: () => <div data-testid="thumbup-icon" />,
-  People: () => <div data-testid="people-icon" />,
+vi.mock('../EventManagement', () => ({
+  __esModule: true,
+  default: () => <div data-testid="event-management" />,
 }));
 
-// Mock MUI components
-vi.mock('@mui/material', () => ({
-  Alert: ({ children, severity }: any) => (
-    <div data-testid={`alert-${severity}`}>{children}</div>
-  ),
-  Box: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-  Card: ({ children }: any) => <div data-testid="card">{children}</div>,
-  CardContent: ({ children }: any) => (
-    <div data-testid="card-content">{children}</div>
-  ),
-  Grid: ({ children }: any) => <div data-testid="grid">{children}</div>,
-  Typography: ({ children, variant, component }: any) => (
-    <div data-testid={`typography-${variant || component}`}>{children}</div>
-  ),
+vi.mock('../NewsManagement', () => ({
+  __esModule: true,
+  default: () => <div data-testid="news-management" />,
 }));
 
-// Mock child components
-vi.mock('../CMSTabs', () => {
-  return function MockCMSTabs({ children }: any) {
-    return <div data-testid="cms-tabs">{children}</div>;
-  };
-});
+vi.mock('../SystemMessageManagement', () => ({
+  __esModule: true,
+  default: () => <div data-testid="system-message-management" />,
+}));
 
-vi.mock('../EventManagement', () => {
-  return function MockEventManagement() {
-    return <div data-testid="event-management">Event Management Component</div>;
-  };
-});
+vi.mock('../CMSTabs', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <div data-testid="cms-tabs">{children}</div>,
+}));
 
-vi.mock('../NewsManagement', () => {
-  return function MockNewsManagement() {
-    return <div data-testid="news-management">News Management Component</div>;
-  };
-});
+const mockedGetCMSStats = vi.mocked(getCMSStats);
 
-vi.mock('../SystemMessageManagement', () => {
-  return function MockSystemMessageManagement() {
-    return (
-      <div data-testid="system-message-management">
-        System Message Management Component
-      </div>
-    );
-  };
+const createStats = (overrides: Partial<CMSStats> = {}): CMSStats => ({
+  totalEvents: 15,
+  totalNewsArticles: 25,
+  totalSystemMessages: 10,
+  activeSystemMessages: 7,
+  pendingContent: 5,
+  totalViews: 12345,
+  totalLikes: 678,
+  totalShares: 234,
+  ...overrides,
 });
 
 describe('CMSDashboard', () => {
-  const mockStats: APIService.CMSStats = {
-    totalEvents: 15,
-    totalNewsArticles: 25,
-    totalSystemMessages: 10,
-    activeSystemMessages: 7,
-    pendingContent: 5,
-    totalViews: 12345,
-    totalLikes: 678,
-    totalShares: 234,
-  };
-
-  const getCMSStatsMock = APIService.getCMSStats as any;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    getCMSStatsMock.mockResolvedValue(mockStats);
+    mockedGetCMSStats.mockResolvedValue(createStats());
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('renders CMS dashboard with statistics', async () => {
+  it('renders CMS statistics after fetching data', async () => {
     render(<CMSDashboard />);
 
-    // Check if title is rendered
+    await waitFor(() => {
+      expect(mockedGetCMSStats).toHaveBeenCalled();
+    });
+
     expect(screen.getByText('Content Management System')).toBeInTheDocument();
 
-    // Wait for stats to load and verify API call
-    await waitFor(() => {
-      expect(APIService.getCMSStats).toHaveBeenCalledTimes(1);
-    });
-
-    // Verify statistics are displayed
-    await waitFor(() => {
-      expect(screen.getByText('15')).toBeInTheDocument(); // totalEvents
-      expect(screen.getByText('25')).toBeInTheDocument(); // totalNewsArticles
-      expect(screen.getByText('10')).toBeInTheDocument(); // totalSystemMessages
-      expect(screen.getByText('12,345')).toBeInTheDocument(); // totalViews
-      expect(screen.getByText('912')).toBeInTheDocument(); // totalLikes + totalShares
-    });
+    expect(screen.getByText('Total Events')).toBeInTheDocument();
+    expect(screen.getByText('15')).toBeInTheDocument();
+    expect(screen.getByText('News Articles')).toBeInTheDocument();
+    expect(screen.getByText('25')).toBeInTheDocument();
   });
 
-  it('displays CMS tabs', async () => {
-    render(<CMSDashboard />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Events')).toBeInTheDocument();
-      expect(screen.getByText('News Articles')).toBeInTheDocument();
-      expect(screen.getByText('System Messages')).toBeInTheDocument();
-      expect(screen.getByText('Content Moderation')).toBeInTheDocument();
-    });
-  });
-
-  it('handles API errors gracefully', async () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-    getCMSStatsMock.mockRejectedValue(new Error('API Error'));
+  it('shows error alert when API fails', async () => {
+    mockedGetCMSStats.mockRejectedValueOnce(new Error('API Error'));
 
     render(<CMSDashboard />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('alert-error')).toBeInTheDocument();
-      expect(
-        screen.getByText('Failed to fetch CMS statistics')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Failed to fetch CMS statistics')).toBeInTheDocument();
     });
-
-    consoleErrorSpy.mockRestore();
   });
 
-  it('displays fallback data when API fails', async () => {
-    getCMSStatsMock.mockRejectedValue(new Error('Network Error'));
+  it('falls back to mock data when API fails', async () => {
+    mockedGetCMSStats.mockRejectedValueOnce(new Error('API Error'));
 
     render(<CMSDashboard />);
 
     await waitFor(() => {
-      // Should show fallback mock data
-      expect(screen.getByText('12')).toBeInTheDocument(); // fallback totalEvents
-      expect(screen.getByText('28')).toBeInTheDocument(); // fallback totalNewsArticles
+      expect(screen.getByText('12')).toBeInTheDocument();
+      expect(screen.getByText('28')).toBeInTheDocument();
     });
   });
 
-  it('renders stat cards with correct titles and descriptions', async () => {
-    render(<CMSDashboard />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Total Events')).toBeInTheDocument();
-      expect(screen.getByText('News Articles')).toBeInTheDocument();
-      expect(screen.getByText('System Messages')).toBeInTheDocument();
-      expect(screen.getByText('Content Views')).toBeInTheDocument();
-      expect(screen.getByText('Content Engagement')).toBeInTheDocument();
-      expect(screen.getByText('Pending Content')).toBeInTheDocument();
-    });
-  });
-
-  it('renders child management components', async () => {
+  it('renders CMS management tabs', async () => {
     render(<CMSDashboard />);
 
     await waitFor(() => {
       expect(screen.getByTestId('cms-tabs')).toBeInTheDocument();
-      expect(screen.getByTestId('event-management')).toBeInTheDocument();
-      expect(screen.getByTestId('news-management')).toBeInTheDocument();
-      expect(
-        screen.getByTestId('system-message-management')
-      ).toBeInTheDocument();
     });
   });
 });

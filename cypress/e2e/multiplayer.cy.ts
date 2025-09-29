@@ -1,5 +1,7 @@
 describe('Multiplayer Game Flow', () => {
   beforeEach(() => {
+    cy.login();
+    cy.interceptAllApis();
     cy.visit('/');
     cy.intercept('POST', '/api/game/create').as('createGame');
     cy.intercept('POST', '/api/game/join').as('joinGame');
@@ -48,6 +50,8 @@ describe('Multiplayer Game Flow', () => {
   });
 
   it('handles disconnection and reconnection', () => {
+    cy.visit('/');
+
     cy.get('[data-testid=create-game-btn]').click();
     cy.wait('@createGame');
 
@@ -73,6 +77,8 @@ describe('Multiplayer Game Flow', () => {
   });
 
   it('handles game chat functionality', () => {
+    cy.visit('/');
+
     cy.get('[data-testid=create-game-btn]').click();
     cy.wait('@createGame');
 
@@ -88,7 +94,7 @@ describe('Multiplayer Game Flow', () => {
 
   it('manages spectator mode correctly', () => {
     // Create game
-    cy.get('[data-testid=create-game-btn]').click();
+    cy.get('[data-testid="create-game-btn"]').click();
     cy.wait('@createGame');
 
     // Get game code and join as spectator

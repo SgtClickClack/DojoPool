@@ -1,0 +1,9 @@
+[
+  {
+    "id": "game-1",
+    "playerOne": "testuser@example.com",
+    "playerTwo": "opponent@example.com",
+    "status": "ACTIVE"
+  }
+]
+

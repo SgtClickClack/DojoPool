@@ -1,12 +1,7 @@
 import { faker } from '@faker-js/faker';
 
 describe('CDN Cost Dashboard', () => {
-  const mockUser = {
-    id: faker.string.uuid(),
-    email: faker.internet.email(),
-    role: 'admin',
-  };
-
+  let mockUser: { email: string; role: string };
   const mockCostReport = {
     optimization: {
       optimized: true,
@@ -36,13 +31,11 @@ describe('CDN Cost Dashboard', () => {
   };
 
   beforeEach(() => {
-    // Mock authentication
-    cy.intercept('GET', '/api/auth/session', {
-      statusCode: 200,
-      body: mockUser,
+    cy.login();
+    cy.interceptAllApis();
+    cy.fixture('user.json').then((user) => {
+      mockUser = user;
     });
-
-    // Mock cost report API
     cy.intercept('GET', '/api/cdn/cost', {
       statusCode: 200,
       body: mockCostReport,

@@ -29,7 +29,11 @@ export const authOptions = {
         });
 
         if (!user) {
-          throw new Error('No user found');
+          throw new Error('Invalid credentials');
+        }
+
+        if (!user.passwordHash) {
+          throw new Error('Invalid credentials');
         }
 
         const isValidPassword = await bcrypt.compare(

@@ -1,5 +1,9 @@
 describe('Clan Management', () => {
   beforeEach(() => {
+    cy.login();
+    cy.interceptAllApis();
+    cy.visit('/');
+
     // Mock authentication and user data
     cy.intercept('GET', '/api/auth/me', {
       statusCode: 200,
@@ -59,10 +63,6 @@ describe('Clan Management', () => {
 
   describe('Create Clan Flow', () => {
     it('should complete the entire clan creation journey', () => {
-      // Step 1: Login using custom command
-      cy.login('test@example.com', process.env.TEST_USER_PASSWORD || 'test-password');
-      cy.url().should('include', '/dashboard');
-
       // Step 2: Navigate to clan creation page
       cy.visit('/clans/create');
       cy.url().should('include', '/clans/create');
@@ -112,7 +112,6 @@ describe('Clan Management', () => {
     });
 
     it('should validate required fields', () => {
-      cy.login('test@example.com', process.env.TEST_USER_PASSWORD || 'test-password');
       cy.visit('/clans/create');
 
       // Try to submit without required fields
@@ -125,7 +124,6 @@ describe('Clan Management', () => {
     });
 
     it('should validate clan tag length', () => {
-      cy.login('test@example.com', process.env.TEST_USER_PASSWORD || 'test-password');
       cy.visit('/clans/create');
 
       // Fill required fields
@@ -158,8 +156,6 @@ describe('Clan Management', () => {
 
   describe('Clan Discovery', () => {
     it('should display newly created clan in discovery page', () => {
-      cy.login('test@example.com', process.env.TEST_USER_PASSWORD || 'test-password');
-
       // First create a clan
       cy.visit('/clans/create');
       cy.findByLabelText(/clan name/i).type('Discovery Test Clan');
@@ -193,7 +189,6 @@ describe('Clan Management', () => {
     });
 
     it('should handle search and filtering', () => {
-      cy.login('test@example.com', process.env.TEST_USER_PASSWORD || 'test-password');
       cy.visit('/clans');
 
       // Test search functionality
@@ -216,7 +211,6 @@ describe('Clan Management', () => {
     });
 
     it('should handle empty search results', () => {
-      cy.login('test@example.com', process.env.TEST_USER_PASSWORD || 'test-password');
       cy.visit('/clans');
 
       // Search for non-existent clan
@@ -237,7 +231,6 @@ describe('Clan Management', () => {
         body: { error: 'Internal server error' },
       }).as('createClanError');
 
-      cy.login('test@example.com', process.env.TEST_USER_PASSWORD || 'test-password');
       cy.visit('/clans/create');
 
       // Fill form
@@ -259,7 +252,6 @@ describe('Clan Management', () => {
         forceNetworkError: true,
       }).as('createClanTimeout');
 
-      cy.login('test@example.com', process.env.TEST_USER_PASSWORD || 'test-password');
       cy.visit('/clans/create');
 
       // Fill form

@@ -1,6 +1,7 @@
 describe('Real Infrastructure E2E Tests', () => {
   beforeEach(() => {
-    // Don't mock API responses - test against real infrastructure
+    cy.login();
+    cy.interceptAllApis();
     cy.visit('/');
   });
 

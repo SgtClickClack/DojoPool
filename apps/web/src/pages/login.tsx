@@ -28,7 +28,13 @@ const LoginPage: React.FC = () => {
 
     try {
       await login(email, password);
-      router.push('/');
+
+      const callbackUrl =
+        typeof router.query.callbackUrl === 'string'
+          ? router.query.callbackUrl
+          : '/dashboard';
+
+      await router.replace(callbackUrl);
     } catch (_err: any) {
       console.error('Login error:', _err);
       // Provide more specific error messages based on the error type
@@ -130,7 +136,12 @@ const LoginPage: React.FC = () => {
             </Typography>
           </Divider>
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            data-testid="login-form"
+            sx={{ mt: 1 }}
+          >
             <Box sx={{ mb: 2 }}>
               <Box
                 component="label"
@@ -141,14 +152,14 @@ const LoginPage: React.FC = () => {
                   fontWeight: 500,
                 }}
               >
-                Email Address
+                Email
               </Box>
               <TextField
                 margin="normal"
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label="Email"
                 name="email"
                 inputProps={{ 'data-testid': 'login-email-input' }}
                 autoComplete="email"

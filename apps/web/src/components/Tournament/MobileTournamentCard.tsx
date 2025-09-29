@@ -126,18 +126,18 @@ const MobileTournamentCard: React.FC<MobileTournamentCardProps> = ({
           </div>
         </div>
 
-        <motion.button
-          whileTap={{ scale: 0.9 }}
+        <button
+          type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"
-          aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
+          className="flex items-center space-x-1 text-sm text-gray-300"
         >
+          <span>{isExpanded ? 'Collapse details' : 'Expand details'}</span>
           {isExpanded ? (
-            <ChevronUpIcon className="w-5 h-5 text-white" />
+            <ChevronUpIcon className="w-4 h-4" aria-hidden="true" />
           ) : (
-            <ChevronDownIcon className="w-5 h-5 text-white" />
+            <ChevronDownIcon className="w-4 h-4" aria-hidden="true" />
           )}
-        </motion.button>
+        </button>
       </div>
 
       {/* Quick Stats */}
@@ -240,25 +240,26 @@ const MobileTournamentCard: React.FC<MobileTournamentCardProps> = ({
       <div className="flex space-x-2">
         {tournament.status === 'active' && isRegistered ? (
           <>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
+            <button
+              type="button"
               onClick={() => onJoinGame(tournament.id)}
               className="mobile-btn mobile-btn-primary mobile-btn-full"
             >
               <PlayIcon className="w-5 h-5 mr-2" />
               Join Game
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
+            </button>
+            <button
+              type="button"
               onClick={() => onSpectate(tournament.id)}
               className="mobile-btn mobile-btn-secondary p-3"
+              aria-label="Spectate"
             >
               <EyeIcon className="w-5 h-5" />
-            </motion.button>
+            </button>
           </>
         ) : tournament.status === 'upcoming' ? (
-          <motion.button
-            whileTap={{ scale: 0.95 }}
+          <button
+            type="button"
             onClick={() => onRegister(tournament.id)}
             disabled={isRegistered}
             className={`mobile-btn mobile-btn-full ${
@@ -266,25 +267,26 @@ const MobileTournamentCard: React.FC<MobileTournamentCardProps> = ({
             }`}
           >
             {isRegistered ? 'Registered ✓' : 'Register Now'}
-          </motion.button>
+          </button>
         ) : (
-          <motion.button
-            whileTap={{ scale: 0.95 }}
+          <button
+            type="button"
             onClick={() => onSpectate(tournament.id)}
             className="mobile-btn mobile-btn-secondary mobile-btn-full"
           >
             <EyeIcon className="w-5 h-5 mr-2" />
             View Results
-          </motion.button>
+          </button>
         )}
 
-        <motion.button
-          whileTap={{ scale: 0.95 }}
+        <button
+          type="button"
           onClick={() => onViewDetails(tournament.id)}
           className="mobile-btn mobile-btn-secondary p-3"
+          aria-label="View Details"
         >
           <ChevronDownIcon className="w-5 h-5" />
-        </motion.button>
+        </button>
       </div>
 
       {/* Status Badge */}

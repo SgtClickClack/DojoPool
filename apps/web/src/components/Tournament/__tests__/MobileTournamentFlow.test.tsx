@@ -1,122 +1,96 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import MobileTournamentFlow from '../Tournament/MobileTournamentFlow';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent } from '@/components/__tests__/test-utils';
 
-// Mock the MobileTournamentFlow component since it doesn't exist yet
-jest.mock('../Tournament/MobileTournamentFlow', () => {
-  return function MockMobileTournamentFlow({ step, onNext, onBack, tournamentData }: any) {
-    return (
-      <div data-testid="mobile-tournament-flow">
-        <h2>Step {step}: Tournament Setup</h2>
-        <p>Tournament Name: {tournamentData.name}</p>
-        <p>Entry Fee: ${tournamentData.entryFee}</p>
-        <p>Max Players: {tournamentData.maxPlayers}</p>
-        
-        {step > 1 && (
-          <button onClick={onBack}>Previous</button>
-        )}
-        {step < 3 && (
-          <button onClick={onNext}>Next</button>
-        )}
-        {step === 3 && (
-          <button>Create Tournament</button>
-        )}
-      </div>
-    );
+vi.mock('framer-motion', () => {
+  const MockComponent = ({ children }: any) => <div>{children}</div>;
+
+  return {
+    __esModule: true,
+    motion: new Proxy(
+      {},
+      {
+        get: () => MockComponent,
+      }
+    ),
+    AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   };
 });
 
-const mockTournamentData = {
-  name: 'Mobile Tournament Flow Test',
-  entryFee: 50,
-  maxPlayers: 16,
-};
+vi.mock('../MobileTournamentCard', async () => {
+  const actual = await vi.importActual('../MobileTournamentCard');
+  return actual;
+});
 
-const mockOnNext = jest.fn();
-const mockOnBack = jest.fn();
+vi.mock('next/router', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
 
-const defaultProps = {
-  step: 1,
-  onNext: mockOnNext,
-  onBack: mockOnBack,
-  tournamentData: mockTournamentData,
-};
+import MobileTournamentFlow from '../MobileTournamentFlow';
 
-const step2Props = {
-  ...defaultProps,
-  step: 2,
-};
-
-const finalStepProps = {
-  ...defaultProps,
-  step: 3,
-};
+const tournaments = [
+  {
+    id: '1',
+    name: 'Friday Night Showdown',
+    type: 'single-elimination' as const,
+    status: 'upcoming' as const,
+    startTime: new Date(),
+    entryFee: 50,
+    prizePool: 1000,
+    maxParticipants: 16,
+    currentParticipants: 12,
+    venue: 'Jade Tiger',
+    difficulty: 'intermediate' as const,
+    description: 'Weekly tournament for intermediate players',
+  },
+  {
+    id: '2',
+    name: 'Championship Series',
+    type: 'single-elimination' as const,
+    status: 'active' as const,
+    startTime: new Date(),
+    entryFee: 100,
+    prizePool: 2500,
+    maxParticipants: 32,
+    currentParticipants: 32,
+    venue: 'Pool Palace',
+    difficulty: 'advanced' as const,
+    description: 'Monthly championship for top players',
+  },
+];
 
 describe('MobileTournamentFlow', () => {
-  const customRender = (ui: React.ReactElement, options = {}) =>
-    render(ui, {
-      wrapper: ({ children }) => <div>{children}</div>,
-      ...options,
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders header and search controls', () => {
+    render(<MobileTournamentFlow tournaments={tournaments} />);
+
+    expect(screen.getByRole('heading', { name: /Tournaments/i })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Search tournaments/i)).toBeInTheDocument();
+  });
+
+  it('filters tournaments by search input', () => {
+    render(<MobileTournamentFlow tournaments={tournaments} />);
+
+    expect(screen.getByText('Friday Night Showdown')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByPlaceholderText(/Search tournaments/i), {
+      target: { value: 'Championship' },
     });
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+    expect(screen.queryByText('Friday Night Showdown')).not.toBeInTheDocument();
+    expect(screen.getByText('Championship Series')).toBeInTheDocument();
   });
 
-  it('renders first step of tournament flow', () => {
-    customRender(<MobileTournamentFlow {...defaultProps} />);
-    
-    expect(screen.getByText('Step 1: Tournament Setup')).toBeInTheDocument();
-    expect(screen.getByText('Tournament Name: Mobile Tournament Flow Test')).toBeInTheDocument();
-    expect(screen.getByText('Next')).toBeInTheDocument();
-    expect(screen.queryByText('Previous')).not.toBeInTheDocument();
-  });
+  it('displays empty state when no tournaments match', async () => {
+    render(<MobileTournamentFlow tournaments={[]} />);
 
-  it('handles next button click', () => {
-    customRender(<MobileTournamentFlow {...defaultProps} />);
-    
-    const nextButton = screen.getByText('Next');
-    fireEvent.click(nextButton);
-    
-    expect(mockOnNext).toHaveBeenCalled();
+    expect(await screen.findByText(/No tournaments found/i)).toBeInTheDocument();
+    expect(screen.getByText(/Try adjusting your search/i)).toBeInTheDocument();
   });
-
-  it('renders second step with back button', () => {
-    customRender(<MobileTournamentFlow {...step2Props} />);
-    
-    expect(screen.getByText('Step 2: Tournament Setup')).toBeInTheDocument();
-    expect(screen.getByText('Previous')).toBeInTheDocument();
-    expect(screen.getByText('Next')).toBeInTheDocument();
-  });
-
-  it('handles back button click', () => {
-    customRender(<MobileTournamentFlow {...step2Props} />);
-    
-    const backButton = screen.getByText('Previous');
-    fireEvent.click(backButton);
-    
-    expect(mockOnBack).toHaveBeenCalled();
-  });
-
-  it('renders final step with create button', () => {
-    customRender(<MobileTournamentFlow {...finalStepProps} />);
-    
-    expect(screen.getByText('Step 3: Tournament Setup')).toBeInTheDocument();
-    expect(screen.getByText('Previous')).toBeInTheDocument();
-    expect(screen.getByText('Create Tournament')).toBeInTheDocument();
-    expect(screen.queryByText('Next')).not.toBeInTheDocument();
-  });
-
-  it('renders with minimal props', () => {
-    customRender(<MobileTournamentFlow step={1} onNext={jest.fn()} onBack={jest.fn()} tournamentData={{}} />);
-    
-    expect(screen.getByTestId('mobile-tournament-flow')).toBeInTheDocument();
-  });
-
-  it('performance test renders flow efficiently', async () => {
-    customRender(<MobileTournamentFlow {...defaultProps} />);
-    
-    expect(screen.getByText('Step 1: Tournament Setup')).toBeInTheDocument();
-  }, 5000);
 });

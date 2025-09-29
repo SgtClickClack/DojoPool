@@ -8,6 +8,7 @@ import {
   StarIcon,
   UsersIcon,
   XMarkIcon,
+  TrophyIcon,
 } from '@heroicons/react/24/outline';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState, useMemo } from 'react';
@@ -125,10 +126,13 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
     },
   ];
 
-  const displayDojos = dojos.length > 0 ? dojos : mockDojos;
+  const displayDojos = dojos ?? mockDojos;
+  const shouldShowEmptyState = Array.isArray(dojos) && dojos.length === 0;
 
   const filteredDojos = useMemo(() => {
-    return displayDojos.filter((dojo) => {
+    const source = shouldShowEmptyState ? [] : displayDojos;
+
+    return source.filter((dojo) => {
       const matchesSearch =
         dojo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         dojo.location.address.toLowerCase().includes(searchQuery.toLowerCase());
@@ -140,7 +144,7 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
 
       return matchesSearch && matchesFilter;
     });
-  }, [displayDojos, searchQuery, selectedFilter]);
+  }, [displayDojos, searchQuery, selectedFilter, shouldShowEmptyState]);
 
   const getDifficultyColor = useMemo(
     () => (difficulty: string) => {
@@ -278,6 +282,7 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
                 left: `${20 + ((index * 25) % 60)}%`,
                 top: `${20 + ((index * 30) % 60)}%`,
               }}
+              aria-label={`Open details for ${dojo.name}`}
             >
               <div className="relative">
                 <div
@@ -285,6 +290,7 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
                 >
                   <MapPinIcon className="w-6 h-6 text-white" />
                 </div>
+                <span className="sr-only">{dojo.name}</span>
                 {/* Status indicator */}
                 <div
                   className={`absolute -top-1 -right-1 w-4 h-4 ${getStatusColor(dojo.status)} rounded-full border-2 border-white`}
@@ -463,6 +469,21 @@ const MobileWorldMap: React.FC<MobileWorldMapProps> = ({
               </motion.div>
             </motion.div>
           </>
+        )}
+        { (shouldShowEmptyState || filteredDojos.length === 0) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="col-span-full text-center py-12"
+          >
+            <TrophyIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No dojos found
+            </h3>
+            <p className="text-gray-600">
+              Try adjusting your search or filters
+            </p>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

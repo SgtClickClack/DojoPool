@@ -1,8 +1,6 @@
-import '@testing-library/jest-dom';
 import { render, RenderOptions } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import { createTheme } from '@mui/material/styles';
-import { vi } from 'vitest';
 import React, { ReactElement } from 'react';
 
 // Create a test theme

@@ -18,9 +18,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        void router.push('/login');
+        const params = new URLSearchParams({
+          callbackUrl: router.asPath,
+        });
+        void router.replace(`/login?${params.toString()}`);
       } else if (requireAdmin && !isAdmin) {
-        void router.push('/dashboard');
+        void router.replace('/dashboard');
       }
     }
   }, [user, loading, isAdmin, requireAdmin, router]);

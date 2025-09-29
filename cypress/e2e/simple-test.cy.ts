@@ -1,4 +1,9 @@
 describe('Basic App Test', () => {
+  beforeEach(() => {
+    cy.login();
+    cy.interceptAllApis();
+  });
+
   it('should load the root page', () => {
     cy.visit('/');
 

@@ -1,5 +1,8 @@
 describe('Venue Discovery Feature', () => {
   beforeEach(() => {
+    cy.login();
+    cy.interceptAllApis();
+    cy.visit('/');
     cy.intercept('GET', '/api/v1/venues*', {
       statusCode: 200,
       body: {

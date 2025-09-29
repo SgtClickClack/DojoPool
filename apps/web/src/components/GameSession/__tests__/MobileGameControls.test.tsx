@@ -1,90 +1,104 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import MobileGameControls from '../GameSession/MobileGameControls';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent } from '@/components/__tests__/test-utils';
+import MobileGameControls from '../MobileGameControls';
 
-// Mock the MobileGameControls component since it doesn't exist yet
-jest.mock('../GameSession/MobileGameControls', () => {
-  return function MockMobileGameControls({ onShot, onFoul, disabled }: any) {
-    return (
-      <div data-testid="mobile-game-controls">
-        <button onClick={() => onShot()} disabled={disabled}>Take Shot</button>
-        <button onClick={() => onFoul()} disabled={disabled}>Report Foul</button>
-        <button disabled={disabled}>Pause Game</button>
-      </div>
-    );
+vi.mock('framer-motion', () => {
+  const componentFactory = (tag: keyof JSX.IntrinsicElements) => {
+    const Component = React.forwardRef<HTMLElement, any>((props, ref) => {
+      const {
+        animate,
+        initial,
+        exit,
+        transition,
+        whileTap,
+        whileHover,
+        layout,
+        layoutId,
+        variants,
+        ...rest
+      } = props;
+
+      return React.createElement(tag, { ref, ...rest });
+    });
+
+    Component.displayName = `MotionMock(${tag})`;
+    return Component;
+  };
+
+  return {
+    __esModule: true,
+    motion: new Proxy(
+      {},
+      {
+        get: (_, key: string) => componentFactory(key as keyof JSX.IntrinsicElements),
+      }
+    ),
+    AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   };
 });
 
-const mockOnShot = jest.fn();
-const mockOnFoul = jest.fn();
+const onPlayPause = vi.fn();
+const onForfeit = vi.fn();
+const onSettings = vi.fn();
+const onChat = vi.fn();
+const onSpectate = vi.fn();
 
-const defaultProps = {
-  onShot: mockOnShot,
-  onFoul: mockOnFoul,
-};
-
-const disabledProps = {
-  ...defaultProps,
-  disabled: true,
-};
+const renderControls = (overrides: Partial<React.ComponentProps<typeof MobileGameControls>> = {}) =>
+  render(
+    <MobileGameControls
+      isPlaying={false}
+      isPaused={false}
+      currentPlayer="player-one"
+      gameState="playing"
+      playerCount={2}
+      timeRemaining={90}
+      onPlayPause={onPlayPause}
+      onForfeit={onForfeit}
+      onSettings={onSettings}
+      onChat={onChat}
+      onSpectate={onSpectate}
+      {...overrides}
+    />
+  );
 
 describe('MobileGameControls', () => {
-  const customRender = (ui: React.ReactElement, options = {}) =>
-    render(ui, {
-      wrapper: ({ children }) => <div>{children}</div>,
-      ...options,
-    });
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
-  it('renders mobile game control buttons', () => {
-    customRender(<MobileGameControls {...defaultProps} />);
-    
-    expect(screen.getByText('Take Shot')).toBeInTheDocument();
-    expect(screen.getByText('Report Foul')).toBeInTheDocument();
-    expect(screen.getByText('Pause Game')).toBeInTheDocument();
+  it('renders primary control buttons with accessible labels', () => {
+    renderControls();
+
+    expect(screen.getByRole('button', { name: /play/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /game settings/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /open chat/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /spectate mode/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /forfeit game/i })).toBeInTheDocument();
   });
 
-  it('handles shot button click', () => {
-    customRender(<MobileGameControls {...defaultProps} />);
-    
-    const shotButton = screen.getByText('Take Shot');
-    fireEvent.click(shotButton);
-    
-    expect(mockOnShot).toHaveBeenCalled();
+  it('invokes callbacks when controls are activated', () => {
+    renderControls();
+
+    fireEvent.click(screen.getByRole('button', { name: /play/i }));
+    expect(onPlayPause).toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /forfeit game/i }));
+    expect(onForfeit).toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /game settings/i }));
+    expect(onSettings).toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /open chat/i }));
+    expect(onChat).toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /spectate mode/i }));
+    expect(onSpectate).toHaveBeenCalled();
   });
 
-  it('handles foul button click', () => {
-    customRender(<MobileGameControls {...defaultProps} />);
-    
-    const foulButton = screen.getByText('Report Foul');
-    fireEvent.click(foulButton);
-    
-    expect(mockOnFoul).toHaveBeenCalled();
-  });
+  it('shows pause label when already playing', () => {
+    renderControls({ isPlaying: true, isPaused: false });
 
-  it('disables buttons when disabled', () => {
-    customRender(<MobileGameControls {...disabledProps} />);
-    
-    const shotButton = screen.getByText('Take Shot');
-    expect(shotButton).toBeDisabled();
-    
-    const foulButton = screen.getByText('Report Foul');
-    expect(foulButton).toBeDisabled();
+    expect(screen.getByRole('button', { name: /pause/i })).toBeInTheDocument();
   });
-
-  it('renders with minimal props', () => {
-    customRender(<MobileGameControls onShot={jest.fn()} onFoul={jest.fn()} />);
-    
-    expect(screen.getByTestId('mobile-game-controls')).toBeInTheDocument();
-  });
-
-  it('handles performance test', async () => {
-    customRender(<MobileGameControls {...defaultProps} />);
-    
-    expect(screen.getByText('Take Shot')).toBeInTheDocument();
-  }, 5000);
 });

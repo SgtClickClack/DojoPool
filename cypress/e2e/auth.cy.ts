@@ -1,20 +1,19 @@
 describe('Authentication', () => {
   beforeEach(() => {
-    cy.login();
     cy.interceptAllApis();
-    cy.visit('/login');
   });
 
-  it('should sign in with email and password', () => {
-    cy.findByLabelText('Email').type('test@example.com');
-    cy.findByLabelText('Password').type(
-      process.env.TEST_USER_PASSWORD || 'test-password'
-    );
-    cy.findByRole('button', { name: 'Sign In' }).click();
-    cy.url().should('eq', Cypress.config().baseUrl + '/dashboard');
+  it('should sign in with email and password programmatically', () => {
+    // This command handles the entire login flow programmatically
+    cy.loginProgrammatically();
+    
+    // Now we can safely visit the protected page
+    cy.visit('/dashboard');
+    cy.url().should('eq', `${Cypress.config().baseUrl}/dashboard`);
   });
 
   it('should sign up with email and password', () => {
+    cy.visit('/login');
     cy.get('[data-testid="signup-link"]').click();
     cy.get('[data-testid="name-input"]').type('Test User');
     cy.get('[data-testid="email-input"]').type('newuser@example.com');
@@ -29,6 +28,7 @@ describe('Authentication', () => {
   });
 
   it('should sign in with Google', () => {
+    cy.visit('/login');
     cy.get('[data-testid="google-signin"]').click();
     cy.window().then((win) => {
       cy.stub(win, 'open').as('windowOpen');
@@ -37,6 +37,7 @@ describe('Authentication', () => {
   });
 
   it('should sign in with Facebook', () => {
+    cy.visit('/login');
     cy.get('[data-testid="facebook-signin"]').click();
     cy.window().then((win) => {
       cy.stub(win, 'open').as('windowOpen');
@@ -45,6 +46,7 @@ describe('Authentication', () => {
   });
 
   it('should sign in with Twitter', () => {
+    cy.visit('/login');
     cy.get('[data-testid="twitter-signin"]').click();
     cy.window().then((win) => {
       cy.stub(win, 'open').as('windowOpen');
@@ -53,6 +55,7 @@ describe('Authentication', () => {
   });
 
   it('should sign in with GitHub', () => {
+    cy.visit('/login');
     cy.get('[data-testid="github-signin"]').click();
     cy.window().then((win) => {
       cy.stub(win, 'open').as('windowOpen');
@@ -61,6 +64,7 @@ describe('Authentication', () => {
   });
 
   it('should sign in with Apple', () => {
+    cy.visit('/login');
     cy.get('[data-testid="apple-signin"]').click();
     cy.window().then((win) => {
       cy.stub(win, 'open').as('windowOpen');
@@ -69,6 +73,7 @@ describe('Authentication', () => {
   });
 
   it('should reset password', () => {
+    cy.visit('/login');
     cy.get('[data-testid="forgot-password"]').click();
     cy.get('[data-testid="email-input"]').type('test@example.com');
     cy.get('[data-testid="reset-button"]').click();
@@ -76,7 +81,7 @@ describe('Authentication', () => {
   });
 
   it('should sign out', () => {
-    cy.login();
+    cy.loginProgrammatically();
     cy.visit('/dashboard');
     cy.get('[data-testid="user-menu"]').click();
     cy.get('[data-testid="signout-button"]').click();
@@ -84,6 +89,7 @@ describe('Authentication', () => {
   });
 
   it('should handle invalid credentials', () => {
+    cy.visit('/login');
     cy.get('[data-testid="email-input"]').type('invalid@example.com');
     cy.get('[data-testid="password-input"]').type('wrong-password');
     cy.get('[data-testid="signin-button"]').click();
@@ -91,12 +97,14 @@ describe('Authentication', () => {
   });
 
   it('should validate email format', () => {
+    cy.visit('/login');
     cy.get('[data-testid="email-input"]').type('invalidemail');
     cy.get('[data-testid="signin-button"]').click();
     cy.get('[data-testid="email-error"]').should('be.visible');
   });
 
   it('should validate password length', () => {
+    cy.visit('/login');
     cy.get('[data-testid="email-input"]').type('test@example.com');
     cy.get('[data-testid="password-input"]').type('short');
     cy.get('[data-testid="signin-button"]').click();

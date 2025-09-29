@@ -1,9 +1,12 @@
 describe('Game Play E2E', () => {
   beforeEach(() => {
-    cy.visit('/');
+    cy.login();
+    cy.interceptAllApis();
   });
 
   it('should complete a full game session', () => {
+    cy.visit('/');
+
     // Start new game
     cy.get('[data-testid=start-game]').click();
 
@@ -25,6 +28,8 @@ describe('Game Play E2E', () => {
   });
 
   it('should handle player interactions correctly', () => {
+    cy.visit('/');
+
     cy.get('[data-testid=start-game]').click();
 
     // Test menu interactions
@@ -41,6 +46,8 @@ describe('Game Play E2E', () => {
   });
 
   it('should persist game state', () => {
+    cy.visit('/');
+
     cy.get('[data-testid=start-game]').click();
 
     // Play some turns

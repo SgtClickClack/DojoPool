@@ -62,7 +62,7 @@ const DojoPoolAppBar: React.FC<AppBarProps> = (props) => {
   };
 
   return (
-    <MuiAppBar {...props}>
+    <MuiAppBar data-testid="main-nav" {...props}>
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <Link href="/" className="link-no-decoration">

@@ -5,7 +5,11 @@ This index lists all development tracking files in order. Use the navigation lin
 1. [DEVELOPMENT_TRACKING_PART_01.md](./DEVELOPMENT_TRACKING_PART_01.md)
 2. [DEVELOPMENT_TRACKING_PART_02.md](./DEVELOPMENT_TRACKING_PART_02.md)
 3. [DEVELOPMENT_TRACKING_PART_03.md](./DEVELOPMENT_TRACKING_PART_03.md)
-4. [AUDIT_2025_08_30.md](./AUDIT_2025_08_30.md)
+4. [2025-09-28: Game Flow MVP Pages & Login Test Hook](./DEVELOPMENT_TRACKING_PART_03.md#2025-09-28-game-flow-mvp-pages--login-test-hook)
+5. [2025-09-28: Cypress Suite Programmatic Login Rollout](./DEVELOPMENT_TRACKING_PART_03.md#2025-09-28-cypress-suite-programmatic-login-rollout)
+6. [2025-09-29: Cypress E2E Final Blockers Resolved](./DEVELOPMENT_TRACKING_PART_03.md#2025-09-29-cypress-e2e-final-blockers-resolved)
+7. [2025-09-29: Cypress Fail-Fast Debug Workflow](./DEVELOPMENT_TRACKING_PART_03.md#2025-09-29-cypress-fail-fast-debug-workflow)
+8. [AUDIT_2025_08_30.md](./AUDIT_2025_08_30.md)
 
 **Original file:** DEVELOPMENT_TRACKING_CONSOLIDATED.md (now superseded by these parts)
 

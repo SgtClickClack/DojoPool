@@ -1,0 +1,15 @@
+[
+  {
+    "id": "venue-1",
+    "name": "The Jade Tiger",
+    "location": "Brisbane",
+    "status": "OPEN"
+  },
+  {
+    "id": "venue-2",
+    "name": "Cue & Cushion",
+    "location": "Los Angeles",
+    "status": "OPEN"
+  }
+]
+

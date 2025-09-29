@@ -1,7 +1,7 @@
 describe('Game Flow', () => {
   beforeEach(() => {
-    // Login before each test
-    cy.login('player1@example.com', 'password123');
+    cy.login();
+    cy.interceptAllApis();
   });
 
   it('should create and play a complete game', () => {

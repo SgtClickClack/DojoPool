@@ -108,8 +108,8 @@ describe('GameSessionView', () => {
   it('shows player information cards', () => {
     renderWithTheme(<GameSessionView {...defaultProps} />);
 
-    const playerChips = screen.getAllByText('user-1');
-    const opponentChips = screen.getAllByText('user-2');
+    const playerChips = screen.getAllByText((content) => content.trim() === 'user-1');
+    const opponentChips = screen.getAllByText((content) => content.trim() === 'user-2');
 
     expect(playerChips.length).toBeGreaterThan(0);
     expect(opponentChips.length).toBeGreaterThan(0);

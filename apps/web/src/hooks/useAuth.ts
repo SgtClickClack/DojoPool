@@ -28,15 +28,108 @@ export const useAuth = (): AuthContextType => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      if (status === 'loading') return;
-      if (session && session.user) {
-        setUser(session.user);
-        setIsAdmin(session.user.role === 'ADMIN'); // Adjust based on role
+    if (status === 'loading') {
+      return;
+    }
+
+    let isMounted = true;
+
+    const resolveIsAdmin = (candidate: any | null | undefined): boolean => {
+      if (!candidate) {
+        return false;
       }
-      setLoading(false);
+
+      const role = (candidate.role ?? candidate?.role)?.toString();
+      if (role && role.toUpperCase() === 'ADMIN') {
+        return true;
+      }
+
+      if (typeof candidate.isAdmin === 'boolean') {
+        return candidate.isAdmin;
+      }
+
+      return false;
     };
-    checkAuth();
+
+    const normalizeUser = (base: any | null, fetched: any | null) => {
+      if (!base && !fetched) {
+        return null;
+      }
+
+      const combined = {
+        ...(base ?? {}),
+        ...(fetched ?? {}),
+      } as any;
+
+      if (!combined.username) {
+        combined.username =
+          fetched?.username ??
+          fetched?.name ??
+          base?.username ??
+          base?.name ??
+          combined.email?.split?.('@')[0] ??
+          null;
+      }
+
+      if (!combined.role && fetched?.role) {
+        combined.role = fetched.role;
+      }
+
+      return combined;
+    };
+
+    const loadUser = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const sessionUser = session?.user ?? null;
+
+        let fetchedUser: any | null = null;
+
+        try {
+          const response = await fetch('/api/users/me', {
+            credentials: 'include',
+          });
+
+          if (response.ok) {
+            fetchedUser = await response.json();
+          } else if (response.status === 401) {
+            fetchedUser = null;
+          } else {
+            const errorText = await response.text();
+            console.error('Failed to fetch current user:', errorText);
+          }
+        } catch (fetchError) {
+          console.error('Failed to fetch current user:', fetchError);
+        }
+
+        if (!isMounted) {
+          return;
+        }
+
+        const mergedUser = normalizeUser(sessionUser, fetchedUser);
+        setUser(mergedUser);
+        setIsAdmin(resolveIsAdmin(mergedUser));
+      } catch (err) {
+        console.error('Authentication state resolution failed:', err);
+        if (isMounted) {
+          setUser(null);
+          setIsAdmin(false);
+          setError('Unable to determine authentication state');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadUser();
+
+    return () => {
+      isMounted = false;
+    };
   }, [session, status]);
 
   const login = async (email: string, password: string) => {
@@ -114,8 +207,8 @@ export const useAuth = (): AuthContextType => {
   };
 
   return {
-    user: session?.user || null,
-    loading: status === 'loading',
+    user,
+    loading,
     isAdmin,
     error,
     login,

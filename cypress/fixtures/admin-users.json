@@ -1,0 +1,19 @@
+[
+  {
+    "id": "user-1",
+    "username": "testuser1",
+    "email": "user1@example.com",
+    "role": "USER",
+    "status": "ACTIVE",
+    "joinDate": "2024-01-15"
+  },
+  {
+    "id": "user-2",
+    "username": "testuser2",
+    "email": "user2@example.com",
+    "role": "USER",
+    "status": "ACTIVE",
+    "joinDate": "2024-01-14"
+  }
+]
+

@@ -1,4 +1,9 @@
 import type { JournalResponse } from '@/types/journal';
+import type { UserProfile } from '@/types/user';
+import type {
+  CreateGameRequest,
+  GameSummary,
+} from '@/types/game';
 import type {
   MarkAsReadResponse,
   NotificationResponse,
@@ -60,8 +65,22 @@ import type {
 import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 // Create axios instance with default config
-const apiBaseUrl =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || '/api';
+const resolveApiBaseUrl = () => {
+  const configured = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') ?? '';
+
+  if (configured) {
+    return configured;
+  }
+
+  if (typeof window !== 'undefined') {
+    const { protocol, host } = window.location;
+    return `${protocol}//${host}`;
+  }
+
+  return 'http://localhost:3000';
+};
+
+const apiBaseUrl = resolveApiBaseUrl();
 
 const api: AxiosInstance = axios.create({
   baseURL: apiBaseUrl,
@@ -496,6 +515,24 @@ export const resumeMatch = async (
 ): Promise<{ status: string }> => {
   const response = await api.post(`/v1/matches/${matchId}/resume`);
   return response.data;
+};
+
+// Games API functions
+export const getActiveGames = async (): Promise<GameSummary[]> => {
+  const response = await api.get('/v1/games/active');
+  return response.data ?? [];
+};
+
+export const createGame = async (
+  payload: CreateGameRequest
+): Promise<GameSummary> => {
+  const response = await api.post('/v1/games', payload);
+  return response.data;
+};
+
+export const getPlayers = async (): Promise<UserProfile[]> => {
+  const response = await api.get('/v1/users');
+  return response.data ?? [];
 };
 
 // Tournament API functions

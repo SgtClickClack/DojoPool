@@ -1,12 +1,19 @@
 // Code coverage support (optional)
+import 'cypress-fail-fast';
+
 try {
   require('@cypress/code-coverage/support');
 } catch (error) {
   console.log('Code coverage support not available');
 }
 
-import '@percy/cypress';
-import '@percy/cypress/task';
+try {
+  require('@percy/cypress');
+  require('@percy/cypress/task');
+} catch (error) {
+  console.log('Percy support not available');
+}
+
 import '@testing-library/cypress/add-commands';
 import './commands';
 
@@ -28,23 +35,6 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   return true;
 });
 
-// Custom command to login
-Cypress.Commands.add(
-  'login',
-  (email: string = 'player1@example.com', password: string = 'password123') => {
-    cy.visit('/login');
-    // Wait for the page to load and form to be visible
-    cy.get('form').should('be.visible');
-    cy.get('[data-testid="login-email-input"]')
-      .should('be.visible')
-      .type(email);
-    cy.get('[data-testid="login-password-input"]')
-      .should('be.visible')
-      .type(password);
-    cy.findByRole('button', { name: 'Sign In' }).click();
-  }
-);
-
 // Custom command to create a game
 Cypress.Commands.add('createGame', (player1Id: string, player2Id: string) => {
   cy.visit('/games/new');
@@ -63,7 +53,6 @@ Cypress.Commands.add('checkGameState', (gameId: string) => {
 declare global {
   namespace Cypress {
     interface Chainable {
-      login(email: string, password: string): Chainable<void>;
       createGame(player1Id: string, player2Id: string): Chainable<void>;
       checkGameState(gameId: string): Chainable<void>;
       waitForAnimations(): Chainable<void>;

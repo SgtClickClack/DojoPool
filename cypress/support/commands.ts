@@ -9,6 +9,139 @@ Cypress.Commands.add('compareSnapshot', (name: string) => {
   noop();
 });
 
+const cdnCostResponse = { cost: 123.45 };
+
+Cypress.Commands.add('interceptAllApis', () => {
+  cy.intercept({ method: 'GET', url: '**/api/auth/session**' }, { fixture: 'user.json' }).as(
+    'session'
+  );
+  cy.intercept({ method: 'GET', url: '**/api/auth/_log**' }, { statusCode: 204 }).as('authLog');
+  cy.intercept({ method: 'GET', url: '**/api/auth/csrf**' }, {
+    statusCode: 200,
+    body: {
+      csrfToken: 'test-csrf-token',
+    },
+  }).as('getCsrf');
+  cy.intercept({ method: 'GET', url: '**/api/auth/providers**' }, {
+    statusCode: 200,
+    body: {
+      credentials: {
+        id: 'credentials',
+        name: 'Credentials',
+        type: 'credentials',
+        signinUrl: '/api/auth/signin/credentials',
+        callbackUrl: '/api/auth/callback/credentials',
+      },
+    },
+  }).as('getAuthProviders');
+  cy.intercept({ method: 'POST', url: '**/api/auth/callback/credentials**' }, (req) => {
+    req.reply({
+      statusCode: 200,
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: {
+        url: '/dashboard',
+        status: 200,
+        ok: true,
+        error: null,
+      },
+    });
+  }).as('postCredentialsCallback');
+
+  cy.intercept('GET', '/api/users/me', (req) => {
+    const cookieHeader = req.headers.cookie ?? '';
+    if (cookieHeader.includes('user_fixture=regular-user.json')) {
+      req.reply({ fixture: 'regular-user.json' });
+    } else {
+      req.reply({ fixture: 'user.json' });
+    }
+  }).as('getUser');
+
+  cy.intercept('GET', '/api/v1/admin/stats', {
+    fixture: 'admin-stats.json',
+  }).as('getAdminStats');
+  cy.intercept('GET', '/api/v1/admin/users', {
+    fixture: 'admin-users.json',
+  }).as('getAdminUsers');
+
+  cy.intercept('GET', '/api/venues', { fixture: 'venues.json' }).as('getVenues');
+  cy.intercept('GET', '/api/v1/venues', { fixture: 'venues.json' }).as('getVenuesV1');
+
+  cy.intercept('GET', '/api/games/active', { fixture: 'active-games.json' }).as('getActiveGames');
+  cy.intercept('GET', '/api/games/new', { fixture: 'active-games.json' }).as('getNewGames');
+
+  cy.intercept('GET', '/dashboard/cdn/cost', {
+    statusCode: 200,
+    body: cdnCostResponse,
+  }).as('getCdnCostPage');
+
+  cy.intercept('GET', '/api/cdn/cost', {
+    statusCode: 200,
+    body: cdnCostResponse,
+  }).as('getCdnCost');
+});
+
+Cypress.Commands.add('login', (userFixture = 'user.json') => {
+  cy.session([userFixture], () => {
+    cy.intercept({ method: 'GET', url: '**/api/auth/session**' }, { fixture: userFixture }).as(
+      'session'
+    );
+    cy.setCookie('user_fixture', userFixture);
+    cy.visit('/');
+    cy.url().should('include', '/');
+  });
+  cy.visit('/');
+  cy.url().should('include', '/');
+});
+
+Cypress.Commands.add('logout', () => {
+  cy.clearCookies();
+  cy.clearLocalStorage();
+});
+
+Cypress.Commands.add('loginAsAdmin', () => {
+  cy.intercept('GET', '/api/auth/session', { fixture: 'user.json' }).as('session');
+  cy.intercept('GET', '/api/games/new', { statusCode: 200, body: [] }).as('newGames');
+  cy.intercept('GET', '/api/dashboard/cdn/cost', {
+    statusCode: 200,
+    body: { cost: 0 },
+  }).as('cdnCost');
+});
+
+// DEFINITIVE PROGRAMMATIC LOGIN COMMAND
+// This command performs a real authentication by making API calls to NextAuth.js
+// instead of relying on mock cookies that can be invalidated by client-side logic
+Cypress.Commands.add('loginProgrammatically', (email = 'test@example.com', password = 'password123') => {
+  cy.request('/api/auth/csrf')
+    .its('body.csrfToken')
+    .then((csrfToken) => {
+      expect(csrfToken, 'csrf token').to.be.a('string').and.not.be.empty;
+
+      return cy.request({
+        method: 'POST',
+        url: '/api/auth/callback/credentials?json=true',
+        form: true,
+        failOnStatusCode: false,
+        followRedirect: false,
+        headers: {
+          referer: `${Cypress.config().baseUrl}/login`,
+        },
+        body: {
+          csrfToken,
+          email,
+          password,
+          callbackUrl: `${Cypress.config().baseUrl}/dashboard`,
+          json: 'true',
+        },
+      });
+    })
+    .then((response) => {
+      expect(response.status).to.be.oneOf([200, 302]);
+      // The session cookie is automatically set by the browser for subsequent requests
+    });
+});
+
 // Custom command for waiting for animations
 Cypress.Commands.add('waitForAnimations', () => {
   cy.wait(1000); // Simple wait for animations to complete
@@ -32,6 +165,9 @@ declare global {
       waitForAnimations(): Chainable<void>;
       tab(): Chainable<void>;
       waitForPageLoad(): Chainable<void>;
+      login(userFixture?: string): Chainable<void>;
+      loginAsAdmin(): Chainable<void>;
+      loginProgrammatically(email?: string, password?: string): Chainable<void>;
     }
   }
 }

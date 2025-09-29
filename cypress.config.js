@@ -1,7 +1,14 @@
-import { defineConfig } from 'cypress';
-import percyHealthCheck from '@percy/cypress/task';
+const { defineConfig } = require('cypress');
+const failFast = require('cypress-fail-fast/plugin');
 
-export default defineConfig({
+let percyHealthCheck = null;
+try {
+  percyHealthCheck = require('@percy/cypress/task');
+} catch (error) {
+  console.log('Percy not configured or unavailable:', error.message);
+}
+
+module.exports = defineConfig({
   projectId: 'yd2zoy',
   e2e: {
     baseUrl: 'http://localhost:3000',
@@ -23,17 +30,18 @@ export default defineConfig({
       coverage: true,
     },
     setupNodeEvents(on, config) {
-      // Code coverage - only load if nyc configuration exists
       try {
         require('@cypress/code-coverage/task')(on, config);
       } catch (error) {
         console.log('Code coverage not configured:', error.message);
       }
-      
-      // Percy visual testing health check
-      on('task', percyHealthCheck);
 
-      // Custom log task
+      failFast(on, config);
+
+      if (percyHealthCheck) {
+        on('task', percyHealthCheck);
+      }
+
       on('task', {
         log(message) {
           console.log(message);

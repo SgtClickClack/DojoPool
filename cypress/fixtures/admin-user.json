@@ -1,0 +1,8 @@
+{
+  "id": "admin-user-1",
+  "username": "testadmin",
+  "email": "admin@dojopool.com",
+  "role": "ADMIN",
+  "avatar": "admin-avatar"
+}
+

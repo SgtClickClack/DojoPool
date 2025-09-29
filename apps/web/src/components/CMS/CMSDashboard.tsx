@@ -7,8 +7,10 @@ import {
   ThumbUp as ThumbUpIcon,
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
-import { Alert, Box, Card, CardContent, Grid, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { Alert, Box, Card, CardContent, Grid, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, Tooltip } from '@mui/material';
+import { Info as InfoIcon } from '@mui/icons-material';
+import { metrics_monitor, AlertSeverity } from '@/services/metricsMonitor';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import CMSTabs from './CMSTabs';
 import EventManagement from './EventManagement';
 import NewsManagement from './NewsManagement';
@@ -16,8 +18,31 @@ import SystemMessageManagement from './SystemMessageManagement';
 
 // CMSStats interface is now imported from APIService
 
-const CMSDashboard: React.FC = () => {
-  const [tabValue, setTabValue] = useState(0);
+export const fetchCMSStats = async (
+  setter: (stats: CMSStats) => void,
+  setError: (error: string | null) => void
+) => {
+  try {
+    const data = await getCMSStats();
+    setter(data);
+  } catch (err) {
+    setError('Failed to fetch CMS statistics');
+    console.error('Error fetching stats:', err);
+    const mockStats: CMSStats = {
+      totalEvents: 12,
+      totalNewsArticles: 28,
+      totalSystemMessages: 8,
+      activeSystemMessages: 5,
+      pendingContent: 3,
+      totalViews: 15420,
+      totalLikes: 892,
+      totalShares: 0,
+    };
+    setter(mockStats);
+  }
+};
+
+export const useCMSDashboardStats = () => {
   const [stats, setStats] = useState<CMSStats>({
     totalEvents: 0,
     totalNewsArticles: 0,
@@ -31,36 +56,22 @@ const CMSDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    void fetchStats();
+  const fetchStats = useCallback(async () => {
+    setLoading(true);
+    await fetchCMSStats(setStats, setError);
+    setLoading(false);
   }, []);
 
-  const fetchStats = async () => {
-    try {
-      setLoading(true);
+  return { stats, loading, error, fetchStats, setError };
+};
 
-      // Fetch real CMS statistics from the backend using API service
-      const data = await getCMSStats();
-      setStats(data);
-    } catch (err) {
-      setError('Failed to fetch CMS statistics');
-      console.error('Error fetching stats:', err);
-      // Fallback to mock data if API fails
-      const mockStats: CMSStats = {
-        totalEvents: 12,
-        totalNewsArticles: 28,
-        totalSystemMessages: 8,
-        activeSystemMessages: 5,
-        pendingContent: 3,
-        totalViews: 15420,
-        totalLikes: 892,
-        totalShares: 0,
-      };
-      setStats(mockStats);
-    } finally {
-      setLoading(false);
-    }
-  };
+const CMSDashboard: React.FC = () => {
+  const { stats, loading, error, fetchStats, setError } = useCMSDashboardStats();
+  const [tabValue, setTabValue] = useState(0);
+
+  useEffect(() => {
+    void fetchStats();
+  }, [fetchStats]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);

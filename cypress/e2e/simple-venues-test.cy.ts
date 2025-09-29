@@ -1,4 +1,9 @@
 describe('Simple Venues Test', () => {
+  beforeEach(() => {
+    cy.login();
+    cy.interceptAllApis();
+  });
+
   it('should load the test venues page', () => {
     cy.visit('/test-venues');
 

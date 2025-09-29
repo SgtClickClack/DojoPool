@@ -94,18 +94,22 @@ const MobileTournamentFlow: React.FC<MobileTournamentFlowProps> = ({
   ];
 
   const displayTournaments =
-    tournaments.length > 0 ? tournaments : mockTournaments;
+    tournaments && tournaments.length > 0 ? tournaments : mockTournaments;
 
-  const filteredTournaments = displayTournaments.filter((tournament) => {
-    const matchesSearch =
-      tournament.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tournament.venue.toLowerCase().includes(searchQuery.toLowerCase());
+  const shouldShowExplicitEmptyState = tournaments && tournaments.length === 0;
 
-    const matchesFilter =
-      selectedFilter === 'all' || tournament.status === selectedFilter;
+  const filteredTournaments = (shouldShowExplicitEmptyState ? [] : displayTournaments).filter(
+    (tournament) => {
+      const matchesSearch =
+        tournament.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        tournament.venue.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesSearch && matchesFilter;
-  });
+      const matchesFilter =
+        selectedFilter === 'all' || tournament.status === selectedFilter;
+
+      return matchesSearch && matchesFilter;
+    }
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -311,7 +315,7 @@ const MobileTournamentFlow: React.FC<MobileTournamentFlowProps> = ({
           ))}
         </AnimatePresence>
 
-        {filteredTournaments.length === 0 && (
+        { (shouldShowExplicitEmptyState || filteredTournaments.length === 0) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

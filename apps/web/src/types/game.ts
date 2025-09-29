@@ -11,6 +11,24 @@ export interface Game {
   updatedAt: Date;
 }
 
+export interface GameSummary {
+  id: string;
+  opponentName: string;
+  opponentAvatarUrl?: string;
+  status: GameStatus;
+  startedAt: string;
+  wager?: number;
+  venueName?: string;
+}
+
+export interface CreateGameRequest {
+  opponentId: string;
+  gameType: GameType;
+  wager?: number;
+  venueId?: string;
+  notes?: string;
+}
+
 export interface GameState {
   currentPlayer: string;
   ballsRemaining: number[];

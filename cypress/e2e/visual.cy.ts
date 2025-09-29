@@ -1,6 +1,9 @@
 describe('Visual Regression Tests', () => {
   beforeEach(() => {
+    cy.login();
+    cy.interceptAllApis();
     cy.viewport(1280, 720);
+    cy.visit('/');
   });
 
   it('should match login page snapshot', () => {
@@ -14,31 +17,26 @@ describe('Visual Regression Tests', () => {
   });
 
   it('should match dashboard snapshot', () => {
-    cy.login();
     cy.visit('/dashboard');
     cy.percySnapshot('Dashboard Page');
   });
 
   it('should match game page snapshot', () => {
-    cy.login();
     cy.visit('/games/active');
     cy.percySnapshot('Active Games Page');
   });
 
   it('should match venue page snapshot', () => {
-    cy.login();
     cy.visit('/venues');
     cy.percySnapshot('Venues Page');
   });
 
   it('should match tournament page snapshot', () => {
-    cy.login();
     cy.visit('/tournaments');
     cy.percySnapshot('Tournaments Page');
   });
 
   it('should match profile page snapshot', () => {
-    cy.login();
     cy.visit('/profile');
     cy.percySnapshot('Profile Page');
   });
@@ -61,7 +59,6 @@ describe('Visual Regression Tests', () => {
 
       it(`should match dashboard snapshot on ${device}`, () => {
         cy.viewport(width as number, height as number);
-        cy.login();
         cy.visit('/dashboard');
         cy.percySnapshot(`Dashboard Page - ${device}`);
       });
@@ -75,7 +72,6 @@ describe('Visual Regression Tests', () => {
       cy.get('[data-testid="theme-toggle"]').click();
       cy.percySnapshot('Login Page - Dark Theme');
 
-      cy.login();
       cy.visit('/dashboard');
       cy.percySnapshot('Dashboard Page - Dark Theme');
     });
@@ -89,8 +85,6 @@ describe('Visual Regression Tests', () => {
           res.setDelay(2000);
         });
       });
-
-      cy.login();
       cy.visit('/games/active');
       cy.percySnapshot('Games Page - Loading State');
     });
@@ -104,7 +98,6 @@ describe('Visual Regression Tests', () => {
         body: { error: 'Internal Server Error' },
       });
 
-      cy.login();
       cy.visit('/games/active');
       cy.percySnapshot('Games Page - Error State');
     });

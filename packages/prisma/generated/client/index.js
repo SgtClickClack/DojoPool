@@ -902,7 +902,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -921,8 +921,8 @@ const fs = require('fs')
 config.dirname = __dirname
 if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
   const alternativePaths = [
-    "../../packages/prisma/generated/client",
-    "../packages/prisma/generated/client",
+    "packages/prisma/generated/client",
+    "prisma/generated/client",
   ]
   
   const alternativePath = alternativePaths.find((altPath) => {
@@ -951,11 +951,11 @@ Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query-engine-windows");
-path.join(process.cwd(), "../../packages/prisma/generated/client/query-engine-windows")
+path.join(process.cwd(), "packages/prisma/generated/client/query-engine-windows")
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query-engine-debian-openssl-1.1.x");
-path.join(process.cwd(), "../../packages/prisma/generated/client/query-engine-debian-openssl-1.1.x")
+path.join(process.cwd(), "packages/prisma/generated/client/query-engine-debian-openssl-1.1.x")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "../../packages/prisma/generated/client/schema.prisma")
+path.join(process.cwd(), "packages/prisma/generated/client/schema.prisma")

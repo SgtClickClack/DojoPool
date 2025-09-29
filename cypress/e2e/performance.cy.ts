@@ -2,7 +2,10 @@ import { Metrics } from 'cypress/types/lighthouse';
 
 describe('Performance Tests', () => {
   beforeEach(() => {
+    cy.login();
+    cy.interceptAllApis();
     cy.viewport(1280, 720);
+    cy.visit('/');
   });
 
   // Core page load performance
@@ -46,10 +49,6 @@ describe('Performance Tests', () => {
 
   // API Response Times
   describe('API Performance', () => {
-    beforeEach(() => {
-      cy.login();
-    });
-
     it('should load games list within performance budget', () => {
       cy.intercept('GET', '/api/games/active').as('getGames');
       cy.visit('/games/active');
@@ -71,10 +70,6 @@ describe('Performance Tests', () => {
 
   // User Interaction Performance
   describe('User Interaction Performance', () => {
-    beforeEach(() => {
-      cy.login();
-    });
-
     it('should have responsive UI interactions', () => {
       cy.visit('/dashboard');
 
