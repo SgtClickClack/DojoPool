@@ -441,7 +441,7 @@ describe('Clan Management', () => {
       cy.findByRole('button', { name: /create clan/i }).click();
 
       // Wait for timeout
-      cy.wait('createClanTimeout');
+      cy.wait('@createClanTimeout');
 
       // Verify error message
       cy.findByText(/failed to create clan/i).should('exist');
