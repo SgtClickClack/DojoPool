@@ -119,6 +119,7 @@ const RegisterPage: React.FC = () => {
             margin="normal"
             required
             disabled={loading}
+            inputProps={{ 'data-testid': 'name-input' }}
           />
           <TextField
             fullWidth
@@ -129,6 +130,7 @@ const RegisterPage: React.FC = () => {
             margin="normal"
             required
             disabled={loading}
+            inputProps={{ 'data-testid': 'email-input' }}
           />
           <TextField
             fullWidth
@@ -139,6 +141,7 @@ const RegisterPage: React.FC = () => {
             margin="normal"
             required
             disabled={loading}
+            inputProps={{ 'data-testid': 'password-input' }}
           />
           <TextField
             fullWidth
@@ -151,6 +154,7 @@ const RegisterPage: React.FC = () => {
             error={!!passwordError}
             helperText={passwordError}
             disabled={loading}
+            inputProps={{ 'data-testid': 'confirm-password-input' }}
           />
           {error && (
             <Alert severity="error" sx={{ mt: 2 }}>
@@ -163,6 +167,7 @@ const RegisterPage: React.FC = () => {
             variant="contained"
             sx={{ mt: 3 }}
             disabled={loading}
+            data-testid="signup-button"
           >
             {loading ? <CircularProgress size={24} /> : 'Sign Up'}
           </Button>

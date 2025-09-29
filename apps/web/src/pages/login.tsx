@@ -10,6 +10,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
@@ -202,6 +203,29 @@ const LoginPage: React.FC = () => {
             >
               Sign In
             </Button>
+          </Box>
+          
+          {/* Sign Up Link */}
+          <Box sx={{ textAlign: 'center', mt: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              Don't have an account?{' '}
+              <Link href="/register" data-testid="signup-link" passHref>
+                <Typography
+                  component="a"
+                  variant="body2"
+                  sx={{
+                    color: 'primary.main',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  Sign Up
+                </Typography>
+              </Link>
+            </Typography>
           </Box>
         </Paper>
       </Box>
