@@ -354,26 +354,20 @@ describe('Clan Management', () => {
       cy.wait('@session');
       cy.wait('@getUser');
 
-      // Fill minimal required fields
+      // Wait for form to be ready
+      cy.get('[data-testid="clan-name-input"]').should('be.visible');
+
+      // Fill out the Create Clan form (same as first test)
       cy.get('[data-testid="clan-name-input"]').type('Simple Test Clan');
       cy.get('[data-testid="clan-tag-input"]').type('STC');
       cy.get('[data-testid="clan-description-input"]').type(
-        'A simple test clan'
+        'A simple test clan for E2E testing'
       );
 
-      // Debug: Check if form is valid
-      cy.get('[data-testid="clan-name-input"]').should(
-        'not.have.class',
-        'Mui-error'
-      );
-      cy.get('[data-testid="clan-tag-input"]').should(
-        'not.have.class',
-        'Mui-error'
-      );
-      cy.get('[data-testid="clan-description-input"]').should(
-        'not.have.class',
-        'Mui-error'
-      );
+      // Toggle public/private setting to trigger form interaction
+      cy.findByLabelText(/public clan/i).should('be.checked');
+      cy.findByLabelText(/public clan/i).click();
+      cy.findByLabelText(/public clan/i).should('not.be.checked');
 
       // Submit form
       cy.get('[data-testid="create-clan-button"]').should('be.enabled').click();
