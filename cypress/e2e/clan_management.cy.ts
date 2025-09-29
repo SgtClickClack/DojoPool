@@ -397,6 +397,33 @@ describe('Clan Management', () => {
   // Removed remaining Clan Discovery tests
 
   describe('Clan Creation Error Handling', () => {
+    beforeEach(() => {
+      // Intercept the session call to ensure the component knows we are logged in.
+      cy.intercept('GET', '/api/auth/session', {
+        statusCode: 200,
+        body: {
+          user: { name: 'Test User', email: 'test@example.com', role: 'ADMIN' },
+          expires: '2099-12-31T23:59:59.999Z',
+        },
+      }).as('session');
+
+      // Intercept the user call that useAuth hook makes
+      cy.intercept('GET', '/api/users/me', {
+        statusCode: 200,
+        body: {
+          id: 'test-user-123',
+          name: 'Test User',
+          email: 'test@example.com',
+          role: 'ADMIN',
+        },
+      }).as('getUser');
+
+      // Set auth token in localStorage for API calls
+      cy.window().then((win) => {
+        win.localStorage.setItem('auth_token', 'mock-auth-token-for-testing');
+      });
+    });
+
     it('should handle API errors gracefully', () => {
       // Mock API error - intercept both possible URLs
       cy.intercept('POST', 'http://localhost:3001/v1/clans', {
