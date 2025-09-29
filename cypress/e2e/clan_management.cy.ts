@@ -93,6 +93,19 @@ describe('Clan Management', () => {
         },
       }).as('session');
 
+      // Intercept the user data call that useAuth makes
+      cy.intercept('GET', '/api/users/me', {
+        statusCode: 200,
+        body: {
+          id: 'test-user-1',
+          username: 'testuser',
+          email: 'test@example.com',
+          role: 'ADMIN',
+          avatar: 'avatar-1',
+          isAdmin: true,
+        },
+      }).as('getUser');
+
       // Set auth token in localStorage for API calls
       cy.window().then((win) => {
         win.localStorage.setItem('auth_token', 'mock-auth-token-for-testing');
