@@ -64,6 +64,16 @@ describe('Admin Panel Access', () => {
     resolveBaseUrl();
     cy.login();
     cy.interceptAllApis();
+
+    // Intercept the session call to ensure the component knows we are logged in.
+    cy.intercept('GET', '/api/auth/session', {
+      statusCode: 200,
+      body: {
+        user: { name: 'Admin User', email: 'admin@example.com', role: 'ADMIN' },
+        expires: '2099-12-31T23:59:59.999Z',
+      },
+    }).as('session');
+
     cy.intercept('GET', '/api/users/me', {
       statusCode: 200,
       body: adminUser,
