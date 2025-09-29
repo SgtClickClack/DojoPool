@@ -1,15 +1,57 @@
-[
-  {
-    "id": "venue-1",
-    "name": "The Jade Tiger",
-    "location": "Brisbane",
-    "status": "OPEN"
-  },
-  {
-    "id": "venue-2",
-    "name": "Cue & Cushion",
-    "location": "Los Angeles",
-    "status": "OPEN"
+{
+  "venues": [
+    {
+      "id": "venue-1",
+      "name": "The Jade Tiger",
+      "description": "A premium pool hall in the heart of Brisbane",
+      "status": "ACTIVE",
+      "address": {
+        "street": "123 Queen Street",
+        "city": "Brisbane",
+        "state": "QLD",
+        "postalCode": "4000",
+        "country": "Australia"
+      },
+      "rating": 4.5,
+      "reviewCount": 128,
+      "features": ["Tournaments", "Food", "Bar"],
+      "amenities": ["Parking", "WiFi", "Air Conditioning"],
+      "isVerified": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "venue-2",
+      "name": "Cue & Cushion",
+      "description": "Classic pool hall with tournament tables",
+      "status": "ACTIVE",
+      "address": {
+        "street": "456 Sunset Boulevard",
+        "city": "Los Angeles",
+        "state": "CA",
+        "postalCode": "90028",
+        "country": "USA"
+      },
+      "rating": 4.2,
+      "reviewCount": 89,
+      "features": ["Tournaments", "Bar"],
+      "amenities": ["Parking", "WiFi"],
+      "isVerified": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "total": 2,
+  "page": 1,
+  "totalPages": 1,
+  "filters": {
+    "search": "",
+    "city": "",
+    "state": "",
+    "hasTournaments": false,
+    "hasFood": false,
+    "hasBar": false,
+    "page": 1,
+    "limit": 12
   }
-]
-
+}
