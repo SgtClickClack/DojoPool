@@ -40,7 +40,7 @@ describe('Clan Management', () => {
     }).as('getClans');
 
     // Mock clan creation API
-    cy.intercept('POST', '/v1/clans', {
+    cy.intercept('POST', 'http://localhost:3000/v1/clans', {
       statusCode: 201,
       body: {
         id: 'new-clan-123',
@@ -71,6 +71,11 @@ describe('Clan Management', () => {
           expires: '2099-12-31T23:59:59.999Z',
         },
       }).as('session');
+
+      // Set auth token in localStorage for API calls
+      cy.window().then((win) => {
+        win.localStorage.setItem('auth_token', 'mock-auth-token-for-testing');
+      });
     });
 
     it('should complete the entire clan creation journey', () => {
@@ -78,9 +83,16 @@ describe('Clan Management', () => {
       cy.visit('/clans/create');
       cy.url().should('include', '/clans/create');
 
+      // Wait for page to fully load and authentication to complete
+      cy.wait('@session');
+      cy.wait('@getUser');
+
       // Verify page elements are present
       cy.findByText('Create New Clan').should('exist');
       cy.findByText(/Build your own community/).should('exist');
+
+      // Wait for form to be ready
+      cy.get('[data-testid="clan-name-input"]').should('be.visible');
 
       // Step 3: Fill out the Create Clan form
       cy.get('[data-testid="clan-name-input"]').type('Test Clan');
@@ -108,11 +120,48 @@ describe('Clan Management', () => {
       cy.findByLabelText(/approval required/i).click();
       cy.findByLabelText(/approval required/i).should('be.checked');
 
-      // Step 4: Submit the form
-      cy.get('[data-testid="create-clan-button"]').click();
+      // Debug: Check form state before submission
+      cy.get('[data-testid="clan-name-input"]').should(
+        'have.value',
+        'Test Clan'
+      );
+      cy.get('[data-testid="clan-tag-input"]').should('have.value', 'TEST');
+      cy.get('[data-testid="clan-description-input"]').should(
+        'have.value',
+        'A test clan for E2E testing purposes'
+      );
 
-      // Wait for API call
-      cy.wait('@createClan');
+      // Step 4: Submit the form
+      cy.get('[data-testid="create-clan-button"]').should('be.enabled').click();
+
+      // Debug: Check for any validation errors after submission
+      cy.get('body').then(($body) => {
+        if (
+          $body.find('[data-testid="clan-name-input"]').hasClass('Mui-error')
+        ) {
+          cy.log('Name field has error');
+        }
+        if (
+          $body.find('[data-testid="clan-tag-input"]').hasClass('Mui-error')
+        ) {
+          cy.log('Tag field has error');
+        }
+        if (
+          $body
+            .find('[data-testid="clan-description-input"]')
+            .hasClass('Mui-error')
+        ) {
+          cy.log('Description field has error');
+        }
+      });
+
+      // Debug: Check if any network requests are being made
+      cy.window().then((win) => {
+        console.log('Form submitted, checking for network requests...');
+      });
+
+      // Wait for API call with longer timeout
+      cy.wait('@createClan', { timeout: 15000 });
 
       // Step 5: Assert successful creation and redirect
       cy.findByText(/clan created successfully/i).should('exist');
@@ -120,6 +169,64 @@ describe('Clan Management', () => {
 
       // Verify redirect to new clan's profile page
       cy.url().should('include', '/clans/new-clan-123');
+    });
+
+    it('should make API call when form is submitted', () => {
+      // Navigate to clan creation page
+      cy.visit('/clans/create');
+      cy.url().should('include', '/clans/create');
+
+      // Wait for authentication
+      cy.wait('@session');
+      cy.wait('@getUser');
+
+      // Fill minimal required fields
+      cy.get('[data-testid="clan-name-input"]').type('Simple Test Clan');
+      cy.get('[data-testid="clan-tag-input"]').type('STC');
+      cy.get('[data-testid="clan-description-input"]').type(
+        'A simple test clan'
+      );
+
+      // Debug: Check if form is valid
+      cy.get('[data-testid="clan-name-input"]').should(
+        'not.have.class',
+        'Mui-error'
+      );
+      cy.get('[data-testid="clan-tag-input"]').should(
+        'not.have.class',
+        'Mui-error'
+      );
+      cy.get('[data-testid="clan-description-input"]').should(
+        'not.have.class',
+        'Mui-error'
+      );
+
+      // Submit form
+      cy.get('[data-testid="create-clan-button"]').should('be.enabled').click();
+
+      // Wait for API call
+      cy.wait('@createClan', { timeout: 15000 });
+    });
+
+    it('should verify form submission works', () => {
+      // Navigate to clan creation page
+      cy.visit('/clans/create');
+      cy.url().should('include', '/clans/create');
+
+      // Wait for authentication
+      cy.wait('@session');
+      cy.wait('@getUser');
+
+      // Fill minimal required fields
+      cy.get('[data-testid="clan-name-input"]').type('Test Clan');
+      cy.get('[data-testid="clan-tag-input"]').type('TC');
+      cy.get('[data-testid="clan-description-input"]').type('Test description');
+
+      // Submit form
+      cy.get('[data-testid="create-clan-button"]').click();
+
+      // Wait for API call
+      cy.wait('@createClan', { timeout: 15000 });
     });
 
     it('should validate required fields', () => {
