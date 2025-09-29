@@ -137,7 +137,7 @@ const TerritoryGameplayPage: React.FC = () => {
         setChallenges(prev => 
           prev.map(challenge => 
             challenge.id === challengeId 
-              ? { ...challenge, status: 'accepted' }
+              ? { ...challenge, status: 'Accepted' }
               : challenge
           )
         );
