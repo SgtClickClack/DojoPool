@@ -14,6 +14,7 @@ const Marker = dynamic(
   { ssr: false }
 );
 
+
 interface PlayerMarkersProps {
   playerPositions: PlayerPosition[];
   onMarkerClick: (player: PlayerPosition) => void;
@@ -44,7 +45,7 @@ const PlayerMarkers: React.FC<PlayerMarkersProps> = ({
             optimized: true,
             zIndex: selectedPlayerId === player.playerId ? 1001 : 1000,
           }}
-          animation={selectedPlayerId === player.playerId ? 'BOUNCE' : undefined}
+          animation={selectedPlayerId === player.playerId ? ('BOUNCE' as any) : undefined}
         />
       ))}
     </>

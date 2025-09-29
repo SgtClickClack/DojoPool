@@ -8,7 +8,8 @@
  * - Redis/memory store support
  */
 
-import type { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 interface RateLimitConfig {
   windowMs: number;
@@ -163,7 +164,7 @@ class RateLimiter {
     limit: number;
   }> {
     const key = generateKey(req);
-    const config = getConfigForConfig(req.nextUrl.pathname);
+    const config = getConfigForEndpoint(req.nextUrl.pathname);
     
     // Skip if configured to skip
     if (config.skip?.(req)) {
@@ -215,6 +216,7 @@ class RateLimiter {
    */
   async middleware(req: NextRequest): Promise<NextResponse | undefined> {
     const result = await this.checkLimit(req);
+    const config = getConfigForEndpoint(req.nextUrl.pathname);
     
     const response = config.handler?.(req) || NextResponse.next();
     

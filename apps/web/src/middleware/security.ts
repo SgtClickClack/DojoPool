@@ -8,7 +8,8 @@
  * - Input validation
  */
 
-import type { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 
 /**
@@ -73,7 +74,7 @@ const validateOrigin = (req: NextRequest): boolean => {
   ].filter(Boolean);
   
   return trustedDomains.some(domain => 
-    origin.includes(domain)
+    origin && domain && origin.includes(domain)
   );
 };
 

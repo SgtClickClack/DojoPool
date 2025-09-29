@@ -68,7 +68,7 @@ export const generateBlurDataUrl = (width: number = 10, height: number = 10): st
  */
 class PerformanceMonitor {
   private marks = new Map<string, number>();
-  Private measurements = new Map<string, number>();
+  private measurements = new Map<string, number>();
 
   mark(name: string): void {
     this.marks.set(name, performance.now());
@@ -221,15 +221,15 @@ export const trackRouteChange = (route: string): void => {
   };
   
   // Send metrics to analytics service
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', 'route_change', metrics);
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', 'route_change', metrics);
   }
 };
 
 /**
  * Component render performance tracking
  */
-export const trackComponentRender = (componentName: string): void => {
+export const trackComponentRender = (componentName: string) => {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value;
     

@@ -10,7 +10,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { Box, Alert } from '@mui/material';
-import { useAuthRefactored } from '@/hooks/useAuthRefactored';
+import useAuthRefactored from '@/hooks/useAuthRefactored';
 import { useMapData } from '@/hooks/useMapData';
 import { type DojoData } from '@/services/dojoService';
 import { type PlayerPosition } from '@/services/WebSocketService';

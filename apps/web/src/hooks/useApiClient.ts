@@ -81,12 +81,12 @@ class BaseApiClient {
       }
 
       return await response.json();
-    } catch (error) {
-      if (error.name === 'AbortError') {
+    } catch (error: any) {
+      if (error?.name === 'AbortError') {
         throw new Error('Request timeout');
       }
       
-      if (retryCount < this.retries && !error.message.includes('Unauthorized')) {
+      if (retryCount < this.retries && !error?.message?.includes('Unauthorized')) {
         await this.sleep(1000 * (retryCount + 1));
         return this.makeRequest<T>(endpoint, options, retryCount + 1);
       }
@@ -158,8 +158,8 @@ export const useApiClient = (options: ApiClientOptions = {}) => {
       let headers: Record<string, string> = {};
       
       // Add auth header if session exists
-      if (session?.accessToken) {
-        headers.Authorization = `Bearer ${session.accessToken}`;
+      if (session && (session as any)?.accessToken) {
+        headers.Authorization = `Bearer ${(session as any).accessToken}`;
       }
       
       const data = await requestFn();

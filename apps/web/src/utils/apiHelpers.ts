@@ -46,7 +46,7 @@ export const handleApiError = (error: unknown): string => {
       return 'Resource not found.';
     }
     
-    if (error.response?.status >= 500) {
+    if (error.response?.status && error.response.status >= 500) {
       return 'Server error. Please try again later.';
     }
     
@@ -189,7 +189,7 @@ export const retryRequest = async <T>(
   maxRetries: number = 3,
   delay: number = 1000
 ): Promise<T> => {
-  let lastError: Error;
+  let lastError: Error | undefined;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -205,7 +205,7 @@ export const retryRequest = async <T>(
     }
   }
   
-  throw lastError;
+  throw lastError || new Error('Unexpected retry failure');
 };
 
 /**

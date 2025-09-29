@@ -67,7 +67,7 @@ export function createLazyComponent<T extends ComponentType<any>>({
   ...otherOptions
 }: LazyComponentOptions = {}) {
   return function lazyWrapper<TProps extends object>(
-    importFunc: () => Promise<{ default: T }>,
+    importFunc: () => Promise<any>,
     componentName?: string
   ) {
     const LazyComponent = React.lazy(async () => {
@@ -105,35 +105,42 @@ export function createLazyComponent<T extends ComponentType<any>>({
     });
 
     const WrappedComponent = React.forwardRef<any, React.ComponentProps<T>>(
-      (props, ref) => (
-        <ErrorBoundaryComponent
-          fallback={
-            <Alert severity="error" sx={{ margin: 2 }}>
-              Failed to load {componentName || 'component'}. Please refresh the
-              page.
-            </Alert>
-          }
-        >
-          <Suspense
-            fallback={
-              FallbackComponent ? (
-                <FallbackComponent />
-              ) : (
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  minHeight="200px"
-                >
-                  <CircularProgress />
-                </Box>
-              )
-            }
+      (props, ref) => {
+        const errorFallback = (
+          <Alert severity="error" sx={{ margin: 2 }}>
+            Failed to load {componentName || 'component'}. Please refresh the
+            page.
+          </Alert>
+        );
+
+        // Check if we're using the default ErrorBoundary or a custom one
+        const isDefaultErrorBoundary = ErrorBoundaryComponent === ErrorBoundary;
+        
+        return (
+          <ErrorBoundaryComponent
+            {...(isDefaultErrorBoundary ? { fallback: errorFallback } : {})}
           >
-            <LazyComponent {...props} ref={ref} />
-          </Suspense>
-        </ErrorBoundaryComponent>
-      )
+            <Suspense
+              fallback={
+                FallbackComponent ? (
+                  <FallbackComponent />
+                ) : (
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    minHeight="200px"
+                  >
+                    <CircularProgress />
+                  </Box>
+                )
+              }
+            >
+              {React.createElement(LazyComponent, { ...props, ref })}
+            </Suspense>
+          </ErrorBoundaryComponent>
+        );
+      }
     );
 
     WrappedComponent.displayName = `LazyLoaded${componentName || 'Component'}`;
@@ -277,7 +284,7 @@ export const LazyDashboard = createLazyHeavyComponent(
 );
 
 export const LazyInventory = createLazyHeavyComponent(
-  () => import('@/components/Inventory/InventoryLayout'),
+  () => import('@/components/Inventory/InventoryLayout').then(module => ({ default: module.InventoryLayout })),
   'InventoryLayout'
 );
 

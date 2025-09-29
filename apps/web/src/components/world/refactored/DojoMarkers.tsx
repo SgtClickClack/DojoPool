@@ -42,7 +42,6 @@ const DojoMarkers: React.FC<DojoMarkersProps> = ({
           icon={getMarkerIcon(dojo)}
           onClick={() => handleMarkerClick(dojo)}
           zIndex={selectedDojoId === dojo.id ? 1000 : undefined}
-          optimized={true}
         />
       ))}
     </>

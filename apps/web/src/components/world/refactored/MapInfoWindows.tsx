@@ -65,7 +65,7 @@ const MapInfoWindows: React.FC<MapInfoWindowsProps> = ({
           <DojoInfoWindow
             dojo={selectedDojo}
             isRival={isRival}
-            isLeader={isLeader}
+            isLeader={isLeader ?? false}
             onClose={onCloseInfoWindow}
             onChallenge={onChallengeDojo}
             onViewDetails={onViewDojoDetails}
