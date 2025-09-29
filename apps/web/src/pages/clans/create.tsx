@@ -223,7 +223,7 @@ const CreateClanPage: React.FC = () => {
 
               <FormControlLabel
                 control={
-                  <Radio
+                  <Checkbox
                     checked={formData.invitationOnly}
                     onChange={(e) =>
                       handleChange('invitationOnly', e.target.checked)
@@ -237,7 +237,7 @@ const CreateClanPage: React.FC = () => {
 
               <FormControlLabel
                 control={
-                  <Radio
+                  <Checkbox
                     checked={formData.approvalRequired}
                     onChange={(e) =>
                       handleChange('approvalRequired', e.target.checked)
