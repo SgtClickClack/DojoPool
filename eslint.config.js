@@ -133,6 +133,7 @@ export default [
       'lcov-report/**',
       '**/lcov-report/**/*',
       'cypress/**',
+      'cypress.config.js',
       'DojoPoolCombined/**/*',
       'DojoPool*/**/*',
       'Dojo_Pool*/**/*',
