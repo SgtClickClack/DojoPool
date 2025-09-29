@@ -112,6 +112,7 @@ describe('Territory Gameplay E2E Tests', () => {
 
     // Navigate to challenges
     cy.get('[data-testid="challenges-tab"]').click();
+    cy.wait('@getUserChallenges');
 
     // Accept challenge
     cy.get('[data-testid="accept-challenge-button"]').first().click();
