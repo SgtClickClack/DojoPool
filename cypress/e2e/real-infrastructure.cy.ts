@@ -30,17 +30,23 @@ describe('Real Infrastructure E2E Tests', () => {
     cy.visit('/login');
 
     // Check if login form is present
-    cy.get('input[type="email"]').should('be.visible');
-    cy.get('input[type="password"]').should('be.visible');
+    cy.get('[data-testid="login-email-input"]').should('be.visible');
+    cy.get('[data-testid="login-password-input"]').should('be.visible');
     cy.get('button[type="submit"]').should('be.visible');
 
     // Test form interaction
-    cy.get('input[type="email"]').type('test@example.com');
-    cy.get('input[type="password"]').type('password123');
+    cy.get('[data-testid="login-email-input"]').type('test@example.com');
+    cy.get('[data-testid="login-password-input"]').type('password123');
 
     // Verify form values
-    cy.get('input[type="email"]').should('have.value', 'test@example.com');
-    cy.get('input[type="password"]').should('have.value', 'password123');
+    cy.get('[data-testid="login-email-input"]').should(
+      'have.value',
+      'test@example.com'
+    );
+    cy.get('[data-testid="login-password-input"]').should(
+      'have.value',
+      'password123'
+    );
   });
 
   it('should load dashboard without errors', () => {
