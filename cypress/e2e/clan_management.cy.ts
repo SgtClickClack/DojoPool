@@ -398,22 +398,45 @@ describe('Clan Management', () => {
 
   describe('Clan Creation Error Handling', () => {
     it('should handle API errors gracefully', () => {
-      // Mock API error
-      cy.intercept('POST', '/v1/clans', {
+      // Mock API error - intercept both possible URLs
+      cy.intercept('POST', 'http://localhost:3001/v1/clans', {
         statusCode: 500,
         body: { error: 'Internal server error' },
       }).as('createClanError');
 
+      cy.intercept('POST', '/v1/clans', {
+        statusCode: 500,
+        body: { error: 'Internal server error' },
+      }).as('createClanErrorRelative');
+
       cy.visit('/clans/create');
 
-      // Fill form
-      cy.findByLabelText(/clan name/i).type('Error Test Clan');
-      cy.findByLabelText(/clan tag/i).type('ERR');
-      cy.findByLabelText(/description/i).type('Testing error handling');
-      cy.findByRole('button', { name: /create clan/i }).click();
+      // Wait for authentication
+      cy.wait('@session');
+      cy.wait('@getUser');
 
-      // Wait for error response
-      cy.wait('@createClanError');
+      // Wait for form to be ready
+      cy.get('[data-testid="clan-name-input"]').should('be.visible');
+
+      // Fill out the form (same pattern as working test)
+      cy.get('[data-testid="clan-name-input"]').type('Error Test Clan');
+      cy.get('[data-testid="clan-tag-input"]').type('ERR');
+      cy.get('[data-testid="clan-description-input"]').type(
+        'Testing error handling'
+      );
+
+      // Toggle public/private setting to trigger form interaction
+      cy.findByLabelText(/public clan/i).should('be.checked');
+      cy.findByLabelText(/public clan/i).click();
+      cy.findByLabelText(/private clan/i).should('be.checked');
+
+      // Submit the form
+      cy.get('[data-testid="create-clan-button"]').click();
+
+      // Wait for error response - try both intercepts
+      cy.wait(['@createClanError', '@createClanErrorRelative'], {
+        timeout: 15000,
+      });
 
       // Verify error message
       cy.findByText(/failed to create clan/i).should('exist');
