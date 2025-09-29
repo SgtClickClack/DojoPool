@@ -17,7 +17,7 @@ describe('Clan Management', () => {
     }).as('getUser');
 
     // Mock clans API
-    cy.intercept('GET', '/api/v1/clans*', {
+    cy.intercept('GET', '/v1/clans*', {
       statusCode: 200,
       body: [
         {
@@ -40,7 +40,7 @@ describe('Clan Management', () => {
     }).as('getClans');
 
     // Mock clan creation API
-    cy.intercept('POST', '/api/v1/clans', {
+    cy.intercept('POST', '/v1/clans', {
       statusCode: 201,
       body: {
         id: 'new-clan-123',
@@ -226,7 +226,7 @@ describe('Clan Management', () => {
   describe('Clan Creation Error Handling', () => {
     it('should handle API errors gracefully', () => {
       // Mock API error
-      cy.intercept('POST', '/api/v1/clans', {
+      cy.intercept('POST', '/v1/clans', {
         statusCode: 500,
         body: { error: 'Internal server error' },
       }).as('createClanError');
@@ -248,7 +248,7 @@ describe('Clan Management', () => {
 
     it('should handle network timeouts', () => {
       // Mock network timeout
-      cy.intercept('POST', '/api/v1/clans', {
+      cy.intercept('POST', '/v1/clans', {
         forceNetworkError: true,
       }).as('createClanTimeout');
 
