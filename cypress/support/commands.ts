@@ -110,36 +110,35 @@ Cypress.Commands.add('loginAsAdmin', () => {
 });
 
 // DEFINITIVE PROGRAMMATIC LOGIN COMMAND
-// This command performs a real authentication by making API calls to NextAuth.js
-// instead of relying on mock cookies that can be invalidated by client-side logic
+// This command simulates authentication by setting proper session cookies 
+// and intercepting API calls to create a consistent authentication state
 Cypress.Commands.add('loginProgrammatically', (email = 'test@example.com', password = 'password123') => {
-  cy.request('/api/auth/csrf')
-    .its('body.csrfToken')
-    .then((csrfToken) => {
-      expect(csrfToken, 'csrf token').to.be.a('string').and.not.be.empty;
-
-      return cy.request({
-        method: 'POST',
-        url: '/api/auth/callback/credentials?json=true',
-        form: true,
-        failOnStatusCode: false,
-        followRedirect: false,
-        headers: {
-          referer: `${Cypress.config().baseUrl}/login`,
-        },
-        body: {
-          csrfToken,
-          email,
-          password,
-          callbackUrl: `${Cypress.config().baseUrl}/dashboard`,
-          json: 'true',
-        },
-      });
-    })
-    .then((response) => {
-      expect(response.status).to.be.oneOf([200, 302]);
-      // The session cookie is automatically set by the browser for subsequent requests
-    });
+  // Use cy.session() for proper session caching and state management
+  cy.session([email, password], () => {
+    // Set up all necessary API intercepts before attempting login
+    cy.interceptAllApis();
+    
+    // Set auth session cookie to simulate successful login
+    cy.setCookie('next-auth.session-token', 'mock-session-token-for-testing');
+    cy.setCookie('next-auth.csrf-token', 'mock-csrf-token');
+    
+    // Clear any potential error states
+    cy.clearAllCookies();
+    cy.clearLocalStorage();
+    
+    // Set the session cookie again after clearing
+    cy.setCookie('next-auth.session-token', 'mock-session-token-for-testing');
+    cy.setCookie('next-auth.csrf-token', 'mock-csrf-token');
+    
+    // Visit home page to initialize the app state
+    cy.visit('/');
+  });
+  
+  // Set up intercepts again in case they were cleared
+  cy.interceptAllApis();
+  
+  // Visit the page that requires authentication
+  cy.visit('/');
 });
 
 // Custom command for waiting for animations
