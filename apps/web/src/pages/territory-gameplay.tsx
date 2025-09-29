@@ -107,7 +107,7 @@ const TerritoryGameplayPage: React.FC = () => {
       });
       
       if (response.ok) {
-        setChallengeNotification('Challenge created successfully!');
+        setChallengeNotification('Challenge sent');
         setChallengeDialogOpen(false);
         setSelectedTerritory(null);
       } else {
