@@ -6,8 +6,8 @@ describe('Real Infrastructure E2E Tests', () => {
   });
 
   it('should connect to real database and load venues', () => {
-    // Set up API intercept for venues
-    cy.intercept('GET', '/api/v1/venues', { fixture: 'venues.json' }).as(
+    // Set up API intercept for venues with query parameters
+    cy.intercept('GET', '/api/v1/venues*', { fixture: 'venues.json' }).as(
       'getVenues'
     );
 
