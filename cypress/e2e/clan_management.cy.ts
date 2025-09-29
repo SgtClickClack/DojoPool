@@ -72,9 +72,9 @@ describe('Clan Management', () => {
       cy.findByText(/Build your own community/).should('exist');
 
       // Step 3: Fill out the Create Clan form
-      cy.findByLabelText(/clan name/i).type('Test Clan');
-      cy.findByLabelText(/clan tag/i).type('TEST');
-      cy.findByLabelText(/description/i).type(
+      cy.get('[data-testid="clan-name-input"]').type('Test Clan');
+      cy.get('[data-testid="clan-tag-input"]').type('TEST');
+      cy.get('[data-testid="clan-description-input"]').type(
         'A test clan for E2E testing purposes'
       );
 
@@ -84,10 +84,10 @@ describe('Clan Management', () => {
       cy.findByLabelText(/public clan/i).should('not.be.checked');
 
       // Set minimum rating requirement
-      cy.findByLabelText(/minimum rating/i).type('1500');
+      cy.get('[data-testid="min-rating-input"]').type('1500');
 
       // Set minimum level requirement
-      cy.findByLabelText(/minimum level/i).type('10');
+      cy.get('[data-testid="min-level-input"]').type('10');
 
       // Enable invitation only
       cy.findByLabelText(/invitation only/i).click();
@@ -98,7 +98,7 @@ describe('Clan Management', () => {
       cy.findByLabelText(/approval required/i).should('be.checked');
 
       // Step 4: Submit the form
-      cy.findByRole('button', { name: /create clan/i }).click();
+      cy.get('[data-testid="create-clan-button"]').click();
 
       // Wait for API call
       cy.wait('@createClan');
