@@ -1,10 +1,7 @@
 import ProtectedRoute from '@/components/Common/ProtectedRoute';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  createGame,
-  getPlayers,
-  type CreateGameRequest,
-} from '@/services/APIService';
+import { createGame, getPlayers } from '@/services/APIService';
+import type { CreateGameRequest } from '@/types/game';
 import { GameType } from '@/types/gameSession';
 import type { UserProfile } from '@/types/user';
 import {
@@ -78,10 +75,7 @@ const NewGamePage: React.FC = () => {
     void loadPlayers();
   }, [loadPlayers]);
 
-  const handleChange = (
-    field: keyof GameFormState,
-    value: string
-  ) => {
+  const handleChange = (field: keyof GameFormState, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -136,7 +130,8 @@ const NewGamePage: React.FC = () => {
           Set Up a New Game
         </Typography>
         <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-          Challenge rivals, choose your format, and make it interesting with optional wagers.
+          Challenge rivals, choose your format, and make it interesting with
+          optional wagers.
         </Typography>
 
         <Paper elevation={3} sx={{ mt: 4, p: { xs: 3, md: 4 } }}>
@@ -193,7 +188,9 @@ const NewGamePage: React.FC = () => {
                   >
                     <MenuItem value={GameType.EIGHT_BALL}>8-Ball</MenuItem>
                     <MenuItem value={GameType.NINE_BALL}>9-Ball</MenuItem>
-                    <MenuItem value={GameType.STRAIGHT_POOL}>Straight Pool</MenuItem>
+                    <MenuItem value={GameType.STRAIGHT_POOL}>
+                      Straight Pool
+                    </MenuItem>
                     <MenuItem value={GameType.BANK_POOL}>Bank Pool</MenuItem>
                     <MenuItem value={GameType.ONE_POCKET}>One Pocket</MenuItem>
                   </Select>
@@ -207,7 +204,9 @@ const NewGamePage: React.FC = () => {
                   type="number"
                   inputProps={{ min: 0, step: 1 }}
                   value={formState.wager}
-                  onChange={(event) => handleChange('wager', event.target.value)}
+                  onChange={(event) =>
+                    handleChange('wager', event.target.value)
+                  }
                   data-testid="wager-input"
                 />
               </Grid>
@@ -218,7 +217,9 @@ const NewGamePage: React.FC = () => {
                   label="Preferred Venue"
                   placeholder="Optional — enter venue ID or name"
                   value={formState.venueId}
-                  onChange={(event) => handleChange('venueId', event.target.value)}
+                  onChange={(event) =>
+                    handleChange('venueId', event.target.value)
+                  }
                   data-testid="venue-input"
                 />
               </Grid>
@@ -229,7 +230,9 @@ const NewGamePage: React.FC = () => {
                   label="Match Notes"
                   placeholder="Add additional rules, stipulations, or pre-game hype"
                   value={formState.notes}
-                  onChange={(event) => handleChange('notes', event.target.value)}
+                  onChange={(event) =>
+                    handleChange('notes', event.target.value)
+                  }
                   multiline
                   minRows={3}
                   data-testid="notes-input"
@@ -261,7 +264,9 @@ const NewGamePage: React.FC = () => {
                 variant="contained"
                 size="large"
                 disabled={
-                  loadingPlayers || availableOpponents.length === 0 || isSubmitting
+                  loadingPlayers ||
+                  availableOpponents.length === 0 ||
+                  isSubmitting
                 }
                 data-testid="create-game-submit"
               >
@@ -286,4 +291,3 @@ const NewGamePage: React.FC = () => {
 };
 
 export default NewGamePage;
-

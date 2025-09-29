@@ -1,3 +1,5 @@
+import { GameType } from './gameSession';
+
 export interface Game {
   id: string;
   player1Id: string;
