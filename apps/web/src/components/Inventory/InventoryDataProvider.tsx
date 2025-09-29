@@ -168,7 +168,7 @@ export const InventoryDataProvider: React.FC<InventoryDataProviderProps> = ({
       const loadoutData = await APIService.getPlayerLoadout(user!.id);
       setLoadout(loadoutData as PlayerLoadout | null);
     } catch (err) {
-      console.error('Failed to fetch inventory data:', err);
+      // Error handled by setError
       setError('Failed to load inventory data');
     } finally {
       setLoading(false);

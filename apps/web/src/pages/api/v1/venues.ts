@@ -29,7 +29,7 @@ export default async function handler(
 
     res.status(response.status).json(data);
   } catch (error) {
-    console.error('Venues API proxy error:', error);
+    // Error logged by Next.js error handling
     res.status(500).json({ error: 'Internal server error' });
   }
 }

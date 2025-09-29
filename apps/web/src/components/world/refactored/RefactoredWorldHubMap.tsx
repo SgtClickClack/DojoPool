@@ -80,22 +80,18 @@ const useMapInteractions = () => {
  */
 const useMapActions = (user: any) => {
   const handleChallengeDojo = useCallback((dojoId: string) => {
-    console.log('Challenging dojo:', dojoId, 'as user:', user?.id);
     // TODO: Implement actual challenge logic
   }, [user?.id]);
 
   const handleViewDojoDetails = useCallback((dojoId: string) => {
-    console.log('Viewing dojo details:', dojoId);
     // TODO: Implement navigation to dojo details page
   }, []);
 
   const handleChallengePlayer = useCallback((playerId: string) => {
-    console.log('Challenging player:', playerId, 'as user:', user?.id);
     // TODO: Implement actual challenge logic
   }, [user?.id]);
 
   const handleViewPlayerProfile = useCallback((playerId: string) => {
-    console.log('Viewing player profile:', playerId);
     // TODO: Implement navigation to player profile page
   }, []);
 

@@ -1,363 +1,442 @@
 /**
  * Performance Utilities
  * 
- * Provides comprehensive performance optimization tools:
- * - Image optimization
- * - Bundle analysis
- * - Performance monitoring
- * - Resource bundling
+ * Comprehensive performance monitoring, optimization, and analysis tools
+ * for the Dojo Pool application.
  */
 
-import { getEnvConfig } from './apiHelpers';
+import { useEffect, useRef, useCallback, useState } from 'react';
 
 /**
- * Image optimization configuration
+ * Performance monitoring class
  */
-interface ImageOptimizationConfig {
-  quality?: number;
-  format?: 'webp' | 'avif' | 'jpeg' | 'png';
-  width?: number;
-  height?: number;
-  blurDataUrl?: string;
-  placeholder?: 'blur' | 'empty';
+export class PerformanceMonitor {
+  private static instance: PerformanceMonitor;
+  private metrics: Map<string, number[]> = new Map();
+  private observers: PerformanceObserver[] = [];
+
+  static getInstance(): PerformanceMonitor {
+    if (!PerformanceMonitor.instance) {
+      PerformanceMonitor.instance = new PerformanceMonitor();
+    }
+    return PerformanceMonitor.instance;
+  }
+
+  /**
+   * Start performance monitoring
+   */
+  startMonitoring(): void {
+    if (typeof window === 'undefined') return;
+
+    // Monitor navigation timing
+    this.observeNavigationTiming();
+    
+    // Monitor resource timing
+    this.observeResourceTiming();
+    
+    // Monitor long tasks
+    this.observeLongTasks();
+    
+    // Monitor layout shifts
+    this.observeLayoutShifts();
+  }
+
+  /**
+   * Stop performance monitoring
+   */
+  stopMonitoring(): void {
+    this.observers.forEach(observer => observer.disconnect());
+    this.observers = [];
+  }
+
+  /**
+   * Record a custom metric
+   */
+  recordMetric(name: string, value: number): void {
+    if (!this.metrics.has(name)) {
+      this.metrics.set(name, []);
+    }
+    this.metrics.get(name)!.push(value);
+  }
+
+  /**
+   * Get performance metrics
+   */
+  getMetrics(): Record<string, { avg: number; min: number; max: number; count: number }> {
+    const result: Record<string, { avg: number; min: number; max: number; count: number }> = {};
+    
+    this.metrics.forEach((values, name) => {
+      if (values.length > 0) {
+        const sum = values.reduce((a, b) => a + b, 0);
+        result[name] = {
+          avg: sum / values.length,
+          min: Math.min(...values),
+          max: Math.max(...values),
+          count: values.length,
+        };
+      }
+    });
+    
+    return result;
+  }
+
+  /**
+   * Clear all metrics
+   */
+  clearMetrics(): void {
+    this.metrics.clear();
+  }
+
+  private observeNavigationTiming(): void {
+    if (typeof window === 'undefined' || !('PerformanceObserver' in window)) return;
+
+    try {
+      const observer = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        entries.forEach((entry) => {
+          if (entry.entryType === 'navigation') {
+            const navEntry = entry as PerformanceNavigationTiming;
+            this.recordMetric('domContentLoaded', navEntry.domContentLoadedEventEnd - navEntry.domContentLoadedEventStart);
+            this.recordMetric('loadComplete', navEntry.loadEventEnd - navEntry.loadEventStart);
+            this.recordMetric('firstByte', navEntry.responseStart - navEntry.requestStart);
+          }
+        });
+      });
+      
+      observer.observe({ entryTypes: ['navigation'] });
+      this.observers.push(observer);
+    } catch (error) {
+      console.warn('Failed to observe navigation timing:', error);
+    }
+  }
+
+  private observeResourceTiming(): void {
+    if (typeof window === 'undefined' || !('PerformanceObserver' in window)) return;
+
+    try {
+      const observer = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        entries.forEach((entry) => {
+          if (entry.entryType === 'resource') {
+            const resourceEntry = entry as PerformanceResourceTiming;
+            this.recordMetric('resourceLoadTime', resourceEntry.responseEnd - resourceEntry.requestStart);
+          }
+        });
+      });
+      
+      observer.observe({ entryTypes: ['resource'] });
+      this.observers.push(observer);
+    } catch (error) {
+      console.warn('Failed to observe resource timing:', error);
+    }
+  }
+
+  private observeLongTasks(): void {
+    if (typeof window === 'undefined' || !('PerformanceObserver' in window)) return;
+
+    try {
+      const observer = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        entries.forEach((entry) => {
+          if (entry.entryType === 'longtask') {
+            this.recordMetric('longTaskDuration', entry.duration);
+          }
+        });
+      });
+      
+      observer.observe({ entryTypes: ['longtask'] });
+      this.observers.push(observer);
+    } catch (error) {
+      console.warn('Failed to observe long tasks:', error);
+    }
+  }
+
+  private observeLayoutShifts(): void {
+    if (typeof window === 'undefined' || !('PerformanceObserver' in window)) return;
+
+    try {
+      const observer = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        entries.forEach((entry) => {
+          if (entry.entryType === 'layout-shift' && !(entry as any).hadRecentInput) {
+            this.recordMetric('layoutShift', (entry as any).value);
+          }
+        });
+      });
+      
+      observer.observe({ entryTypes: ['layout-shift'] });
+      this.observers.push(observer);
+    } catch (error) {
+      console.warn('Failed to observe layout shifts:', error);
+    }
+  }
 }
 
 /**
- * Optimize image URL for Next.js Image component
+ * Hook for measuring component render performance
  */
-export const optimizeImageUrl = (
-  src: string,
-  config: ImageOptimizationConfig = {}
-): string => {
-  const {
-    quality = 75,
-    format = 'webp',
-    width,
-    height,
-    blurDataUrl,
-  } = config;
+export const useRenderPerformance = (componentName: string) => {
+  const renderStart = useRef<number>(Date.now());
+  const renderCount = useRef<number>(0);
 
-  // For external URLs, use Next.js Image optimization
-  if (src.startsWith('http')) {
-    const params = new URLSearchParams();
+  useEffect(() => {
+    const renderEnd = Date.now();
+    const renderTime = renderEnd - renderStart.current;
+    renderCount.current += 1;
+
+    // Record render performance
+    const monitor = PerformanceMonitor.getInstance();
+    monitor.recordMetric(`${componentName}_render`, renderTime);
+
+    // Warn about slow renders
+    if (renderTime > 16) { // 60fps threshold
+      console.warn(`[Performance] ${componentName} render took ${renderTime}ms (target: <16ms)`);
+    }
+
+    // Update start time for next render
+    renderStart.current = renderEnd;
+  });
+
+  return {
+    renderCount: renderCount.current,
+    getAverageRenderTime: () => {
+      const monitor = PerformanceMonitor.getInstance();
+      const metrics = monitor.getMetrics();
+      return metrics[`${componentName}_render`]?.avg || 0;
+    },
+  };
+};
+
+/**
+ * Hook for measuring API call performance
+ */
+export const useApiPerformance = () => {
+  const measureApiCall = useCallback(async <T>(
+    apiCall: () => Promise<T>,
+    endpoint: string
+  ): Promise<T> => {
+    const startTime = performance.now();
     
-    if (width) params.set('w', width.toString());
-    if (height) params.set('h', height.toString());
-    params.set('q', quality.toString());
-    params.set('f', format);
+    try {
+      const result = await apiCall();
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      
+      // Record API performance
+      const monitor = PerformanceMonitor.getInstance();
+      monitor.recordMetric(`api_${endpoint}`, duration);
+      
+      // Warn about slow API calls
+      if (duration > 1000) { // 1 second threshold
+        console.warn(`[Performance] API call to ${endpoint} took ${duration}ms`);
+      }
+      
+      return result;
+    } catch (error) {
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      
+      // Record failed API performance
+      const monitor = PerformanceMonitor.getInstance();
+      monitor.recordMetric(`api_${endpoint}_error`, duration);
+      
+      throw error;
+    }
+  }, []);
+
+  return { measureApiCall };
+};
+
+/**
+ * Hook for measuring memory usage
+ */
+export const useMemoryUsage = () => {
+  const [memoryInfo, setMemoryInfo] = useState<{
+    used: number;
+    total: number;
+    limit: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('memory' in performance)) return;
+
+    const updateMemoryInfo = () => {
+      const memory = (performance as any).memory;
+      if (memory) {
+        setMemoryInfo({
+          used: memory.usedJSHeapSize,
+          total: memory.totalJSHeapSize,
+          limit: memory.jsHeapSizeLimit,
+        });
+      }
+    };
+
+    // Update memory info every 5 seconds
+    const interval = setInterval(updateMemoryInfo, 5000);
+    updateMemoryInfo(); // Initial update
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return memoryInfo;
+};
+
+/**
+ * Hook for measuring bundle size impact
+ */
+export const useBundleAnalysis = () => {
+  const analyzeBundleImport = useCallback(async (modulePath: string) => {
+    const startTime = performance.now();
     
-    return `/api/_next/image?url=${encodeURIComponent(src)}&${params.toString()}`;
+    try {
+      const module = await import(modulePath);
+      const endTime = performance.now();
+      const loadTime = endTime - startTime;
+      
+      // Record bundle load performance
+      const monitor = PerformanceMonitor.getInstance();
+      monitor.recordMetric(`bundle_${modulePath}`, loadTime);
+      
+      return { module, loadTime };
+    } catch (error) {
+      console.error(`Failed to load module ${modulePath}:`, error);
+      throw error;
+    }
+  }, []);
+
+  return { analyzeBundleImport };
+};
+
+/**
+ * Service Worker manager for performance optimization
+ */
+export class ServiceWorkerManager {
+  private static instance: ServiceWorkerManager;
+  private sw: ServiceWorker | null = null;
+
+  static getInstance(): ServiceWorkerManager {
+    if (!ServiceWorkerManager.instance) {
+      ServiceWorkerManager.instance = new ServiceWorkerManager();
+    }
+    return ServiceWorkerManager.instance;
   }
+
+  async register(): Promise<void> {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      this.sw = registration.active;
+      
+      console.log('Service Worker registered successfully');
+    } catch (error) {
+      console.error('Service Worker registration failed:', error);
+    }
+  }
+
+  async unregister(): Promise<void> {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map(registration => registration.unregister()));
+      this.sw = null;
+      
+      console.log('Service Worker unregistered successfully');
+    } catch (error) {
+      console.error('Service Worker unregistration failed:', error);
+    }
+  }
+
+  isSupported(): boolean {
+    return typeof window !== 'undefined' && 'serviceWorker' in navigator;
+  }
+}
+
+/**
+ * Image optimization utilities
+ */
+export const optimizeImage = (src: string, options: {
+  width?: number;
+  height?: number;
+  quality?: number;
+  format?: 'webp' | 'avif' | 'jpeg' | 'png';
+} = {}): string => {
+  const { width, height, quality = 80, format = 'webp' } = options;
   
+  // For Next.js Image component, return the original src
+  // The optimization will be handled by Next.js
   return src;
 };
 
 /**
- * Generate blur data URL for image placeholders
+ * Lazy loading utility with Intersection Observer
  */
-export const generateBlurDataUrl = (width: number = 10, height: number = 10): string => {
-  const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-    <rect width="100%" height="100%" fill="#f0f0f0"/>
-  </svg>`;
-  
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
-};
+export const useLazyLoading = (threshold = 0.1) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLElement>(null);
 
-/**
- * Performance monitoring utilities
- */
-class PerformanceMonitor {
-  private marks = new Map<string, number>();
-  private measurements = new Map<string, number>();
-
-  mark(name: string): void {
-    this.marks.set(name, performance.now());
-  }
-
-  measure(name: string, startMark?: string): number {
-    const startTime = startMark ? this.marks.get(startMark) : 0;
-    const endTime = performance.now();
-    const duration = endTime - (startTime || 0);
-    
-    this.measurements.set(name, duration);
-    return duration;
-  }
-
-  getMeasurement(name: string): number | undefined {
-    return this.measurements.get(name);
-  }
-
-  getAllMeasurements(): Record<string, number> {
-    return Object.fromEntries(this.measurements);
-  }
-
-  clear(): void {
-    this.marks.clear();
-    this.measurements.clear();
-  }
-}
-
-export const performanceMonitor = new PerformanceMonitor();
-
-/**
- * Bundle size analysis utilities
- */
-export const analyzeBundleImport = async (
-  moduleName: string
-): Promise<{ size: number; modules: string[] }> => {
-  try {
-    // This would typically use webpack-bundle-analyzer or similar
-    // For now, return estimated values
-    const estimatedSize = moduleName.includes('heavy') ? 500 : 100;
-    
-    return {
-      size: estimatedSize,
-      modules: [moduleName],
-    };
-  } catch (error) {
-    console.warn(`Failed to analyze bundle for ${moduleName}:`, error);
-    return { size: 0, modules: [] };
-  }
-};
-
-/**
- * Resource preloading utilities
- */
-export const preloadResource = (url: string, type: 'fetch' | 'image' | 'script'): void => {
-  const link = document.createElement('link');
-  link.rel = 'preload';
-  link.href = url;
-  
-  switch (type) {
-    case 'fetch':
-      link.as = 'fetch';
-      link.crossOrigin = 'anonymous';
-      break;
-    case 'image':
-      link.as = 'image';
-      break;
-    case 'script':
-      link.as = 'script';
-      break;
-  }
-  
-  document.head.appendChild(link);
-};
-
-/**
- * Service Worker utilities for performance
- */
-export class ServiceWorkerManager {
-  private isSupported = 'serviceWorker' in navigator;
-  private registration: ServiceWorkerRegistration | null = null;
-
-  async register(swPath: string): Promise<ServiceWorkerRegistration | null> {
-    if (!this.isSupported) return null;
-
-    try {
-      this.registration = await navigator.serviceWorker.register(swPath);
-      console.log('Service Worker registered:', this.registration);
-      return this.registration;
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
-      return null;
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+      setIsVisible(true);
+      return;
     }
-  }
 
-  async unregister(): Promise<boolean> {
-    if (!this.registration) return false;
-
-    try {
-      await this.registration.unregister();
-      this.registration = null;
-      return true;
-    } catch (error) {
-      console.error('Service Worker unregistration failed:', error);
-      return false;
-    }
-  }
-
-  getRegistration(): ServiceWorkerRegistration | null {
-    return this.registration;
-  }
-
-  isRegistered(): boolean {
-    return this.registration !== null;
-  }
-}
-
-export const swManager = new ServiceWorkerManager();
-
-/**
- * Memory usage monitoring
- */
-export const getMemoryInfo = (): {
-  used: number;
-  total: number;
-  limit: number;
-} | null => {
-  if ('memory' in performance) {
-    const memory = (performance as any).memory;
-    return {
-      used: memory.usedJSHeapSize / 1024 / 1024, // MB
-      total: memory.totalJSHeapSize / 1024 / 1024, // MB  
-      limit: memory.jsHeapSizeLimit / 1024 / 1024, // MB
-    };
-  }
-  
-  return null;
-};
-
-/**
- * Route change performance tracking
- */
-export const trackRouteChange = (route: string): void => {
-  performanceMonitor.mark(`route-${route}`);
-  
-  const metrics = {
-    route,
-    timestamp: Date.now(),
-    memory: getMemoryInfo(),
-  };
-  
-  // Send metrics to analytics service
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    (window as any).gtag('event', 'route_change', metrics);
-  }
-};
-
-/**
- * Component render performance tracking
- */
-export const trackComponentRender = (componentName: string) => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-    const originalMethod = descriptor.value;
-    
-    descriptor.value = function (...args: any[]) {
-      performanceMonitor.mark(`${componentName}-render-start`);
-      const result = originalMethod.apply(this, args);
-      performanceMonitor.measure(`${componentName}-render-duration`, `${componentName}-render-start`);
-      
-      return result;
-    };
-  };
-};
-
-/**
- * Lazy loading with intersection observer
- */
-export class LazyLoader {
-  private observer: IntersectionObserver | null = null;
-  private elements = new Map<Element, () => void>();
-
-  constructor(options: IntersectionObserverInit = {}) {
-    this.observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
         if (entry.isIntersecting) {
-          const element = entry.target;
-          const callback = this.elements.get(element);
-          
-          if (callback) {
-            callback();
-            this.observer?.unobserve(element);
-            this.elements.delete(element);
-          }
+          setIsVisible(true);
+          observer.disconnect();
         }
-      });
-    }, {
-      rootMargin: '50px',
-      threshold: 0.1,
-      ...options,
-    });
-  }
+      },
+      { threshold }
+    );
 
-  observe(element: Element, callback: () => void): void {
-    this.elements.set(element, callback);
-    this.observer?.observe(element);
-  }
-
-  unobserve(element: Element): void {
-    this.elements.delete(element);
-    this.observer?.unobserve(element);
-  }
-
-  disconnect(): void {
-    this.elements.clear();
-    this.observer?.disconnect();
-  }
-}
-
-export const lazyLoader = new LazyLoader();
-
-/**
- * Critical resource identification
- */
-export const getCriticalResources = (): string[] => {
-  const criticalResources = [
-    '/api/auth/[...nextauth].js',
-    '/api/health.js',
-    '/_next/static/css/main.css',
-    '/_next/static/js/main.js',
-  ];
-
-  // Add environment-specific resources
-  const config = getEnvConfig();
-  if (config.googleMapsKey) {
-    criticalResources.push('https://maps.googleapis.com/maps/api/js');
-  }
-  
-  if (config.mapboxToken) {
-    criticalResources.push('https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.js');
-  }
-
-  return criticalResources;
-};
-
-/**
- * Resource loading optimization
- */
-export const optimizeResourceLoading = {
-  preloadCritical: () => {
-    getCriticalResources().forEach(resource => {
-      if (resource.startsWith('/')) {
-        preloadResource(resource, 'script');
-      } else {
-        preloadResource(resource, 'script');
-      }
-    });
-  },
-
-  deferHeavyResources: () => {
-    const heavyResources = [
-      '/api/_next/image',
-      '/api/v1/games',
-      '/api/v1/clans',
-      '/api/v1/territories',
-    ];
-
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(() => {
-        heavyResources.forEach(resource => {
-          fetch(resource).catch(() => {}); // Pre-warm cache
-        });
-      });
+    if (ref.current) {
+      observer.observe(ref.current);
     }
-  },
+
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, isVisible };
 };
 
-export default {
-  optimizeImageUrl,
-  generateBlurDataUrl,
-  performanceMonitor,
-  analyzeBundleImport,
-  preloadResource,
-  ServiceWorkerManager,
-  swManager,
-  getMemoryInfo,
-  trackRouteChange,
-  trackComponentRender,
-  LazyLoader,
-  lazyLoader,
-  getCriticalResources,
-  optimizeResourceLoading,
+/**
+ * Debounce utility for performance optimization
+ */
+export const useDebounce = <T>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+/**
+ * Throttle utility for performance optimization
+ */
+export const useThrottle = <T extends (...args: any[]) => any>(
+  callback: T,
+  delay: number
+): T => {
+  const lastRun = useRef<number>(Date.now());
+
+  return useCallback(
+    ((...args) => {
+      if (Date.now() - lastRun.current >= delay) {
+        callback(...args);
+        lastRun.current = Date.now();
+      }
+    }) as T,
+    [callback, delay]
+  );
 };

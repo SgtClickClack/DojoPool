@@ -70,7 +70,7 @@ const ClansPage: React.FC = () => {
       const clansData = await getClans();
       setClans(clansData);
     } catch (error: any) {
-      console.error('Failed to load clans:', error);
+      // Error handled by setError
       setError('Failed to load clans. Please try again.');
     } finally {
       setLoading(false);

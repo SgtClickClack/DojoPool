@@ -1,77 +1,207 @@
-import { Box, Button, Paper, Typography } from '@mui/material';
-import type { ErrorInfo, ReactNode } from 'react';
-import { Component } from 'react';
+/**
+ * Enhanced Error Boundary Component
+ * 
+ * Provides comprehensive error handling with recovery mechanisms,
+ * error reporting, and user-friendly error displays.
+ */
+
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Box, Button, Typography, Alert, Collapse } from '@mui/material';
+import { ExpandMore, ExpandLess, Refresh } from '@mui/icons-material';
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  showDetails?: boolean;
+  enableRecovery?: boolean;
 }
 
 interface State {
   hasError: boolean;
-  error?: Error;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
+  showDetails: boolean;
+  retryCount: number;
 }
 
 class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-  };
+  private maxRetries = 3;
 
-  public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null,
+      showDetails: false,
+      retryCount: 0,
+    };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+  static getDerivedStateFromError(error: Error): Partial<State> {
+    return {
+      hasError: true,
+      error,
+    };
   }
 
-  private handleReset = () => {
-    this.setState({ hasError: false, error: undefined });
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    this.setState({
+      error,
+      errorInfo,
+    });
+
+    // Log error to console in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('ErrorBoundary caught an error:', error, errorInfo);
+    }
+
+    // Call custom error handler
+    if (this.props.onError) {
+      this.props.onError(error, errorInfo);
+    }
+
+    // Report error to monitoring service
+    this.reportError(error, errorInfo);
+  }
+
+  private reportError = (error: Error, errorInfo: ErrorInfo) => {
+    // In a real application, you would send this to your error reporting service
+    // For now, we'll just log it
+    console.error('Error reported:', {
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      timestamp: new Date().toISOString(),
+    });
   };
 
-  public render() {
+  private handleRetry = () => {
+    if (this.state.retryCount < this.maxRetries) {
+      this.setState(prevState => ({
+        hasError: false,
+        error: null,
+        errorInfo: null,
+        retryCount: prevState.retryCount + 1,
+      }));
+    }
+  };
+
+  private toggleDetails = () => {
+    this.setState(prevState => ({
+      showDetails: !prevState.showDetails,
+    }));
+  };
+
+  private handleReload = () => {
+    window.location.reload();
+  };
+
+  render() {
     if (this.state.hasError) {
+      // Custom fallback UI
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
+      const { error, errorInfo, showDetails, retryCount } = this.state;
+      const canRetry = retryCount < this.maxRetries;
+
       return (
         <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          minHeight="400px"
-          p={3}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '400px',
+            padding: 3,
+            textAlign: 'center',
+          }}
         >
-          <Paper
-            elevation={3}
-            sx={{ p: 4, textAlign: 'center', maxWidth: 500 }}
-          >
-            <Typography variant="h4" component="h1" gutterBottom color="error">
+          <Alert severity="error" sx={{ mb: 2, maxWidth: 600 }}>
+            <Typography variant="h6" gutterBottom>
               Something went wrong
             </Typography>
-            <Typography variant="body1" paragraph color="text.secondary">
-              We&apos;re sorry, but something unexpected happened. Please try
-              refreshing the page.
+            <Typography variant="body2" color="text.secondary">
+              We're sorry, but something unexpected happened. Please try again.
             </Typography>
-            {this.state.error && (
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Error: {this.state.error.message}
-              </Typography>
+          </Alert>
+
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            {canRetry && this.props.enableRecovery && (
+              <Button
+                variant="contained"
+                startIcon={<Refresh />}
+                onClick={this.handleRetry}
+              >
+                Try Again ({this.maxRetries - retryCount} attempts left)
+              </Button>
             )}
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={this.handleReset}
-              sx={{ mr: 2 }}
-            >
-              Try Again
+            <Button variant="outlined" onClick={this.handleReload}>
+              Reload Page
             </Button>
-            <Button variant="outlined" onClick={() => window.location.reload()}>
-              Refresh Page
-            </Button>
-          </Paper>
+          </Box>
+
+          {process.env.NODE_ENV === 'development' && (
+            <Box sx={{ width: '100%', maxWidth: 800 }}>
+              <Button
+                onClick={this.toggleDetails}
+                endIcon={showDetails ? <ExpandLess /> : <ExpandMore />}
+                sx={{ mb: 1 }}
+              >
+                {showDetails ? 'Hide' : 'Show'} Error Details
+              </Button>
+              
+              <Collapse in={showDetails}>
+                <Box
+                  sx={{
+                    backgroundColor: 'grey.100',
+                    padding: 2,
+                    borderRadius: 1,
+                    textAlign: 'left',
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem',
+                  }}
+                >
+                  <Typography variant="subtitle2" gutterBottom>
+                    Error Message:
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 2, color: 'error.main' }}>
+                    {error?.message}
+                  </Typography>
+                  
+                  <Typography variant="subtitle2" gutterBottom>
+                    Stack Trace:
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      mb: 2,
+                    }}
+                  >
+                    {error?.stack}
+                  </Typography>
+                  
+                  <Typography variant="subtitle2" gutterBottom>
+                    Component Stack:
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                    }}
+                  >
+                    {errorInfo?.componentStack}
+                  </Typography>
+                </Box>
+              </Collapse>
+            </Box>
+          )}
         </Box>
       );
     }

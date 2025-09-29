@@ -43,31 +43,58 @@ const nextConfig = {
   // Configure pages directory
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 
-  // Completely disable webpack optimizations for Vercel compatibility
-  webpack: (config) => {
+  // Optimized webpack configuration for better performance
+  webpack: (config, { dev, isServer }) => {
     // Add Prisma binary target for Vercel
     if (process.env.NODE_ENV === 'production') {
       config.resolve.alias['@prisma/client'] = false;
       config.resolve.alias['prisma'] = false;
     }
 
-    // Disable webpack cache completely
-    config.cache = false;
+    // Enable webpack cache for better build performance
+    if (dev) {
+      config.cache = {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename],
+        },
+      };
+    }
 
-    // Completely disable all optimizations that cause chunk issues
-    config.optimization = {
-      minimize: false,
-      usedExports: false,
-      sideEffects: false,
-      splitChunks: false,
-      concatenateModules: false,
-      moduleIds: 'named',
-      chunkIds: 'named',
-    };
+    // Optimize for production
+    if (!dev) {
+      config.optimization = {
+        ...config.optimization,
+        minimize: true,
+        usedExports: true,
+        sideEffects: false,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              enforce: true,
+            },
+          },
+        },
+        concatenateModules: true,
+        moduleIds: 'deterministic',
+        chunkIds: 'deterministic',
+      };
+    }
 
-    // Disable performance hints
+    // Performance hints
     config.performance = {
-      hints: false,
+      hints: dev ? false : 'warning',
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000,
     };
 
     // Resolve aliases for compatibility

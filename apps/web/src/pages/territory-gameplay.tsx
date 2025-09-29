@@ -15,6 +15,11 @@ import {
   Chip,
   TextField,
   InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
 } from '@mui/material';
 import {
   Search,
@@ -63,6 +68,9 @@ const TerritoryGameplayPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [challengeDialogOpen, setChallengeDialogOpen] = useState(false);
+  const [selectedTerritory, setSelectedTerritory] = useState<string | null>(null);
+  const [challengeNotification, setChallengeNotification] = useState<string | null>(null);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -74,8 +82,40 @@ const TerritoryGameplayPage: React.FC = () => {
   };
 
   const handleChallenge = (territoryId: string) => {
-    // Mock challenge functionality
-    console.log('Challenging territory:', territoryId);
+    setSelectedTerritory(territoryId);
+    setChallengeDialogOpen(true);
+  };
+
+  const handleConfirmChallenge = async () => {
+    if (!selectedTerritory) return;
+    
+    try {
+      const response = await fetch('/api/challenges', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          territoryId: selectedTerritory,
+          challengerId: 'test-user-1',
+        }),
+      });
+      
+      if (response.ok) {
+        setChallengeNotification('Challenge created successfully!');
+        setChallengeDialogOpen(false);
+        setSelectedTerritory(null);
+      } else {
+        setChallengeNotification('Failed to create challenge');
+      }
+    } catch (_error) {
+      setChallengeNotification('Failed to create challenge');
+    }
+  };
+
+  const handleCancelChallenge = () => {
+    setChallengeDialogOpen(false);
+    setSelectedTerritory(null);
   };
 
   const handleAcceptChallenge = (challengeId: string) => {
@@ -117,7 +157,7 @@ const TerritoryGameplayPage: React.FC = () => {
             },
           ]);
         }
-      } catch (error) {
+      } catch (_error) {
         // Fallback to mock data if API fails
         setTerritories([
           {
@@ -149,7 +189,7 @@ const TerritoryGameplayPage: React.FC = () => {
             },
           ]);
         }
-      } catch (error) {
+      } catch (_error) {
         setChallenges([
           {
             id: 'challenge-1',
@@ -180,7 +220,7 @@ const TerritoryGameplayPage: React.FC = () => {
             },
           ]);
         }
-      } catch (error) {
+      } catch (_error) {
         setClanTerritories([
           {
             id: 'territory-1',
@@ -208,7 +248,7 @@ const TerritoryGameplayPage: React.FC = () => {
             territories_owned: 3,
           });
         }
-      } catch (error) {
+      } catch (_error) {
         setStats({
           total_territories: 10,
           total_challenges: 25,
@@ -566,6 +606,34 @@ const TerritoryGameplayPage: React.FC = () => {
           </TabPanel>
         </Container>
       </Layout>
+
+      {/* Challenge Confirmation Dialog */}
+      <Dialog open={challengeDialogOpen} onClose={handleCancelChallenge}>
+        <DialogTitle>Confirm Challenge</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to challenge for this territory? This will create a challenge that the current owner can accept or decline.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelChallenge}>Cancel</Button>
+          <Button onClick={handleConfirmChallenge} variant="contained" data-testid="confirm-challenge">
+            Confirm Challenge
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Challenge Notification */}
+      <Snackbar
+        open={!!challengeNotification}
+        autoHideDuration={6000}
+        onClose={() => setChallengeNotification(null)}
+        data-testid="challenge-notification"
+      >
+        <Alert onClose={() => setChallengeNotification(null)} severity="success">
+          {challengeNotification}
+        </Alert>
+      </Snackbar>
     </ProtectedRoute>
   );
 };

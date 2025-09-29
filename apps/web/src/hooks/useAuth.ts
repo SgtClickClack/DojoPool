@@ -4,9 +4,34 @@ import React, {
   useEffect,
   useState,
 } from 'react';
+import { z } from 'zod';
+
+// Validation schemas
+const loginSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+const registerSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  username: z.string().min(3, 'Username must be at least 3 characters'),
+});
+
+interface User {
+  id: string;
+  email: string;
+  username: string;
+  name?: string;
+  role: 'USER' | 'ADMIN';
+  clanId?: string;
+  clanRole?: 'member' | 'leader';
+  avatarUrl?: string;
+  isAdmin: boolean;
+}
 
 interface AuthContextType {
-  user: any | null; // Adjust type based on NextAuth User
+  user: User | null;
   loading: boolean;
   isAdmin: boolean;
   error: string | null;
@@ -135,18 +160,27 @@ export const useAuth = (): AuthContextType => {
   const login = async (email: string, password: string) => {
     try {
       setError(null);
+      
+      // Validate input
+      const validatedInput = loginSchema.parse({ email, password });
+      
       const res = await signIn('credentials', {
-        email,
-        password,
+        email: validatedInput.email,
+        password: validatedInput.password,
         redirect: false,
       });
+      
       if (res?.error) {
         setError('Invalid credentials');
         throw new Error('Login failed');
       }
       // Session will update automatically
     } catch (err) {
-      setError('Login failed');
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0]?.message || 'Invalid input');
+      } else {
+        setError('Login failed');
+      }
       throw err;
     }
   };
@@ -159,10 +193,18 @@ export const useAuth = (): AuthContextType => {
     try {
       setError(null);
       setLoading(true);
+      
+      // Validate input
+      const validatedInput = registerSchema.parse({ email, password, username });
+      
       const registerResponse = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, username }),
+        body: JSON.stringify({ 
+          email: validatedInput.email, 
+          password: validatedInput.password, 
+          username: validatedInput.username 
+        }),
       });
 
       if (!registerResponse.ok) {
@@ -173,8 +215,8 @@ export const useAuth = (): AuthContextType => {
 
       // Auto sign in
       const signInResponse = await signIn('credentials', {
-        email,
-        password,
+        email: validatedInput.email,
+        password: validatedInput.password,
         redirect: false,
       });
 
@@ -184,7 +226,11 @@ export const useAuth = (): AuthContextType => {
         // Session updates
       }
     } catch (err) {
-      setError('Registration failed');
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0]?.message || 'Invalid input');
+      } else {
+        setError('Registration failed');
+      }
       throw err;
     } finally {
       setLoading(false);

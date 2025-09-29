@@ -108,7 +108,7 @@ const CreateClanPage: React.FC = () => {
       // Redirect to clan page
       await router.push(`/clans/${newClan.id}`);
     } catch (error: any) {
-      console.error('Failed to create clan:', error);
+      // Error handled by setSubmitError
       setSubmitError(
         error.message || 'Failed to create clan. Please try again.'
       );

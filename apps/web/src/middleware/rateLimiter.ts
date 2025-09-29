@@ -1,288 +1,342 @@
 /**
  * Rate Limiting Middleware
  * 
- * Implements progressive rate limiting with:
- * - IP-based limiting
- * - API endpoint categorization
- * - Progressive backoff
- * - Redis/memory store support
+ * Comprehensive rate limiting implementation for API endpoints
+ * with different limits based on endpoint type and user role.
  */
 
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 interface RateLimitConfig {
   windowMs: number;
   maxRequests: number;
+  skipSuccessfulRequests?: boolean;
+  skipFailedRequests?: boolean;
   keyGenerator?: (req: NextRequest) => string;
-  skip?: (req: NextRequest) => boolean;
-  handler?: (req: NextRequest) => NextResponse;
 }
 
-interface RateLimitStore {
-  get: (key: string) => Promise<{ count: number; resetTime: number } | null>;
-  set: (key: string, value: { count: number; resetTime: number }) => Promise<void>;
-  increment: (key: string) => Promise<number>;
+interface RateLimitEntry {
+  count: number;
+  resetTime: number;
 }
 
-/**
- * In-memory rate limit store for development
- */
-class MemoryStore implements RateLimitStore {
-  private store = new Map<string, { count: number; resetTime: number }>();
+// In-memory store for rate limiting (in production, use Redis)
+const rateLimitStore = new Map<string, RateLimitEntry>();
 
-  async get(key: string) {
-    const value = this.store.get(key);
-    if (!value) return null;
-    
-    if (Date.now() > value.resetTime) {
-      this.store.delete(key);
-      return null;
-    }
-    
-    return value;
-  }
-
-  async set(key: string, value: { count: number; resetTime: number }) {
-    this.store.set(key, value);
-  }
-
-  async increment(key: string) {
-    const existing = await this.get(key);
-    
-    if (!existing) {
-      const newValue = { count: 1, resetTime: Date.now() + 60000 }; // 1 minute window
-      await this.set(key, newValue);
-      return 1;
-    }
-    
-    const updatedValue = { ...existing, count: existing.count + 1 };
-    await this.set(key, updatedValue);
-    return updatedValue.count;
-  }
-}
-
-/**
- * Default rate limit configurations for different API endpoints
- */
-const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
-  // Authentication endpoints - stricter limits
+// Rate limit configurations for different endpoints
+const rateLimitConfigs: Record<string, RateLimitConfig> = {
+  // Authentication endpoints - strict limits
   '/api/auth/login': {
     windowMs: 15 * 60 * 1000, // 15 minutes
     maxRequests: 5,
+    keyGenerator: (req) => `auth:${req.ip}`,
   },
   '/api/auth/register': {
     windowMs: 60 * 60 * 1000, // 1 hour
     maxRequests: 3,
+    keyGenerator: (req) => `register:${req.ip}`,
   },
   '/api/auth/refresh': {
     windowMs: 5 * 60 * 1000, // 5 minutes
     maxRequests: 10,
+    keyGenerator: (req) => `refresh:${req.ip}`,
   },
   
   // API endpoints - moderate limits
-  '/api/v1/games': {
-    windowMs: 60 * 1000, // 1 minute
-    maxRequests: 60,
-  },
   '/api/v1/clans': {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 30,
+    keyGenerator: (req) => `clans:${req.ip}`,
   },
-  '/api/v1/territories': {
+  '/api/v1/venues': {
     windowMs: 60 * 1000, // 1 minute
-    maxRequests: 30,
+    maxRequests: 50,
+    keyGenerator: (req) => `venues:${req.ip}`,
   },
-  '/api/v1/users/me': {
+  '/api/v1/matches': {
     windowMs: 60 * 1000, // 1 minute
-    maxRequests: 30,
+    maxRequests: 40,
+    keyGenerator: (req) => `matches:${req.ip}`,
   },
   
-  // Content uploads - stricter limits
+  // Content endpoints - stricter limits
   '/api/v1/content': {
     windowMs: 5 * 60 * 1000, // 5 minutes
     maxRequests: 10,
+    keyGenerator: (req) => `content:${req.ip}`,
+  },
+  '/api/v1/upload': {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 5,
+    keyGenerator: (req) => `upload:${req.ip}`,
   },
   
-  // General API fallback
-  '/api/v1': {
+  // WebSocket endpoints - higher limits
+  '/api/ws': {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 100,
+    keyGenerator: (req) => `ws:${req.ip}`,
   },
   
-  // General fallback
-  '/api': {
+  // Default configuration
+  default: {
     windowMs: 60 * 1000, // 1 minute
-    maxRequests: 200,
+    maxRequests: 100,
+    keyGenerator: (req) => `default:${req.ip}`,
   },
 };
 
 /**
- * Generate rate limit key based on IP and endpoint
+ * Get rate limit configuration for a given path
  */
-const generateKey = (req: NextRequest): string => {
-  const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
-  const endpoint = req.nextUrl.pathname;
-  return `rate_limit:${ip}:${endpoint}`;
-};
-
-/**
- * Get rate limit config for endpoint
- */
-const getConfigForEndpoint = (pathname: string): RateLimitConfig => {
-  // Find most specific match
-  for (const [pattern, config] of Object.entries(RATE_LIMIT_CONFIGS)) {
-    if (pathname.startsWith(pattern)) {
+function getRateLimitConfig(pathname: string): RateLimitConfig {
+  // Check for exact match first
+  if (rateLimitConfigs[pathname]) {
+    return rateLimitConfigs[pathname];
+  }
+  
+  // Check for pattern matches
+  for (const [pattern, config] of Object.entries(rateLimitConfigs)) {
+    if (pattern !== 'default' && pathname.startsWith(pattern)) {
       return config;
     }
   }
   
-  // Default fallback
-  return {
-    windowMs: 60 * 1000,
-    maxRequests: 100,
-  };
-};
+  // Return default configuration
+  return rateLimitConfigs.default;
+}
 
 /**
- * Rate limiter class
+ * Generate rate limit key for a request
  */
-class RateLimiter {
-  private store: RateLimitStore;
-  
-  constructor(store: RateLimitStore = new MemoryStore()) {
-    this.store = store;
+function generateKey(req: NextRequest, config: RateLimitConfig): string {
+  if (config.keyGenerator) {
+    return config.keyGenerator(req);
   }
   
-  /**
-   * Check rate limit for request
-   */
-  async checkLimit(req: NextRequest): Promise<{
-    allowed: boolean;
-    resetSeconds: number;
-    remaining: number;
-    limit: number;
-  }> {
-    const key = generateKey(req);
-    const config = getConfigForEndpoint(req.nextUrl.pathname);
-    
-    // Skip if configured to skip
-    if (config.skip?.(req)) {
-      return {
-        allowed: true,
-        resetSeconds: 0,
-        remaining: config.maxRequests,
-        limit: config.maxRequests,
-      };
-    }
-    
-    const current = await this.store.get(key);
-    const now = Date.now();
-    
-    if (!current || now > current.resetTime) {
-      // First request or window expired
-      await this.store.set(key, { count: 1, resetTime: now + config.windowMs });
-      return {
-        allowed: true,
-        resetSeconds: Math.ceil(config.windowMs / 1000),
-        remaining: config.maxRequests - 1,
-        limit: config.maxRequests,
-      };
-    }
-    
-    if (current.count >= config.maxRequests) {
-      // Rate limit exceeded
-      return {
-        allowed: false,
-        resetSeconds: Math.ceil((current.resetTime - now) / 1000),
-        remaining: 0,
-        limit: config.maxRequests,
-      };
-    }
-    
-    // Increment counter
-    const newCount = await this.store.increment(key);
+  // Default key generation
+  const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+  return `rate:${ip}:${req.nextUrl.pathname}`;
+}
+
+/**
+ * Check if request is within rate limit
+ */
+function checkRateLimit(key: string, config: RateLimitConfig): {
+  allowed: boolean;
+  remaining: number;
+  resetTime: number;
+} {
+  const now = Date.now();
+  const entry = rateLimitStore.get(key);
+  
+  if (!entry || now > entry.resetTime) {
+    // Create new entry or reset expired entry
+    const newEntry: RateLimitEntry = {
+      count: 1,
+      resetTime: now + config.windowMs,
+    };
+    rateLimitStore.set(key, newEntry);
     
     return {
       allowed: true,
-      resetSeconds: Math.ceil((current.resetTime - now) / 1000),
-      remaining: config.maxRequests - newCount,
-      limit: config.maxRequests,
+      remaining: config.maxRequests - 1,
+      resetTime: newEntry.resetTime,
     };
   }
   
-  /**
-   * Apply rate limit to Next.js middleware
-   */
-  async middleware(req: NextRequest): Promise<NextResponse | undefined> {
-    const result = await this.checkLimit(req);
-    const config = getConfigForEndpoint(req.nextUrl.pathname);
-    
-    const response = config.handler?.(req) || NextResponse.next();
-    
-    // Add rate limit headers
-    response.headers.set('X-RateLimit-Limit', result.limit.toString());
-    response.headers.set('X-RateLimit-Remaining', result.remaining.toString());
-    response.headers.set('X-RateLimit-Reset', (Date.now() + result.resetSeconds * 1000).toString());
-    
-    if (!result.allowed) {
-      response.headers.set('Retry-After', result.resetSeconds.toString());
-      return NextResponse.json(
-        { error: 'Rate limit exceeded', retryAfter: result.resetSeconds },
-        { status: 429 }
-      );
-    }
-    
-    return response;
-  }
-}
-
-/**
- * Global rate limiter instance
- */
-const rateLimiter = new RateLimiter();
-
-/**
- * Middleware function for use in Next.js
- */
-export async function rateLimitMiddleware(req: NextRequest): Promise<NextResponse | undefined> {
-  // Only apply to API routes
-  if (!req.nextUrl.pathname.startsWith('/api/')) {
-    return undefined;
+  if (entry.count >= config.maxRequests) {
+    return {
+      allowed: false,
+      remaining: 0,
+      resetTime: entry.resetTime,
+    };
   }
   
-  return rateLimiter.middleware(req);
-}
-
-/**
- * Helper for applying rate limits to individual API endpoints
- */
-export function withRateLimit(config: Partial<RateLimitConfig>) {
-  return async function apiHandler(req: NextRequest): Promise<NextResponse | undefined> {
-    const result = await rateLimiter.checkLimit(req);
-    
-    if (!result.allowed) {
-      return NextResponse.json(
-        { 
-          error: 'Too many requests', 
-          message: `Rate limit exceeded. Retry after ${result.resetSeconds} seconds.`,
-          retryAfter: result.resetSeconds 
-        },
-        { 
-          status: 429,
-          headers: {
-            'Retry-After': result.resetSeconds.toString(),
-            'X-RateLimit-Limit': result.limit.toString(),
-            'X-RateLimit-Remaining': result.remaining.toString(),
-            'X-RateLimit-Reset': (Date.now() + result.resetSeconds * 1000).toString(),
-          }
-        }
-      );
-    }
-    
-    return undefined; // Allow request to continue
+  // Increment count
+  entry.count++;
+  rateLimitStore.set(key, entry);
+  
+  return {
+    allowed: true,
+    remaining: config.maxRequests - entry.count,
+    resetTime: entry.resetTime,
   };
 }
 
-export { RateLimiter, type RateLimitConfig };
-export default rateLimitMiddleware;
+/**
+ * Clean up expired rate limit entries
+ */
+function cleanupExpiredEntries(): void {
+  const now = Date.now();
+  for (const [key, entry] of rateLimitStore.entries()) {
+    if (now > entry.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
+/**
+ * Rate limiting middleware
+ */
+export function rateLimitMiddleware(req: NextRequest): NextResponse | null {
+  const pathname = req.nextUrl.pathname;
+  const config = getRateLimitConfig(pathname);
+  const key = generateKey(req, config);
+  
+  // Clean up expired entries periodically
+  if (Math.random() < 0.01) { // 1% chance
+    cleanupExpiredEntries();
+  }
+  
+  const result = checkRateLimit(key, config);
+  
+  // Add rate limit headers
+  const response = result.allowed ? null : new NextResponse(
+    JSON.stringify({
+      error: 'Rate limit exceeded',
+      message: 'Too many requests. Please try again later.',
+      retryAfter: Math.ceil((result.resetTime - Date.now()) / 1000),
+    }),
+    {
+      status: 429,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-RateLimit-Limit': config.maxRequests.toString(),
+        'X-RateLimit-Remaining': result.remaining.toString(),
+        'X-RateLimit-Reset': result.resetTime.toString(),
+        'Retry-After': Math.ceil((result.resetTime - Date.now()) / 1000).toString(),
+      },
+    }
+  );
+  
+  return response;
+}
+
+/**
+ * Rate limit for specific user actions
+ */
+export class UserActionRateLimit {
+  private static instance: UserActionRateLimit;
+  private userActions = new Map<string, Map<string, RateLimitEntry>>();
+
+  static getInstance(): UserActionRateLimit {
+    if (!UserActionRateLimit.instance) {
+      UserActionRateLimit.instance = new UserActionRateLimit();
+    }
+    return UserActionRateLimit.instance;
+  }
+
+  /**
+   * Check if user can perform an action
+   */
+  canPerformAction(
+    userId: string,
+    action: string,
+    maxActions: number,
+    windowMs: number
+  ): boolean {
+    const now = Date.now();
+    const userActions = this.userActions.get(userId) || new Map();
+    const actionEntry = userActions.get(action);
+    
+    if (!actionEntry || now > actionEntry.resetTime) {
+      // Create new entry or reset expired entry
+      const newEntry: RateLimitEntry = {
+        count: 1,
+        resetTime: now + windowMs,
+      };
+      userActions.set(action, newEntry);
+      this.userActions.set(userId, userActions);
+      return true;
+    }
+    
+    if (actionEntry.count >= maxActions) {
+      return false;
+    }
+    
+    // Increment count
+    actionEntry.count++;
+    userActions.set(action, actionEntry);
+    this.userActions.set(userId, userActions);
+    return true;
+  }
+
+  /**
+   * Get remaining actions for a user
+   */
+  getRemainingActions(
+    userId: string,
+    action: string,
+    maxActions: number
+  ): number {
+    const userActions = this.userActions.get(userId);
+    if (!userActions) return maxActions;
+    
+    const actionEntry = userActions.get(action);
+    if (!actionEntry) return maxActions;
+    
+    return Math.max(0, maxActions - actionEntry.count);
+  }
+
+  /**
+   * Clear user actions
+   */
+  clearUserActions(userId: string): void {
+    this.userActions.delete(userId);
+  }
+
+  /**
+   * Clear all actions
+   */
+  clearAllActions(): void {
+    this.userActions.clear();
+  }
+}
+
+/**
+ * Rate limit for API endpoints with user context
+ */
+export function createUserRateLimit(
+  maxRequests: number,
+  windowMs: number
+) {
+  return (req: NextRequest, userId: string): boolean => {
+    const rateLimit = UserActionRateLimit.getInstance();
+    return rateLimit.canPerformAction(
+      userId,
+      req.nextUrl.pathname,
+      maxRequests,
+      windowMs
+    );
+  };
+}
+
+/**
+ * Rate limit for specific actions
+ */
+export const actionRateLimits = {
+  // Clan actions
+  createClan: createUserRateLimit(1, 24 * 60 * 60 * 1000), // 1 per day
+  joinClan: createUserRateLimit(5, 60 * 60 * 1000), // 5 per hour
+  leaveClan: createUserRateLimit(3, 60 * 60 * 1000), // 3 per hour
+  
+  // Match actions
+  createMatch: createUserRateLimit(10, 60 * 60 * 1000), // 10 per hour
+  joinMatch: createUserRateLimit(20, 60 * 60 * 1000), // 20 per hour
+  
+  // Content actions
+  createPost: createUserRateLimit(5, 60 * 60 * 1000), // 5 per hour
+  createComment: createUserRateLimit(20, 60 * 60 * 1000), // 20 per hour
+  
+  // Upload actions
+  uploadImage: createUserRateLimit(10, 60 * 60 * 1000), // 10 per hour
+  uploadVideo: createUserRateLimit(2, 60 * 60 * 1000), // 2 per hour
+};
+
+/**
+ * Middleware to apply rate limiting
+ */
+export function applyRateLimit(req: NextRequest): NextResponse | null {
+  return rateLimitMiddleware(req);
+}

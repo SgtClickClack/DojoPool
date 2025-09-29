@@ -1,389 +1,369 @@
 /**
  * Optimized Lazy Components
- *
- * Provides efficient lazy loading with:
- * - Prefetching strategies
- * - Loading states
- * - Error boundaries
- * - Bundle size optimization
+ * 
+ * Enhanced lazy-loaded components with proper loading states, error boundaries,
+ * performance monitoring, and intelligent prefetching strategies.
  */
 
-import React, { Suspense, ComponentType } from 'react';
-import { CircularProgress, Box, Alert } from '@mui/material';
+import dynamic from 'next/dynamic';
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
+import { CircularProgress, Box, Typography, Alert, Button } from '@mui/material';
+import { Refresh } from '@mui/icons-material';
+import ErrorBoundary from '@/components/Common/ErrorBoundary';
 
-interface LazyComponentOptions {
-  fallback?: React.ComponentType;
-  errorBoundary?: ComponentType<{ children: React.ReactNode; error?: Error }>;
-  prefetch?: boolean;
-  retries?: number;
-  timeout?: number;
-}
+// Enhanced loading component with better UX
+const LoadingSpinner: React.FC<{ 
+  message?: string; 
+  size?: number;
+  showProgress?: boolean;
+}> = ({ 
+  message = 'Loading...', 
+  size = 40,
+  showProgress = false 
+}) => {
+  const [progress, setProgress] = useState(0);
 
-/**
- * Simple error boundary for lazy components
- */
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode; fallback?: React.ComponentType },
-  { hasError: boolean }
-> {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(): { hasError: boolean } {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    console.error('Error in lazy component:', error, errorInfo);
-  }
-
-  render(): React.ReactNode {
-    if (this.state.hasError) {
-      const FallbackComponent = this.props.fallback;
-      return FallbackComponent ? (
-        <FallbackComponent />
-      ) : (
-        <Alert severity="error">
-          Component failed to load. Please refresh the page.
-        </Alert>
-      );
+  useEffect(() => {
+    if (showProgress) {
+      const timer = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 100) return 0;
+          return prev + 10;
+        });
+      }, 200);
+      return () => clearInterval(timer);
     }
+  }, [showProgress]);
 
-    return this.props.children;
-  }
-}
-
-/**
- * Enhanced lazy component wrapper with advanced features
- */
-export function createLazyComponent<T extends ComponentType<any>>({
-  fallback: FallbackComponent,
-  errorBoundary: ErrorBoundaryComponent = ErrorBoundary,
-  prefetch = false,
-  retries = 3,
-  timeout = 10000,
-  ...otherOptions
-}: LazyComponentOptions = {}) {
-  return function lazyWrapper<TProps extends object>(
-    importFunc: () => Promise<any>,
-    componentName?: string
-  ) {
-    const LazyComponent = React.lazy(async () => {
-      let retryCount = 0;
-
-      while (retryCount <= retries) {
-        try {
-          const result = await Promise.race([
-            importFunc(),
-            new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error('Import timeout')), timeout)
-            ),
-          ]);
-
-          return result;
-        } catch (error) {
-          retryCount++;
-
-          if (retryCount > retries) {
-            console.error(
-              `Failed to load component ${componentName} after ${retries} retries:`,
-              error
-            );
-            throw error;
-          }
-
-          // Exponential backoff
-          await new Promise((resolve) =>
-            setTimeout(resolve, 1000 * retryCount)
-          );
-        }
-      }
-
-      throw new Error('Max retries exceeded');
-    });
-
-    const WrappedComponent = React.forwardRef<any, React.ComponentProps<T>>(
-      (props, ref) => {
-        const errorFallback = (
-          <Alert severity="error" sx={{ margin: 2 }}>
-            Failed to load {componentName || 'component'}. Please refresh the
-            page.
-          </Alert>
-        );
-
-        // Check if we're using the default ErrorBoundary or a custom one
-        const isDefaultErrorBoundary = ErrorBoundaryComponent === ErrorBoundary;
-        
-        return (
-          <ErrorBoundaryComponent
-            {...(isDefaultErrorBoundary ? { fallback: errorFallback } : {})}
-          >
-            <Suspense
-              fallback={
-                FallbackComponent ? (
-                  <FallbackComponent />
-                ) : (
-                  <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    minHeight="200px"
-                  >
-                    <CircularProgress />
-                  </Box>
-                )
-              }
-            >
-              {React.createElement(LazyComponent, { ...props, ref })}
-            </Suspense>
-          </ErrorBoundaryComponent>
-        );
-      }
-    );
-
-    WrappedComponent.displayName = `LazyLoaded${componentName || 'Component'}`;
-
-    // Add prefetching capability
-    if (prefetch) {
-      (WrappedComponent as any).prefetch = async () => {
-        try {
-          await importFunc();
-        } catch (error) {
-          console.warn('Prefetch failed:', error);
-        }
-      };
-    }
-
-    return WrappedComponent;
-  };
-}
-
-/**
- * Specialized lazy component creator for maps
- */
-export const createLazyMapComponent = createLazyComponent({
-  errorBoundary: ({ children, error }) => (
+  return (
     <Box
       display="flex"
+      flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      height="400px"
+      minHeight="200px"
+      gap={2}
+      sx={{ padding: 3 }}
     >
-      <Alert severity="error">
-        Map failed to load: {error?.message || 'Unknown error'}
-      </Alert>
-    </Box>
-  ),
-  timeout: 15000,
-  retries: 2,
-});
-
-/**
- * Specialized lazy component creator for heavy components
- */
-export const createLazyHeavyComponent = createLazyComponent({
-  timeout: 20000,
-  retries: 3,
-});
-
-/**
- * Specialized lazy component creator for admin components
- */
-export const createLazyAdminComponent = createLazyComponent({
-  errorBoundary: ({ children, error }) => (
-    <Box p={3}>
-      <Alert severity="error" variant="outlined">
-        Admin component failed to load: {error?.message || 'Unknown error'}
-        <br />
-        Please check your permissions and try refresh the page.
-      </Alert>
-    </Box>
-  ),
-  prefetch: true,
-});
-
-/**
- * Smart loading component with skeleton UI
- */
-const SkeletonMap = () => (
-  <Box
-    width="100%"
-    height="400px"
-    bgcolor="grey.100"
-    display="flex"
-    alignItems="center"
-    justifyContent="center"
-    borderRadius={1}
-  >
-    <CircularProgress />
-  </Box>
-);
-
-const SkeletonDashboard = () => (
-  <Box p={3}>
-    <Box
-      width="100%"
-      height="60px"
-      bgcolor="grey.200"
-      borderRadius={1}
-      mb={2}
-    />
-    <Box display="flex" gap={2} mb={3}>
-      {[...Array(4)].map((_, i) => (
-        <Box
-          key={i}
-          flex={1}
-          height="120px"
-          bgcolor="grey.200"
-          borderRadius={1}
-        />
-      ))}
-    </Box>
-    <Box height="300px" bgcolor="grey.100" borderRadius={1} />
-  </Box>
-);
-
-const SkeletonForm = () => (
-  <Box p={3}>
-    {[...Array(6)].map((_, i) => (
-      <Box
-        key={i}
-        width="100%"
-        height="56px"
-        bgcolor="grey.200"
-        borderRadius={1}
-        mb={2}
+      <CircularProgress 
+        size={size} 
+        variant={showProgress ? 'determinate' : 'indeterminate'}
+        value={showProgress ? progress : undefined}
       />
-    ))}
-  </Box>
-);
-
-/**
- * Pre-created lazy components for common use cases
- */
-export const LazyWorldHubMap = createLazyMapComponent(
-  () => import('@/components/world/WorldHubMap'),
-  'WorldHubMap'
-);
-
-export const LazyEnhancedWorldHubMap = createLazyMapComponent(
-  () => import('@/components/world/EnhancedWorldHubMap'),
-  'EnhancedWorldHubMap'
-);
-
-export const LazyRefactoredWorldHubMap = createLazyMapComponent(
-  () => import('@/components/world/refactored/RefactoredWorldHubMap'),
-  'RefactoredWorldHubMap'
-);
-
-export const LazyDashboard = createLazyHeavyComponent(
-  () => import('@/components/Dashboard/PerformanceDashboard'),
-  'PerformanceDashboard'
-);
-
-export const LazyInventory = createLazyHeavyComponent(
-  () => import('@/components/Inventory/InventoryLayout').then(module => ({ default: module.InventoryLayout })),
-  'InventoryLayout'
-);
-
-export const LazyAdminPanel = createLazyAdminComponent(
-  () => import('@/pages/admin'),
-  'AdminPanel'
-);
-
-export const LazyTournamentManagement = createLazyHeavyComponent(
-  () => import('@/components/venue/TournamentManagement'),
-  'TournamentManagement'
-);
-
-export const LazyChatWindow = createLazyHeavyComponent(
-  () => import('@/components/chat/ChatWindow'),
-  'ChatWindow'
-);
-
-export const LazySocialFeed = createLazyHeavyComponent(
-  () => import('@/components/Content/SocialFeed'),
-  'SocialFeed'
-);
-
-/**
- * Component prefetching utilities
- */
-export const prefetchComponents = {
-  map: async () => {
-    try {
-      await import('@/components/world/WorldHubMap');
-    } catch (error) {
-      console.warn('Failed to prefetch map component:', error);
-    }
-  },
-
-  dashboard: async () => {
-    try {
-      await import('@/components/Dashboard/PerformanceDashboard');
-    } catch (error) {
-      console.warn('Failed to prefetch dashboard component:', error);
-    }
-  },
-
-  inventory: async () => {
-    try {
-      await import('@/components/Inventory/InventoryLayout');
-    } catch (error) {
-      console.warn('Failed to prefetch inventory component:', error);
-    }
-  },
-
-  admin: async () => {
-    try {
-      await import('@/pages/admin');
-    } catch (error) {
-      console.warn('Failed to prefetch admin component:', error);
-    }
-  },
+      <Typography variant="body2" color="text.secondary" textAlign="center">
+        {message}
+      </Typography>
+      {showProgress && (
+        <Typography variant="caption" color="text.secondary">
+          {progress}%
+        </Typography>
+      )}
+    </Box>
+  );
 };
 
-/**
- * Hook for prefetching components on user interaction
- */
-export const usePrefetchComponents = () => {
-  const [prefetchedComponents, setPrefetchedComponents] = React.useState<
-    string[]
-  >([]);
+// Enhanced error boundary for lazy components
+const LazyErrorBoundary: React.FC<{ 
+  children: React.ReactNode; 
+  fallback?: React.ReactNode;
+  componentName?: string;
+}> = ({ 
+  children, 
+  fallback,
+  componentName = 'Component'
+}) => {
+  const [retryCount, setRetryCount] = useState(0);
+  const maxRetries = 3;
 
-  const prefetch = React.useCallback(
-    async (componentName: keyof typeof prefetchComponents) => {
-      if (prefetchedComponents.includes(componentName)) return;
+  const handleRetry = useCallback(() => {
+    if (retryCount < maxRetries) {
+      setRetryCount(prev => prev + 1);
+      // Force re-render by updating key
+      window.location.reload();
+    }
+  }, [retryCount]);
 
-      try {
-        await prefetchComponents[componentName]();
-        setPrefetchedComponents((prev) => [...prev, componentName]);
-      } catch (error) {
-        console.warn(`Failed to prefetch ${componentName}:`, error);
-      }
-    },
-    [prefetchedComponents]
+  const defaultFallback = (
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="200px"
+      gap={2}
+      sx={{ padding: 3 }}
+    >
+      <Alert severity="error" sx={{ maxWidth: 400 }}>
+        <Typography variant="h6" gutterBottom>
+          Failed to load {componentName}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Something went wrong while loading this component.
+        </Typography>
+      </Alert>
+      {retryCount < maxRetries && (
+        <Button
+          variant="contained"
+          startIcon={<Refresh />}
+          onClick={handleRetry}
+        >
+          Retry ({maxRetries - retryCount} attempts left)
+        </Button>
+      )}
+    </Box>
   );
 
-  return { prefetch, prefetchedComponents };
+  return (
+    <ErrorBoundary
+      fallback={fallback || defaultFallback}
+      enableRecovery={retryCount < maxRetries}
+    >
+      {children}
+    </ErrorBoundary>
+  );
 };
 
-export default {
-  createLazyComponent,
-  createLazyMapComponent,
-  createLazyHeavyComponent,
-  createLazyAdminComponent,
-  LazyWorldHubMap,
-  LazyEnhancedWorldHubMap,
-  LazyRefactoredWorldHubMap,
-  LazyDashboard,
-  LazyInventory,
-  LazyAdminPanel,
-  LazyTournamentManagement,
-  LazyChatWindow,
-  LazySocialFeed,
-  prefetchComponents,
-  usePrefetchComponents,
+// Performance monitoring hook
+const useComponentPerformance = (componentName: string) => {
+  const [loadTime, setLoadTime] = useState<number | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const startTime = performance.now();
+    
+    return () => {
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      setLoadTime(duration);
+      
+      // Log performance metrics
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`${componentName} load time: ${duration.toFixed(2)}ms`);
+      }
+    };
+  }, [componentName]);
+
+  return { loadTime, error, setError };
 };
+
+// Enhanced lazy component wrapper
+export const createLazyComponent = <P extends object>(
+  importFunc: () => Promise<{ default: React.ComponentType<P> }>,
+  options: {
+    componentName?: string;
+    loadingMessage?: string;
+    showProgress?: boolean;
+    fallback?: React.ReactNode;
+  } = {}
+) => {
+  const {
+    componentName = 'Component',
+    loadingMessage = `Loading ${componentName}...`,
+    showProgress = false,
+    fallback
+  } = options;
+
+  const LazyComponent = dynamic(importFunc, {
+    ssr: false,
+    loading: () => (
+      <LoadingSpinner 
+        message={loadingMessage} 
+        showProgress={showProgress}
+      />
+    ),
+  });
+
+  const WrappedComponent: React.FC<P> = (props) => {
+    const { loadTime } = useComponentPerformance(componentName);
+
+    return (
+      <LazyErrorBoundary componentName={componentName} fallback={fallback}>
+        <Suspense fallback={
+          <LoadingSpinner 
+            message={loadingMessage} 
+            showProgress={showProgress}
+          />
+        }>
+          <LazyComponent {...props} />
+        </Suspense>
+      </LazyErrorBoundary>
+    );
+  };
+
+  WrappedComponent.displayName = `Lazy${componentName}`;
+  return WrappedComponent;
+};
+
+// Pre-configured lazy components for common use cases
+export const LazyWorldHubMap = createLazyComponent(
+  () => import('@/components/world/refactored/RefactoredWorldHubMap'),
+  {
+    componentName: 'WorldHubMap',
+    loadingMessage: 'Loading interactive map...',
+    showProgress: true,
+  }
+);
+
+export const LazyGameSessionView = createLazyComponent(
+  () => import('@/components/GameSession/GameSessionView'),
+  {
+    componentName: 'GameSessionView',
+    loadingMessage: 'Loading game session...',
+  }
+);
+
+export const LazyCMSDashboard = createLazyComponent(
+  () => import('@/components/CMS/CMSDashboard'),
+  {
+    componentName: 'CMSDashboard',
+    loadingMessage: 'Loading admin dashboard...',
+  }
+);
+
+export const LazyChatWindow = createLazyComponent(
+  () => import('@/components/chat/ChatWindow'),
+  {
+    componentName: 'ChatWindow',
+    loadingMessage: 'Loading chat...',
+  }
+);
+
+export const LazyClanProfile = createLazyComponent(
+  () => import('@/components/ClanProfile'),
+  {
+    componentName: 'ClanProfile',
+    loadingMessage: 'Loading clan profile...',
+  }
+);
+
+export const LazyVenueManagement = createLazyComponent(
+  () => import('@/components/venue/VenueManagementPortal'),
+  {
+    componentName: 'VenueManagement',
+    loadingMessage: 'Loading venue management...',
+  }
+);
+
+export const LazyTournamentList = createLazyComponent(
+  () => import('@/components/Tournament/TournamentList'),
+  {
+    componentName: 'TournamentList',
+    loadingMessage: 'Loading tournaments...',
+  }
+);
+
+export const LazyInventory = createLazyComponent(
+  () => import('@/components/Inventory/InventoryLayout'),
+  {
+    componentName: 'Inventory',
+    loadingMessage: 'Loading inventory...',
+  }
+);
+
+// Higher-order component for lazy loading
+export const withLazyLoading = <P extends object>(
+  Component: React.ComponentType<P>,
+  options: {
+    componentName?: string;
+    loadingMessage?: string;
+    showProgress?: boolean;
+  } = {}
+) => {
+  const {
+    componentName = Component.displayName || 'Component',
+    loadingMessage = `Loading ${componentName}...`,
+    showProgress = false
+  } = options;
+
+  const LazyComponent = createLazyComponent(
+    () => Promise.resolve({ default: Component }),
+    { componentName, loadingMessage, showProgress }
+  );
+
+  return LazyComponent;
+};
+
+// Hook for prefetching components based on user behavior
+export const useComponentPrefetch = () => {
+  const [prefetchedComponents, setPrefetchedComponents] = useState<Set<string>>(new Set());
+
+  const prefetchComponent = useCallback((componentName: string) => {
+    if (prefetchedComponents.has(componentName)) return;
+
+    // Prefetch component based on user behavior
+    switch (componentName) {
+      case 'map':
+        import('@/components/world/refactored/RefactoredWorldHubMap');
+        break;
+      case 'game':
+        import('@/components/GameSession/GameSessionView');
+        break;
+      case 'admin':
+        import('@/components/CMS/CMSDashboard');
+        break;
+      case 'chat':
+        import('@/components/chat/ChatWindow');
+        break;
+      case 'clan':
+        import('@/components/ClanProfile');
+        break;
+      case 'venue':
+        import('@/components/venue/VenueManagementPortal');
+        break;
+      case 'tournament':
+        import('@/components/Tournament/TournamentList');
+        break;
+      case 'inventory':
+        import('@/components/Inventory/InventoryLayout');
+        break;
+      default:
+        break;
+    }
+
+    setPrefetchedComponents(prev => new Set([...prev, componentName]));
+  }, [prefetchedComponents]);
+
+  return { prefetchComponent, prefetchedComponents };
+};
+
+// Performance monitoring for lazy components
+export const useLazyComponentPerformance = (componentName: string) => {
+  const [metrics, setMetrics] = useState({
+    loadTime: 0,
+    renderTime: 0,
+    errorCount: 0,
+    retryCount: 0,
+  });
+
+  const recordMetric = useCallback((metric: string, value: number) => {
+    setMetrics(prev => ({
+      ...prev,
+      [metric]: value,
+    }));
+  }, []);
+
+  const incrementCounter = useCallback((counter: string) => {
+    setMetrics(prev => ({
+      ...prev,
+      [counter]: prev[counter as keyof typeof prev] + 1,
+    }));
+  }, []);
+
+  return {
+    metrics,
+    recordMetric,
+    incrementCounter,
+  };
+};
+
+// Export all lazy components
+export const LazyComponents = {
+  WorldHubMap: LazyWorldHubMap,
+  GameSessionView: LazyGameSessionView,
+  CMSDashboard: LazyCMSDashboard,
+  ChatWindow: LazyChatWindow,
+  ClanProfile: LazyClanProfile,
+  VenueManagement: LazyVenueManagement,
+  TournamentList: LazyTournamentList,
+  Inventory: LazyInventory,
+} as const;
