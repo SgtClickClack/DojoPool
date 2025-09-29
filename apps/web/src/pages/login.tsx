@@ -19,13 +19,38 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    return password.length >= 6;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setEmailError('');
+    setPasswordError('');
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
+    // Validate password length
+    if (!validatePassword(password)) {
+      setPasswordError('Password must be at least 6 characters long');
+      return;
+    }
 
     try {
       await login(email, password);
@@ -168,7 +193,18 @@ const LoginPage: React.FC = () => {
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                error={!!emailError}
+                helperText={emailError}
               />
+              {emailError && (
+                <Alert
+                  severity="error"
+                  sx={{ mt: 1 }}
+                  data-testid="email-error"
+                >
+                  {emailError}
+                </Alert>
+              )}
             </Box>
             <Box sx={{ mb: 2 }}>
               <Box
@@ -194,7 +230,18 @@ const LoginPage: React.FC = () => {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                error={!!passwordError}
+                helperText={passwordError}
               />
+              {passwordError && (
+                <Alert
+                  severity="error"
+                  sx={{ mt: 1 }}
+                  data-testid="password-error"
+                >
+                  {passwordError}
+                </Alert>
+              )}
             </Box>
             <Button
               type="submit"
