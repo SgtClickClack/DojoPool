@@ -11,8 +11,8 @@ describe('Performance Tests', () => {
   // Core page load performance
   describe('Page Load Performance', () => {
     const pages = [
-      '/auth/signin',
-      '/auth/signup',
+      '/login',
+      '/register',
       '/dashboard',
       '/games/active',
       '/venues',
