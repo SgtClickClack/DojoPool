@@ -8,12 +8,11 @@ import {
   FormControlLabel,
   FormLabel,
   Paper,
-  Radio,
-  RadioGroup,
   TextField,
   Typography,
   Alert,
   CircularProgress,
+  Checkbox,
 } from '@mui/material';
 import Head from 'next/head';
 import Layout from '@/components/Layout/Layout';
@@ -178,28 +177,17 @@ const CreateClanPage: React.FC = () => {
                 inputProps={{ 'data-testid': 'clan-description-input' }}
               />
 
-              <FormControl component="fieldset" sx={{ mb: 3 }}>
-                <FormLabel component="legend">Clan Visibility</FormLabel>
-                <RadioGroup
-                  value={formData.isPublic}
-                  onChange={(e) =>
-                    handleChange('isPublic', e.target.value === 'true')
-                  }
-                >
-                  <FormControlLabel
-                    value={true}
-                    control={<Radio />}
-                    label="Public Clan"
-                    data-testid="public-clan-radio"
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isPublic}
+                    onChange={(e) => handleChange('isPublic', e.target.checked)}
+                    data-testid="public-clan-checkbox"
                   />
-                  <FormControlLabel
-                    value={false}
-                    control={<Radio />}
-                    label="Private Clan"
-                    data-testid="private-clan-radio"
-                  />
-                </RadioGroup>
-              </FormControl>
+                }
+                label="Public Clan"
+                sx={{ mb: 2 }}
+              />
 
               <TextField
                 fullWidth
