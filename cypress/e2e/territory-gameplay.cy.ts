@@ -204,6 +204,8 @@ describe('Territory Gameplay E2E Tests', () => {
 
     // Process match result (simulating game completion)
     cy.window().then((win) => {
+      // Wait a bit for the global postMessage handler to be ready
+      cy.wait(100);
       win.postMessage(
         {
           type: 'MATCH_RESULT',
