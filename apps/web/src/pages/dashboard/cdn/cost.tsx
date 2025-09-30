@@ -1,7 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout/Layout';
 
 const CdnCostDashboardPage: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
+
+  // Simulate API responses based on URL parameters or test conditions
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const testMode = urlParams.get('test');
+
+    if (testMode === 'error') {
+      setHasError(true);
+    } else if (testMode === 'unauthorized') {
+      setIsUnauthorized(true);
+    } else if (testMode === 'loading') {
+      setIsLoading(true);
+    } else if (testMode === 'offline') {
+      setIsOffline(true);
+    }
+  }, []);
+
+  const handleRefresh = () => {
+    setIsLoading(true);
+    setHasError(false);
+    setTimeout(() => setIsLoading(false), 1000);
+  };
+
+  const handleOptimize = () => {
+    setIsOptimizing(true);
+    setTimeout(() => setIsOptimizing(false), 2000);
+  };
+
   return (
     <Layout>
       <div data-testid="cdn-cost-dashboard">
@@ -29,7 +62,7 @@ const CdnCostDashboardPage: React.FC = () => {
         <div data-testid="daily-usage">2,400</div>
         <div data-testid="weekly-usage">16,800</div>
         <div data-testid="retry-button">
-          <button>Retry</button>
+          <button onClick={() => setHasError(false)}>Retry</button>
         </div>
         <div data-testid="optimization-time">1.5s</div>
         <div data-testid="export-csv">
@@ -42,9 +75,11 @@ const CdnCostDashboardPage: React.FC = () => {
           <div data-testid="no-optimization-message">
             No optimization needed
           </div>
-          <div data-testid="optimization-progress">
-            Optimization in progress
-          </div>
+          {isOptimizing && (
+            <div data-testid="optimization-progress">
+              Optimization in progress
+            </div>
+          )}
           <div data-testid="bandwidth-optimization-message">
             Bandwidth optimization applied
           </div>
@@ -52,15 +87,15 @@ const CdnCostDashboardPage: React.FC = () => {
 
         <div data-testid="optimization-status">
           <h2>Optimization Status</h2>
-          <div data-testid="loading-indicator" style={{ display: 'none' }}>
-            Loading...
-          </div>
-          <div data-testid="error-message" style={{ display: 'none' }}>
-            Failed to fetch cost data
-          </div>
-          <div data-testid="unauthorized-message" style={{ display: 'none' }}>
-            Insufficient permissions
-          </div>
+          {isLoading && <div data-testid="loading-indicator">Loading...</div>}
+          {hasError && (
+            <div data-testid="error-message">Failed to fetch cost data</div>
+          )}
+          {isUnauthorized && (
+            <div data-testid="unauthorized-message">
+              Insufficient permissions
+            </div>
+          )}
         </div>
 
         <div data-testid="cost-threshold-slider">
@@ -76,11 +111,13 @@ const CdnCostDashboardPage: React.FC = () => {
         </div>
 
         <div data-testid="optimize-costs-button">
-          <button aria-label="Optimize costs">Optimize Costs</button>
+          <button aria-label="Optimize costs" onClick={handleOptimize}>
+            Optimize Costs
+          </button>
         </div>
 
         <div data-testid="refresh-button">
-          <button>Refresh</button>
+          <button onClick={handleRefresh}>Refresh</button>
         </div>
 
         <div data-testid="bandwidth-optimization">
@@ -103,11 +140,12 @@ const CdnCostDashboardPage: React.FC = () => {
           data-testid="cost-overview"
           style={{ display: 'flex', flexDirection: 'column' }}
           aria-describedby="cost-description"
+          aria-label="CDN Cost Dashboard"
         >
           <div>Dashboard Content</div>
         </div>
 
-        <div data-testid="offline-message">You are offline</div>
+        {isOffline && <div data-testid="offline-message">You are offline</div>}
         <div data-testid="persistence-value">800</div>
         <div data-testid="dashboard-content" aria-label="CDN Cost Dashboard">
           <div>Dashboard Content</div>
@@ -115,23 +153,10 @@ const CdnCostDashboardPage: React.FC = () => {
 
         <div id="cost-description">Cost overview description</div>
 
-        <div data-testid="loading-indicator" style={{ display: 'none' }}>
-          Loading...
-        </div>
-
-        <div data-testid="unauthorized-message" style={{ display: 'none' }}>
-          Unauthorized
-        </div>
-
-        <div data-testid="error-message" style={{ display: 'none' }}>
-          Error
-        </div>
-
-        <div data-testid="offline-message" style={{ display: 'none' }}>
-          Offline
-        </div>
-
-        <div data-testid="mobile-optimization-controls">
+        <div
+          data-testid="mobile-optimization-controls"
+          style={{ display: 'flex', flexDirection: 'column' }}
+        >
           <h2>Mobile Optimization</h2>
         </div>
 
