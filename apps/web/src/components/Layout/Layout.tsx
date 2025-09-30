@@ -10,7 +10,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
 
-  // Global postMessage handler for match results
+  // Global postMessage handler for match results and territory updates
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       if (event.data?.type === 'MATCH_RESULT') {
@@ -48,6 +48,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         } catch (error) {
           console.error('Failed to process match result:', error);
         }
+      } else if (event.data?.type === 'TERRITORY_UPDATE') {
+        const { territory } = event.data;
+
+        // Trigger a custom event to notify components of territory updates
+        window.dispatchEvent(
+          new CustomEvent('territoriesUpdated', {
+            detail: [territory],
+          })
+        );
       }
     };
 
