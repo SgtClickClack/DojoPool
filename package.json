@@ -15,7 +15,7 @@
     "lint": "yarn workspaces foreach -A -v run lint",
     "lint:fix": "yarn workspaces foreach -A -v run lint:fix",
     "test": "yarn test:unit && yarn test:integration",
-    "test:e2e": "start-server-and-test dev:test http://localhost:3001 cy:run",
+    "test:e2e": "start-server-and-test dev:test http://localhost:3000 cy:run",
     "type-check": "yarn workspaces foreach -A run type-check",
     "//--- TESTING HELPERS ---//": "",
     "dev:test": "yarn workspace @dojopool/prisma generate && cd apps/web && dotenv -e .env.test -- npx next dev",
