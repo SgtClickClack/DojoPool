@@ -84,6 +84,18 @@ Cypress.Commands.add('interceptAllApis', () => {
   cy.intercept('GET', '/api/v1/venues', { fixture: 'venues.json' }).as(
     'getVenuesV1'
   );
+  cy.intercept('POST', '/api/v1/venues', {
+    statusCode: 201,
+    body: { success: true },
+  }).as('postVenuesV1');
+  cy.intercept('PUT', '/api/v1/venues/*', {
+    statusCode: 200,
+    body: { success: true },
+  }).as('putVenuesV1');
+  cy.intercept('DELETE', '/api/v1/venues/*', {
+    statusCode: 200,
+    body: { success: true },
+  }).as('deleteVenuesV1');
 
   cy.intercept('GET', '/api/games/active', { fixture: 'active-games.json' }).as(
     'getActiveGames'

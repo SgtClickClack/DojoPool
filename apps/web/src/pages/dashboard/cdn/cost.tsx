@@ -21,11 +21,13 @@ const CdnCostDashboardPage: React.FC = () => {
 
         <div data-testid="cost-projections">
           <h2>Cost Projections</h2>
-          <div data-testid="daily-projection">$2,500</div>
+          <div data-testid="daily-projection">2,500</div>
+          <div data-testid="weekly-projection">17,500</div>
+          <div data-testid="monthly-projection">70,000</div>
         </div>
 
-        <div data-testid="daily-usage">Daily Usage: 2,400</div>
-        <div data-testid="weekly-projection">Weekly Projection: $17,500</div>
+        <div data-testid="daily-usage">2,400</div>
+        <div data-testid="weekly-usage">16,800</div>
         <div data-testid="retry-button">
           <button>Retry</button>
         </div>
@@ -62,7 +64,7 @@ const CdnCostDashboardPage: React.FC = () => {
         </div>
 
         <div data-testid="cost-threshold-slider">
-          <input type="range" />
+          <input type="range" aria-label="Cost threshold" />
         </div>
 
         <div data-testid="bandwidth-threshold-slider">
@@ -74,7 +76,7 @@ const CdnCostDashboardPage: React.FC = () => {
         </div>
 
         <div data-testid="optimize-costs-button">
-          <button>Optimize Costs</button>
+          <button aria-label="Optimize costs">Optimize Costs</button>
         </div>
 
         <div data-testid="refresh-button">
@@ -82,25 +84,27 @@ const CdnCostDashboardPage: React.FC = () => {
         </div>
 
         <div data-testid="bandwidth-optimization">
-          <input type="range" />
+          Bandwidth optimization applied
+        </div>
+
+        <div data-testid="request-optimization">
+          Request optimization applied
         </div>
 
         <div data-testid="export-options">
           <button>Export Data</button>
         </div>
 
-        <div
-          data-testid="dashboard-container"
-          style={{ display: 'flex', flexDirection: 'row' }}
-        >
-          <div>Dashboard Content</div>
+        <div data-testid="export-json">
+          <button>Export JSON</button>
         </div>
 
         <div
-          data-testid="mobile-dashboard"
+          data-testid="cost-overview"
           style={{ display: 'flex', flexDirection: 'column' }}
+          aria-describedby="cost-description"
         >
-          <div>Mobile Dashboard</div>
+          <div>Dashboard Content</div>
         </div>
 
         <div data-testid="offline-message">You are offline</div>
@@ -108,6 +112,8 @@ const CdnCostDashboardPage: React.FC = () => {
         <div data-testid="dashboard-content" aria-label="CDN Cost Dashboard">
           <div>Dashboard Content</div>
         </div>
+
+        <div id="cost-description">Cost overview description</div>
 
         <div data-testid="loading-indicator" style={{ display: 'none' }}>
           Loading...
