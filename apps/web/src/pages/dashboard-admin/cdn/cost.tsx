@@ -1,6 +1,110 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const CDNCostDashboard: React.FC = () => {
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
+  const [_hasError, setHasError] = useState(false);
+  const [costThreshold, setCostThreshold] = useState(1000);
+  const [bandwidthThreshold, setBandwidthThreshold] = useState(500);
+  const [requestThreshold, setRequestThreshold] = useState(100);
+  const [totalCost, setTotalCost] = useState(1000);
+  const [bandwidthCost, setBandwidthCost] = useState(600);
+  const [requestCost, setRequestCost] = useState(400);
+  const [_ws, setWs] = useState<WebSocket | null>(null);
+
+  // 1. Data Persistence - Load settings from localStorage on mount
+  useEffect(() => {
+    const savedCostThreshold = localStorage.getItem('costThreshold');
+    const savedBandwidthThreshold = localStorage.getItem('bandwidthThreshold');
+    const savedRequestThreshold = localStorage.getItem('requestThreshold');
+
+    if (savedCostThreshold) setCostThreshold(parseInt(savedCostThreshold));
+    if (savedBandwidthThreshold)
+      setBandwidthThreshold(parseInt(savedBandwidthThreshold));
+    if (savedRequestThreshold)
+      setRequestThreshold(parseInt(savedRequestThreshold));
+  }, []);
+
+  // 1. Data Persistence - Save settings to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('costThreshold', costThreshold.toString());
+  }, [costThreshold]);
+
+  useEffect(() => {
+    localStorage.setItem('bandwidthThreshold', bandwidthThreshold.toString());
+  }, [bandwidthThreshold]);
+
+  useEffect(() => {
+    localStorage.setItem('requestThreshold', requestThreshold.toString());
+  }, [requestThreshold]);
+
+  // 2. Network Interruptions - Listen for online/offline events
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // 3. Real-Time Updates - WebSocket connection
+  useEffect(() => {
+    const websocket = new WebSocket('ws://localhost:8080/cdn-cost');
+
+    websocket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'cost_update') {
+          setTotalCost(data.data.total_cost);
+          setBandwidthCost(data.data.bandwidth_cost);
+          setRequestCost(data.data.request_cost);
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    };
+
+    websocket.onerror = () => {
+      setHasError(true);
+    };
+
+    setWs(websocket);
+
+    return () => {
+      websocket.close();
+    };
+  }, []);
+
+  // 4. Data Export - Clipboard API
+  const handleExport = async (format: 'csv' | 'json') => {
+    const data = {
+      totalCost,
+      bandwidthCost,
+      requestCost,
+      costThreshold,
+      bandwidthThreshold,
+      requestThreshold,
+    };
+
+    let exportData: string;
+    if (format === 'csv') {
+      exportData = `Total Cost,Bandwidth Cost,Request Cost,Cost Threshold,Bandwidth Threshold,Request Threshold\n${totalCost},${bandwidthCost},${requestCost},${costThreshold},${bandwidthThreshold},${requestThreshold}`;
+    } else {
+      exportData = JSON.stringify(data, null, 2);
+    }
+
+    try {
+      await navigator.clipboard.writeText(exportData);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
@@ -16,19 +120,20 @@ const CDNCostDashboard: React.FC = () => {
         <div data-testid="cdn-cost-dashboard" className="space-y-6">
           <div
             data-testid="cost-overview"
+            aria-label="CDN Cost Overview"
             aria-describedby="cost-overview-desc"
             className="bg-white rounded-lg shadow p-6"
           >
             <p id="cost-overview-desc" className="sr-only">
               Overview of CDN costs
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="text-center">
                 <div
                   data-testid="total-cost"
                   className="text-2xl font-bold text-blue-600"
                 >
-                  $1,000.00 $1,200.00
+                  ${totalCost.toFixed(2)}
                 </div>
                 <div className="text-sm text-gray-600">Total Cost</div>
               </div>
@@ -37,7 +142,7 @@ const CDNCostDashboard: React.FC = () => {
                   data-testid="bandwidth-cost"
                   className="text-2xl font-bold text-green-600"
                 >
-                  $600.00
+                  ${bandwidthCost.toFixed(2)}
                 </div>
                 <div className="text-sm text-gray-600">Bandwidth Cost</div>
               </div>
@@ -46,7 +151,7 @@ const CDNCostDashboard: React.FC = () => {
                   data-testid="request-cost"
                   className="text-2xl font-bold text-purple-600"
                 >
-                  $400.00
+                  ${requestCost.toFixed(2)}
                 </div>
                 <div className="text-sm text-gray-600">Request Cost</div>
               </div>
@@ -136,7 +241,8 @@ const CDNCostDashboard: React.FC = () => {
               type="range"
               min={0}
               max={5000}
-              defaultValue={1000}
+              value={costThreshold}
+              onChange={(e) => setCostThreshold(parseInt(e.target.value))}
               className="w-full"
             />
             <input
@@ -145,7 +251,8 @@ const CDNCostDashboard: React.FC = () => {
               type="range"
               min={0}
               max={1000}
-              defaultValue={300}
+              value={bandwidthThreshold}
+              onChange={(e) => setBandwidthThreshold(parseInt(e.target.value))}
               className="w-full"
             />
             <input
@@ -154,7 +261,8 @@ const CDNCostDashboard: React.FC = () => {
               type="range"
               min={0}
               max={100}
-              defaultValue={50}
+              value={requestThreshold}
+              onChange={(e) => setRequestThreshold(parseInt(e.target.value))}
               className="w-full"
             />
             <div
@@ -169,6 +277,7 @@ const CDNCostDashboard: React.FC = () => {
               data-testid="optimize-costs-button"
               aria-label="Optimize costs"
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={() => setIsOptimizing(true)}
             >
               Optimize
             </button>
@@ -178,9 +287,11 @@ const CDNCostDashboard: React.FC = () => {
             >
               Refresh
             </button>
-            <div data-testid="optimization-status">
-              Optimization in progress
-            </div>
+            {isOptimizing && (
+              <div data-testid="optimization-status">
+                Optimization in progress
+              </div>
+            )}
             <div data-testid="optimization-feedback">
               Optimization completed
             </div>
@@ -208,7 +319,9 @@ const CDNCostDashboard: React.FC = () => {
             <div data-testid="unauthorized-message">
               Insufficient permissions
             </div>
-            <div data-testid="offline-message">You are offline</div>
+            {isOffline && (
+              <div data-testid="offline-message">You are offline</div>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow p-6 space-y-3">
@@ -222,12 +335,14 @@ const CDNCostDashboard: React.FC = () => {
               <button
                 data-testid="export-csv"
                 className="px-3 py-1 bg-gray-100 rounded"
+                onClick={() => handleExport('csv')}
               >
                 CSV
               </button>
               <button
                 data-testid="export-json"
                 className="px-3 py-1 bg-gray-100 rounded"
+                onClick={() => handleExport('json')}
               >
                 JSON
               </button>

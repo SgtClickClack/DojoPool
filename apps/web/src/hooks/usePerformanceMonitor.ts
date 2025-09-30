@@ -1,5 +1,6 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { performance_monitor } from '../services/performanceMonitor';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { debounce } from 'lodash-es';
+// import { performance_monitor } from '../services/performanceMonitor';
 import { metrics_monitor } from '../services/metricsMonitor';
 
 export interface ComponentPerformanceMetrics {
@@ -24,6 +25,32 @@ const defaultThresholds: PerformanceThresholds = {
   maxRenderTime: 16, // 60fps = 16ms per frame
   maxRenderCount: 100,
   maxMemoryUsage: 50, // 50MB
+};
+
+// Utility function for efficient shallow comparison
+const shallowCompare = (
+  obj1: Record<string, any>,
+  obj2: Record<string, any>
+): boolean => {
+  if (!obj1 || !obj2) return obj1 === obj2;
+
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+
+  for (const key of keys1) {
+    if (
+      !Object.prototype.hasOwnProperty.call(obj2, key) ||
+      obj1[key] !== obj2[key]
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 };
 
 export const usePerformanceMonitor = (
@@ -51,7 +78,7 @@ export const usePerformanceMonitor = (
   const trackRender = useCallback(() => {
     const renderEndTime = performance.now();
     const renderTime = renderEndTime - renderStartTimeRef.current;
-    
+
     const metrics = metricsRef.current;
     metrics.renderCount++;
     metrics.lastRenderTime = renderTime;
@@ -105,7 +132,7 @@ export const usePerformanceMonitor = (
   // Track props changes
   const trackPropsChange = useCallback((props: any) => {
     if (prevPropsRef.current !== null) {
-      const hasChanged = JSON.stringify(prevPropsRef.current) !== JSON.stringify(props);
+      const hasChanged = !shallowCompare(prevPropsRef.current, props);
       if (hasChanged) {
         metricsRef.current.propsChanges++;
       }
@@ -116,7 +143,7 @@ export const usePerformanceMonitor = (
   // Track state changes
   const trackStateChange = useCallback((state: any) => {
     if (prevStateRef.current !== null) {
-      const hasChanged = JSON.stringify(prevStateRef.current) !== JSON.stringify(state);
+      const hasChanged = !shallowCompare(prevStateRef.current, state);
       if (hasChanged) {
         metricsRef.current.stateChanges++;
       }
@@ -132,28 +159,64 @@ export const usePerformanceMonitor = (
   // Track render completion
   useEffect(() => {
     trackRender();
-  });
+  }, [trackRender]);
+
+  // Reset metrics function
+  const resetMetrics = useCallback(() => {
+    const metrics = metricsRef.current;
+    metrics.renderCount = 0;
+    metrics.averageRenderTime = 0;
+    metrics.lastRenderTime = 0;
+    metrics.totalRenderTime = 0;
+    metrics.propsChanges = 0;
+    metrics.stateChanges = 0;
+    // Keep mountTime and componentName unchanged
+  }, []);
+
+  // Metrics cleanup interval
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      resetMetrics();
+    }, 300000); // 5 minutes
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [resetMetrics]);
 
   // Track unmount
   useEffect(() => {
     return () => {
       metricsRef.current.unmountTime = performance.now();
-      
+
       // Log final metrics
       console.log(`Performance metrics for ${componentName}:`, {
         ...metricsRef.current,
-        totalLifetime: metricsRef.current.unmountTime - metricsRef.current.mountTime,
+        totalLifetime:
+          metricsRef.current.unmountTime - metricsRef.current.mountTime,
       });
     };
   }, [componentName]);
 
+  // Create debounced versions of tracking functions
+  const debouncedTrackPropsChange = useMemo(
+    () => debounce(trackPropsChange, 300, { leading: false, trailing: true }),
+    [trackPropsChange]
+  );
+
+  const debouncedTrackStateChange = useMemo(
+    () => debounce(trackStateChange, 300, { leading: false, trailing: true }),
+    [trackStateChange]
+  );
+
   return {
     metrics: metricsRef.current,
-    trackPropsChange,
-    trackStateChange,
+    trackPropsChange: debouncedTrackPropsChange,
+    trackStateChange: debouncedTrackStateChange,
     getPerformanceReport: () => ({
       ...metricsRef.current,
-      memoryUsage: (performance as any).memory?.usedJSHeapSize / (1024 * 1024) || 0,
+      memoryUsage:
+        (performance as any).memory?.usedJSHeapSize / (1024 * 1024) || 0,
       thresholds: finalThresholds,
     }),
   };
@@ -171,11 +234,14 @@ export const useOperationTimer = (operationName: string) => {
   const endTimer = useCallback(() => {
     endTimeRef.current = performance.now();
     const duration = endTimeRef.current - startTimeRef.current;
-    
+
     // Log slow operations
-    if (duration > 100) { // 100ms threshold
-      console.warn(`Slow operation detected: ${operationName} took ${duration.toFixed(2)}ms`);
-      
+    if (duration > 100) {
+      // 100ms threshold
+      console.warn(
+        `Slow operation detected: ${operationName} took ${duration.toFixed(2)}ms`
+      );
+
       metrics_monitor.addAlert(
         'warning' as any,
         `Slow operation: ${operationName} took ${duration.toFixed(2)}ms`,
@@ -195,47 +261,48 @@ export const useOperationTimer = (operationName: string) => {
 
 // Hook for tracking API call performance
 export const useAPIPerformanceMonitor = () => {
-  const trackAPICall = useCallback(async <T>(
-    apiCall: () => Promise<T>,
-    endpoint: string
-  ): Promise<T> => {
-    const startTime = performance.now();
-    
-    try {
-      const result = await apiCall();
-      const duration = performance.now() - startTime;
-      
-      // Track successful API calls
-      if (duration > 1000) { // 1 second threshold
+  const trackAPICall = useCallback(
+    async <T>(apiCall: () => Promise<T>, endpoint: string): Promise<T> => {
+      const startTime = performance.now();
+
+      try {
+        const result = await apiCall();
+        const duration = performance.now() - startTime;
+
+        // Track successful API calls
+        if (duration > 1000) {
+          // 1 second threshold
+          metrics_monitor.addAlert(
+            'warning' as any,
+            `Slow API call: ${endpoint} took ${duration.toFixed(2)}ms`,
+            {
+              endpoint,
+              duration,
+              threshold: 1000,
+            }
+          );
+        }
+
+        return result;
+      } catch (error) {
+        const duration = performance.now() - startTime;
+
+        // Track failed API calls
         metrics_monitor.addAlert(
-          'warning' as any,
-          `Slow API call: ${endpoint} took ${duration.toFixed(2)}ms`,
+          'error' as any,
+          `API call failed: ${endpoint} after ${duration.toFixed(2)}ms`,
           {
             endpoint,
             duration,
-            threshold: 1000,
+            error: error instanceof Error ? error.message : 'Unknown error',
           }
         );
+
+        throw error;
       }
-      
-      return result;
-    } catch (error) {
-      const duration = performance.now() - startTime;
-      
-      // Track failed API calls
-      metrics_monitor.addAlert(
-        'error' as any,
-        `API call failed: ${endpoint} after ${duration.toFixed(2)}ms`,
-        {
-          endpoint,
-          duration,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        }
-      );
-      
-      throw error;
-    }
-  }, []);
+    },
+    []
+  );
 
   return { trackAPICall };
 };

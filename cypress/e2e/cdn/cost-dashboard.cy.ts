@@ -43,7 +43,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should load the CDN cost dashboard', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
     cy.get('[data-testid="cdn-cost-dashboard"]').should('exist');
     cy.get('[data-testid="cost-overview"]').should('exist');
     cy.get('[data-testid="usage-patterns"]').should('exist');
@@ -51,7 +51,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should display cost overview correctly', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Check total cost
     cy.get('[data-testid="total-cost"]').should('contain', '$1,000.00');
@@ -65,7 +65,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should display usage patterns correctly', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Check hourly usage chart
     cy.get('[data-testid="hourly-usage-chart"]')
@@ -80,7 +80,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should display cost projections correctly', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Check daily projection
     cy.get('[data-testid="daily-projection"]').should('contain', '2,500');
@@ -93,7 +93,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should handle optimization controls', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Test cost threshold slider
     cy.get('[data-testid="cost-threshold-slider"]')
@@ -119,7 +119,7 @@ describe('CDN Cost Dashboard', () => {
       body: { error: 'Failed to fetch cost data' },
     });
 
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Check error message
     cy.get('[data-testid="error-message"]')
@@ -140,7 +140,7 @@ describe('CDN Cost Dashboard', () => {
       });
     });
 
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Check loading indicators
     cy.get('[data-testid="loading-indicator"]')
@@ -160,7 +160,7 @@ describe('CDN Cost Dashboard', () => {
       body: { ...mockUser, role: 'user' },
     });
 
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Check unauthorized message
     cy.get('[data-testid="unauthorized-message"]')
@@ -169,7 +169,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should handle data refresh', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Click refresh button
     cy.get('[data-testid="refresh-button"]')
@@ -189,7 +189,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should handle optimization scenarios', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Test different cost thresholds
     cy.get('[data-testid="cost-threshold-slider"]')
@@ -215,7 +215,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should handle threshold adjustments', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Test bandwidth threshold
     cy.get('[data-testid="bandwidth-threshold-slider"]')
@@ -245,7 +245,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should handle real-time updates', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Mock WebSocket connection
     cy.window().then((win) => {
@@ -275,7 +275,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should be accessible', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Check ARIA labels
     cy.get('[data-testid="cost-threshold-slider"]').should(
@@ -304,7 +304,7 @@ describe('CDN Cost Dashboard', () => {
   it('should handle mobile responsiveness', () => {
     // Test on mobile viewport
     cy.viewport('iphone-6');
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Check layout adjustments
     cy.get('[data-testid="cost-overview"]').should(
@@ -326,7 +326,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should handle concurrent optimizations', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Start multiple optimizations
     cy.get('[data-testid="optimize-costs-button"]').click();
@@ -343,7 +343,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should handle data persistence', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Set custom thresholds
     cy.get('[data-testid="cost-threshold-slider"]')
@@ -367,7 +367,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should handle network interruptions', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Simulate network offline
     cy.window().then((win) => {
@@ -393,7 +393,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should handle data export', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Click export button
     cy.get('[data-testid="export-button"]')
@@ -414,7 +414,7 @@ describe('CDN Cost Dashboard', () => {
   });
 
   it('should handle performance metrics', () => {
-    cy.visit('/dashboard/cdn/cost');
+    cy.visit('/dashboard-admin/cdn/cost');
 
     // Check initial load time
     cy.window().then((win) => {
