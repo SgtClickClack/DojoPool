@@ -14,7 +14,7 @@ export default [
   js.configs.recommended,
   prettierConfig,
   {
-    files: ['**/*.ts', '**/*.tsx'],
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {

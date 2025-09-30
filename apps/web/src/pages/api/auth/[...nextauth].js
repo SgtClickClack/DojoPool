@@ -1,7 +1,7 @@
+/* eslint-env node */
 import NextAuth from 'next-auth';
 import Google from 'next-auth/providers/google';
 import Credentials from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
@@ -15,7 +15,6 @@ const credentialsSchema = z.object({
 });
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -31,7 +30,7 @@ export const authOptions = {
         try {
           // Validate input
           const validatedCredentials = credentialsSchema.parse(credentials);
-          
+
           const user = await prisma.user.findUnique({
             where: { email: validatedCredentials.email },
             select: {
@@ -77,7 +76,7 @@ export const authOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
         token.id = user.id;
@@ -92,7 +91,7 @@ export const authOptions = {
       }
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn() {
       // Additional security checks can be added here
       return true;
     },
