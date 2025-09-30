@@ -19,8 +19,8 @@
     "clean": "rm -rf .next node_modules/.cache"
   },
   "dependencies": {
-    "@emotion/react": "11.11.0",
-    "@emotion/styled": "11.11.0",
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.1",
     "@heroicons/react": "2.2.0",
     "@mui/icons-material": "5.15.0",
     "@mui/material": "5.15.0",
@@ -48,7 +48,7 @@
     "react-router-dom": "^6.11.1",
     "socket.io-client": "^4.6.1",
     "swr": "^2.2.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3"
   },
   "prisma": {
     "schema": "../../packages/prisma/schema.prisma"
