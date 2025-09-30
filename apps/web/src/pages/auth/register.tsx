@@ -160,8 +160,7 @@ const RegisterPage: React.FC = () => {
             variant="outlined"
             startIcon={<GoogleIcon />}
             onClick={handleGoogleSignIn}
-            component="a"
-            href="/api/auth/signin/google?callbackUrl=%2Fauth%2Fsuccess"
+            disabled={isGoogleLoading}
             sx={{
               mb: 3,
               borderColor: '#4285f4',

@@ -151,8 +151,7 @@ const LoginPage: React.FC = () => {
             variant="outlined"
             startIcon={<GoogleIcon />}
             onClick={handleGoogleSignIn}
-            component="a"
-            href="/api/auth/signin/google?callbackUrl=%2Fauth%2Fsuccess"
+            disabled={isGoogleLoading}
             data-testid="google-signin"
             sx={{
               mb: 3,
