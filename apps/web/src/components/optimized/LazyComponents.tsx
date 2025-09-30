@@ -271,10 +271,7 @@ export const LazyTournamentList = createLazyComponent(
 );
 
 export const LazyInventory = createLazyComponent(
-  () =>
-    import('@/components/Inventory/InventoryLayout').then((module) => ({
-      default: module.default,
-    })),
+  () => import('@/components/Inventory/InventoryLayout'),
   {
     componentName: 'Inventory',
     loadingMessage: 'Loading inventory...',
