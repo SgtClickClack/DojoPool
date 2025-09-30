@@ -154,10 +154,10 @@ export class TerritoriesService {
             template.message,
             { territoryId: territory.id, venueId, previousOwnerId }
           );
-        } catch (notifyErr: any) {
+        } catch (notifyErr: unknown) {
           this.logger.warn(
             `Failed to notify new owner: ${
-              notifyErr?.message ?? String(notifyErr)
+              notifyErr instanceof Error ? notifyErr.message : String(notifyErr)
             }`
           );
         }
@@ -177,10 +177,12 @@ export class TerritoriesService {
               template.message,
               { territoryId: territory.id, venueId, newOwnerId: winnerId }
             );
-          } catch (notifyErr: any) {
+          } catch (notifyErr: unknown) {
             this.logger.warn(
               `Failed to notify previous owner: ${
-                notifyErr?.message ?? String(notifyErr)
+                notifyErr instanceof Error
+                  ? notifyErr.message
+                  : String(notifyErr)
               }`
             );
           }
@@ -231,8 +233,8 @@ export class TerritoriesService {
       clan: t.clan ? { id: t.clan.id, name: t.clan.name } : null,
       level: t.level,
       defenseScore: t.defenseScore,
-      strategicValue: (t as any).strategicValue ?? 0,
-      resources: (t as any).resources ?? {},
+      strategicValue: (t as { strategicValue?: number }).strategicValue ?? 0,
+      resources: (t as { resources?: Record<string, unknown> }).resources ?? {},
     }));
   }
 
@@ -255,7 +257,7 @@ export class TerritoriesService {
   async manageTerritory(
     territoryId: string,
     action: 'upgrade_defense' | 'allocate_resources' | 'transfer_ownership',
-    payload?: any
+    payload?: Record<string, unknown>
   ) {
     switch (action) {
       case 'upgrade_defense': {
@@ -278,8 +280,8 @@ export class TerritoriesService {
           select: { resources: true },
         });
         const resources = {
-          ...(current?.resources as any),
-          ...(payload?.resources || {}),
+          ...(current?.resources as Record<string, unknown>),
+          ...((payload?.resources as Record<string, unknown>) || {}),
         };
         await this._prisma.territory.update({
           where: { id: territoryId },

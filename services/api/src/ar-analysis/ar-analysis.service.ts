@@ -67,8 +67,18 @@ export class ArAnalysisService {
       } as any;
     } catch (_) {
       const { PNG } = await import('pngjs');
-      const img = (PNG as any).sync.read(buffer);
-      return { data: img.data, width: img.width, height: img.height } as any;
+      const img = (
+        PNG as {
+          sync: {
+            read: (buffer: Buffer) => {
+              data: Uint8Array;
+              width: number;
+              height: number;
+            };
+          };
+        }
+      ).sync.read(buffer);
+      return { data: img.data, width: img.width, height: img.height };
     }
   }
 
@@ -84,19 +94,17 @@ export class ArAnalysisService {
       };
     }
 
-    let src: any | null = null;
-    let gray: any | null = null;
-    let blurred: any | null = null;
-    let edges: any | null = null;
-    let contours: any | null = null;
-    let hierarchy: any | null = null;
-    let circles: any | null = null;
+    let src: Record<string, unknown> | null = null;
+    let gray: Record<string, unknown> | null = null;
+    let blurred: Record<string, unknown> | null = null;
+    let edges: Record<string, unknown> | null = null;
+    let contours: Record<string, unknown> | null = null;
+    let hierarchy: Record<string, unknown> | null = null;
+    let circles: Record<string, unknown> | null = null;
 
     try {
-      const imageData: any = await this.decodeImageToImageData(
-        buffer,
-        mimeType
-      );
+      const imageData: { data: Uint8Array; width: number; height: number } =
+        await this.decodeImageToImageData(buffer, mimeType);
       // Create Mat from ImageData (RGBA)
       src = cv.matFromImageData(imageData);
 

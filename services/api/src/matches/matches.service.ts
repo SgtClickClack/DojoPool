@@ -108,7 +108,12 @@ export class MatchesService {
           playerAId,
           playerBId,
           round,
-          status: status as any,
+          status: status as
+            | 'PENDING'
+            | 'IN_PROGRESS'
+            | 'PAUSED'
+            | 'COMPLETED'
+            | 'CANCELLED',
           tableId: tableId ?? undefined,
           wager: normalizedWager,
         },
@@ -123,7 +128,15 @@ export class MatchesService {
     winnerId: string,
     scoreA: number,
     scoreB: number
-  ): Promise<any> {
+  ): Promise<{
+    id: string;
+    winnerId: string;
+    loserId: string;
+    scoreA: number;
+    scoreB: number;
+    status: string;
+    endedAt: Date;
+  }> {
     try {
       // Fetch existing match to determine loser safely and get wager
       const existing = await this._prisma.match.findUnique({
@@ -202,7 +215,16 @@ export class MatchesService {
     }
   }
 
-  private async generateAndStoreAnalysis(match: any): Promise<void> {
+  private async generateAndStoreAnalysis(match: {
+    id: string;
+    playerAId: string;
+    playerBId: string;
+    scoreA: number;
+    scoreB: number;
+    winnerId: string;
+    venueId: string;
+    round: number;
+  }): Promise<void> {
     try {
       const matchData = {
         playerAName: match.playerA.username,
@@ -277,7 +299,26 @@ export class MatchesService {
     return updated;
   }
 
-  async getMatchWithAnalysis(matchId: string): Promise<any> {
+  async getMatchWithAnalysis(matchId: string): Promise<{
+    id: string;
+    tournamentId: string;
+    venueId: string;
+    playerAId: string;
+    playerBId: string;
+    round: number;
+    status: string;
+    tableId: string | null;
+    wager: number;
+    createdAt: Date;
+    updatedAt: Date;
+    analysis?: {
+      keyMoments: string[];
+      strategicInsights: string[];
+      playerPerformance: Record<string, string>;
+      overallAssessment: string;
+      recommendations: string[];
+    };
+  } | null> {
     try {
       const match = await this._prisma.match.findUnique({
         where: { id: matchId },
