@@ -7,6 +7,13 @@ const CdnCostDashboardPage: React.FC = () => {
   const [isOffline, setIsOffline] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isUnauthorized, setIsUnauthorized] = useState(false);
+  const [costThreshold, setCostThreshold] = useState(1000);
+  const [bandwidthThreshold, setBandwidthThreshold] = useState(500);
+  const [requestThreshold, setRequestThreshold] = useState(100);
+  const [totalCost, setTotalCost] = useState(1000);
+  const [bandwidthCost, setBandwidthCost] = useState(600);
+  const [requestCost, setRequestCost] = useState(400);
+  const [showExportOptions, setShowExportOptions] = useState(false);
 
   // Simulate API responses based on URL parameters or test conditions
   useEffect(() => {
@@ -22,6 +29,29 @@ const CdnCostDashboardPage: React.FC = () => {
     } else if (testMode === 'offline') {
       setIsOffline(true);
     }
+
+    // Load persisted values from localStorage
+    const savedCostThreshold = localStorage.getItem('costThreshold');
+    const savedBandwidthThreshold = localStorage.getItem('bandwidthThreshold');
+    const savedRequestThreshold = localStorage.getItem('requestThreshold');
+
+    if (savedCostThreshold) setCostThreshold(parseInt(savedCostThreshold));
+    if (savedBandwidthThreshold)
+      setBandwidthThreshold(parseInt(savedBandwidthThreshold));
+    if (savedRequestThreshold)
+      setRequestThreshold(parseInt(savedRequestThreshold));
+
+    // Listen for online/offline events
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   const handleRefresh = () => {
@@ -33,6 +63,39 @@ const CdnCostDashboardPage: React.FC = () => {
   const handleOptimize = () => {
     setIsOptimizing(true);
     setTimeout(() => setIsOptimizing(false), 2000);
+  };
+
+  const handleCostThresholdChange = (value: number) => {
+    setCostThreshold(value);
+    localStorage.setItem('costThreshold', value.toString());
+  };
+
+  const handleBandwidthThresholdChange = (value: number) => {
+    setBandwidthThreshold(value);
+    localStorage.setItem('bandwidthThreshold', value.toString());
+  };
+
+  const handleRequestThresholdChange = (value: number) => {
+    setRequestThreshold(value);
+    localStorage.setItem('requestThreshold', value.toString());
+  };
+
+  const handleExport = (format: 'csv' | 'json') => {
+    const data = {
+      totalCost,
+      bandwidthCost,
+      requestCost,
+      costThreshold,
+      bandwidthThreshold,
+      requestThreshold,
+    };
+
+    if (format === 'csv') {
+      const csv = `Total Cost,Bandwidth Cost,Request Cost,Cost Threshold,Bandwidth Threshold,Request Threshold\n${totalCost},${bandwidthCost},${requestCost},${costThreshold},${bandwidthThreshold},${requestThreshold}`;
+      navigator.clipboard.writeText(csv);
+    } else {
+      navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    }
   };
 
   return (
@@ -96,18 +159,53 @@ const CdnCostDashboardPage: React.FC = () => {
               Insufficient permissions
             </div>
           )}
+          {isOptimizing && <div>Optimization in progress</div>}
+          {!isOptimizing && !hasError && (
+            <div data-testid="optimization-feedback">
+              {costThreshold > 1500
+                ? 'No optimization needed'
+                : 'Optimization completed'}
+            </div>
+          )}
         </div>
 
         <div data-testid="cost-threshold-slider">
-          <input type="range" aria-label="Cost threshold" />
+          <input
+            type="range"
+            min="0"
+            max="2000"
+            value={costThreshold}
+            onChange={(e) =>
+              handleCostThresholdChange(parseInt(e.target.value))
+            }
+            aria-label="Cost threshold"
+          />
         </div>
 
         <div data-testid="bandwidth-threshold-slider">
-          <input type="range" />
+          <input
+            type="range"
+            min="0"
+            max="1000"
+            value={bandwidthThreshold}
+            onChange={(e) =>
+              handleBandwidthThresholdChange(parseInt(e.target.value))
+            }
+            aria-label="Bandwidth threshold"
+          />
         </div>
 
         <div data-testid="request-threshold-slider">
-          <input type="range" />
+          <input
+            type="range"
+            min="0"
+            max="200"
+            value={requestThreshold}
+            onChange={(e) =>
+              handleRequestThresholdChange(parseInt(e.target.value))
+            }
+            aria-label="Request threshold"
+          />
         </div>
 
         <div data-testid="optimize-costs-button">
@@ -142,11 +240,13 @@ const CdnCostDashboardPage: React.FC = () => {
           aria-describedby="cost-description"
           aria-label="CDN Cost Dashboard"
         >
-          <div>Dashboard Content</div>
+          <div data-testid="total-cost">${totalCost.toFixed(2)}</div>
+          <div data-testid="bandwidth-cost">${bandwidthCost.toFixed(2)}</div>
+          <div data-testid="request-cost">${requestCost.toFixed(2)}</div>
         </div>
 
         {isOffline && <div data-testid="offline-message">You are offline</div>}
-        <div data-testid="persistence-value">800</div>
+        <div data-testid="persistence-value">{costThreshold}</div>
         <div data-testid="dashboard-content" aria-label="CDN Cost Dashboard">
           <div>Dashboard Content</div>
         </div>
@@ -161,7 +261,24 @@ const CdnCostDashboardPage: React.FC = () => {
         </div>
 
         <div data-testid="export-button">
-          <button>Export</button>
+          <button onClick={() => setShowExportOptions(!showExportOptions)}>
+            Export
+          </button>
+        </div>
+
+        {showExportOptions && (
+          <div data-testid="export-options">
+            <div data-testid="export-csv">
+              <button onClick={() => handleExport('csv')}>Export CSV</button>
+            </div>
+            <div data-testid="export-json">
+              <button onClick={() => handleExport('json')}>Export JSON</button>
+            </div>
+          </div>
+        )}
+
+        <div data-testid="retry-button">
+          <button onClick={handleRefresh}>Retry</button>
         </div>
       </div>
     </Layout>
