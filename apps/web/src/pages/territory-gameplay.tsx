@@ -147,9 +147,28 @@ const TerritoryGameplayPage: React.FC = () => {
     }
   };
 
-  const handleDeclineChallenge = (challengeId: string) => {
-    // Mock decline challenge functionality
-    console.log('Declining challenge:', challengeId);
+  const handleDeclineChallenge = async (challengeId: string) => {
+    try {
+      const response = await fetch(`/api/challenges/${challengeId}/decline`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        // Update the challenge status in the local state
+        setChallenges(prev => 
+          prev.map(challenge => 
+            challenge.id === challengeId 
+              ? { ...challenge, status: 'Declined' }
+              : challenge
+          )
+        );
+      }
+    } catch (_error) {
+      console.error('Failed to decline challenge:', _error);
+    }
   };
 
   const handleRetry = () => {
