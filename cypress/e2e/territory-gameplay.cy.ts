@@ -170,6 +170,21 @@ describe('Territory Gameplay E2E Tests', () => {
   it('should update territory ownership after match result', () => {
     cy.visit('/');
 
+    // Mock updated territories (set up first to ensure it's ready)
+    cy.intercept('GET', '/api/territories', {
+      statusCode: 200,
+      body: [
+        {
+          id: 'territory-1',
+          name: 'Test Dojo',
+          coordinates: { lat: -27.4698, lng: 153.0251 },
+          owner: 'test-user-1',
+          clan: 'test-clan',
+          requiredNFT: 'trophy-1',
+        },
+      ],
+    }).as('getUpdatedTerritories');
+
     // Mock match result processing
     cy.intercept('POST', '/api/challenges/challenge-1/result', {
       statusCode: 200,
@@ -186,21 +201,6 @@ describe('Territory Gameplay E2E Tests', () => {
         },
       },
     }).as('processMatchResult');
-
-    // Mock updated territories
-    cy.intercept('GET', '/api/territories', {
-      statusCode: 200,
-      body: [
-        {
-          id: 'territory-1',
-          name: 'Test Dojo',
-          coordinates: { lat: -27.4698, lng: 153.0251 },
-          owner: 'test-user-1',
-          clan: 'test-clan',
-          requiredNFT: 'trophy-1',
-        },
-      ],
-    }).as('getUpdatedTerritories');
 
     // Process match result (simulating game completion)
     cy.window().then((win) => {
