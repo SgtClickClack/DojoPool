@@ -3,7 +3,7 @@ describe('Venue Discovery Feature', () => {
     cy.login();
     cy.interceptAllApis();
     cy.visit('/');
-    cy.intercept('GET', '/api/v1/venues*', {
+    cy.intercept('GET', '**/v1/venues*', {
       statusCode: 200,
       body: {
         venues: [

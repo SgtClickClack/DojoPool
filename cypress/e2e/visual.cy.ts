@@ -8,37 +8,37 @@ describe('Visual Regression Tests', () => {
 
   it('should match login page snapshot', () => {
     cy.visit('/login');
-    cy.percySnapshot('Login Page');
+    cy.compareSnapshot('Login Page');
   });
 
   it('should match signup page snapshot', () => {
     cy.visit('/register');
-    cy.percySnapshot('Signup Page');
+    cy.compareSnapshot('Signup Page');
   });
 
   it('should match dashboard snapshot', () => {
     cy.visit('/dashboard');
-    cy.percySnapshot('Dashboard Page');
+    cy.compareSnapshot('Dashboard Page');
   });
 
   it('should match game page snapshot', () => {
     cy.visit('/games/active');
-    cy.percySnapshot('Active Games Page');
+    cy.compareSnapshot('Active Games Page');
   });
 
   it('should match venue page snapshot', () => {
     cy.visit('/venues');
-    cy.percySnapshot('Venues Page');
+    cy.compareSnapshot('Venues Page');
   });
 
   it('should match tournament page snapshot', () => {
     cy.visit('/tournaments');
-    cy.percySnapshot('Tournaments Page');
+    cy.compareSnapshot('Tournaments Page');
   });
 
   it('should match profile page snapshot', () => {
     cy.visit('/profile');
-    cy.percySnapshot('Profile Page');
+    cy.compareSnapshot('Profile Page');
   });
 
   // Test responsive layouts
@@ -54,13 +54,13 @@ describe('Visual Regression Tests', () => {
       it(`should match login page snapshot on ${device}`, () => {
         cy.viewport(width as number, height as number);
         cy.visit('/login');
-        cy.percySnapshot(`Login Page - ${device}`);
+        cy.compareSnapshot(`Login Page - ${device}`);
       });
 
       it(`should match dashboard snapshot on ${device}`, () => {
         cy.viewport(width as number, height as number);
         cy.visit('/dashboard');
-        cy.percySnapshot(`Dashboard Page - ${device}`);
+        cy.compareSnapshot(`Dashboard Page - ${device}`);
       });
     });
   });
@@ -70,10 +70,10 @@ describe('Visual Regression Tests', () => {
     it('should match dark theme snapshots', () => {
       cy.visit('/login');
       cy.get('[data-testid="theme-toggle"]').click();
-      cy.percySnapshot('Login Page - Dark Theme');
+      cy.compareSnapshot('Login Page - Dark Theme');
 
       cy.visit('/dashboard');
-      cy.percySnapshot('Dashboard Page - Dark Theme');
+      cy.compareSnapshot('Dashboard Page - Dark Theme');
     });
   });
 
@@ -86,7 +86,7 @@ describe('Visual Regression Tests', () => {
         });
       });
       cy.visit('/games/active');
-      cy.percySnapshot('Games Page - Loading State');
+      cy.compareSnapshot('Games Page - Loading State');
     });
   });
 
@@ -99,7 +99,7 @@ describe('Visual Regression Tests', () => {
       });
 
       cy.visit('/games/active');
-      cy.percySnapshot('Games Page - Error State');
+      cy.compareSnapshot('Games Page - Error State');
     });
   });
 });

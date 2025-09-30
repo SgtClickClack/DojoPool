@@ -1,0 +1,22 @@
+[
+  {
+    "id": "player-1",
+    "username": "player1",
+    "displayName": "Player 1",
+    "email": "player1@example.com",
+    "profile": {
+      "displayName": "Player 1",
+      "avatarUrl": null
+    }
+  },
+  {
+    "id": "player-2",
+    "username": "player2",
+    "displayName": "Player 2",
+    "email": "player2@example.com",
+    "profile": {
+      "displayName": "Player 2",
+      "avatarUrl": null
+    }
+  }
+]

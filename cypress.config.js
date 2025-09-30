@@ -1,5 +1,4 @@
 const { defineConfig } = require('cypress');
-const failFast = require('cypress-fail-fast/plugin');
 
 let percyHealthCheck = null;
 try {
@@ -27,7 +26,7 @@ module.exports = defineConfig({
       openMode: 0,
     },
     env: {
-      apiUrl: 'http://localhost:3002/api/v1',
+      apiUrl: 'http://localhost:3000/api/v1',
       coverage: true,
     },
     setupNodeEvents(on, config) {
@@ -37,7 +36,7 @@ module.exports = defineConfig({
         console.log('Code coverage not configured:', error.message);
       }
 
-      failFast(on, config);
+      // failFast plugin disabled for batch remediation
 
       if (percyHealthCheck) {
         on('task', percyHealthCheck);
@@ -47,6 +46,13 @@ module.exports = defineConfig({
         log(message) {
           console.log(message);
           return null;
+        },
+        // Mock fail-fast tasks to prevent errors
+        failFastShouldSkip() {
+          return false;
+        },
+        failFastFailedTests() {
+          return [];
         },
       });
 

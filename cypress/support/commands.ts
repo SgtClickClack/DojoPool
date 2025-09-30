@@ -91,11 +91,11 @@ Cypress.Commands.add('interceptAllApis', () => {
   cy.intercept('GET', '/api/games/new', { fixture: 'active-games.json' }).as(
     'getNewGames'
   );
+  cy.intercept('GET', '**/v1/users', { fixture: 'players.json' }).as(
+    'getPlayers'
+  );
 
-  cy.intercept('GET', '/dashboard/cdn/cost', {
-    statusCode: 200,
-    body: cdnCostResponse,
-  }).as('getCdnCostPage');
+  // Removed intercept for /dashboard/cdn/cost to allow HTML page to load
 
   cy.intercept('GET', '/api/cdn/cost', {
     statusCode: 200,

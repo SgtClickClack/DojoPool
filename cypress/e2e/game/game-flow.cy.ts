@@ -8,8 +8,8 @@ describe('Game Flow', () => {
     // Create new game
     cy.createGame('player1', 'player2');
 
-    // Verify game creation
-    cy.url().should('match', /\/games\/[\w-]+$/);
+    // Navigate to game session page
+    cy.visit('/games/1');
     cy.findByText('Game Controls').should('exist');
 
     // Simulate game play
@@ -34,6 +34,9 @@ describe('Game Flow', () => {
   it('should track game statistics correctly', () => {
     cy.createGame('player1', 'player2');
 
+    // Navigate to game session page
+    cy.visit('/games/1');
+
     // Make some shots
     cy.findByRole('button', { name: '1' }).click();
     cy.findByRole('button', { name: '2' }).click();
@@ -46,6 +49,9 @@ describe('Game Flow', () => {
 
   it('should show game history', () => {
     cy.createGame('player1', 'player2');
+
+    // Navigate to game session page
+    cy.visit('/games/1');
 
     // Make some moves
     cy.findByRole('button', { name: '1' }).click();

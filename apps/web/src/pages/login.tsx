@@ -6,10 +6,12 @@ import {
   Button,
   Container,
   Divider,
+  IconButton,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
+import { DarkMode, LightMode } from '@mui/icons-material';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
@@ -22,6 +24,7 @@ const LoginPage: React.FC = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
@@ -124,6 +127,13 @@ const LoginPage: React.FC = () => {
           alignItems: 'center',
         }}
       >
+        <IconButton
+          data-testid="theme-toggle"
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          sx={{ position: 'absolute', top: 16, right: 16 }}
+        >
+          {isDarkMode ? <LightMode /> : <DarkMode />}
+        </IconButton>
         <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
           <Typography component="h1" variant="h4" align="center" gutterBottom>
             Login to DojoPool

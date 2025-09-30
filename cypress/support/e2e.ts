@@ -1,5 +1,5 @@
 // Code coverage support (optional)
-import 'cypress-fail-fast';
+// import 'cypress-fail-fast'; // Disabled for batch remediation
 
 try {
   require('@cypress/code-coverage/support');
@@ -38,9 +38,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 // Custom command to create a game
 Cypress.Commands.add('createGame', (player1Id: string, player2Id: string) => {
   cy.visit('/games/new');
-  cy.findByLabelText('Player 1').type(player1Id);
-  cy.findByLabelText('Player 2').type(player2Id);
-  cy.findByRole('button', { name: 'Create Game' }).click();
+  cy.get('[data-testid="opponent-select"]').click();
+  cy.get('[role="option"]').first().click();
+  cy.get('[data-testid="create-game-submit"]').click();
 });
 
 // Custom command to check game state

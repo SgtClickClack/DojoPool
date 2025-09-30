@@ -1,28 +1,8 @@
 const resolveBaseUrl = () => {
+  // Use the configured baseUrl directly without fallback
   const configuredBaseUrl =
     Cypress.config('baseUrl') || 'http://localhost:3000';
-
-  if (!configuredBaseUrl.includes(':3000')) {
-    return cy.wrap(null);
-  }
-
-  return cy
-    .request({ url: `${configuredBaseUrl}/`, failOnStatusCode: false })
-    .then((response) => {
-      if (response.status === 404) {
-        const fallbackBaseUrl = configuredBaseUrl.replace(':3000', ':3001');
-
-        return cy
-          .request({ url: `${fallbackBaseUrl}/`, failOnStatusCode: false })
-          .then((fallbackResponse) => {
-            if (fallbackResponse.status !== 404) {
-              Cypress.config('baseUrl', fallbackBaseUrl);
-            }
-          });
-      }
-
-      return undefined;
-    });
+  return cy.wrap(configuredBaseUrl);
 };
 
 const adminUser = {
