@@ -4,14 +4,15 @@ import { resolve } from 'path';
 export default defineConfig({
   test: {
     environment: 'jsdom',
-    setupFiles: ['./tests/setup/test-setup.ts'],
+    setupFiles: ['./apps/web/tests/setup.ts'],
     globals: true,
-    include: ['tests/**/*.{test,spec}.{js,ts,jsx,tsx}'],
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/coverage/**',
+    include: [
+      'tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      'apps/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      'services/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      'infrastructure/**/*.{test,spec}.{js,ts,jsx,tsx}',
     ],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/coverage/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

@@ -69,9 +69,54 @@ const TerritoryGameplayPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [challengeDialogOpen, setChallengeDialogOpen] = useState(false);
-  const [selectedTerritory, setSelectedTerritory] = useState<string | null>(null);
-  const [challengeNotification, setChallengeNotification] = useState<string | null>(null);
-  const [selectedTerritoryForChallenge, setSelectedTerritoryForChallenge] = useState<string | null>(null);
+  const [selectedTerritory, setSelectedTerritory] = useState<string | null>(
+    null
+  );
+  const [challengeNotification, setChallengeNotification] = useState<
+    string | null
+  >(null);
+  const [selectedTerritoryForChallenge, setSelectedTerritoryForChallenge] =
+    useState<string | null>(null);
+
+  // Handle postMessage events for match results
+  useEffect(() => {
+    const handleMessage = async (event: MessageEvent) => {
+      if (event.data?.type === 'MATCH_RESULT') {
+        const { challengeId, winnerId, score } = event.data;
+
+        try {
+          // Process match result via API
+          const response = await fetch(
+            `/api/challenges/${challengeId}/result`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                winnerId,
+                score,
+              }),
+            }
+          );
+
+          if (response.ok) {
+            // Refresh territories to show updated ownership
+            const territoriesResponse = await fetch('/api/territories');
+            if (territoriesResponse.ok) {
+              const territoriesData = await territoriesResponse.json();
+              setTerritories(territoriesData);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to process match result:', error);
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -93,7 +138,7 @@ const TerritoryGameplayPage: React.FC = () => {
 
   const handleConfirmChallenge = async () => {
     if (!selectedTerritory) return;
-    
+
     try {
       const response = await fetch('/api/challenges', {
         method: 'POST',
@@ -105,7 +150,7 @@ const TerritoryGameplayPage: React.FC = () => {
           challengerId: 'test-user-1',
         }),
       });
-      
+
       if (response.ok) {
         setChallengeNotification('Challenge sent');
         setChallengeDialogOpen(false);
@@ -131,12 +176,12 @@ const TerritoryGameplayPage: React.FC = () => {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (response.ok) {
         // Update the challenge status in the local state
-        setChallenges(prev => 
-          prev.map(challenge => 
-            challenge.id === challengeId 
+        setChallenges((prev) =>
+          prev.map((challenge) =>
+            challenge.id === challengeId
               ? { ...challenge, status: 'Accepted' }
               : challenge
           )
@@ -155,12 +200,12 @@ const TerritoryGameplayPage: React.FC = () => {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (response.ok) {
         // Update the challenge status in the local state
-        setChallenges(prev => 
-          prev.map(challenge => 
-            challenge.id === challengeId 
+        setChallenges((prev) =>
+          prev.map((challenge) =>
+            challenge.id === challengeId
               ? { ...challenge, status: 'Declined' }
               : challenge
           )
@@ -476,7 +521,12 @@ const TerritoryGameplayPage: React.FC = () => {
                   onClick={() => handleChallenge(selectedTerritoryForChallenge)}
                   data-testid="challenge-button"
                 >
-                  Challenge {territories.find(t => t.id === selectedTerritoryForChallenge)?.name}
+                  Challenge{' '}
+                  {
+                    territories.find(
+                      (t) => t.id === selectedTerritoryForChallenge
+                    )?.name
+                  }
                 </Button>
               </Box>
             )}
@@ -668,12 +718,17 @@ const TerritoryGameplayPage: React.FC = () => {
         <DialogTitle>Confirm Challenge</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to challenge for this territory? This will create a challenge that the current owner can accept or decline.
+            Are you sure you want to challenge for this territory? This will
+            create a challenge that the current owner can accept or decline.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelChallenge}>Cancel</Button>
-          <Button onClick={handleConfirmChallenge} variant="contained" data-testid="confirm-challenge">
+          <Button
+            onClick={handleConfirmChallenge}
+            variant="contained"
+            data-testid="confirm-challenge"
+          >
             Confirm Challenge
           </Button>
         </DialogActions>
@@ -686,7 +741,10 @@ const TerritoryGameplayPage: React.FC = () => {
         onClose={() => setChallengeNotification(null)}
         data-testid="challenge-notification"
       >
-        <Alert onClose={() => setChallengeNotification(null)} severity="success">
+        <Alert
+          onClose={() => setChallengeNotification(null)}
+          severity="success"
+        >
           {challengeNotification}
         </Alert>
       </Snackbar>

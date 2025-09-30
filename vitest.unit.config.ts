@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
+    setupFiles: [path.resolve(__dirname, 'apps/web/tests/setup.ts')],
     globals: true,
     exclude: [
       '**/node_modules/**',
@@ -15,6 +15,9 @@ export default defineConfig({
     ],
     include: [
       'tests/unit/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'apps/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'services/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'infrastructure/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       '!**/node_modules/**',
     ],
     coverage: {
