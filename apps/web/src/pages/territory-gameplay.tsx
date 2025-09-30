@@ -224,6 +224,7 @@ const TerritoryGameplayPage: React.FC = () => {
           ]);
         }
       } catch (_error) {
+        setError('Failed to load territories');
         // Fallback to mock data if API fails
         setTerritories([
           {
@@ -395,8 +396,14 @@ const TerritoryGameplayPage: React.FC = () => {
             <Alert
               severity="error"
               sx={{ mb: 3 }}
+              data-testid="error-message"
               action={
-                <Button color="inherit" size="small" onClick={handleRetry}>
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={handleRetry}
+                  data-testid="retry-button"
+                >
                   Retry
                 </Button>
               }
