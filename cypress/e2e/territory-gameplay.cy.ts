@@ -5,8 +5,6 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should display world map with territories', () => {
-    cy.visit('/');
-
     // Mock territories data
     cy.intercept('GET', '/api/territories', {
       statusCode: 200,
@@ -22,8 +20,7 @@ describe('Territory Gameplay E2E Tests', () => {
       ],
     }).as('getTerritories');
 
-    // Navigate to map
-    cy.get('[data-testid="map-tab"]').click();
+    cy.visit('/territory-gameplay');
     cy.wait('@getTerritories');
 
     // Verify map is displayed
