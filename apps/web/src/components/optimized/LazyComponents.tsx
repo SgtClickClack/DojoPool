@@ -145,8 +145,8 @@ const useComponentPerformance = (componentName: string) => {
 };
 
 // Enhanced lazy component wrapper
-export const createLazyComponent = <P extends object>(
-  importFunc: () => Promise<{ default: React.ComponentType<P> }>,
+export const createLazyComponent = <P extends object = any>(
+  importFunc: () => Promise<{ default: React.ComponentType<any> }>,
   options: {
     componentName?: string;
     loadingMessage?: string;
