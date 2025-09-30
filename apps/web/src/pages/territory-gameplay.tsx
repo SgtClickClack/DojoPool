@@ -300,6 +300,34 @@ const TerritoryGameplayPage: React.FC = () => {
       }
     };
 
+    const loadUserNFTs = async () => {
+      try {
+        const response = await fetch('/api/user-nfts/test-user-1');
+        if (response.ok) {
+          const data = await response.json();
+          setUserNFTs(data);
+        } else {
+          setUserNFTs([
+            {
+              id: 'nft-1',
+              tokenId: 'legendary-trophy',
+              name: 'Legendary Trophy',
+              type: 'trophy',
+            },
+          ]);
+        }
+      } catch (_error) {
+        setUserNFTs([
+          {
+            id: 'nft-1',
+            tokenId: 'legendary-trophy',
+            name: 'Legendary Trophy',
+            type: 'trophy',
+          },
+        ]);
+      }
+    };
+
     const loadStats = async () => {
       try {
         const response = await fetch('/api/territories/statistics');
@@ -329,6 +357,7 @@ const TerritoryGameplayPage: React.FC = () => {
       loadTerritories(),
       loadChallenges(),
       loadClanTerritories(),
+      loadUserNFTs(),
       loadStats(),
     ]).finally(() => {
       setLoading(false);
@@ -452,43 +481,35 @@ const TerritoryGameplayPage: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   border: '1px solid #ddd',
+                  position: 'relative',
                 }}
                 data-testid="world-map"
               >
                 <Typography color="text.secondary">
                   Interactive map with territory markers
                 </Typography>
+                {territories.map((territory: any) => (
+                  <Box
+                    key={territory.id}
+                    sx={{
+                      position: 'absolute',
+                      top: `${Math.random() * 80 + 10}%`,
+                      left: `${Math.random() * 80 + 10}%`,
+                      width: 20,
+                      height: 20,
+                      backgroundColor: 'primary.main',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'primary.dark',
+                      },
+                    }}
+                    data-testid="territory-marker"
+                    onClick={() => handleTerritoryClick(territory.id)}
+                  />
+                ))}
               </Box>
             </Paper>
-
-            {/* Territory Markers on Map */}
-            <Box sx={{ position: 'relative', height: 400, mb: 3 }}>
-              {territories.map((territory: any) => (
-                <Box
-                  key={territory.id}
-                  data-testid="territory-marker"
-                  sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    backgroundColor: 'primary.main',
-                    color: 'white',
-                    padding: 1,
-                    borderRadius: 1,
-                    cursor: 'pointer',
-                    '&:hover': {
-                      backgroundColor: 'primary.dark',
-                    },
-                  }}
-                  onClick={() => handleTerritoryClick(territory.id)}
-                >
-                  <Typography variant="body2" data-testid="territory-name">
-                    {territory.name}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
 
             {/* Challenge Button for Selected Territory */}
             {selectedTerritoryForChallenge && (
@@ -526,9 +547,23 @@ const TerritoryGameplayPage: React.FC = () => {
                       {territory.requiredNFT && (
                         <Box sx={{ mt: 2 }}>
                           <Chip
-                            label={`Required: ${territory.requiredNFT}`}
+                            label={`Required: ${
+                              userNFTs.find(
+                                (nft: any) =>
+                                  nft.tokenId === territory.requiredNFT
+                              )?.name || territory.requiredNFT
+                            }`}
                             color="primary"
                             variant="outlined"
+                            data-testid="nft-requirement"
+                            className={
+                              userNFTs.some(
+                                (nft: any) =>
+                                  nft.tokenId === territory.requiredNFT
+                              )
+                                ? 'unlocked'
+                                : 'locked'
+                            }
                           />
                         </Box>
                       )}
