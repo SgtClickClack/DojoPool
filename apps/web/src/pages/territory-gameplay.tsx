@@ -59,6 +59,7 @@ const TerritoryGameplayPage: React.FC = () => {
   const [territories, setTerritories] = useState([]);
   const [challenges, setChallenges] = useState([]);
   const [clanTerritories, setClanTerritories] = useState([]);
+  const [userNFTs, setUserNFTs] = useState([]);
   const [stats, setStats] = useState({
     total_territories: 0,
     total_challenges: 0,
