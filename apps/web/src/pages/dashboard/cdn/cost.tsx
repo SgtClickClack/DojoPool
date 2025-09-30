@@ -75,7 +75,23 @@ const CdnCostDashboardPage: React.FC = () => {
       }
     };
 
+    // Check user authorization
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/session');
+        if (response.ok) {
+          const session = await response.json();
+          if (session.role !== 'admin') {
+            setIsUnauthorized(true);
+          }
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      }
+    };
+
     fetchCostData();
+    checkAuth();
 
     return () => {
       window.removeEventListener('online', handleOnline);
@@ -134,29 +150,37 @@ const CdnCostDashboardPage: React.FC = () => {
 
     if (format === 'csv') {
       const csv = `Total Cost,Bandwidth Cost,Request Cost,Cost Threshold,Bandwidth Threshold,Request Threshold\n${totalCost},${bandwidthCost},${requestCost},${costThreshold},${bandwidthThreshold},${requestThreshold}`;
-      navigator.clipboard.writeText(csv);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(csv);
+      }
     } else {
-      navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+      }
     }
   };
 
   // WebSocket simulation for real-time updates
   useEffect(() => {
     if (typeof window !== 'undefined' && window.WebSocket) {
-      const ws = new WebSocket('ws://localhost:3000/ws');
-      ws.onmessage = (event) => {
-        try {
-          const update = JSON.parse(event.data);
-          if (update.type === 'cost_update') {
-            setTotalCost(update.data.total_cost);
-            setBandwidthCost(update.data.bandwidth_cost);
-            setRequestCost(update.data.request_cost);
+      try {
+        const ws = new WebSocket('ws://localhost:3000/ws');
+        ws.onmessage = (event) => {
+          try {
+            const update = JSON.parse(event.data);
+            if (update.type === 'cost_update') {
+              setTotalCost(update.data.total_cost);
+              setBandwidthCost(update.data.bandwidth_cost);
+              setRequestCost(update.data.request_cost);
+            }
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
           }
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-      return () => ws.close();
+        };
+        return () => ws.close();
+      } catch (error) {
+        console.error('WebSocket connection failed:', error);
+      }
     }
   }, []);
 
@@ -241,6 +265,7 @@ const CdnCostDashboardPage: React.FC = () => {
               handleCostThresholdChange(parseInt(e.target.value))
             }
             aria-label="Cost threshold"
+            tabIndex={0}
           />
         </div>
 
@@ -271,7 +296,11 @@ const CdnCostDashboardPage: React.FC = () => {
         </div>
 
         <div data-testid="optimize-costs-button">
-          <button aria-label="Optimize costs" onClick={handleOptimize}>
+          <button
+            aria-label="Optimize costs"
+            onClick={handleOptimize}
+            tabIndex={0}
+          >
             Optimize Costs
           </button>
         </div>
