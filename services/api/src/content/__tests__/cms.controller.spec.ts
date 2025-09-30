@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CmsController } from '../cms.controller';
 import { ContentService } from '../content.service';
@@ -10,23 +11,23 @@ describe('CmsController', () => {
   let service: ContentService;
 
   const mockContentService = {
-    create: jest.fn(),
-    findAllForAdmin: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    getStats: jest.fn(),
+    create: vi.fn(),
+    findAllForAdmin: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    getStats: vi.fn(),
   };
 
   const mockPermissionsService = {
-    isAdmin: jest.fn().mockReturnValue(true),
+    isAdmin: vi.fn().mockReturnValue(true),
   };
 
   const mockJwtAuthGuard = {
-    canActivate: jest.fn().mockReturnValue(true),
+    canActivate: vi.fn().mockReturnValue(true),
   };
 
   const mockAdminGuard = {
-    canActivate: jest.fn().mockReturnValue(true),
+    canActivate: vi.fn().mockReturnValue(true),
   };
 
   beforeEach(async () => {
@@ -57,7 +58,7 @@ describe('CmsController', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -271,7 +272,7 @@ describe('CmsController', () => {
       expect(service.findAllForAdmin).toHaveBeenCalledWith(
         {
           contentType: 'NEWS_ARTICLE',
-          visibility: undefined,
+          status: 'APPROVED',
           metadata: {
             path: ['category'],
             equals: 'NEWS',

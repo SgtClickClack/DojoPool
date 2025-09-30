@@ -91,3 +91,5 @@ export const InventoryLayout: React.FC<InventoryLayoutProps> = ({
     </InventoryErrorBoundary>
   );
 };
+
+export default InventoryLayout;

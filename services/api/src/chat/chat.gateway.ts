@@ -12,6 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { corsOptions } from '../config/cors.config';
 import { SOCKET_NAMESPACES } from '../config/sockets.config';
 import { ChatService } from './chat.service';
+import { SocketHeaders, SocketAuth } from '../common/dto/websocket-events.dto';
 
 interface SendDmPayload {
   receiverId: string;
@@ -31,12 +32,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private readonly chatService: ChatService) {}
 
   private getUserIdFromSocket(client: Socket): string | undefined {
-    const headers = client.handshake.headers as Record<string, any>;
+    const headers = client.handshake.headers as SocketHeaders;
     const fromHeader = (headers['x-user-id'] || headers['X-User-Id']) as
       | string
       | undefined;
     const fromAuth = (client.handshake.auth &&
-      (client.handshake.auth as any).userId) as string | undefined;
+      (client.handshake.auth as SocketAuth).userId) as string | undefined;
     return fromHeader || fromAuth;
   }
 

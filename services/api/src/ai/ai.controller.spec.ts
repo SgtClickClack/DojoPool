@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MatchAnalysis } from '../matches/ai-analysis.service';
 import { AiController } from './ai.controller';
@@ -7,7 +8,7 @@ import { ArAnalysisService } from '../ar-analysis/ar-analysis.service';
 
 describe('AiController', () => {
   let controller: AiController;
-  let aiService: jest.Mocked<AiService>;
+  let aiService: vi.mocked<AiService>;
 
   const mockMatchAnalysis: MatchAnalysis = {
     keyMoments: ['Key moment 1', 'Key moment 2'],
@@ -22,21 +23,21 @@ describe('AiController', () => {
 
   beforeEach(async () => {
     const mockAiService = {
-      getHealthStatus: jest.fn(),
-      getConfiguration: jest.fn(),
-      generateMatchAnalysis: jest.fn(),
-      generateLiveCommentary: jest.fn(),
-      analyzeTableImage: jest.fn(),
+      getHealthStatus: vi.fn(),
+      getConfiguration: vi.fn(),
+      generateMatchAnalysis: vi.fn(),
+      generateLiveCommentary: vi.fn(),
+      analyzeTableImage: vi.fn(),
     };
 
     const mockAiAnalysisService = {
-      generateMatchAnalysis: jest.fn(),
-      generateLiveCommentary: jest.fn(),
-      analyzeTableImage: jest.fn(),
+      generateMatchAnalysis: vi.fn(),
+      generateLiveCommentary: vi.fn(),
+      analyzeTableImage: vi.fn(),
     };
 
     const mockArAnalysisService = {
-      analyzeTableImage: jest.fn(),
+      analyzeTableImage: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -59,6 +60,9 @@ describe('AiController', () => {
 
     controller = module.get<AiController>(AiController);
     aiService = module.get(AiService);
+
+    // Explicitly set the _aiService property
+    (controller as any)._aiService = mockAiService;
   });
 
   it('should be defined', () => {
@@ -108,7 +112,15 @@ describe('AiController', () => {
   describe('POST /ai/analyze/match', () => {
     it('should analyze match and return result', async () => {
       // Arrange
-      const matchData = {
+      const matchData: {
+        playerAName: string;
+        playerBName: string;
+        scoreA: number;
+        scoreB: number;
+        winner: string;
+        venue: string;
+        round: number;
+      } = {
         playerAName: 'Alice',
         playerBName: 'Bob',
         scoreA: 8,
@@ -134,7 +146,15 @@ describe('AiController', () => {
 
     it('should handle match analysis errors', async () => {
       // Arrange
-      const matchData = {
+      const matchData: {
+        playerAName: string;
+        playerBName: string;
+        scoreA: number;
+        scoreB: number;
+        winner: string;
+        venue: string;
+        round: number;
+      } = {
         playerAName: 'Alice',
         playerBName: 'Bob',
         scoreA: 8,
@@ -158,7 +178,14 @@ describe('AiController', () => {
   describe('POST /ai/analyze/shot', () => {
     it('should generate live commentary for shot', async () => {
       // Arrange
-      const shotData = {
+      const shotData: {
+        matchId: string;
+        playerId: string;
+        playerName: string;
+        ballSunk: boolean;
+        wasFoul: boolean;
+        shotType: string;
+      } = {
         matchId: 'match-1',
         playerId: 'player-1',
         playerName: 'Alice',
@@ -183,7 +210,12 @@ describe('AiController', () => {
 
     it('should handle commentary generation errors', async () => {
       // Arrange
-      const shotData = {
+      const shotData: {
+        matchId: string;
+        playerId: string;
+        ballSunk: boolean;
+        wasFoul: boolean;
+      } = {
         matchId: 'match-1',
         playerId: 'player-1',
         ballSunk: false,
@@ -336,7 +368,15 @@ describe('AiController', () => {
   describe('Input Validation', () => {
     it('should validate match analysis input', async () => {
       // Arrange
-      const invalidMatchData = {
+      const invalidMatchData: {
+        playerAName: string;
+        playerBName: string;
+        scoreA: number;
+        scoreB: number;
+        winner: string;
+        venue: string;
+        round: number;
+      } = {
         playerAName: '',
         playerBName: 'Bob',
         scoreA: -1,
@@ -364,7 +404,12 @@ describe('AiController', () => {
 
     it('should validate shot analysis input', async () => {
       // Arrange
-      const invalidShotData = {
+      const invalidShotData: {
+        matchId: string;
+        playerId: string;
+        ballSunk: unknown;
+        wasFoul: unknown;
+      } = {
         matchId: '',
         playerId: 'player-1',
         ballSunk: 'invalid',
@@ -378,7 +423,11 @@ describe('AiController', () => {
       });
 
       // Act
-      const result = await controller.analyzeShot(invalidShotData as any);
+      const result = await controller.analyzeShot(
+        invalidShotData as unknown as Parameters<
+          typeof controller.analyzeShot
+        >[0]
+      );
 
       // Assert
       expect(aiService.generateLiveCommentary).toHaveBeenCalledWith(

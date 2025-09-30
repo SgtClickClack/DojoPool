@@ -1,6 +1,6 @@
 /**
  * Query Optimization Utilities
- * 
+ *
  * Database query optimization, caching, and performance utilities
  * for the Dojo Pool application.
  */
@@ -14,7 +14,10 @@ import { SimpleCache } from './apiHelpers';
 export class QueryOptimizer {
   private static instance: QueryOptimizer;
   private cache = new SimpleCache();
-  private queryMetrics = new Map<string, { count: number; totalTime: number; avgTime: number }>();
+  private queryMetrics = new Map<
+    string,
+    { count: number; totalTime: number; avgTime: number }
+  >();
 
   static getInstance(): QueryOptimizer {
     if (!QueryOptimizer.instance) {
@@ -35,18 +38,24 @@ export class QueryOptimizer {
 
     // Add select fields to reduce data transfer
     if (selectFields.length > 0) {
-      optimizedQuery.select = selectFields.reduce((acc, field) => {
-        acc[field as string] = true;
-        return acc;
-      }, {} as Record<string, boolean>);
+      optimizedQuery.select = selectFields.reduce(
+        (acc, field) => {
+          acc[field as string] = true;
+          return acc;
+        },
+        {} as Record<string, boolean>
+      );
     }
 
     // Add include relations if needed
     if (includeRelations.length > 0) {
-      optimizedQuery.include = includeRelations.reduce((acc, relation) => {
-        acc[relation] = true;
-        return acc;
-      }, {} as Record<string, boolean>);
+      optimizedQuery.include = includeRelations.reduce(
+        (acc, relation) => {
+          acc[relation] = true;
+          return acc;
+        },
+        {} as Record<string, boolean>
+      );
     }
 
     return { ...query, ...optimizedQuery };
@@ -67,7 +76,11 @@ export class QueryOptimizer {
   /**
    * Add sorting to query
    */
-  addSorting(query: any, sortBy: string, sortOrder: 'asc' | 'desc' = 'asc'): any {
+  addSorting(
+    query: any,
+    sortBy: string,
+    sortOrder: 'asc' | 'desc' = 'asc'
+  ): any {
     return {
       ...query,
       orderBy: {
@@ -111,33 +124,40 @@ export class QueryOptimizer {
    * Cache query result
    */
   cacheQuery<T>(key: string, data: T, ttl: number = 5 * 60 * 1000): void {
-    this.cache.set(key, data, ttl);
+    this.cache.set(key, data);
   }
 
   /**
    * Get cached query result
    */
   getCachedQuery<T>(key: string): T | null {
-    return this.cache.get(key);
+    return this.cache.get(key) as T | null;
   }
 
   /**
    * Record query performance
    */
   recordQueryPerformance(queryName: string, executionTime: number): void {
-    const existing = this.queryMetrics.get(queryName) || { count: 0, totalTime: 0, avgTime: 0 };
-    
+    const existing = this.queryMetrics.get(queryName) || {
+      count: 0,
+      totalTime: 0,
+      avgTime: 0,
+    };
+
     existing.count += 1;
     existing.totalTime += executionTime;
     existing.avgTime = existing.totalTime / existing.count;
-    
+
     this.queryMetrics.set(queryName, existing);
   }
 
   /**
    * Get query performance metrics
    */
-  getQueryMetrics(): Record<string, { count: number; totalTime: number; avgTime: number }> {
+  getQueryMetrics(): Record<
+    string,
+    { count: number; totalTime: number; avgTime: number }
+  > {
     return Object.fromEntries(this.queryMetrics);
   }
 
@@ -162,7 +182,10 @@ export class QueryOptimizer {
 export class ConnectionPoolManager {
   private static instance: ConnectionPoolManager;
   private connections: Map<string, any> = new Map();
-  private connectionMetrics = new Map<string, { active: number; idle: number; total: number }>();
+  private connectionMetrics = new Map<
+    string,
+    { active: number; idle: number; total: number }
+  >();
 
   static getInstance(): ConnectionPoolManager {
     if (!ConnectionPoolManager.instance) {
@@ -183,7 +206,10 @@ export class ConnectionPoolManager {
   /**
    * Release connection back to pool
    */
-  async releaseConnection(connection: any, connectionName: string = 'default'): Promise<void> {
+  async releaseConnection(
+    connection: any,
+    connectionName: string = 'default'
+  ): Promise<void> {
     // Implementation would depend on your database setup
     // This is a placeholder for the actual release logic
   }
@@ -191,7 +217,10 @@ export class ConnectionPoolManager {
   /**
    * Get connection pool metrics
    */
-  getPoolMetrics(): Record<string, { active: number; idle: number; total: number }> {
+  getPoolMetrics(): Record<
+    string,
+    { active: number; idle: number; total: number }
+  > {
     return Object.fromEntries(this.connectionMetrics);
   }
 }
@@ -206,10 +235,13 @@ export class QueryBuilder {
    * Select specific fields
    */
   select(fields: string[]): QueryBuilder {
-    this.query.select = fields.reduce((acc, field) => {
-      acc[field] = true;
-      return acc;
-    }, {} as Record<string, boolean>);
+    this.query.select = fields.reduce(
+      (acc, field) => {
+        acc[field] = true;
+        return acc;
+      },
+      {} as Record<string, boolean>
+    );
     return this;
   }
 
@@ -225,10 +257,13 @@ export class QueryBuilder {
    * Add include relations
    */
   include(relations: string[]): QueryBuilder {
-    this.query.include = relations.reduce((acc, relation) => {
-      acc[relation] = true;
-      return acc;
-    }, {} as Record<string, boolean>);
+    this.query.include = relations.reduce(
+      (acc, relation) => {
+        acc[relation] = true;
+        return acc;
+      },
+      {} as Record<string, boolean>
+    );
     return this;
   }
 
@@ -287,9 +322,9 @@ export class NPlusOnePrevention {
     relationKey: string,
     loader: (ids: string[]) => Promise<T[]>
   ): Promise<Map<string, T[]>> {
-    const ids = items.map(item => item.id).filter(Boolean);
+    const ids = items.map((item) => item.id).filter(Boolean);
     const uniqueIds = [...new Set(ids)];
-    
+
     if (uniqueIds.length === 0) {
       return new Map();
     }
@@ -328,7 +363,10 @@ export class NPlusOnePrevention {
  */
 export class IndexOptimizer {
   private static instance: IndexOptimizer;
-  private slowQueries = new Map<string, { count: number; avgTime: number; fields: string[] }>();
+  private slowQueries = new Map<
+    string,
+    { count: number; avgTime: number; fields: string[] }
+  >();
 
   static getInstance(): IndexOptimizer {
     if (!IndexOptimizer.instance) {
@@ -340,13 +378,21 @@ export class IndexOptimizer {
   /**
    * Record slow query for analysis
    */
-  recordSlowQuery(query: string, executionTime: number, fields: string[]): void {
-    const existing = this.slowQueries.get(query) || { count: 0, avgTime: 0, fields: [] };
-    
+  recordSlowQuery(
+    query: string,
+    executionTime: number,
+    fields: string[]
+  ): void {
+    const existing = this.slowQueries.get(query) || {
+      count: 0,
+      avgTime: 0,
+      fields: [],
+    };
+
     existing.count += 1;
     existing.avgTime = (existing.avgTime + executionTime) / 2;
     existing.fields = fields;
-    
+
     this.slowQueries.set(query, existing);
   }
 
@@ -369,7 +415,8 @@ export class IndexOptimizer {
     }> = [];
 
     this.slowQueries.forEach((data, query) => {
-      if (data.avgTime > 100) { // Queries taking more than 100ms
+      if (data.avgTime > 100) {
+        // Queries taking more than 100ms
         suggestions.push({
           query,
           count: data.count,
@@ -395,37 +442,40 @@ export class IndexOptimizer {
  * Query performance monitoring hook
  */
 export const useQueryPerformance = () => {
-  const measureQuery = useCallback(async <T>(
-    queryName: string,
-    queryFn: () => Promise<T>,
-    fields: string[] = []
-  ): Promise<T> => {
-    const startTime = performance.now();
-    
-    try {
-      const result = await queryFn();
-      const endTime = performance.now();
-      const executionTime = endTime - startTime;
-      
-      // Record query performance
-      const optimizer = QueryOptimizer.getInstance();
-      optimizer.recordQueryPerformance(queryName, executionTime);
-      
-      // Record slow queries for index optimization
-      if (executionTime > 100) {
-        const indexOptimizer = IndexOptimizer.getInstance();
-        indexOptimizer.recordSlowQuery(queryName, executionTime, fields);
+  const measureQuery = useCallback(
+    async <T>(
+      queryName: string,
+      queryFn: () => Promise<T>,
+      fields: string[] = []
+    ): Promise<T> => {
+      const startTime = performance.now();
+
+      try {
+        const result = await queryFn();
+        const endTime = performance.now();
+        const executionTime = endTime - startTime;
+
+        // Record query performance
+        const optimizer = QueryOptimizer.getInstance();
+        optimizer.recordQueryPerformance(queryName, executionTime);
+
+        // Record slow queries for index optimization
+        if (executionTime > 100) {
+          const indexOptimizer = IndexOptimizer.getInstance();
+          indexOptimizer.recordSlowQuery(queryName, executionTime, fields);
+        }
+
+        return result;
+      } catch (error) {
+        const endTime = performance.now();
+        const executionTime = endTime - startTime;
+
+        // Error logged by query function
+        throw error;
       }
-      
-      return result;
-    } catch (error) {
-      const endTime = performance.now();
-      const executionTime = endTime - startTime;
-      
-      // Error logged by query function
-      throw error;
-    }
-  }, []);
+    },
+    []
+  );
 
   return { measureQuery };
 };

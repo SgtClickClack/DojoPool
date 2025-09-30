@@ -186,7 +186,7 @@ export class TournamentsGateway
 
   @SubscribeMessage('tournament_action')
   handleTournamentAction(
-    @MessageBody() data: { action: string; data: any },
+    @MessageBody() data: TournamentActionData,
     @ConnectedSocket() client: Socket
   ) {
     try {
@@ -222,7 +222,7 @@ export class TournamentsGateway
 
   @SubscribeMessage('match_result')
   handleMatchResult(
-    @MessageBody() data: { matchId: string; result: any },
+    @MessageBody() data: MatchResultData,
     @ConnectedSocket() client: Socket
   ) {
     try {
@@ -266,7 +266,7 @@ export class TournamentsGateway
   broadcastTournamentUpdate(
     tournamentId: string,
     updateType: string,
-    data: any
+    data: Record<string, unknown>
   ) {
     const update = {
       type: updateType,
@@ -284,7 +284,11 @@ export class TournamentsGateway
       .emit('tournament_update', update);
   }
 
-  broadcastMatchUpdate(matchId: string, tournamentId: string, data: any) {
+  broadcastMatchUpdate(
+    matchId: string,
+    tournamentId: string,
+    data: Record<string, unknown>
+  ) {
     const update = {
       matchId,
       tournamentId,

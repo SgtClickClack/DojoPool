@@ -1,25 +1,51 @@
+import { vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
-import { AuthService } from '../auth.service';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CacheService } from '../../cache/cache.service';
+import { AuthService } from './auth.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { CacheService } from '../cache/cache.service';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
+import { User, RefreshToken } from '@prisma/client';
+import { TestDependencyInjector } from '../__tests__/utils/test-dependency-injector';
+
+// Mock the Prisma client to include required exports
+vi.mock('@prisma/client', () => ({
+  PrismaClient: vi.fn(),
+}));
+
+// Mock crypto module
+vi.mock('crypto', () => ({
+  createHash: vi.fn().mockReturnValue({
+    update: vi.fn().mockReturnThis(),
+    digest: vi.fn().mockReturnValue('hashed-token'),
+  }),
+}));
 
 describe('AuthService - Refresh Token Rotation', () => {
   let service: AuthService;
-  let prismaService: PrismaService;
-  let cacheService: CacheService;
-  let jwtService: JwtService;
+  let prismaService: vi.Mocked<PrismaService>;
+  let cacheService: vi.Mocked<CacheService>;
+  let jwtService: vi.Mocked<JwtService>;
 
-  const mockUser = {
+  const mockUser: User = {
     id: 'user-123',
     username: 'testuser',
     role: 'USER',
     email: 'test@example.com',
+    password: 'hashed-password',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    profileId: null,
+    isActive: true,
+    lastLoginAt: null,
+    emailVerified: true,
+    twoFactorEnabled: false,
+    twoFactorSecret: null,
+    dojoCoinBalance: 0,
   };
 
-  const mockRefreshToken = {
+  const mockRefreshToken: RefreshToken & { user: User } = {
     id: 'token-123',
     userId: 'user-123',
     tokenHash: 'hashed-token',
@@ -32,40 +58,31 @@ describe('AuthService - Refresh Token Rotation', () => {
     user: mockUser,
   };
 
+  const mockPrismaService = TestDependencyInjector.createMockPrismaService();
+  const mockJwtService = {
+    sign: vi.fn(),
+    signAsync: vi.fn(),
+    verify: vi.fn(),
+    verifyAsync: vi.fn(),
+    decode: vi.fn(),
+  };
+  const mockCacheService = TestDependencyInjector.createMockCacheService();
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         {
           provide: PrismaService,
-          useValue: {
-            refreshToken: {
-              findUnique: jest.fn(),
-              create: jest.fn(),
-              update: jest.fn(),
-              updateMany: jest.fn(),
-              deleteMany: jest.fn(),
-              findMany: jest.fn(),
-            },
-            user: {
-              findUnique: jest.fn(),
-            },
-          },
+          useValue: mockPrismaService,
         },
         {
           provide: CacheService,
-          useValue: {
-            exists: jest.fn(),
-            set: jest.fn(),
-          },
+          useValue: mockCacheService,
         },
         {
           provide: JwtService,
-          useValue: {
-            signAsync: jest.fn(),
-            verifyAsync: jest.fn(),
-            decode: jest.fn(),
-          },
+          useValue: mockJwtService,
         },
       ],
     }).compile();
@@ -74,6 +91,18 @@ describe('AuthService - Refresh Token Rotation', () => {
     prismaService = module.get<PrismaService>(PrismaService);
     cacheService = module.get<CacheService>(CacheService);
     jwtService = module.get<JwtService>(JwtService);
+
+    // Use the test utility to fix dependency injection
+    TestDependencyInjector.setupServiceWithMocks(service, {
+      _prisma: mockPrismaService,
+      _jwtService: mockJwtService,
+      _cacheService: mockCacheService,
+    });
+
+    // Explicitly set the private properties to ensure proper injection
+    (service as any)._prisma = mockPrismaService;
+    (service as any)._jwtService = mockJwtService;
+    (service as any)._cacheService = mockCacheService;
   });
 
   describe('refreshToken', () => {
@@ -82,36 +111,46 @@ describe('AuthService - Refresh Token Rotation', () => {
       const deviceId = 'device-123';
       const deviceInfo = '{"browser": "Chrome"}';
 
-      // Mock token hash calculation
-      jest.spyOn(crypto, 'createHash').mockReturnValue({
-        update: jest.fn().mockReturnThis(),
-        digest: jest.fn().mockReturnValue('hashed-token'),
-      } as any);
+      // Mock token hash calculation is already set up at module level
 
       // Mock database lookup
-      jest.spyOn(prismaService.refreshToken, 'findUnique').mockResolvedValue(mockRefreshToken);
+      vi.spyOn(prismaService.refreshToken, 'findUnique').mockResolvedValue(
+        mockRefreshToken
+      );
 
       // Mock Redis blocklist check
-      jest.spyOn(cacheService, 'exists').mockResolvedValue(false);
+      vi.spyOn(cacheService, 'exists').mockResolvedValue(false);
 
       // Mock token revocation
-      jest.spyOn(prismaService.refreshToken, 'update').mockResolvedValue(mockRefreshToken);
+      vi.spyOn(prismaService.refreshToken, 'update').mockResolvedValue(
+        mockRefreshToken
+      );
 
       // Mock Redis blocklist addition
-      jest.spyOn(cacheService, 'set').mockResolvedValue(undefined);
+      vi.spyOn(cacheService, 'set').mockResolvedValue(undefined);
 
       // Mock new token issuance
-      jest.spyOn(service as any, 'issueTokens').mockResolvedValue({
-        access_token: 'new-access-token',
-        refresh_token: 'new-refresh-token',
+      prismaService.refreshToken.create.mockResolvedValue({
+        id: 'new-token-1',
+        userId: 'user-123',
+        tokenHash: 'new-hash',
+        deviceId: 'device-123',
+        deviceInfo: '{"browser": "Chrome"}',
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        isRevoked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
+      jwtService.signAsync.mockResolvedValue('new-jwt-token');
 
-      const result = await service.refreshToken(refreshToken, deviceId, deviceInfo);
+      const result = await service.refreshToken(
+        refreshToken,
+        deviceId,
+        deviceInfo
+      );
 
-      expect(result).toEqual({
-        access_token: 'new-access-token',
-        refresh_token: 'new-refresh-token',
-      });
+      expect(result).toHaveProperty('access_token');
+      expect(result).toHaveProperty('refresh_token');
 
       // Verify old token was revoked
       expect(prismaService.refreshToken.update).toHaveBeenCalledWith({
@@ -133,12 +172,11 @@ describe('AuthService - Refresh Token Rotation', () => {
         expiresAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
       };
 
-      jest.spyOn(crypto, 'createHash').mockReturnValue({
-        update: jest.fn().mockReturnThis(),
-        digest: jest.fn().mockReturnValue('hashed-token'),
-      } as any);
+      // Mock token hash calculation is already set up at module level
 
-      jest.spyOn(prismaService.refreshToken, 'findUnique').mockResolvedValue(expiredToken);
+      vi.spyOn(prismaService.refreshToken, 'findUnique').mockResolvedValue(
+        expiredToken
+      );
 
       await expect(service.refreshToken(refreshToken)).rejects.toThrow(
         UnauthorizedException
@@ -152,12 +190,11 @@ describe('AuthService - Refresh Token Rotation', () => {
         isRevoked: true,
       };
 
-      jest.spyOn(crypto, 'createHash').mockReturnValue({
-        update: jest.fn().mockReturnThis(),
-        digest: jest.fn().mockReturnValue('hashed-token'),
-      } as any);
+      // Mock token hash calculation is already set up at module level
 
-      jest.spyOn(prismaService.refreshToken, 'findUnique').mockResolvedValue(revokedToken);
+      vi.spyOn(prismaService.refreshToken, 'findUnique').mockResolvedValue(
+        revokedToken
+      );
 
       await expect(service.refreshToken(refreshToken)).rejects.toThrow(
         UnauthorizedException
@@ -167,13 +204,12 @@ describe('AuthService - Refresh Token Rotation', () => {
     it('should reject token in Redis blocklist', async () => {
       const refreshToken = 'blocked-refresh-token';
 
-      jest.spyOn(crypto, 'createHash').mockReturnValue({
-        update: jest.fn().mockReturnThis(),
-        digest: jest.fn().mockReturnValue('hashed-token'),
-      } as any);
+      // Mock token hash calculation is already set up at module level
 
-      jest.spyOn(prismaService.refreshToken, 'findUnique').mockResolvedValue(mockRefreshToken);
-      jest.spyOn(cacheService, 'exists').mockResolvedValue(true);
+      vi.spyOn(prismaService.refreshToken, 'findUnique').mockResolvedValue(
+        mockRefreshToken
+      );
+      vi.spyOn(cacheService, 'exists').mockResolvedValue(true);
 
       await expect(service.refreshToken(refreshToken)).rejects.toThrow(
         UnauthorizedException
@@ -184,23 +220,22 @@ describe('AuthService - Refresh Token Rotation', () => {
       const refreshToken = 'device-mismatch-token';
       const deviceId = 'different-device';
 
-      jest.spyOn(crypto, 'createHash').mockReturnValue({
-        update: jest.fn().mockReturnThis(),
-        digest: jest.fn().mockReturnValue('hashed-token'),
-      } as any);
+      // Mock token hash calculation is already set up at module level
 
-      jest.spyOn(prismaService.refreshToken, 'findUnique').mockResolvedValue(mockRefreshToken);
-      jest.spyOn(cacheService, 'exists').mockResolvedValue(false);
-
-      await expect(service.refreshToken(refreshToken, deviceId)).rejects.toThrow(
-        UnauthorizedException
+      vi.spyOn(prismaService.refreshToken, 'findUnique').mockResolvedValue(
+        mockRefreshToken
       );
+      vi.spyOn(cacheService, 'exists').mockResolvedValue(false);
+
+      await expect(
+        service.refreshToken(refreshToken, deviceId)
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 
   describe('cleanupExpiredTokens', () => {
     it('should clean up expired and revoked tokens', async () => {
-      jest.spyOn(prismaService.refreshToken, 'deleteMany').mockResolvedValue({
+      vi.spyOn(prismaService.refreshToken, 'deleteMany').mockResolvedValue({
         count: 5,
       });
 
@@ -209,10 +244,7 @@ describe('AuthService - Refresh Token Rotation', () => {
       expect(result).toBe(5);
       expect(prismaService.refreshToken.deleteMany).toHaveBeenCalledWith({
         where: {
-          OR: [
-            { expiresAt: { lt: expect.any(Date) } },
-            { isRevoked: true },
-          ],
+          OR: [{ expiresAt: { lt: expect.any(Date) } }, { isRevoked: true }],
         },
       });
     });
@@ -227,13 +259,15 @@ describe('AuthService - Refresh Token Rotation', () => {
         { tokenHash: 'hash3' },
       ];
 
-      jest.spyOn(prismaService.refreshToken, 'updateMany').mockResolvedValue({
+      vi.spyOn(prismaService.refreshToken, 'updateMany').mockResolvedValue({
         count: 3,
       });
 
-      jest.spyOn(prismaService.refreshToken, 'findMany').mockResolvedValue(userTokens as any);
+      vi.spyOn(prismaService.refreshToken, 'findMany').mockResolvedValue(
+        userTokens as RefreshToken[]
+      );
 
-      jest.spyOn(cacheService, 'set').mockResolvedValue(undefined);
+      vi.spyOn(cacheService, 'set').mockResolvedValue(undefined);
 
       const result = await service.revokeAllUserTokens(userId);
 

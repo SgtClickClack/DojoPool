@@ -118,13 +118,13 @@ class SocketIORedisAdapter extends IoAdapter {
   private readonly logger = new Logger(SocketIORedisAdapter.name);
 
   constructor(
-    app: any,
+    app: unknown,
     private readonly redisService: RedisService
   ) {
     super(app);
   }
 
-  createIOServer(port: number, options?: any): any {
+  createIOServer(port: number, options?: Record<string, unknown>): unknown {
     const server = super.createIOServer(port, {
       ...options,
       cors: corsOptions,

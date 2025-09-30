@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Logger } from '@nestjs/common';
 
-interface QueryBatchItem<T = any> {
+interface QueryBatchItem<T = unknown> {
   key: string;
   query: () => Promise<T>;
   priority?: number;
@@ -17,7 +17,7 @@ interface CacheConfig {
 @Injectable()
 export class PrismaOptimizationService {
   private readonly logger = new Logger(PrismaOptimizationService.name);
-  private queryCache = new Map<string, { data: any; expires: number }>();
+  private queryCache = new Map<string, { data: unknown; expires: number }>();
   private batchQueue: QueryBatchItem[] = [];
   private batchTimeout: NodeJS.Timeout | null = null;
   private readonly BATCH_DELAY = 10; // milliseconds
@@ -149,10 +149,12 @@ export class PrismaOptimizationService {
   async findManyOptimized<T>(
     model: string,
     options: {
-      where?: any;
-      select?: any;
-      include?: any;
-      orderBy?: any;
+      where?: Record<string, unknown>;
+      select?: Record<string, boolean>;
+      include?: Record<string, boolean | Record<string, unknown>>;
+      orderBy?:
+        | Record<string, 'asc' | 'desc'>
+        | Array<Record<string, 'asc' | 'desc'>>;
       skip?: number;
       take?: number;
       cache?: CacheConfig;
@@ -173,7 +175,16 @@ export class PrismaOptimizationService {
 
   private async executeFindMany<T>(
     model: string,
-    options: any
+    options: {
+      where?: Record<string, unknown>;
+      select?: Record<string, boolean>;
+      include?: Record<string, boolean | Record<string, unknown>>;
+      orderBy?:
+        | Record<string, 'asc' | 'desc'>
+        | Array<Record<string, 'asc' | 'desc'>>;
+      skip?: number;
+      take?: number;
+    }
   ): Promise<{ data: T[]; total: number; hasMore: boolean }> {
     const { where, select, include, orderBy, skip = 0, take = 20 } = options;
 
@@ -206,9 +217,9 @@ export class PrismaOptimizationService {
   async findUniqueOptimized<T>(
     model: string,
     options: {
-      where: any;
-      select?: any;
-      include?: any;
+      where: Record<string, unknown>;
+      select?: Record<string, boolean>;
+      include?: Record<string, boolean | Record<string, unknown>>;
       cache?: CacheConfig;
     }
   ): Promise<T | null> {
@@ -227,7 +238,11 @@ export class PrismaOptimizationService {
 
   private async executeFindUnique<T>(
     model: string,
-    options: any
+    options: {
+      where: Record<string, unknown>;
+      select?: Record<string, boolean>;
+      include?: Record<string, boolean | Record<string, unknown>>;
+    }
   ): Promise<T | null> {
     const { where, select, include } = options;
 
@@ -262,7 +277,10 @@ export class PrismaOptimizationService {
 
   async bulkUpdate(
     model: string,
-    data: Array<{ where: any; data: any }>
+    data: Array<{
+      where: Record<string, unknown>;
+      data: Record<string, unknown>;
+    }>
   ): Promise<{ count: number }> {
     try {
       const results = await Promise.all(
@@ -290,12 +308,12 @@ export class PrismaOptimizationService {
   async aggregateOptimized<T>(
     model: string,
     options: {
-      where?: any;
-      _count?: any;
-      _avg?: any;
-      _sum?: any;
-      _min?: any;
-      _max?: any;
+      where?: Record<string, unknown>;
+      _count?: boolean | Record<string, boolean>;
+      _avg?: Record<string, boolean>;
+      _sum?: Record<string, boolean>;
+      _min?: Record<string, boolean>;
+      _max?: Record<string, boolean>;
       cache?: CacheConfig;
     }
   ): Promise<T> {
@@ -312,7 +330,10 @@ export class PrismaOptimizationService {
     return this.executeAggregate(model, options);
   }
 
-  private async executeAggregate<T>(model: string, options: any): Promise<T> {
+  private async executeAggregate<T>(
+    model: string,
+    options: Record<string, unknown>
+  ): Promise<T> {
     const { where, ...aggregateOptions } = options;
 
     return (this._prisma as any)[model].aggregate({

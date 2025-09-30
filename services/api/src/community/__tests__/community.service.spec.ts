@@ -4,36 +4,30 @@ import { CacheHelper } from '../../cache/cache.helper';
 import { NotificationsService } from '../../notifications/notifications.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CommunityService } from '../community.service';
+import { TestDependencyInjector } from '../../__tests__/utils/test-dependency-injector';
+
+// Mock the Prisma client to include SubmissionStatus
+vi.mock('@prisma/client', () => ({
+  PrismaClient: vi.fn(),
+  SubmissionStatus: {
+    PENDING: 'PENDING',
+    APPROVED: 'APPROVED',
+    REJECTED: 'REJECTED',
+    REQUIRES_CHANGES: 'REQUIRES_CHANGES',
+  },
+}));
+
+import { SubmissionStatus } from '@prisma/client';
 
 describe('CommunityService', () => {
   let service: CommunityService;
   let prismaService: PrismaService;
   let notificationsService: NotificationsService;
 
-  const mockPrismaService = {
-    communityCosmeticItem: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      count: vi.fn(),
-      aggregate: vi.fn(),
-    },
-    cosmeticItemLike: {
-      findUnique: vi.fn(),
-      create: vi.fn(),
-      delete: vi.fn(),
-    },
-    $transaction: vi.fn(),
-  };
-
-  const mockCacheHelper = {
-    // Mock cache methods as needed
-  };
-
-  const mockNotificationsService = {
-    createNotification: vi.fn(),
-  };
+  const mockPrismaService = TestDependencyInjector.createMockPrismaService();
+  const mockCacheHelper = TestDependencyInjector.createMockCacheHelper();
+  const mockNotificationsService =
+    TestDependencyInjector.createMockNotificationsService();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -59,8 +53,21 @@ describe('CommunityService', () => {
     notificationsService =
       module.get<NotificationsService>(NotificationsService);
 
-    // Ensure the service has the prisma property
-    (service as any).prisma = mockPrismaService;
+    // Use the test utility to fix dependency injection
+    TestDependencyInjector.setupServiceWithMocks(service, {
+      _prisma: mockPrismaService,
+      cacheHelper: mockCacheHelper,
+      notificationsService: mockNotificationsService,
+    });
+
+    // Explicitly set the private properties to ensure proper injection
+    (service as any)._prisma = mockPrismaService;
+    (service as any).cacheHelper = mockCacheHelper;
+    (service as any).notificationsService = mockNotificationsService;
+
+    // Also set the properties that the cache decorators expect
+    (service as any).cacheService = mockCacheHelper;
+    (service as any).cacheManager = mockCacheHelper;
   });
 
   it('should be defined', () => {
@@ -88,6 +95,13 @@ describe('CommunityService', () => {
       mockPrismaService.communityCosmeticItem.create.mockResolvedValue(
         mockCreatedItem
       );
+
+      // Mock admin notification
+      mockPrismaService.user.findMany.mockResolvedValue([
+        { id: 'admin-1' },
+        { id: 'admin-2' },
+      ]);
+      mockNotificationsService.createNotification.mockResolvedValue({});
 
       const result = await service.submitCosmeticItem('user-1', dto);
 
@@ -135,6 +149,10 @@ describe('CommunityService', () => {
         mockItems
       );
       mockPrismaService.communityCosmeticItem.count.mockResolvedValue(1);
+
+      // Mock cache helper for @Cacheable decorator
+      mockCacheHelper.get.mockResolvedValue(null); // No cached result
+      mockCacheHelper.set.mockResolvedValue(undefined);
 
       const result = await service.getCreatorSubmissions('user-1', 1, 20);
 

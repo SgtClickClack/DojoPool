@@ -4,18 +4,21 @@ import { ApiProperty } from '@nestjs/swagger';
  * Standard API Response Structure
  * All API endpoints should return responses in this format for consistency
  */
-export class ApiResponseDto<T = any> {
+export class ApiResponseDto<T = unknown> {
   @ApiProperty({ description: 'Indicates if the request was successful' })
   success!: boolean;
 
   @ApiProperty({ description: 'Response data payload' })
   data?: T;
 
-  @ApiProperty({ description: 'Error information (only present when success is false)', required: false })
+  @ApiProperty({
+    description: 'Error information (only present when success is false)',
+    required: false,
+  })
   error?: {
     code: string;
     message: string;
-    details?: any;
+    details?: unknown;
     timestamp: string;
     requestId: string;
     path: string;
@@ -60,7 +63,10 @@ export class PaginationMeta {
  * Standard success response builder
  */
 export class ApiResponseBuilder {
-  static success<T>(data: T, meta?: Partial<ApiResponseDto<T>['meta']>): ApiResponseDto<T> {
+  static success<T>(
+    data: T,
+    meta?: Partial<ApiResponseDto<T>['meta']>
+  ): ApiResponseDto<T> {
     return {
       success: true,
       data,
@@ -94,7 +100,7 @@ export class ApiResponseBuilder {
   static error(
     code: string,
     message: string,
-    details?: any,
+    details?: unknown,
     meta?: Partial<ApiResponseDto['meta']>
   ): ApiResponseDto {
     return {

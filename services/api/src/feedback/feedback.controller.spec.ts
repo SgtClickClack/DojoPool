@@ -3,8 +3,33 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FeedbackCategory, FeedbackStatus, UserRole } from '@prisma/client';
 import request from 'supertest';
+import { vi } from 'vitest';
 import { AppModule } from '../app.module';
 import { PrismaService } from '../prisma/prisma.service';
+
+vi.mock('@prisma/client', async (importOriginal) => {
+  const originalModule =
+    await importOriginal<typeof import('@prisma/client')>();
+  return {
+    ...originalModule,
+    UserRole: {
+      USER: 'USER',
+      ADMIN: 'ADMIN',
+    },
+    FeedbackCategory: {
+      BUG: 'BUG',
+      FEATURE_REQUEST: 'FEATURE_REQUEST',
+      TECHNICAL_SUPPORT: 'TECHNICAL_SUPPORT',
+      GENERAL: 'GENERAL',
+    },
+    FeedbackStatus: {
+      PENDING: 'PENDING',
+      IN_REVIEW: 'IN_REVIEW',
+      RESOLVED: 'RESOLVED',
+      REJECTED: 'REJECTED',
+    },
+  };
+});
 
 describe('FeedbackController (e2e)', () => {
   let app: INestApplication;

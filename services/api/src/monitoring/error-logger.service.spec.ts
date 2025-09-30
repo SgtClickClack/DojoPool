@@ -5,12 +5,12 @@ import { ErrorLogEntry, ErrorLoggerService } from './error-logger.service';
 
 describe('ErrorLoggerService', () => {
   let service: ErrorLoggerService;
-  let configService: any;
+  let configService: vi.Mocked<ConfigService>;
 
   beforeEach(async () => {
     const mockConfigService = {
       get: vi.fn(),
-    };
+    } as unknown as ConfigService;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -252,15 +252,22 @@ describe('ErrorLoggerService', () => {
         .mockReturnValueOnce('error')
         .mockReturnValueOnce('logs');
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
+      // Spy on the NestJS Logger's error method
+      const loggerSpy = vi
+        .spyOn(
+          (service as unknown as { consoleLogger: { error: () => void } })
+            .consoleLogger,
+          'error'
+        )
+        .mockImplementation();
 
       service.logError({
         level: 'error',
         message: 'Production error',
       });
 
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
+      expect(loggerSpy).toHaveBeenCalled();
+      loggerSpy.mockRestore();
     });
   });
 
@@ -270,14 +277,14 @@ describe('ErrorLoggerService', () => {
     });
 
     it('should enrich error with timestamp', () => {
-      const beforeTime = new Date().toISOString();
+      const beforeTime = new Date();
 
       service.logError({
         level: 'error',
         message: 'Test error',
       });
 
-      const afterTime = new Date().toISOString();
+      const afterTime = new Date();
       const recentError = service.getRecentErrors(1)[0];
 
       expect(recentError.timestamp).toBeDefined();

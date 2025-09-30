@@ -14,7 +14,7 @@ export interface ErrorResponse {
   error: {
     code: string;
     message: string;
-    details?: any;
+    details?: unknown;
     timestamp: string;
     requestId: string;
     path: string;
@@ -47,7 +47,7 @@ export class GlobalErrorHandler implements ExceptionFilter {
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let errorCode = 'INTERNAL_SERVER_ERROR';
     let message = 'An unexpected error occurred';
-    let details: any = null;
+    let details: unknown = null;
     let retryable = false;
     let retryAfter: number | undefined;
 
@@ -63,8 +63,11 @@ export class GlobalErrorHandler implements ExceptionFilter {
         typeof exceptionResponse === 'object' &&
         exceptionResponse !== null
       ) {
-        const responseObj = exceptionResponse as any;
-        message = responseObj.message || responseObj.error || message;
+        const responseObj = exceptionResponse as Record<string, unknown>;
+        message =
+          (responseObj.message as string) ||
+          (responseObj.error as string) ||
+          message;
         errorCode = responseObj.code || this.getErrorCodeFromStatus(status);
         details = responseObj.details;
       }

@@ -5,24 +5,28 @@ import {
   Injectable,
   Inject,
 } from '@nestjs/common';
-import { 
-  IPermissionsService, 
+import {
+  IPermissionsService,
   PERMISSIONS_SERVICE_TOKEN,
-  type PermissionAction, 
-  type PermissionResource, 
-  type PermissionContext 
+  type PermissionAction,
+  type PermissionResource,
+  type PermissionContext,
 } from '../common/interfaces/user.interfaces';
 
 export interface PermissionGuardOptions {
   action: PermissionAction;
   resource: PermissionResource;
-  context?: PermissionContext | ((request: any) => PermissionContext);
+  context?:
+    | PermissionContext
+    | ((
+        request: Express.Request & { user?: { userId: string; role: string } }
+      ) => PermissionContext);
 }
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(
-    @Inject(PERMISSIONS_SERVICE_TOKEN) 
+    @Inject(PERMISSIONS_SERVICE_TOKEN)
     private readonly permissionsService: IPermissionsService
   ) {}
 
@@ -32,14 +36,15 @@ export class PermissionGuard implements CanActivate {
 
     // Get permission options from metadata or use defaults
     const options = this.getPermissionOptions(request);
-    
+
     if (!options) {
       throw new ForbiddenException('Permission configuration required');
     }
 
-    const permissionContext = typeof options.context === 'function' 
-      ? options.context(request) 
-      : options.context;
+    const permissionContext =
+      typeof options.context === 'function'
+        ? options.context(request)
+        : options.context;
 
     const hasPermission = this.permissionsService.can(
       user,
@@ -57,7 +62,9 @@ export class PermissionGuard implements CanActivate {
     return true;
   }
 
-  private getPermissionOptions(request: any): PermissionGuardOptions | null {
+  private getPermissionOptions(
+    request: Express.Request & { permissionOptions?: PermissionGuardOptions }
+  ): PermissionGuardOptions | null {
     // This can be extended to read from route metadata or other sources
     return request.permissionOptions || null;
   }
@@ -69,13 +76,28 @@ export class PermissionGuard implements CanActivate {
 export function RequirePermission(
   action: PermissionAction,
   resource: PermissionResource,
-  context?: PermissionContext | ((request: any) => PermissionContext)
+  context?:
+    | PermissionContext
+    | ((
+        request: Express.Request & { user?: { userId: string; role: string } }
+      ) => PermissionContext)
 ) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (
+    target: object,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
     // Store permission options in metadata
     const originalMethod = descriptor.value;
-    descriptor.value = function (...args: any[]) {
-      const request = args.find(arg => arg && typeof arg === 'object' && arg.user !== undefined);
+    descriptor.value = function (...args: unknown[]) {
+      const request = args.find(
+        (
+          arg
+        ): arg is Express.Request & {
+          user?: { userId: string; role: string };
+          permissionOptions?: PermissionGuardOptions;
+        } => arg !== null && typeof arg === 'object' && 'user' in arg
+      );
       if (request) {
         request.permissionOptions = { action, resource, context };
       }

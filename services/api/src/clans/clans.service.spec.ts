@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {
   BadRequestException,
   ConflictException,
@@ -8,10 +9,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
 import { ClansService } from './clans.service';
 import { UpgradeDojoDto } from './dto/upgrade-dojo.dto';
+import { TestDependencyInjector } from '../__tests__/utils/test-dependency-injector';
 
 describe('ClansService', () => {
   let service: ClansService;
-  let prismaService: jest.Mocked<PrismaService>;
+  let prismaService: any;
   let mockPrismaService: any;
 
   const mockUser = {
@@ -54,36 +56,7 @@ describe('ClansService', () => {
   };
 
   beforeEach(async () => {
-    mockPrismaService = {
-      clan: {
-        findUnique: jest.fn(),
-        findFirst: jest.fn(),
-        findMany: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
-        count: jest.fn(),
-        aggregate: jest.fn(),
-      },
-      clanMember: {
-        findUnique: jest.fn(),
-        findFirst: jest.fn(),
-        findMany: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
-        count: jest.fn(),
-      },
-      user: {
-        findUnique: jest.fn(),
-        update: jest.fn(),
-      },
-      venue: {
-        findUnique: jest.fn(),
-        update: jest.fn(),
-      },
-      $transaction: jest.fn(),
-    };
+    mockPrismaService = TestDependencyInjector.createMockPrismaService();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -98,12 +71,12 @@ describe('ClansService', () => {
     service = module.get<ClansService>(ClansService);
     prismaService = module.get(PrismaService);
 
-    // Ensure the service has the prisma property
-    (service as any).prisma = mockPrismaService;
+    // Ensure the service has the _prisma property
+    (service as any)._prisma = mockPrismaService;
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -195,7 +168,11 @@ describe('ClansService', () => {
 
     it('should validate required fields', async () => {
       // Act & Assert
-      await expect(service.createClan({} as any)).rejects.toThrow();
+      await expect(
+        service.createClan(
+          {} as unknown as Parameters<typeof service.createClan>[0]
+        )
+      ).rejects.toThrow();
     });
   });
 
@@ -211,7 +188,9 @@ describe('ClansService', () => {
       prismaService.clan.findUnique.mockResolvedValue(clanWithRelations);
 
       // Act
-      const result = await (service as any).getClanById('1');
+      const result = await (
+        service as unknown as { getClanById: (id: string) => Promise<any> }
+      ).getClanById('1');
 
       // Assert
       expect(result).toEqual(clanWithRelations);
@@ -224,9 +203,11 @@ describe('ClansService', () => {
       prismaService.clan.findUnique.mockResolvedValue(null);
 
       // Act & Assert
-      await expect((service as any).getClanById('999')).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(
+        (
+          service as unknown as { getClanById: (id: string) => Promise<any> }
+        ).getClanById('999')
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -243,7 +224,11 @@ describe('ClansService', () => {
       prismaService.clan.update.mockResolvedValue(updatedClan);
 
       // Act
-      const result = await (service as any).updateClan('1', updateData, '1');
+      const result = await (
+        service as unknown as {
+          updateClan: (id: string, data: any, userId: string) => Promise<any>;
+        }
+      ).updateClan('1', updateData, '1');
 
       // Assert
       expect(result).toEqual(updatedClan);
@@ -257,7 +242,11 @@ describe('ClansService', () => {
 
       // Act & Assert
       await expect(
-        (service as any).updateClan('1', updateData, '2')
+        (
+          service as unknown as {
+            updateClan: (id: string, data: any, userId: string) => Promise<any>;
+          }
+        ).updateClan('1', updateData, '2')
       ).rejects.toThrow(ForbiddenException);
     });
   });
@@ -269,7 +258,11 @@ describe('ClansService', () => {
       prismaService.clan.delete.mockResolvedValue(mockClan);
 
       // Act
-      const result = await (service as any).deleteClan('1', '1');
+      const result = await (
+        service as unknown as {
+          deleteClan: (id: string, userId: string) => Promise<any>;
+        }
+      ).deleteClan('1', '1');
 
       // Assert
       expect(result).toEqual(mockClan);
@@ -283,9 +276,13 @@ describe('ClansService', () => {
       prismaService.clan.findUnique.mockResolvedValue(mockClan);
 
       // Act & Assert
-      await expect((service as any).deleteClan('1', '2')).rejects.toThrow(
-        ForbiddenException
-      );
+      await expect(
+        (
+          service as unknown as {
+            deleteClan: (id: string, userId: string) => Promise<any>;
+          }
+        ).deleteClan('1', '2')
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
@@ -299,7 +296,11 @@ describe('ClansService', () => {
         prismaService.clanMember.create.mockResolvedValue(mockClanMember);
 
         // Act
-        const result = await (service as any).joinClan('1', '2');
+        const result = await (
+          service as unknown as {
+            joinClan: (clanId: string, userId: string) => Promise<any>;
+          }
+        ).joinClan('1', '2');
 
         // Assert
         expect(result).toEqual(mockClanMember);
@@ -322,9 +323,13 @@ describe('ClansService', () => {
         prismaService.clanMember.count.mockResolvedValue(50); // At max capacity
 
         // Act & Assert
-        await expect((service as any).joinClan('1', '2')).rejects.toThrow(
-          BadRequestException
-        );
+        await expect(
+          (
+            service as unknown as {
+              joinClan: (clanId: string, userId: string) => Promise<any>;
+            }
+          ).joinClan('1', '2')
+        ).rejects.toThrow(BadRequestException);
       });
 
       it('should throw BadRequestException for already joined member', async () => {
@@ -333,9 +338,13 @@ describe('ClansService', () => {
         prismaService.clanMember.findFirst.mockResolvedValue(mockClanMember);
 
         // Act & Assert
-        await expect((service as any).joinClan('1', '2')).rejects.toThrow(
-          BadRequestException
-        );
+        await expect(
+          (
+            service as unknown as {
+              joinClan: (clanId: string, userId: string) => Promise<any>;
+            }
+          ).joinClan('1', '2')
+        ).rejects.toThrow(BadRequestException);
       });
     });
 
@@ -346,7 +355,11 @@ describe('ClansService', () => {
         prismaService.clanMember.delete.mockResolvedValue(mockClanMember);
 
         // Act
-        const result = await (service as any).leaveClan('1', '2');
+        const result = await (
+          service as unknown as {
+            leaveClan: (clanId: string, userId: string) => Promise<any>;
+          }
+        ).leaveClan('1', '2');
 
         // Assert
         expect(result).toEqual(mockClanMember);
@@ -360,9 +373,13 @@ describe('ClansService', () => {
         prismaService.clanMember.findFirst.mockResolvedValue(null);
 
         // Act & Assert
-        await expect((service as any).leaveClan('1', '2')).rejects.toThrow(
-          NotFoundException
-        );
+        await expect(
+          (
+            service as unknown as {
+              leaveClan: (clanId: string, userId: string) => Promise<any>;
+            }
+          ).leaveClan('1', '2')
+        ).rejects.toThrow(NotFoundException);
       });
     });
 
@@ -374,7 +391,15 @@ describe('ClansService', () => {
         prismaService.clanMember.delete.mockResolvedValue(mockClanMember);
 
         // Act
-        const result = await (service as any).kickMember('1', '2', '1');
+        const result = await (
+          service as unknown as {
+            kickMember: (
+              clanId: string,
+              memberId: string,
+              leaderId: string
+            ) => Promise<any>;
+          }
+        ).kickMember('1', '2', '1');
 
         // Assert
         expect(result).toEqual(mockClanMember);
@@ -386,7 +411,15 @@ describe('ClansService', () => {
 
         // Act & Assert
         await expect(
-          (service as any).kickMember('1', '2', '3')
+          (
+            service as unknown as {
+              kickMember: (
+                clanId: string,
+                memberId: string,
+                leaderId: string
+              ) => Promise<any>;
+            }
+          ).kickMember('1', '2', '3')
         ).rejects.toThrow(ForbiddenException);
       });
     });
@@ -408,16 +441,18 @@ describe('ClansService', () => {
       prismaService.clan.findUnique.mockResolvedValue(mockClan);
       prismaService.user.findUnique.mockResolvedValue(mockUser);
 
-      (mockPrismaService.$transaction as jest.Mock).mockImplementation(
+      (mockPrismaService.$transaction as vi.mock).mockImplementation(
         async (callback) => {
           const mockTx = {
             venue: {
-              findUnique: jest.fn().mockResolvedValue(mockVenue),
-              update: jest.fn().mockResolvedValue(updatedVenue),
+              findUnique: vi.fn().mockResolvedValue(mockVenue),
+              update: vi.fn().mockResolvedValue(updatedVenue),
             },
             clan: {
-              findUnique: jest.fn().mockResolvedValue(mockClan),
-              update: jest.fn().mockResolvedValue({ ...mockClan, dojoCoinBalance: 9000 }),
+              findUnique: vi.fn().mockResolvedValue(mockClan),
+              update: vi
+                .fn()
+                .mockResolvedValue({ ...mockClan, dojoCoinBalance: 9000 }),
             },
           };
           return callback(mockTx);
@@ -425,7 +460,15 @@ describe('ClansService', () => {
       );
 
       // Act
-      const result = await (service as any).upgradeDojo('1', '1', upgradeDto);
+      const result = await (
+        service as unknown as {
+          upgradeDojo: (
+            venueId: string,
+            userId: string,
+            dto: UpgradeDojoDto
+          ) => Promise<any>;
+        }
+      ).upgradeDojo('1', '1', upgradeDto);
 
       // Assert
       expect(result).toHaveProperty('clanId');
@@ -443,16 +486,18 @@ describe('ClansService', () => {
       prismaService.clan.findUnique.mockResolvedValue(mockClan);
       prismaService.user.findUnique.mockResolvedValue(mockUser);
 
-      (mockPrismaService.$transaction as jest.Mock).mockImplementation(
+      (mockPrismaService.$transaction as vi.mock).mockImplementation(
         async (callback) => {
           const mockTx = {
             venue: {
-              findUnique: jest.fn().mockResolvedValue(mockVenue),
-              update: jest.fn().mockResolvedValue(updatedVenue),
+              findUnique: vi.fn().mockResolvedValue(mockVenue),
+              update: vi.fn().mockResolvedValue(updatedVenue),
             },
             clan: {
-              findUnique: jest.fn().mockResolvedValue(mockClan),
-              update: jest.fn().mockResolvedValue({ ...mockClan, dojoCoinBalance: 9000 }),
+              findUnique: vi.fn().mockResolvedValue(mockClan),
+              update: vi
+                .fn()
+                .mockResolvedValue({ ...mockClan, dojoCoinBalance: 9000 }),
             },
           };
           return callback(mockTx);
@@ -460,11 +505,15 @@ describe('ClansService', () => {
       );
 
       // Act
-      const result = await (service as any).upgradeDojo(
-        '1',
-        '1',
-        defenseUpgradeDto
-      );
+      const result = await (
+        service as unknown as {
+          upgradeDojo: (
+            venueId: string,
+            userId: string,
+            dto: UpgradeDojoDto
+          ) => Promise<any>;
+        }
+      ).upgradeDojo('1', '1', defenseUpgradeDto);
 
       // Assert
       expect(result.venue.defenseLevel).toBe(2);
@@ -476,16 +525,16 @@ describe('ClansService', () => {
       const uncontrolledVenue = { ...mockVenue, controllingClanId: '2' };
       prismaService.venue.findUnique.mockResolvedValue(uncontrolledVenue);
 
-      (mockPrismaService.$transaction as jest.Mock).mockImplementation(
+      (mockPrismaService.$transaction as vi.mock).mockImplementation(
         async (callback) => {
           const mockTx = {
             venue: {
-              findUnique: jest.fn().mockResolvedValue(uncontrolledVenue),
-              update: jest.fn(),
+              findUnique: vi.fn().mockResolvedValue(uncontrolledVenue),
+              update: vi.fn(),
             },
             clan: {
-              findUnique: jest.fn(),
-              update: jest.fn(),
+              findUnique: vi.fn(),
+              update: vi.fn(),
             },
           };
           return callback(mockTx);
@@ -494,7 +543,15 @@ describe('ClansService', () => {
 
       // Act & Assert
       await expect(
-        (service as any).upgradeDojo('1', '1', upgradeDto)
+        (
+          service as unknown as {
+            upgradeDojo: (
+              venueId: string,
+              userId: string,
+              dto: UpgradeDojoDto
+            ) => Promise<any>;
+          }
+        ).upgradeDojo('1', '1', upgradeDto)
       ).rejects.toThrow(ForbiddenException);
     });
 
@@ -502,7 +559,7 @@ describe('ClansService', () => {
       // Skip this test for now as the transaction mocking is complex
       // TODO: Fix transaction mocking in a future PR
       const poorClan = { ...mockClan, dojoCoinBalance: 100 };
-      
+
       // This test should pass but is currently failing due to transaction mocking issues
       expect(true).toBe(true);
     });
@@ -513,7 +570,11 @@ describe('ClansService', () => {
       const level = 3;
       const expectedCost = baseCost * Math.pow(1.5, level - 1); // 1000 * 1.5^2 = 2250
 
-      const cost = (service as any).calculateUpgradeCost(level);
+      const cost = (
+        service as unknown as {
+          calculateUpgradeCost: (level: number) => number;
+        }
+      ).calculateUpgradeCost(level);
       expect(cost).toBe(expectedCost);
     });
   });
@@ -526,16 +587,19 @@ describe('ClansService', () => {
 
       prismaService.clan.count.mockResolvedValue(1);
       prismaService.clanMember.count.mockResolvedValue(memberCount);
-      prismaService.clan.aggregate.mockResolvedValue({
-        _avg: {
+      prismaService.clanMember.groupBy.mockResolvedValue([
+        {
+          clanId: '1',
           _count: {
-            members: memberCount,
+            clanId: memberCount,
           },
         },
-      });
+      ]);
 
       // Act
-      const result = await (service as any).getClanStatistics();
+      const result = await (
+        service as unknown as { getClanStatistics: () => Promise<any> }
+      ).getClanStatistics();
 
       // Assert
       expect(result).toHaveProperty('totalClans');
@@ -556,7 +620,11 @@ describe('ClansService', () => {
       prismaService.clan.findMany.mockResolvedValue(clans);
 
       // Act
-      const result = await (service as any).getClanRankings('treasury');
+      const result = await (
+        service as unknown as {
+          getClanRankings: (sortBy: string) => Promise<any>;
+        }
+      ).getClanRankings('treasury');
 
       // Assert
       expect(result).toHaveLength(2);
@@ -573,7 +641,11 @@ describe('ClansService', () => {
       prismaService.clan.findMany.mockResolvedValue(clans);
 
       // Act
-      const result = await (service as any).getClanRankings('level');
+      const result = await (
+        service as unknown as {
+          getClanRankings: (sortBy: string) => Promise<any>;
+        }
+      ).getClanRankings('level');
 
       // Assert
       expect(result).toHaveLength(2);
@@ -587,7 +659,14 @@ describe('ClansService', () => {
       prismaService.clan.findUnique.mockResolvedValue(mockClan);
 
       // Act
-      const result = await (service as any).validateClanLeadership('1', '1');
+      const result = await (
+        service as unknown as {
+          validateClanLeadership: (
+            clanId: string,
+            userId: string
+          ) => Promise<boolean>;
+        }
+      ).validateClanLeadership('1', '1');
 
       // Assert
       expect(result).toBe(true);
@@ -598,7 +677,14 @@ describe('ClansService', () => {
       prismaService.clan.findUnique.mockResolvedValue(mockClan);
 
       // Act
-      const result = await (service as any).validateClanLeadership('1', '2');
+      const result = await (
+        service as unknown as {
+          validateClanLeadership: (
+            clanId: string,
+            userId: string
+          ) => Promise<boolean>;
+        }
+      ).validateClanLeadership('1', '2');
 
       // Assert
       expect(result).toBe(false);
@@ -609,7 +695,14 @@ describe('ClansService', () => {
       prismaService.clanMember.findFirst.mockResolvedValue(mockClanMember);
 
       // Act
-      const result = await (service as any).validateClanMembership('1', '2');
+      const result = await (
+        service as unknown as {
+          validateClanMembership: (
+            clanId: string,
+            userId: string
+          ) => Promise<boolean>;
+        }
+      ).validateClanMembership('1', '2');
 
       // Assert
       expect(result).toBe(true);
@@ -620,7 +713,14 @@ describe('ClansService', () => {
       prismaService.clanMember.findFirst.mockResolvedValue(null);
 
       // Act
-      const result = await (service as any).validateClanMembership('1', '2');
+      const result = await (
+        service as unknown as {
+          validateClanMembership: (
+            clanId: string,
+            userId: string
+          ) => Promise<boolean>;
+        }
+      ).validateClanMembership('1', '2');
 
       // Assert
       expect(result).toBe(false);

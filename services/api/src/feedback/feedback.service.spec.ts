@@ -1,20 +1,69 @@
+import { vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  FeedbackCategory,
-  FeedbackPriority,
-  FeedbackStatus,
-} from '@prisma/client';
 import { TestDependencyInjector } from '../__tests__/utils/test-dependency-injector';
 import { CacheHelper } from '../cache/cache.helper';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { FeedbackService } from './feedback.service';
 
+// Mock the Prisma client enums
+vi.mock('@prisma/client', () => ({
+  PrismaClient: class MockPrismaClient {},
+  FeedbackStatus: {
+    PENDING: 'PENDING',
+    IN_REVIEW: 'IN_REVIEW',
+    RESOLVED: 'RESOLVED',
+    CLOSED: 'CLOSED',
+    REJECTED: 'REJECTED',
+  },
+  FeedbackCategory: {
+    BUG: 'BUG',
+    FEATURE_REQUEST: 'FEATURE_REQUEST',
+    GENERAL_FEEDBACK: 'GENERAL_FEEDBACK',
+    VENUE_ISSUE: 'VENUE_ISSUE',
+    TECHNICAL_SUPPORT: 'TECHNICAL_SUPPORT',
+    UI_UX_IMPROVEMENT: 'UI_UX_IMPROVEMENT',
+    PERFORMANCE_ISSUE: 'PERFORMANCE_ISSUE',
+  },
+  FeedbackPriority: {
+    LOW: 'LOW',
+    NORMAL: 'NORMAL',
+    HIGH: 'HIGH',
+    URGENT: 'URGENT',
+  },
+}));
+
+// Define enum values for test usage
+enum FeedbackCategory {
+  BUG = 'BUG',
+  FEATURE_REQUEST = 'FEATURE_REQUEST',
+  GENERAL_FEEDBACK = 'GENERAL_FEEDBACK',
+  VENUE_ISSUE = 'VENUE_ISSUE',
+  TECHNICAL_SUPPORT = 'TECHNICAL_SUPPORT',
+  UI_UX_IMPROVEMENT = 'UI_UX_IMPROVEMENT',
+  PERFORMANCE_ISSUE = 'PERFORMANCE_ISSUE',
+}
+
+enum FeedbackStatus {
+  PENDING = 'PENDING',
+  IN_REVIEW = 'IN_REVIEW',
+  RESOLVED = 'RESOLVED',
+  CLOSED = 'CLOSED',
+  REJECTED = 'REJECTED',
+}
+
+enum FeedbackPriority {
+  LOW = 'LOW',
+  NORMAL = 'NORMAL',
+  HIGH = 'HIGH',
+  URGENT = 'URGENT',
+}
+
 describe('FeedbackService', () => {
   let service: FeedbackService;
-  let prismaService: jest.Mocked<PrismaService>;
-  let notificationsService: jest.Mocked<NotificationsService>;
-  let cacheHelper: jest.Mocked<CacheHelper>;
+  let prismaService: vi.mocked<PrismaService>;
+  let notificationsService: vi.mocked<NotificationsService>;
+  let cacheHelper: vi.mocked<CacheHelper>;
 
   const mockUser = {
     id: 'user-1',
@@ -73,22 +122,25 @@ describe('FeedbackService', () => {
       cacheHelper: mockCacheHelper,
     });
 
-    // Ensure the service has the prisma property
-    (service as any).prisma = mockPrismaService;
-    
+    // Ensure the service has the _prisma property (not prisma)
+    (service as any)._prisma = mockPrismaService;
+
     // Ensure the cache helper bypasses caching and calls the actual methods
     (service as any).cacheHelper = {
-      get: jest.fn().mockResolvedValue(null), // Always return null to bypass cache
-      set: jest.fn().mockResolvedValue(true),
-      delete: jest.fn().mockResolvedValue(true),
-      deleteByPattern: jest.fn().mockResolvedValue(true),
-      exists: jest.fn().mockResolvedValue(false),
-      clear: jest.fn().mockResolvedValue(true),
-      ping: jest.fn().mockResolvedValue(true),
-      writeThrough: jest.fn().mockImplementation(async (key, fn) => fn()), // Call the function directly
-      invalidate: jest.fn().mockResolvedValue(true),
+      get: vi.fn().mockResolvedValue(null), // Always return null to bypass cache
+      set: vi.fn().mockResolvedValue(true),
+      delete: vi.fn().mockResolvedValue(true),
+      deleteByPattern: vi.fn().mockResolvedValue(true),
+      exists: vi.fn().mockResolvedValue(false),
+      clear: vi.fn().mockResolvedValue(true),
+      ping: vi.fn().mockResolvedValue(true),
+      writeThrough: vi.fn().mockImplementation(async (options) => {
+        // Call the writeOperation function from the options object
+        return await options.writeOperation();
+      }),
+      invalidate: vi.fn().mockResolvedValue(true),
     };
-    
+
     // Also set cacheService for the @Cacheable decorator
     (service as any).cacheService = (service as any).cacheHelper;
   });
@@ -113,7 +165,11 @@ describe('FeedbackService', () => {
           role: 'ADMIN',
         },
       ]);
-      notificationsService.createNotification.mockResolvedValue({} as any);
+      notificationsService.createNotification.mockResolvedValue(
+        {} as unknown as ReturnType<
+          typeof notificationsService.createNotification
+        >
+      );
 
       const result = await service.create(createFeedbackDto, 'user-1');
 
@@ -157,7 +213,11 @@ describe('FeedbackService', () => {
           role: 'ADMIN',
         },
       ]);
-      notificationsService.createNotification.mockResolvedValue({} as any);
+      notificationsService.createNotification.mockResolvedValue(
+        {} as unknown as ReturnType<
+          typeof notificationsService.createNotification
+        >
+      );
 
       await service.create(createFeedbackDto, 'user-1');
 
@@ -251,7 +311,11 @@ describe('FeedbackService', () => {
 
       prismaService.feedback.findUnique.mockResolvedValue(mockFeedback);
       prismaService.feedback.update.mockResolvedValue(updatedFeedback);
-      notificationsService.createNotification.mockResolvedValue({} as any);
+      notificationsService.createNotification.mockResolvedValue(
+        {} as unknown as ReturnType<
+          typeof notificationsService.createNotification
+        >
+      );
 
       const result = await service.update('feedback-1', updateDto, 'admin-1');
 
@@ -274,7 +338,11 @@ describe('FeedbackService', () => {
 
       prismaService.feedback.findUnique.mockResolvedValue(mockFeedback);
       prismaService.feedback.update.mockResolvedValue(updatedFeedback);
-      notificationsService.createNotification.mockResolvedValue({} as any);
+      notificationsService.createNotification.mockResolvedValue(
+        {} as unknown as ReturnType<
+          typeof notificationsService.createNotification
+        >
+      );
 
       await service.update('feedback-1', updateDto, 'admin-1');
 

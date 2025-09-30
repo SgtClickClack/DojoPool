@@ -21,23 +21,7 @@ import Head from 'next/head';
 import Layout from '@/components/Layout/Layout';
 import ProtectedRoute from '@/components/Common/ProtectedRoute';
 import { getClans } from '@/services/APIService';
-
-interface Clan {
-  id: string;
-  name: string;
-  tag: string;
-  description: string;
-  members: number;
-  territories: number;
-  rating: number;
-  isPublic: boolean;
-  requirements: {
-    minRating?: number;
-    minLevel?: number;
-    invitationOnly: boolean;
-    approvalRequired: boolean;
-  };
-}
+import { type Clan } from '@/types/clan';
 
 interface ClanFilters {
   search?: string;
@@ -68,7 +52,7 @@ const ClansPage: React.FC = () => {
     try {
       setLoading(true);
       const clansData = await getClans();
-      setClans(clansData);
+      setClans(clansData.clans);
     } catch (error: any) {
       // Error handled by setError
       setError('Failed to load clans. Please try again.');
@@ -87,7 +71,7 @@ const ClansPage: React.FC = () => {
         (clan) =>
           clan.name.toLowerCase().includes(searchTerm) ||
           clan.tag.toLowerCase().includes(searchTerm) ||
-          clan.description.toLowerCase().includes(searchTerm)
+          (clan.description || '').toLowerCase().includes(searchTerm)
       );
     }
 
@@ -101,13 +85,13 @@ const ClansPage: React.FC = () => {
           bValue = b.name.toLowerCase();
           break;
         case 'members':
-          aValue = a.members;
-          bValue = b.members;
+          aValue = a.members.length;
+          bValue = b.members.length;
           break;
         case 'rating':
         default:
-          aValue = a.rating;
-          bValue = b.rating;
+          aValue = a.reputation;
+          bValue = b.reputation;
           break;
       }
 
@@ -288,24 +272,24 @@ const ClansPage: React.FC = () => {
 
                       <Box display="flex" flexWrap="wrap" gap={1} mb={2}>
                         <Chip
-                          label={`${clan.members} member${clan.members !== 1 ? 's' : ''}`}
+                          label={`${clan.members.length} member${clan.members.length !== 1 ? 's' : ''}`}
                           size="small"
                           variant="outlined"
                         />
                         <Chip
-                          label={`${clan.territories} territor${clan.territories !== 1 ? 'ies' : 'y'}`}
+                          label={`${clan.territoryCount} territor${clan.territoryCount !== 1 ? 'ies' : 'y'}`}
                           size="small"
                           variant="outlined"
                         />
                         <Chip
-                          label={`${clan.rating} rating`}
+                          label={`${clan.reputation} reputation`}
                           size="small"
                           variant="outlined"
                           color="secondary"
                         />
                       </Box>
 
-                      {!clan.isPublic && (
+                      {!clan.isActive && (
                         <Chip
                           label="Private"
                           size="small"
@@ -315,45 +299,11 @@ const ClansPage: React.FC = () => {
                         />
                       )}
 
-                      {clan.requirements.invitationOnly && (
-                        <Chip
-                          label="Invitation Only"
-                          size="small"
-                          color="info"
-                          variant="outlined"
-                          sx={{ mb: 1, mr: 1 }}
-                        />
-                      )}
+                      {/* TODO: Add invitation requirements when available in Clan type */}
 
-                      {clan.requirements.approvalRequired && (
-                        <Chip
-                          label="Approval Required"
-                          size="small"
-                          color="info"
-                          variant="outlined"
-                          sx={{ mb: 1 }}
-                        />
-                      )}
-
-                      {clan.requirements.minRating && (
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          display="block"
-                        >
-                          Min Rating: {clan.requirements.minRating}
-                        </Typography>
-                      )}
-
-                      {clan.requirements.minLevel && (
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          display="block"
-                        >
-                          Min Level: {clan.requirements.minLevel}
-                        </Typography>
-                      )}
+                      {/* TODO: Add approval requirements when available in Clan type */}
+                      {/* TODO: Add min rating requirements when available in Clan type */}
+                      {/* TODO: Add min level requirements when available in Clan type */}
                     </CardContent>
 
                     <Box sx={{ p: 2, pt: 0 }}>

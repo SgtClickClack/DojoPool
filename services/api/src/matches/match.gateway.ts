@@ -11,6 +11,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { corsOptions } from '../config/cors.config';
 import { AiAnalysisService, type ShotData } from './ai-analysis.service';
+import { ShotTakenData } from '../common/dto/websocket-events.dto';
 
 @WebSocketGateway({
   cors: corsOptions,
@@ -67,13 +68,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('shot_taken')
   async handleShotTaken(
     @MessageBody()
-    payload: {
-      matchId?: string;
-      playerId?: string;
-      ballSunk?: any;
-      wasFoul?: boolean;
-      [k: string]: any;
-    },
+    payload: ShotTakenData,
     @ConnectedSocket() client: Socket
   ) {
     try {
@@ -94,7 +89,8 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         playerId,
         ballSunk: payload.ballSunk ?? null,
         wasFoul: Boolean(payload.wasFoul),
-        ...payload,
+        playerName: payload.playerName,
+        shotType: payload.shotType,
       };
 
       // Generate live commentary
@@ -105,7 +101,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
       void this.server.to(room).emit('live_commentary', commentary);
       this.logger.log(`Broadcast live_commentary to ${room}: ${commentary}`);
     } catch (err) {
-      this.logger.error('Error handling shot_taken event', err as any);
+      this.logger.error('Error handling shot_taken event', err);
       void client.emit('shot_error', 'Failed to process shot_taken event');
     }
   }

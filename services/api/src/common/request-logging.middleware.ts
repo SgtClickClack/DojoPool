@@ -38,7 +38,7 @@ export class RequestLoggingMiddleware implements NestMiddleware {
     const requestId = this.generateRequestId();
 
     // Add request ID to request object for use in other middleware
-    (req as any).requestId = requestId;
+    (req as Request & { requestId?: string }).requestId = requestId;
 
     // Log request
     this.logRequest(req, requestId);
@@ -61,7 +61,7 @@ export class RequestLoggingMiddleware implements NestMiddleware {
   }
 
   private logRequest(req: Request, requestId: string) {
-    const logData: any = {
+    const logData: Record<string, unknown> = {
       requestId,
       method: req.method,
       url: req.url,
@@ -88,11 +88,11 @@ export class RequestLoggingMiddleware implements NestMiddleware {
     res: Response,
     startTime: number,
     requestId: string,
-    body: any
+    body: unknown
   ) {
     const duration = Date.now() - startTime;
 
-    const logData: any = {
+    const logData: Record<string, unknown> = {
       requestId,
       method: req.method,
       url: req.url,
@@ -115,7 +115,9 @@ export class RequestLoggingMiddleware implements NestMiddleware {
     }
   }
 
-  private sanitizeHeaders(headers: any): any {
+  private sanitizeHeaders(
+    headers: Record<string, unknown>
+  ): Record<string, unknown> {
     const sanitized = { ...headers };
 
     // Remove sensitive headers
@@ -126,12 +128,14 @@ export class RequestLoggingMiddleware implements NestMiddleware {
     return sanitized;
   }
 
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: unknown): unknown {
     if (!data || typeof data !== 'object') {
       return data;
     }
 
-    const sanitized = Array.isArray(data) ? [...data] : { ...data };
+    const sanitized: Record<string, unknown> = Array.isArray(data)
+      ? [...data]
+      : { ...(data as Record<string, unknown>) };
 
     for (const key in sanitized) {
       if (Object.prototype.hasOwnProperty.call(sanitized, key)) {

@@ -1,26 +1,38 @@
 export interface CacheDecoratorOptions {
   ttl?: number; // Time to live in seconds
   keyPrefix?: string;
-  keyGenerator?: (...args: any[]) => string;
-  condition?: (...args: any[]) => boolean; // Only cache if this returns true
+  keyGenerator?: (...args: unknown[]) => string;
+  condition?: (...args: unknown[]) => boolean; // Only cache if this returns true
   invalidatePatterns?: string[]; // Patterns to invalidate on method execution
   writeThrough?: boolean; // Use write-through caching for write operations
 }
 
 export function Cacheable(options: CacheDecoratorOptions = {}) {
   return function (
-    target: any,
+    target: object,
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (
+      this: {
+        cacheService?: {
+          get: (key: string, prefix?: string) => Promise<unknown>;
+          set: (
+            key: string,
+            value: unknown,
+            options?: { ttl?: number; keyPrefix?: string }
+          ) => Promise<void>;
+        };
+        cacheManager?: unknown;
+        cacheHelper?: unknown;
+      },
+      ...args: unknown[]
+    ) {
       // Get cache service instances
-      const cacheServiceInstance =
-        (this as any).cacheService || (this as any).cacheManager;
-      const _cacheHelperInstance =
-        (this as any).cacheHelper || (this as any).cacheManager;
+      const cacheServiceInstance = this.cacheService || this.cacheManager;
+      const _cacheHelperInstance = this.cacheHelper || this.cacheManager;
 
       if (!cacheServiceInstance) {
         console.warn(
@@ -68,15 +80,32 @@ export function Cacheable(options: CacheDecoratorOptions = {}) {
 
 export function CacheWriteThrough(options: CacheDecoratorOptions = {}) {
   return function (
-    target: any,
+    target: object,
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
-      const cacheHelperInstance =
-        (this as any).cacheHelper || (this as any).cacheManager;
+    descriptor.value = async function (
+      this: {
+        cacheHelper?: {
+          writeThrough: (options: {
+            key: string;
+            data: unknown;
+            cacheOptions?: {
+              ttl?: number;
+              keyPrefix?: string;
+              invalidateOnWrite?: boolean;
+              invalidatePatterns?: string[];
+            };
+            writeOperation: () => Promise<unknown>;
+          }) => Promise<unknown>;
+        };
+        cacheManager?: unknown;
+      },
+      ...args: unknown[]
+    ) {
+      const cacheHelperInstance = this.cacheHelper || this.cacheManager;
 
       if (!cacheHelperInstance) {
         console.warn(
@@ -117,17 +146,24 @@ export function CacheWriteThrough(options: CacheDecoratorOptions = {}) {
 
 export function CacheInvalidate(patterns: string[]) {
   return function (
-    target: any,
+    target: object,
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
-      const cacheServiceInstance =
-        (this as any).cacheService || (this as any).cacheManager;
-      const cacheHelperInstance =
-        (this as any).cacheHelper || (this as any).cacheManager;
+    descriptor.value = async function (
+      this: {
+        cacheService?: { deleteByPattern: (pattern: string) => Promise<void> };
+        cacheHelper?: {
+          invalidatePatterns: (patterns: string[]) => Promise<void>;
+        };
+        cacheManager?: unknown;
+      },
+      ...args: unknown[]
+    ) {
+      const cacheServiceInstance = this.cacheService || this.cacheManager;
+      const cacheHelperInstance = this.cacheHelper || this.cacheManager;
 
       // Execute original method first
       const result = await originalMethod.apply(this, args);
@@ -157,7 +193,7 @@ export function CacheKey(...parts: (string | number | boolean)[]): string {
 function generateDefaultKey(
   className: string,
   methodName: string,
-  args: any[]
+  args: unknown[]
 ): string {
   const argsHash = JSON.stringify(args).replace(/[^a-zA-Z0-9_-]/g, '_');
   return CacheKey(className, methodName, argsHash);

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CacheHelper } from '../cache/cache.helper';
 import {
@@ -8,7 +9,7 @@ import {
 
 describe('TournamentsService', () => {
   let service: TournamentsService;
-  let cacheHelper: jest.Mocked<CacheHelper>;
+  let cacheHelper: vi.mocked<CacheHelper>;
 
   const mockTournament: Tournament = {
     id: '1',
@@ -26,9 +27,9 @@ describe('TournamentsService', () => {
 
   beforeEach(async () => {
     const mockCacheHelper = {
-      readThrough: jest.fn(),
-      writeThrough: jest.fn(),
-      invalidatePatterns: jest.fn(),
+      readThrough: vi.fn(),
+      writeThrough: vi.fn(),
+      invalidatePatterns: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -55,9 +56,12 @@ describe('TournamentsService', () => {
       const params: TournamentListParams = { status: 'active' };
 
       // Mock the cache to return data (simulating cache hit)
-      jest
-        .spyOn(service as any, 'fetchTournamentsFromDb')
-        .mockResolvedValue(mockTournaments);
+      vi.spyOn(
+        service as unknown as {
+          fetchTournamentsFromDb: () => Promise<Tournament[]>;
+        },
+        'fetchTournamentsFromDb'
+      ).mockResolvedValue(mockTournaments);
 
       // Act
       const result = await service.getTournaments(params);
@@ -83,9 +87,12 @@ describe('TournamentsService', () => {
       const filteredTournaments = mockTournaments.filter(
         (t) => t.status === 'active'
       );
-      jest
-        .spyOn(service as any, 'fetchTournamentsFromDb')
-        .mockResolvedValue(filteredTournaments);
+      vi.spyOn(
+        service as unknown as {
+          fetchTournamentsFromDb: () => Promise<Tournament[]>;
+        },
+        'fetchTournamentsFromDb'
+      ).mockResolvedValue(filteredTournaments);
 
       // Act
       const result = await service.getTournaments(params);
@@ -101,9 +108,12 @@ describe('TournamentsService', () => {
       const filteredTournaments = mockTournaments.filter(
         (t) => t.venueId === 'venue-1'
       );
-      jest
-        .spyOn(service as any, 'fetchTournamentsFromDb')
-        .mockResolvedValue(filteredTournaments);
+      vi.spyOn(
+        service as unknown as {
+          fetchTournamentsFromDb: () => Promise<Tournament[]>;
+        },
+        'fetchTournamentsFromDb'
+      ).mockResolvedValue(filteredTournaments);
 
       // Act
       const result = await service.getTournaments(params);
@@ -128,12 +138,19 @@ describe('TournamentsService', () => {
   describe('getTournamentById', () => {
     it('should return tournament by ID', async () => {
       // Arrange
-      jest
-        .spyOn(service as any, 'fetchTournamentFromDb')
-        .mockResolvedValue(mockTournament);
+      vi.spyOn(
+        service as unknown as {
+          fetchTournamentFromDb: (id: string) => Promise<Tournament | null>;
+        },
+        'fetchTournamentFromDb'
+      ).mockResolvedValue(mockTournament);
 
       // Act
-      const result = await (service as any).getTournamentById('1');
+      const result = await (
+        service as unknown as {
+          getTournamentById: (id: string) => Promise<Tournament | null>;
+        }
+      ).getTournamentById('1');
 
       // Assert
       expect(result).toEqual(mockTournament);
@@ -142,12 +159,14 @@ describe('TournamentsService', () => {
 
     it('should return null for non-existent tournament', async () => {
       // Arrange
-      jest
-        .spyOn(service as any, 'fetchTournamentFromDb')
-        .mockResolvedValue(null);
+      vi.spyOn(service as any, 'fetchTournamentFromDb').mockResolvedValue(null);
 
       // Act
-      const result = await (service as any).getTournamentById('999');
+      const result = await (
+        service as unknown as {
+          getTournamentById: (id: string) => Promise<Tournament | null>;
+        }
+      ).getTournamentById('999');
 
       // Assert
       expect(result).toBeNull();
@@ -172,9 +191,11 @@ describe('TournamentsService', () => {
       };
 
       // Act
-      const result = await (service as any).createTournament(
-        createTournamentData
-      );
+      const result = await (
+        service as unknown as {
+          createTournament: (data: any) => Promise<Tournament>;
+        }
+      ).createTournament(createTournamentData);
 
       // Assert
       expect(result).toEqual(newTournament);
@@ -184,7 +205,13 @@ describe('TournamentsService', () => {
 
     it('should validate required fields', async () => {
       // Act & Assert
-      await expect((service as any).createTournament({})).rejects.toThrow();
+      await expect(
+        (
+          service as unknown as {
+            createTournament: (data: any) => Promise<Tournament>;
+          }
+        ).createTournament({})
+      ).rejects.toThrow();
     });
   });
 
@@ -197,12 +224,25 @@ describe('TournamentsService', () => {
     it('should update tournament successfully', async () => {
       // Arrange
       const updatedTournament = { ...mockTournament, ...updateData };
-      jest
-        .spyOn(service as any, 'updateTournamentInDb')
-        .mockResolvedValue(updatedTournament);
+      vi.spyOn(
+        service as unknown as {
+          updateTournamentInDb: (
+            id: string,
+            data: any
+          ) => Promise<Tournament | null>;
+        },
+        'updateTournamentInDb'
+      ).mockResolvedValue(updatedTournament);
 
       // Act
-      const result = await (service as any).updateTournament('1', updateData);
+      const result = await (
+        service as unknown as {
+          updateTournament: (
+            id: string,
+            data: any
+          ) => Promise<Tournament | null>;
+        }
+      ).updateTournament('1', updateData);
 
       // Assert
       expect(result).toEqual(updatedTournament);
@@ -212,12 +252,17 @@ describe('TournamentsService', () => {
 
     it('should handle non-existent tournament', async () => {
       // Arrange
-      jest
-        .spyOn(service as any, 'updateTournamentInDb')
-        .mockResolvedValue(null);
+      vi.spyOn(service as any, 'updateTournamentInDb').mockResolvedValue(null);
 
       // Act
-      const result = await (service as any).updateTournament('999', updateData);
+      const result = await (
+        service as unknown as {
+          updateTournament: (
+            id: string,
+            data: any
+          ) => Promise<Tournament | null>;
+        }
+      ).updateTournament('999', updateData);
 
       // Assert
       expect(result).toBeNull();
@@ -227,12 +272,19 @@ describe('TournamentsService', () => {
   describe('deleteTournament', () => {
     it('should delete tournament successfully', async () => {
       // Arrange
-      jest
-        .spyOn(service as any, 'deleteTournamentFromDb')
-        .mockResolvedValue(true);
+      vi.spyOn(
+        service as unknown as {
+          deleteTournamentFromDb: (id: string) => Promise<boolean>;
+        },
+        'deleteTournamentFromDb'
+      ).mockResolvedValue(true);
 
       // Act
-      const result = await (service as any).deleteTournament('1');
+      const result = await (
+        service as unknown as {
+          deleteTournament: (id: string) => Promise<boolean>;
+        }
+      ).deleteTournament('1');
 
       // Assert
       expect(result).toBe(true);
@@ -240,12 +292,16 @@ describe('TournamentsService', () => {
 
     it('should return false for non-existent tournament', async () => {
       // Arrange
-      jest
-        .spyOn(service as any, 'deleteTournamentFromDb')
-        .mockResolvedValue(false);
+      vi.spyOn(service as any, 'deleteTournamentFromDb').mockResolvedValue(
+        false
+      );
 
       // Act
-      const result = await (service as any).deleteTournament('999');
+      const result = await (
+        service as unknown as {
+          deleteTournament: (id: string) => Promise<boolean>;
+        }
+      ).deleteTournament('999');
 
       // Assert
       expect(result).toBe(false);
@@ -256,12 +312,25 @@ describe('TournamentsService', () => {
     it('should add participant successfully', async () => {
       // Arrange
       const updatedTournament = { ...mockTournament, participants: 9 };
-      jest
-        .spyOn(service as any, 'addParticipantToDb')
-        .mockResolvedValue(updatedTournament);
+      vi.spyOn(
+        service as unknown as {
+          addParticipantToDb: (
+            id: string,
+            userId: string
+          ) => Promise<Tournament | null>;
+        },
+        'addParticipantToDb'
+      ).mockResolvedValue(updatedTournament);
 
       // Act
-      const result = await (service as any).addParticipant('1', 'user-1');
+      const result = await (
+        service as unknown as {
+          addParticipant: (
+            id: string,
+            userId: string
+          ) => Promise<Tournament | null>;
+        }
+      ).addParticipant('1', 'user-1');
 
       // Assert
       expect(result).toEqual(updatedTournament);
@@ -275,10 +344,25 @@ describe('TournamentsService', () => {
         participants: 16,
         maxParticipants: 16,
       };
-      jest.spyOn(service as any, 'addParticipantToDb').mockResolvedValue(null);
+      vi.spyOn(
+        service as unknown as {
+          addParticipantToDb: (
+            id: string,
+            userId: string
+          ) => Promise<Tournament | null>;
+        },
+        'addParticipantToDb'
+      ).mockResolvedValue(null);
 
       // Act
-      const result = await (service as any).addParticipant('1', 'user-1');
+      const result = await (
+        service as unknown as {
+          addParticipant: (
+            id: string,
+            userId: string
+          ) => Promise<Tournament | null>;
+        }
+      ).addParticipant('1', 'user-1');
 
       // Assert
       expect(result).toBeNull();
@@ -289,12 +373,25 @@ describe('TournamentsService', () => {
     it('should remove participant successfully', async () => {
       // Arrange
       const updatedTournament = { ...mockTournament, participants: 7 };
-      jest
-        .spyOn(service as any, 'removeParticipantFromDb')
-        .mockResolvedValue(updatedTournament);
+      vi.spyOn(
+        service as unknown as {
+          removeParticipantFromDb: (
+            id: string,
+            userId: string
+          ) => Promise<Tournament | null>;
+        },
+        'removeParticipantFromDb'
+      ).mockResolvedValue(updatedTournament);
 
       // Act
-      const result = await (service as any).removeParticipant('1', 'user-1');
+      const result = await (
+        service as unknown as {
+          removeParticipant: (
+            id: string,
+            userId: string
+          ) => Promise<Tournament | null>;
+        }
+      ).removeParticipant('1', 'user-1');
 
       // Assert
       expect(result).toEqual(updatedTournament);
@@ -316,7 +413,9 @@ describe('TournamentsService', () => {
       };
 
       // Act
-      const result = await (service as any).getTournamentStats();
+      const result = await (
+        service as unknown as { getTournamentStats: () => Promise<any> }
+      ).getTournamentStats();
 
       // Assert
       expect(result).toEqual(stats);
@@ -338,7 +437,9 @@ describe('TournamentsService', () => {
       };
 
       // Act
-      const result = (service as any).validateTournamentData(validData);
+      const result = (
+        service as unknown as { validateTournamentData: (data: any) => boolean }
+      ).validateTournamentData(validData);
 
       // Assert
       expect(result).toBe(true);
@@ -356,7 +457,9 @@ describe('TournamentsService', () => {
       };
 
       // Act
-      const result = (service as any).validateTournamentData(invalidData);
+      const result = (
+        service as unknown as { validateTournamentData: (data: any) => boolean }
+      ).validateTournamentData(invalidData);
 
       // Assert
       expect(result).toBe(false);
@@ -374,11 +477,12 @@ describe('TournamentsService', () => {
       };
 
       // Act
-      const result = (service as any).validateTournamentData(invalidData);
+      const result = (
+        service as unknown as { validateTournamentData: (data: any) => boolean }
+      ).validateTournamentData(invalidData);
 
       // Assert
       expect(result).toBe(false);
     });
   });
-
 });

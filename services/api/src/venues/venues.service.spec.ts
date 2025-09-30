@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {
   BadRequestException,
   ForbiddenException,
@@ -12,9 +13,9 @@ import { TestDependencyInjector } from '../__tests__/utils/test-dependency-injec
 
 describe('VenuesService', () => {
   let service: VenuesService;
-  let prismaService: jest.Mocked<PrismaService>;
-  let cacheHelper: jest.Mocked<CacheHelper>;
-  let matchesGateway: jest.Mocked<MatchesGateway>;
+  let prismaService: vi.mocked<PrismaService>;
+  let cacheHelper: vi.mocked<CacheHelper>;
+  let matchesGateway: vi.mocked<MatchesGateway>;
 
   const mockUser = {
     id: '1',
@@ -58,9 +59,10 @@ describe('VenuesService', () => {
     const mockPrismaService = TestDependencyInjector.createMockPrismaService();
     const mockCacheHelper = TestDependencyInjector.createMockCacheHelper();
     const mockMatchesGateway = {
-      notifyTableUpdate: jest.fn(),
-      notifyVenueUpdate: jest.fn(),
-      broadcastVenueTablesUpdated: jest.fn(),
+      notifyTableUpdate: vi.fn(),
+      notifyVenueUpdate: vi.fn(),
+      broadcastVenueTablesUpdated: vi.fn(),
+      broadcastVenueTableUpdate: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -88,10 +90,20 @@ describe('VenuesService', () => {
 
     // Use the test utility to fix dependency injection
     TestDependencyInjector.setupServiceWithMocks(service, {
-      prisma: mockPrismaService,
-      cacheHelper: mockCacheHelper,
-      matchesGateway: mockMatchesGateway,
+      _prisma: mockPrismaService,
+      _cacheHelper: mockCacheHelper,
+      _matchesGateway: mockMatchesGateway,
     });
+
+    // Explicitly set the private properties to ensure proper injection
+    (service as any)._prisma = mockPrismaService;
+    (service as any)._cacheHelper = mockCacheHelper;
+    (service as any)._matchesGateway = mockMatchesGateway;
+
+    // Also set the properties that the cache decorators expect
+    (service as any).cacheHelper = mockCacheHelper;
+    (service as any).cacheService = mockCacheHelper;
+    (service as any).cacheManager = mockCacheHelper;
   });
 
   it('should be defined', () => {
@@ -105,31 +117,16 @@ describe('VenuesService', () => {
       prismaService.venue.findMany.mockResolvedValue(venues);
 
       // Act
-      const result = await (service as any).getVenues();
+      const result = await service.getVenues();
 
       // Assert
       expect(result).toEqual(venues);
       expect(prismaService.venue.findMany).toHaveBeenCalledWith({
-        include: {
-          owner: {
-            select: {
-              id: true,
-              username: true,
-            },
-          },
-          controllingClan: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          _count: {
-            select: {
-              tables: true,
-            },
-          },
-        },
         where: undefined,
+        include: {
+          owner: { select: { id: true, username: true } },
+          _count: { select: { tablesList: true } },
+        },
       });
     });
 
@@ -140,7 +137,7 @@ describe('VenuesService', () => {
       prismaService.venue.findMany.mockResolvedValue(filteredVenues);
 
       // Act
-      const result = await (service as any).getVenues({
+      const result = await service.getVenues({
         controllingClanId: clanId,
       });
 
@@ -148,7 +145,10 @@ describe('VenuesService', () => {
       expect(result).toEqual(filteredVenues);
       expect(prismaService.venue.findMany).toHaveBeenCalledWith({
         where: { controllingClanId: clanId },
-        include: expect.any(Object),
+        include: {
+          owner: { select: { id: true, username: true } },
+          _count: { select: { tablesList: true } },
+        },
       });
     });
   });
@@ -159,13 +159,16 @@ describe('VenuesService', () => {
       prismaService.venue.findUnique.mockResolvedValue(mockVenue);
 
       // Act
-      const result = await (service as any).getVenueById('1');
+      const result = await service.getVenueById('1');
 
       // Assert
       expect(result).toEqual(mockVenue);
       expect(prismaService.venue.findUnique).toHaveBeenCalledWith({
         where: { id: '1' },
-        include: expect.any(Object),
+        include: {
+          owner: { select: { id: true, username: true } },
+          tablesList: true,
+        },
       });
     });
 
@@ -174,7 +177,7 @@ describe('VenuesService', () => {
       prismaService.venue.findUnique.mockResolvedValue(null);
 
       // Act & Assert
-      await expect((service as any).getVenueById('999')).rejects.toThrow(
+      await expect(service.getVenueById('999')).rejects.toThrow(
         NotFoundException
       );
     });
@@ -195,7 +198,7 @@ describe('VenuesService', () => {
       prismaService.venue.create.mockResolvedValue(newVenue);
 
       // Act
-      const result = await (service as any).createVenue(createVenueData, '1');
+      const result = await service.createVenue(createVenueData, '1');
 
       // Assert
       expect(result).toEqual(newVenue);
@@ -217,7 +220,7 @@ describe('VenuesService', () => {
 
     it('should validate required fields', async () => {
       // Act & Assert
-      await expect((service as any).createVenue({}, '1')).rejects.toThrow(
+      await expect(service.createVenue({}, '1')).rejects.toThrow(
         BadRequestException
       );
     });
@@ -236,7 +239,7 @@ describe('VenuesService', () => {
       prismaService.venue.update.mockResolvedValue(updatedVenue);
 
       // Act
-      const result = await (service as any).updateVenue('1', '1', updateData);
+      const result = await service.updateVenue('1', '1', updateData);
 
       // Assert
       expect(result).toEqual(updatedVenue);
@@ -251,9 +254,9 @@ describe('VenuesService', () => {
       prismaService.venue.findUnique.mockResolvedValue(mockVenue);
 
       // Act & Assert
-      await expect(
-        (service as any).updateVenue('1', updateData, '2')
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.updateVenue('1', '2', updateData)).rejects.toThrow(
+        ForbiddenException
+      );
     });
   });
 
@@ -264,7 +267,7 @@ describe('VenuesService', () => {
       prismaService.venue.delete.mockResolvedValue(mockVenue);
 
       // Act
-      const result = await (service as any).deleteVenue('1', '1');
+      const result = await service.deleteVenue('1', '1');
 
       // Assert
       expect(result).toEqual(mockVenue);
@@ -278,7 +281,7 @@ describe('VenuesService', () => {
       prismaService.venue.findUnique.mockResolvedValue(mockVenue);
 
       // Act & Assert
-      await expect((service as any).deleteVenue('1', '2')).rejects.toThrow(
+      await expect(service.deleteVenue('1', '2')).rejects.toThrow(
         ForbiddenException
       );
     });
@@ -359,7 +362,7 @@ describe('VenuesService', () => {
         prismaService.table.update.mockResolvedValue(updatedTable);
 
         // Act
-        const result = await (service as any).updateTable('1', '1', updateData);
+        const result = await service.updateTable('1', '1', updateData);
 
         // Assert
         expect(result).toEqual(updatedTable);
@@ -373,7 +376,7 @@ describe('VenuesService', () => {
 
         // Act & Assert
         await expect(
-          (service as any).updateTable('1', '999', updateData)
+          service.updateTable('1', '999', updateData)
         ).rejects.toThrow(NotFoundException);
       });
     });
@@ -385,17 +388,17 @@ describe('VenuesService', () => {
         prismaService.$transaction.mockImplementation(async (callback) => {
           const mockTx = {
             match: {
-              updateMany: jest.fn().mockResolvedValue({}),
+              updateMany: vi.fn().mockResolvedValue({}),
             },
             table: {
-              delete: jest.fn().mockResolvedValue(mockTable),
+              delete: vi.fn().mockResolvedValue(mockTable),
             },
           };
           return callback(mockTx);
         });
 
         // Act
-        const result = await (service as any).deleteTable('1', '1');
+        const result = await service.deleteTable('1', '1');
 
         // Assert
         expect(result).toEqual(mockTable);
@@ -427,7 +430,7 @@ describe('VenuesService', () => {
         );
 
         // Act
-        const result = await (service as any).getVenueSpecials('1');
+        const result = await service.getVenueSpecials('1');
 
         // Assert
         expect(result).toEqual(specials);
@@ -460,7 +463,7 @@ describe('VenuesService', () => {
         });
 
         // Act
-        const result = await (service as any).createVenueSpecial(
+        const result = await service.createVenueSpecial(
           '1',
           createSpecialData,
           '1'
@@ -485,7 +488,7 @@ describe('VenuesService', () => {
 
         // Act & Assert
         await expect(
-          (service as any).createVenueSpecial('1', createSpecialData, '2')
+          service.createVenueSpecial('1', createSpecialData, '2')
         ).rejects.toThrow(ForbiddenException);
       });
     });
@@ -505,7 +508,7 @@ describe('VenuesService', () => {
         });
 
         // Act
-        const result = await (service as any).updateVenueSpecial(
+        const result = await service.updateVenueSpecial(
           '1',
           '1',
           updateData,
@@ -530,7 +533,7 @@ describe('VenuesService', () => {
         );
 
         // Act
-        const result = await (service as any).deleteVenueSpecial('1', '1', '1');
+        const result = await service.deleteVenueSpecial('1', '1', '1');
 
         // Assert
         expect(result).toEqual(mockSpecial);
@@ -551,22 +554,21 @@ describe('VenuesService', () => {
 
       prismaService.venue.count.mockResolvedValue(10);
       prismaService.table.count.mockResolvedValue(50);
-      prismaService.venue.aggregate.mockResolvedValue({
-        _avg: {
-          _count: {
-            tables: 5,
-          },
-        },
-      });
+      prismaService.table.groupBy.mockResolvedValue([
+        { venueId: '1', _count: { venueId: 5 } },
+        { venueId: '2', _count: { venueId: 3 } },
+      ]);
 
       // Act
-      const result = await (service as any).getVenueStatistics();
+      const result = await service.getVenueStatistics();
 
       // Assert
       expect(result).toHaveProperty('totalVenues');
       expect(result).toHaveProperty('totalTables');
+      expect(result).toHaveProperty('averageTablesPerVenue');
       expect(result.totalVenues).toBe(10);
       expect(result.totalTables).toBe(50);
+      expect(result.averageTablesPerVenue).toBe(4); // (5 + 3) / 2 = 4
     });
   });
 
@@ -576,7 +578,7 @@ describe('VenuesService', () => {
       prismaService.venue.findUnique.mockResolvedValue(mockVenue);
 
       // Act
-      const result = await (service as any).validateVenueOwnership('1', '1');
+      const result = await service.validateVenueOwnership('1', '1');
 
       // Assert
       expect(result).toBe(true);
@@ -587,7 +589,7 @@ describe('VenuesService', () => {
       prismaService.venue.findUnique.mockResolvedValue(mockVenue);
 
       // Act
-      const result = await (service as any).validateVenueOwnership('1', '2');
+      const result = await service.validateVenueOwnership('1', '2');
 
       // Assert
       expect(result).toBe(false);
@@ -598,7 +600,7 @@ describe('VenuesService', () => {
       prismaService.venue.findUnique.mockResolvedValue(mockVenue);
 
       // Act
-      const result = await (service as any).validateVenueAdminRole('1', '1');
+      const result = await service.validateVenueAdminRole('1', '1');
 
       // Assert
       expect(result).toBe(true);
@@ -609,7 +611,7 @@ describe('VenuesService', () => {
       prismaService.venue.findUnique.mockResolvedValue({ ownerId: '2' });
 
       // Act
-      const result = await (service as any).validateVenueAdminRole('1', '1');
+      const result = await service.validateVenueAdminRole('1', '1');
 
       // Assert
       expect(result).toBe(false);

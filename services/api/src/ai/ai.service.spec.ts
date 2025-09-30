@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ArAnalysisService } from '../ar-analysis/ar-analysis.service';
@@ -6,14 +7,23 @@ import {
   MatchAnalysis,
 } from '../matches/ai-analysis.service';
 import { AiService } from './ai.service';
+import { TestDependencyInjector } from '../__tests__/utils/test-dependency-injector';
 
 describe('AiService', () => {
   let service: AiService;
-  let aiAnalysisService: jest.Mocked<AiAnalysisService>;
-  let arAnalysisService: jest.Mocked<ArAnalysisService>;
-  let configService: jest.Mocked<ConfigService>;
+  let aiAnalysisService: vi.mocked<AiAnalysisService>;
+  let arAnalysisService: vi.mocked<ArAnalysisService>;
+  let configService: vi.mocked<ConfigService>;
 
-  const mockMatchData = {
+  const mockMatchData: {
+    playerAName: string;
+    playerBName: string;
+    scoreA: number;
+    scoreB: number;
+    winner: string;
+    venue: string;
+    round: number;
+  } = {
     playerAName: 'Alice',
     playerBName: 'Bob',
     scoreA: 8,
@@ -37,7 +47,14 @@ describe('AiService', () => {
     ],
   };
 
-  const mockShotData = {
+  const mockShotData: {
+    matchId: string;
+    playerId: string;
+    playerName: string;
+    ballSunk: boolean;
+    wasFoul: boolean;
+    shotType: string;
+  } = {
     matchId: 'match-1',
     playerId: 'player-1',
     playerName: 'Alice',
@@ -48,16 +65,16 @@ describe('AiService', () => {
 
   beforeEach(async () => {
     const mockAiAnalysisService = {
-      generateMatchAnalysis: jest.fn(),
-      getLiveCommentary: jest.fn(),
+      generateMatchAnalysis: vi.fn(),
+      getLiveCommentary: vi.fn(),
     };
 
     const mockArAnalysisService = {
-      analyzeTableImage: jest.fn(),
+      analyzeTableImage: vi.fn(),
     };
 
     const mockConfigService = {
-      get: jest.fn(),
+      get: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -82,6 +99,16 @@ describe('AiService', () => {
     aiAnalysisService = module.get(AiAnalysisService);
     arAnalysisService = module.get(ArAnalysisService);
     configService = module.get(ConfigService);
+
+    // Manually inject dependencies into the service instance
+    TestDependencyInjector.injectDependencies(service, {
+      configService: mockConfigService,
+      aiAnalysisService: mockAiAnalysisService,
+      arAnalysisService: mockArAnalysisService,
+    });
+
+    // Re-initialize the service configuration with the mocked config service
+    (service as any).config = (service as any).loadConfiguration();
   });
 
   describe('Service Initialization', () => {
@@ -110,7 +137,17 @@ describe('AiService', () => {
         }
       });
 
-      const config = (service as any).loadConfiguration();
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
+
+      const config = (
+        service as unknown as { loadConfiguration: () => any }
+      ).loadConfiguration();
 
       expect(config.gemini.apiKey).toBe('test-gemini-key');
       expect(config.gemini.model).toBe('gemini-1.5-flash');
@@ -125,13 +162,32 @@ describe('AiService', () => {
   describe('generateMatchAnalysis', () => {
     beforeEach(() => {
       // Setup default config mocks
-      configService.get
-        .mockReturnValueOnce('test-gemini-key') // gemini api key
-        .mockReturnValueOnce('gemini-1.5-flash') // gemini model
-        .mockReturnValueOnce('') // openai api key (disabled)
-        .mockReturnValueOnce('gpt-4') // openai model
-        .mockReturnValueOnce(true) // opencv enabled
-        .mockReturnValueOnce(false); // tensorflow disabled
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return 'test-gemini-key';
+          case 'GEMINI_MODEL':
+            return 'gemini-1.5-flash';
+          case 'OPENAI_API_KEY':
+            return '';
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return true;
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          default:
+            return undefined;
+        }
+      });
+
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
     });
 
     it('should generate match analysis successfully with Gemini', async () => {
@@ -154,13 +210,32 @@ describe('AiService', () => {
 
     it('should fallback when Gemini fails', async () => {
       // Arrange
-      configService.get
-        .mockReturnValueOnce('') // no gemini key
-        .mockReturnValueOnce('gemini-1.5-flash')
-        .mockReturnValueOnce('') // no openai key
-        .mockReturnValueOnce('gpt-4')
-        .mockReturnValueOnce(true)
-        .mockReturnValueOnce(false);
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return '';
+          case 'GEMINI_MODEL':
+            return 'gemini-1.5-flash';
+          case 'OPENAI_API_KEY':
+            return '';
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return true;
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          default:
+            return undefined;
+        }
+      });
+
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
 
       aiAnalysisService.generateMatchAnalysis.mockRejectedValue(
         new Error('Gemini failed')
@@ -178,13 +253,32 @@ describe('AiService', () => {
 
     it('should handle service errors gracefully', async () => {
       // Arrange
-      configService.get
-        .mockReturnValueOnce('test-gemini-key')
-        .mockReturnValueOnce('gemini-1.5-flash')
-        .mockReturnValueOnce('')
-        .mockReturnValueOnce('gpt-4')
-        .mockReturnValueOnce(true)
-        .mockReturnValueOnce(false);
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return 'test-gemini-key';
+          case 'GEMINI_MODEL':
+            return 'gemini-1.5-flash';
+          case 'OPENAI_API_KEY':
+            return '';
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return true;
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          default:
+            return undefined;
+        }
+      });
+
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
 
       aiAnalysisService.generateMatchAnalysis.mockRejectedValue(
         new Error('Service unavailable')
@@ -202,13 +296,32 @@ describe('AiService', () => {
 
   describe('generateLiveCommentary', () => {
     beforeEach(() => {
-      configService.get
-        .mockReturnValueOnce('test-gemini-key')
-        .mockReturnValueOnce('gemini-1.5-flash')
-        .mockReturnValueOnce('')
-        .mockReturnValueOnce('gpt-4')
-        .mockReturnValueOnce(true)
-        .mockReturnValueOnce(false);
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return 'test-gemini-key';
+          case 'GEMINI_MODEL':
+            return 'gemini-1.5-flash';
+          case 'OPENAI_API_KEY':
+            return '';
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return true;
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          default:
+            return undefined;
+        }
+      });
+
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
     });
 
     it('should generate live commentary successfully', async () => {
@@ -243,13 +356,32 @@ describe('AiService', () => {
 
   describe('analyzeTableImage', () => {
     beforeEach(() => {
-      configService.get
-        .mockReturnValueOnce('test-gemini-key')
-        .mockReturnValueOnce('gemini-1.5-flash')
-        .mockReturnValueOnce('')
-        .mockReturnValueOnce('gpt-4')
-        .mockReturnValueOnce(true) // opencv enabled
-        .mockReturnValueOnce(false);
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return 'test-gemini-key';
+          case 'GEMINI_MODEL':
+            return 'gemini-1.5-flash';
+          case 'OPENAI_API_KEY':
+            return '';
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return true;
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          default:
+            return undefined;
+        }
+      });
+
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
     });
 
     it('should analyze table image successfully', async () => {
@@ -283,13 +415,32 @@ describe('AiService', () => {
 
     it('should handle OpenCV disabled state', async () => {
       // Arrange
-      configService.get
-        .mockReturnValueOnce('test-gemini-key')
-        .mockReturnValueOnce('gemini-1.5-flash')
-        .mockReturnValueOnce('')
-        .mockReturnValueOnce('gpt-4')
-        .mockReturnValueOnce(false) // opencv disabled
-        .mockReturnValueOnce(false);
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return 'test-gemini-key';
+          case 'GEMINI_MODEL':
+            return 'gemini-1.5-flash';
+          case 'OPENAI_API_KEY':
+            return '';
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return false; // opencv disabled
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          default:
+            return undefined;
+        }
+      });
+
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
 
       // Act
       const result = await service.analyzeTableImage(
@@ -325,13 +476,34 @@ describe('AiService', () => {
   describe('getHealthStatus', () => {
     it('should return health status for all providers', async () => {
       // Arrange
-      configService.get
-        .mockReturnValueOnce('test-gemini-key')
-        .mockReturnValueOnce('gemini-1.5-flash')
-        .mockReturnValueOnce('test-openai-key')
-        .mockReturnValueOnce('gpt-4')
-        .mockReturnValueOnce(true)
-        .mockReturnValueOnce('/path/to/model');
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return 'test-gemini-key';
+          case 'GEMINI_MODEL':
+            return 'gemini-1.5-flash';
+          case 'OPENAI_API_KEY':
+            return 'test-openai-key';
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return true;
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          case 'TENSORFLOW_MODEL_PATH':
+            return '/path/to/model';
+          default:
+            return undefined;
+        }
+      });
+
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
 
       aiAnalysisService.generateMatchAnalysis.mockResolvedValue(
         mockMatchAnalysis
@@ -359,13 +531,34 @@ describe('AiService', () => {
 
     it('should handle service unavailability', async () => {
       // Arrange
-      configService.get
-        .mockReturnValueOnce('') // no gemini key
-        .mockReturnValueOnce('gemini-1.5-flash')
-        .mockReturnValueOnce('') // no openai key
-        .mockReturnValueOnce('gpt-4')
-        .mockReturnValueOnce(false) // opencv disabled
-        .mockReturnValueOnce(''); // no tensorflow model
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return ''; // no gemini key
+          case 'GEMINI_MODEL':
+            return 'gemini-1.5-flash';
+          case 'OPENAI_API_KEY':
+            return ''; // no openai key
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return false; // opencv disabled
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          case 'TENSORFLOW_MODEL_PATH':
+            return ''; // no tensorflow model
+          default:
+            return undefined;
+        }
+      });
+
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
 
       // Act
       const status = await service.getHealthStatus();
@@ -381,13 +574,32 @@ describe('AiService', () => {
   describe('Configuration and Utilities', () => {
     it('should return current configuration', () => {
       // Arrange
-      configService.get
-        .mockReturnValueOnce('test-key')
-        .mockReturnValueOnce('model-name')
-        .mockReturnValueOnce('')
-        .mockReturnValueOnce('gpt-4')
-        .mockReturnValueOnce(true)
-        .mockReturnValueOnce(false);
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return 'test-key';
+          case 'GEMINI_MODEL':
+            return 'model-name';
+          case 'OPENAI_API_KEY':
+            return '';
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return true;
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          default:
+            return undefined;
+        }
+      });
+
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
 
       // Act
       const config = service.getConfiguration();
@@ -401,13 +613,32 @@ describe('AiService', () => {
 
     it('should check if provider is available', () => {
       // Arrange
-      configService.get
-        .mockReturnValueOnce('test-key') // gemini available
-        .mockReturnValueOnce('model')
-        .mockReturnValueOnce('') // openai not available
-        .mockReturnValueOnce('gpt-4')
-        .mockReturnValueOnce(true)
-        .mockReturnValueOnce(false);
+      configService.get.mockImplementation((key: string) => {
+        switch (key) {
+          case 'GEMINI_API_KEY':
+            return 'test-key'; // gemini available
+          case 'GEMINI_MODEL':
+            return 'model';
+          case 'OPENAI_API_KEY':
+            return ''; // openai not available
+          case 'OPENAI_MODEL':
+            return 'gpt-4';
+          case 'OPENCV_ENABLED':
+            return true;
+          case 'TENSORFLOW_ENABLED':
+            return false;
+          default:
+            return undefined;
+        }
+      });
+
+      // Re-inject the updated config service
+      TestDependencyInjector.injectDependencies(service, {
+        configService: configService,
+      });
+
+      // Re-initialize the service configuration with the mocked config service
+      (service as any).config = (service as any).loadConfiguration();
 
       // Act & Assert
       expect(service.isProviderAvailable('gemini')).toBe(true);
@@ -420,7 +651,11 @@ describe('AiService', () => {
   describe('Fallback Analysis', () => {
     it('should generate fallback analysis with proper structure', () => {
       // Act
-      const fallback = (service as any).generateFallbackAnalysis(mockMatchData);
+      const fallback = (
+        service as unknown as {
+          generateFallbackAnalysis: (data: typeof mockMatchData) => any;
+        }
+      ).generateFallbackAnalysis(mockMatchData);
 
       // Assert
       expect(fallback).toHaveProperty('keyMoments');
@@ -438,7 +673,11 @@ describe('AiService', () => {
 
     it('should include player names in fallback analysis', () => {
       // Act
-      const fallback = (service as any).generateFallbackAnalysis(mockMatchData);
+      const fallback = (
+        service as unknown as {
+          generateFallbackAnalysis: (data: typeof mockMatchData) => any;
+        }
+      ).generateFallbackAnalysis(mockMatchData);
 
       // Assert
       expect(fallback.playerPerformance.playerA).toContain('Alice');
@@ -451,31 +690,39 @@ describe('AiService', () => {
     it('should generate appropriate fallback commentary for different shot types', () => {
       // Test foul commentary
       const foulShot = { ...mockShotData, wasFoul: true, ballSunk: false };
-      const foulCommentary = (service as any).generateFallbackCommentary(
-        foulShot
-      );
+      const foulCommentary = (
+        service as unknown as {
+          generateFallbackCommentary: (data: typeof mockShotData) => string;
+        }
+      ).generateFallbackCommentary(foulShot);
       expect(foulCommentary).toContain('foul');
 
       // Test ball sunk commentary
       const goodShot = { ...mockShotData, wasFoul: false, ballSunk: true };
-      const goodCommentary = (service as any).generateFallbackCommentary(
-        goodShot
-      );
+      const goodCommentary = (
+        service as unknown as {
+          generateFallbackCommentary: (data: typeof mockShotData) => string;
+        }
+      ).generateFallbackCommentary(goodShot);
       expect(goodCommentary).toContain('sinks');
 
       // Test regular shot commentary
       const regularShot = { ...mockShotData, wasFoul: false, ballSunk: false };
-      const regularCommentary = (service as any).generateFallbackCommentary(
-        regularShot
-      );
+      const regularCommentary = (
+        service as unknown as {
+          generateFallbackCommentary: (data: typeof mockShotData) => string;
+        }
+      ).generateFallbackCommentary(regularShot);
       expect(regularCommentary).toContain('shot');
     });
 
     it('should include player name in commentary when available', () => {
       // Act
-      const commentary = (service as any).generateFallbackCommentary(
-        mockShotData
-      );
+      const commentary = (
+        service as unknown as {
+          generateFallbackCommentary: (data: typeof mockShotData) => string;
+        }
+      ).generateFallbackCommentary(mockShotData);
 
       // Assert
       expect(commentary).toContain('Alice');

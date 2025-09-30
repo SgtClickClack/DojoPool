@@ -3,6 +3,7 @@ import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { corsOptions } from '../config/cors.config';
 import { SOCKET_NAMESPACES } from '../config/sockets.config';
+import { ActivityEventPayload } from '../common/dto/websocket-events.dto';
 
 @WebSocketGateway({
   cors: corsOptions,
@@ -14,7 +15,7 @@ export class ActivityEventsGateway {
 
   private readonly logger = new Logger(ActivityEventsGateway.name);
 
-  emitNewEvent(payload: any) {
+  emitNewEvent(payload: ActivityEventPayload) {
     try {
       this.server.emit('new_activity_event', payload);
     } catch (e) {

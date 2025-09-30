@@ -13,7 +13,7 @@ export interface CacheOptions {
   keyPrefix?: string;
 }
 
-export interface CacheEntry<T = any> {
+export interface CacheEntry<T = unknown> {
   data: T;
   timestamp: number;
   ttl?: number;
@@ -30,7 +30,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     const get = this.configService?.get.bind(this.configService) as
-      | (<T = any>(key: string) => T | undefined)
+      | (<T = unknown>(key: string) => T | undefined)
       | undefined;
     const isProduction = (get?.<string>('NODE_ENV') as string) === 'production';
 
@@ -251,7 +251,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
   async getStats(): Promise<{
     connected: boolean;
     keys: number;
-    memory: any;
+    memory: string | null;
   }> {
     if (!this.redisClient) {
       return { connected: false, keys: 0, memory: null };

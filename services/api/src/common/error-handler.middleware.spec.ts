@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ErrorLoggerService } from '../monitoring/error-logger.service';
@@ -6,25 +7,25 @@ import { TestDependencyInjector } from '../__tests__/utils/test-dependency-injec
 
 describe('GlobalErrorHandler', () => {
   let errorHandler: GlobalErrorHandler;
-  let errorLoggerService: jest.Mocked<ErrorLoggerService>;
+  let errorLoggerService: vi.mocked<ErrorLoggerService>;
 
   const mockRequest = {
     url: '/api/test',
     method: 'GET',
-    get: jest.fn(),
+    get: vi.fn(),
     ip: '127.0.0.1',
     connection: { remoteAddress: '127.0.0.1' },
   };
 
   const mockResponse = {
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn(),
+    status: vi.fn().mockReturnThis(),
+    json: vi.fn(),
   };
 
   const mockHost = {
-    switchToHttp: jest.fn().mockReturnValue({
-      getResponse: jest.fn().mockReturnValue(mockResponse),
-      getRequest: jest.fn().mockReturnValue(mockRequest),
+    switchToHttp: vi.fn().mockReturnValue({
+      getResponse: vi.fn().mockReturnValue(mockResponse),
+      getRequest: vi.fn().mockReturnValue(mockRequest),
     }),
   };
 
@@ -52,7 +53,7 @@ describe('GlobalErrorHandler', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('HTTP Exceptions', () => {
@@ -449,7 +450,7 @@ describe('GlobalErrorHandler', () => {
 
       testCases.forEach(({ errorCode, expectedMessage }) => {
         // Reset mocks
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         // Create an HttpException with the specific error code
         const httpException = new HttpException(

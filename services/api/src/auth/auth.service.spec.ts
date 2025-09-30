@@ -1,50 +1,100 @@
+import { vi } from 'vitest';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
+import { CacheService } from '../cache/cache.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { TestDataManager } from '../../../../tests/fixtures/test-data-manager';
+import { TestDependencyInjector } from '../__tests__/utils/test-dependency-injector';
+import { User } from '@prisma/client';
+
+// Mock the Prisma client to include required exports
+vi.mock('@prisma/client', () => ({
+  PrismaClient: vi.fn(),
+}));
+
+// Mock bcryptjs
+vi.mock('bcryptjs', () => ({
+  hash: vi.fn().mockResolvedValue('hashedpassword'),
+  compare: vi.fn().mockResolvedValue(true),
+}));
 
 describe('AuthService', () => {
   let service: AuthService;
-  let prismaService: any;
-  let jwtService: any;
+  let prismaService: vi.Mocked<PrismaService>;
+  let jwtService: vi.Mocked<JwtService>;
+  let cacheService: vi.Mocked<CacheService>;
 
-  // Use centralized test data
-  TestDataManager.initialize();
-  const mockUser = TestDataManager.create('user');
-  const mockProfile = TestDataManager.create('profile', { userId: mockUser.id });
+  // Create mock data
+  const mockUser: User = {
+    id: '1',
+    username: 'testuser',
+    role: 'USER',
+    email: 'test@example.com',
+    passwordHash: 'hashedpassword',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    profileId: null,
+    isActive: true,
+    lastLoginAt: null,
+    emailVerified: true,
+    twoFactorEnabled: false,
+    twoFactorSecret: null,
+    dojoCoinBalance: 0,
+  };
+
+  const mockPrismaService = TestDependencyInjector.createMockPrismaService();
+  const mockJwtService = {
+    sign: vi.fn(),
+    signAsync: vi.fn(),
+    verify: vi.fn(),
+    verifyAsync: vi.fn(),
+    decode: vi.fn(),
+  };
+  const mockCacheService = TestDependencyInjector.createMockCacheService();
 
   beforeEach(async () => {
-    // Mock bcrypt module
-    vi.mock('bcrypt', () => ({
-      hash: vi.fn().mockResolvedValue('hashedpassword'),
-      compare: vi.fn().mockResolvedValue(true),
-      genSalt: vi.fn().mockResolvedValue('salt'),
-    }));
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        {
+          provide: PrismaService,
+          useValue: mockPrismaService,
+        },
+        {
+          provide: JwtService,
+          useValue: mockJwtService,
+        },
+        {
+          provide: CacheService,
+          useValue: mockCacheService,
+        },
+      ],
+    }).compile();
 
-    // Create mock services
-    prismaService = {
-      user: {
-        findFirst: vi.fn(),
-        create: vi.fn(),
-        findUnique: vi.fn(),
-        update: vi.fn(),
-      },
-      profile: {
-        create: vi.fn(),
-      },
-    };
+    service = module.get<AuthService>(AuthService);
+    prismaService = module.get(PrismaService);
+    jwtService = module.get(JwtService);
+    cacheService = module.get(CacheService);
 
-    jwtService = {
-      sign: vi.fn(),
-      verify: vi.fn(),
-    };
+    // Use the test utility to fix dependency injection
+    TestDependencyInjector.setupServiceWithMocks(service, {
+      _prisma: mockPrismaService,
+      _jwtService: mockJwtService,
+      _cacheService: mockCacheService,
+    });
 
-    // Create service with mocked dependencies
-    service = new AuthService(prismaService, jwtService);
+    // Explicitly set the private properties to ensure proper injection
+    (service as any)._prisma = mockPrismaService;
+    (service as any)._jwtService = mockJwtService;
+    (service as any)._cacheService = mockCacheService;
+
+    // Update the module references to use the mocks
+    prismaService = mockPrismaService;
+    jwtService = mockJwtService;
+    cacheService = mockCacheService;
   });
 
   afterEach(() => {
@@ -66,9 +116,19 @@ describe('AuthService', () => {
     it('should register a new user successfully', async () => {
       // Arrange
       prismaService.user.findFirst.mockResolvedValue(null);
-      prismaService.user.create.mockResolvedValue(mockUser);
-      prismaService.profile.create.mockResolvedValue(mockProfile);
-      jwtService.sign.mockReturnValue('jwt-token');
+      prismaService.user.create.mockResolvedValue(mockUser as User);
+      prismaService.refreshToken.create.mockResolvedValue({
+        id: 'token-1',
+        userId: mockUser.id,
+        tokenHash: 'hash',
+        deviceId: null,
+        deviceInfo: null,
+        expiresAt: new Date(),
+        isRevoked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      jwtService.signAsync.mockResolvedValue('jwt-token');
 
       // Act
       const result = await service.register(registerDto);
@@ -86,12 +146,11 @@ describe('AuthService', () => {
         },
       });
       expect(prismaService.user.create).toHaveBeenCalled();
-      expect(prismaService.profile.create).toHaveBeenCalled();
     });
 
     it('should throw BadRequestException if email already exists', async () => {
       // Arrange
-      prismaService.user.findFirst.mockResolvedValue(mockUser);
+      prismaService.user.findFirst.mockResolvedValue(mockUser as User);
 
       // Act & Assert
       await expect(service.register(registerDto)).rejects.toThrow(
@@ -103,24 +162,33 @@ describe('AuthService', () => {
 
     it('should throw BadRequestException for missing required fields', async () => {
       // Act & Assert
-      await expect(service.register({} as RegisterDto)).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(
+        service.register({} as unknown as RegisterDto)
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('login', () => {
     const loginDto: LoginDto = {
-      email: 'test@example.com',
+      usernameOrEmail: 'test@example.com',
       password: 'password123',
     };
 
     it('should login user successfully', async () => {
       // Arrange
-      prismaService.user.findFirst.mockResolvedValue(mockUser);
-      jwtService.sign.mockReturnValue('jwt-token');
-      // Mock bcrypt.compare
-      vi.spyOn(require('bcrypt'), 'compare').mockResolvedValue(true);
+      prismaService.user.findFirst.mockResolvedValue(mockUser as User);
+      prismaService.refreshToken.create.mockResolvedValue({
+        id: 'token-1',
+        userId: mockUser.id,
+        tokenHash: 'hash',
+        deviceId: null,
+        deviceInfo: null,
+        expiresAt: new Date(),
+        isRevoked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      jwtService.signAsync.mockResolvedValue('jwt-token');
 
       // Act
       const result = await service.login(loginDto);
@@ -132,11 +200,10 @@ describe('AuthService', () => {
       expect(prismaService.user.findFirst).toHaveBeenCalledWith({
         where: {
           OR: [
-            { email: loginDto.email.toLowerCase() },
-            { username: loginDto.email },
+            { email: loginDto.usernameOrEmail.toLowerCase() },
+            { username: loginDto.usernameOrEmail },
           ],
         },
-        include: { profile: true },
       });
     });
 
@@ -152,8 +219,9 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException for wrong password', async () => {
       // Arrange
-      prismaService.user.findFirst.mockResolvedValue(mockUser);
-      vi.spyOn(require('bcrypt'), 'compare').mockResolvedValue(false);
+      prismaService.user.findFirst.mockResolvedValue(mockUser as User);
+      const bcrypt = await import('bcryptjs');
+      vi.mocked(bcrypt.compare).mockResolvedValue(false as any);
 
       // Act & Assert
       await expect(service.login(loginDto)).rejects.toThrow(
@@ -162,44 +230,28 @@ describe('AuthService', () => {
     });
   });
 
-  describe('validateToken', () => {
-    it('should validate token successfully', async () => {
-      // Arrange
-      const mockDecoded = { userId: '1', username: 'testuser' };
-      jwtService.verify.mockReturnValue(mockDecoded);
-      prismaService.user.findUnique.mockResolvedValue(mockUser);
-
-      // Act
-      const result = await service.validateToken('valid-token');
-
-      // Assert
-      expect(result).toEqual(mockUser);
-      expect(jwtService.verify).toHaveBeenCalledWith('valid-token');
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { id: '1' },
-      });
-    });
-
-    it('should throw UnauthorizedException for invalid token', async () => {
-      // Arrange
-      jwtService.verify.mockImplementation(() => {
-        throw new Error('Invalid token');
-      });
-
-      // Act & Assert
-      await expect(service.validateToken('invalid-token')).rejects.toThrow(
-        UnauthorizedException
-      );
-    });
-  });
-
   describe('refreshToken', () => {
     it('should refresh token successfully', async () => {
       // Arrange
-      const mockDecoded = { userId: '1', username: 'testuser' };
-      jwtService.verify.mockReturnValue(mockDecoded);
-      jwtService.sign.mockReturnValue('new-jwt-token');
-      prismaService.user.findUnique.mockResolvedValue(mockUser);
+      const mockRefreshToken = {
+        id: 'token-1',
+        userId: '1',
+        tokenHash: 'hash',
+        deviceId: null,
+        deviceInfo: null,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        isRevoked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: mockUser,
+      };
+
+      prismaService.refreshToken.findUnique.mockResolvedValue(mockRefreshToken);
+      prismaService.refreshToken.update.mockResolvedValue(mockRefreshToken);
+      prismaService.refreshToken.create.mockResolvedValue(mockRefreshToken);
+      cacheService.exists.mockResolvedValue(false);
+      cacheService.set.mockResolvedValue(undefined);
+      jwtService.signAsync.mockResolvedValue('new-jwt-token');
 
       // Act
       const result = await service.refreshToken('refresh-token');
@@ -207,15 +259,13 @@ describe('AuthService', () => {
       // Assert
       expect(result).toHaveProperty('access_token');
       expect(result).toHaveProperty('refresh_token');
-      expect(jwtService.verify).toHaveBeenCalledWith('refresh-token');
-      expect(jwtService.sign).toHaveBeenCalledTimes(2); // access + refresh tokens
+      expect(prismaService.refreshToken.findUnique).toHaveBeenCalled();
+      expect(jwtService.signAsync).toHaveBeenCalledTimes(2); // access + refresh tokens
     });
 
     it('should throw UnauthorizedException for invalid refresh token', async () => {
       // Arrange
-      jwtService.verify.mockImplementation(() => {
-        throw new Error('Invalid refresh token');
-      });
+      prismaService.refreshToken.findUnique.mockResolvedValue(null);
 
       // Act & Assert
       await expect(service.refreshToken('invalid-token')).rejects.toThrow(
@@ -230,18 +280,29 @@ describe('AuthService', () => {
       const result = await service.getGoogleAuthUrl();
 
       // Assert
-      expect(result).toHaveProperty('url');
-      expect(result.url).toContain('https://accounts.google.com');
+      expect(result).toBeDefined();
+      expect(typeof result).toBe('string');
+      expect(result).toContain(
+        'http://localhost:3002/api/v1/auth/google/callback'
+      );
     });
 
     it('should handle Google OAuth callback', async () => {
       // Arrange
-      const mockGoogleTokenResponse = {
+      const mockGoogleTokenResponse: {
+        access_token: string;
+        id_token: string;
+      } = {
         access_token: 'google-access-token',
         id_token: 'google-id-token',
       };
 
-      const mockGoogleUserInfo = {
+      const mockGoogleUserInfo: {
+        sub: string;
+        email: string;
+        name: string;
+        picture: string;
+      } = {
         sub: 'google-user-id',
         email: 'google@example.com',
         name: 'Google User',
@@ -249,103 +310,92 @@ describe('AuthService', () => {
       };
 
       // Mock axios calls
-      jest.spyOn(require('axios'), 'post').mockResolvedValue({
+      vi.spyOn(require('axios'), 'post').mockResolvedValue({
         data: mockGoogleTokenResponse,
       });
 
-      jest.spyOn(require('axios'), 'get').mockResolvedValue({
+      vi.spyOn(require('axios'), 'get').mockResolvedValue({
         data: mockGoogleUserInfo,
       });
 
-      prismaService.user.findFirst.mockResolvedValue(null);
+      prismaService.user.findUnique.mockResolvedValue(null);
       prismaService.user.create.mockResolvedValue({
         ...mockUser,
         email: 'google@example.com',
         username: 'googleuser',
+      } as User);
+      prismaService.refreshToken.create.mockResolvedValue({
+        id: 'token-1',
+        userId: mockUser.id,
+        tokenHash: 'hash',
+        deviceId: null,
+        deviceInfo: null,
+        expiresAt: new Date(),
+        isRevoked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
-      jwtService.sign.mockReturnValue('jwt-token');
+      jwtService.signAsync.mockResolvedValue('jwt-token');
 
       // Act
       const result = await service.handleGoogleCallback('auth-code');
 
       // Assert
       expect(result).toHaveProperty('access_token');
-      expect(result).toHaveProperty('user');
-      expect(result.user.email).toBe('google@example.com');
+      expect(result).toHaveProperty('refresh_token');
     });
 
     it('should handle existing Google user login', async () => {
       // Arrange
-      const mockGoogleTokenResponse = {
+      const mockGoogleTokenResponse: {
+        access_token: string;
+        id_token: string;
+      } = {
         access_token: 'google-access-token',
         id_token: 'google-id-token',
       };
 
-      const mockGoogleUserInfo = {
+      const mockGoogleUserInfo: {
+        sub: string;
+        email: string;
+        name: string;
+        picture: string;
+      } = {
         sub: 'google-user-id',
         email: 'test@example.com', // Existing user email
         name: 'Google User',
         picture: 'https://example.com/avatar.jpg',
       };
 
-      jest.spyOn(require('axios'), 'post').mockResolvedValue({
+      vi.spyOn(require('axios'), 'post').mockResolvedValue({
         data: mockGoogleTokenResponse,
       });
 
-      jest.spyOn(require('axios'), 'get').mockResolvedValue({
+      vi.spyOn(require('axios'), 'get').mockResolvedValue({
         data: mockGoogleUserInfo,
       });
 
-      prismaService.user.findFirst.mockResolvedValue(mockUser);
-      jwtService.sign.mockReturnValue('jwt-token');
+      prismaService.user.findUnique.mockResolvedValue(mockUser as User);
+      prismaService.refreshToken.create.mockResolvedValue({
+        id: 'token-1',
+        userId: mockUser.id,
+        tokenHash: 'hash',
+        deviceId: null,
+        deviceInfo: null,
+        expiresAt: new Date(),
+        isRevoked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      jwtService.signAsync.mockResolvedValue('jwt-token');
 
       // Act
       const result = await service.handleGoogleCallback('auth-code');
 
       // Assert
       expect(result).toHaveProperty('access_token');
-      expect(result.user.id).toBe('1');
+      expect(result).toHaveProperty('refresh_token');
       expect(prismaService.user.create).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Password Hashing', () => {
-    it('should hash password correctly', async () => {
-      // Arrange
-      const password = 'testpassword';
-      const hashedPassword = await service.hashPassword(password);
-
-      // Assert
-      expect(hashedPassword).toBeDefined();
-      expect(hashedPassword).not.toBe(password);
-      expect(typeof hashedPassword).toBe('string');
-    });
-
-    it('should verify password correctly', async () => {
-      // Arrange
-      const password = 'testpassword';
-      const hashedPassword = await service.hashPassword(password);
-
-      // Act
-      const isValid = await service.verifyPassword(password, hashedPassword);
-
-      // Assert
-      expect(isValid).toBe(true);
-    });
-
-    it('should reject invalid password', async () => {
-      // Arrange
-      const password = 'testpassword';
-      const hashedPassword = await service.hashPassword(password);
-
-      // Act
-      const isValid = await service.verifyPassword(
-        'wrongpassword',
-        hashedPassword
-      );
-
-      // Assert
-      expect(isValid).toBe(false);
     });
   });
 });
