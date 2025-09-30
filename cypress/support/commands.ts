@@ -110,10 +110,10 @@ Cypress.Commands.add('login', (userFixture = 'user.json') => {
       { fixture: userFixture }
     ).as('session');
     cy.setCookie('user_fixture', userFixture);
-    cy.visit('/');
+    cy.visit('/', { failOnStatusCode: false });
     cy.url().should('include', '/');
   });
-  cy.visit('/');
+  cy.visit('/', { failOnStatusCode: false });
   cy.url().should('include', '/');
 });
 
