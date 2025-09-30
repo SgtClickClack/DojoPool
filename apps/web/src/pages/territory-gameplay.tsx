@@ -78,44 +78,21 @@ const TerritoryGameplayPage: React.FC = () => {
   const [selectedTerritoryForChallenge, setSelectedTerritoryForChallenge] =
     useState<string | null>(null);
 
-  // Handle postMessage events for match results
+  // Listen for territory updates from global postMessage handler
   useEffect(() => {
-    const handleMessage = async (event: MessageEvent) => {
-      if (event.data?.type === 'MATCH_RESULT') {
-        const { challengeId, winnerId, score } = event.data;
-
-        try {
-          // Process match result via API
-          const response = await fetch(
-            `/api/challenges/${challengeId}/result`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                winnerId,
-                score,
-              }),
-            }
-          );
-
-          if (response.ok) {
-            // Refresh territories to show updated ownership
-            const territoriesResponse = await fetch('/api/territories');
-            if (territoriesResponse.ok) {
-              const territoriesData = await territoriesResponse.json();
-              setTerritories(territoriesData);
-            }
-          }
-        } catch (error) {
-          console.error('Failed to process match result:', error);
-        }
-      }
+    const handleTerritoriesUpdate = (event: CustomEvent) => {
+      setTerritories(event.detail);
     };
 
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    window.addEventListener(
+      'territoriesUpdated',
+      handleTerritoriesUpdate as EventListener
+    );
+    return () =>
+      window.removeEventListener(
+        'territoriesUpdated',
+        handleTerritoriesUpdate as EventListener
+      );
   }, []);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
