@@ -72,7 +72,7 @@
     "msw": "^2.11.3",
     "prettier": "^3.6.2",
     "start-server-and-test": "^2.1.2",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "vitest": "^3.2.4",
     "wait-on": "^7.0.0",
     "webpack": "^5.89.0",
