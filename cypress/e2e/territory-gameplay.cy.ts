@@ -128,6 +128,9 @@ describe('Territory Gameplay E2E Tests', () => {
   it('should allow user to decline challenge', () => {
     cy.visit('/');
 
+    // Navigate to territory gameplay page
+    cy.get('[data-testid="map-tab"]').click();
+
     // Mock user challenges
     cy.intercept('GET', '/api/users/test-user-1/challenges', {
       statusCode: 200,
