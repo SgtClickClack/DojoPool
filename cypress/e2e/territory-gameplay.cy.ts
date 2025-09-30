@@ -94,10 +94,7 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should allow user to accept challenge', () => {
-    cy.visit('/');
-
-    // Navigate to territory gameplay page
-    cy.get('[data-testid="map-tab"]').click();
+    cy.visit('/territory-gameplay');
 
     // Mock user challenges
     cy.intercept('GET', '/api/users/test-user-1/challenges', {
@@ -137,10 +134,7 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should allow user to decline challenge', () => {
-    cy.visit('/');
-
-    // Navigate to territory gameplay page
-    cy.get('[data-testid="map-tab"]').click();
+    cy.visit('/territory-gameplay');
 
     // Mock user challenges
     cy.intercept('GET', '/api/users/test-user-1/challenges', {
@@ -350,7 +344,7 @@ describe('Territory Gameplay E2E Tests', () => {
   });
 
   it('should handle challenge expiration', () => {
-    cy.visit('/');
+    cy.visit('/territory-gameplay');
 
     // Mock expired challenge
     cy.intercept('GET', '/api/users/test-user-1/challenges', {
