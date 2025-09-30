@@ -1,32 +1,34 @@
 /**
  * Optimized Lazy Components
- * 
+ *
  * Enhanced lazy-loaded components with proper loading states, error boundaries,
  * performance monitoring, and intelligent prefetching strategies.
  */
 
 import dynamic from 'next/dynamic';
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
-import { CircularProgress, Box, Typography, Alert, Button } from '@mui/material';
+import {
+  CircularProgress,
+  Box,
+  Typography,
+  Alert,
+  Button,
+} from '@mui/material';
 import { Refresh } from '@mui/icons-material';
 import ErrorBoundary from '@/components/Common/ErrorBoundary';
 
 // Enhanced loading component with better UX
-const LoadingSpinner: React.FC<{ 
-  message?: string; 
+const LoadingSpinner: React.FC<{
+  message?: string;
   size?: number;
   showProgress?: boolean;
-}> = ({ 
-  message = 'Loading...', 
-  size = 40,
-  showProgress = false 
-}) => {
+}> = ({ message = 'Loading...', size = 40, showProgress = false }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     if (showProgress) {
       const timer = setInterval(() => {
-        setProgress(prev => {
+        setProgress((prev) => {
           if (prev >= 100) return 0;
           return prev + 10;
         });
@@ -45,8 +47,8 @@ const LoadingSpinner: React.FC<{
       gap={2}
       sx={{ padding: 3 }}
     >
-      <CircularProgress 
-        size={size} 
+      <CircularProgress
+        size={size}
         variant={showProgress ? 'determinate' : 'indeterminate'}
         value={showProgress ? progress : undefined}
       />
@@ -63,21 +65,17 @@ const LoadingSpinner: React.FC<{
 };
 
 // Enhanced error boundary for lazy components
-const LazyErrorBoundary: React.FC<{ 
-  children: React.ReactNode; 
+const LazyErrorBoundary: React.FC<{
+  children: React.ReactNode;
   fallback?: React.ReactNode;
   componentName?: string;
-}> = ({ 
-  children, 
-  fallback,
-  componentName = 'Component'
-}) => {
+}> = ({ children, fallback, componentName = 'Component' }) => {
   const [retryCount, setRetryCount] = useState(0);
   const maxRetries = 3;
 
   const handleRetry = useCallback(() => {
     if (retryCount < maxRetries) {
-      setRetryCount(prev => prev + 1);
+      setRetryCount((prev) => prev + 1);
       // Force re-render by updating key
       window.location.reload();
     }
@@ -130,12 +128,12 @@ const useComponentPerformance = (componentName: string) => {
 
   useEffect(() => {
     const startTime = performance.now();
-    
+
     return () => {
       const endTime = performance.now();
       const duration = endTime - startTime;
       setLoadTime(duration);
-      
+
       // Log performance metrics
       if (process.env.NODE_ENV === 'development') {
         console.log(`${componentName} load time: ${duration.toFixed(2)}ms`);
@@ -160,16 +158,13 @@ export const createLazyComponent = <P extends object>(
     componentName = 'Component',
     loadingMessage = `Loading ${componentName}...`,
     showProgress = false,
-    fallback
+    fallback,
   } = options;
 
   const LazyComponent = dynamic(importFunc, {
     ssr: false,
     loading: () => (
-      <LoadingSpinner 
-        message={loadingMessage} 
-        showProgress={showProgress}
-      />
+      <LoadingSpinner message={loadingMessage} showProgress={showProgress} />
     ),
   });
 
@@ -178,12 +173,14 @@ export const createLazyComponent = <P extends object>(
 
     return (
       <LazyErrorBoundary componentName={componentName} fallback={fallback}>
-        <Suspense fallback={
-          <LoadingSpinner 
-            message={loadingMessage} 
-            showProgress={showProgress}
-          />
-        }>
+        <Suspense
+          fallback={
+            <LoadingSpinner
+              message={loadingMessage}
+              showProgress={showProgress}
+            />
+          }
+        >
           <LazyComponent {...props} />
         </Suspense>
       </LazyErrorBoundary>
@@ -196,7 +193,10 @@ export const createLazyComponent = <P extends object>(
 
 // Pre-configured lazy components for common use cases
 export const LazyWorldHubMap = createLazyComponent(
-  () => import('@/components/world/refactored/RefactoredWorldHubMap'),
+  () =>
+    import('@/components/world/refactored/RefactoredWorldHubMap').then(
+      (module) => ({ default: module.default })
+    ),
   {
     componentName: 'WorldHubMap',
     loadingMessage: 'Loading interactive map...',
@@ -205,7 +205,10 @@ export const LazyWorldHubMap = createLazyComponent(
 );
 
 export const LazyGameSessionView = createLazyComponent(
-  () => import('@/components/GameSession/GameSessionView'),
+  () =>
+    import('@/components/GameSession/GameSessionView').then((module) => ({
+      default: module.default,
+    })),
   {
     componentName: 'GameSessionView',
     loadingMessage: 'Loading game session...',
@@ -213,7 +216,10 @@ export const LazyGameSessionView = createLazyComponent(
 );
 
 export const LazyCMSDashboard = createLazyComponent(
-  () => import('@/components/CMS/CMSDashboard'),
+  () =>
+    import('@/components/CMS/CMSDashboard').then((module) => ({
+      default: module.default,
+    })),
   {
     componentName: 'CMSDashboard',
     loadingMessage: 'Loading admin dashboard...',
@@ -221,7 +227,10 @@ export const LazyCMSDashboard = createLazyComponent(
 );
 
 export const LazyChatWindow = createLazyComponent(
-  () => import('@/components/chat/ChatWindow'),
+  () =>
+    import('@/components/chat/ChatWindow').then((module) => ({
+      default: module.default,
+    })),
   {
     componentName: 'ChatWindow',
     loadingMessage: 'Loading chat...',
@@ -229,7 +238,10 @@ export const LazyChatWindow = createLazyComponent(
 );
 
 export const LazyClanProfile = createLazyComponent(
-  () => import('@/components/ClanProfile'),
+  () =>
+    import('@/components/ClanProfile').then((module) => ({
+      default: module.default,
+    })),
   {
     componentName: 'ClanProfile',
     loadingMessage: 'Loading clan profile...',
@@ -237,7 +249,10 @@ export const LazyClanProfile = createLazyComponent(
 );
 
 export const LazyVenueManagement = createLazyComponent(
-  () => import('@/components/venue/VenueManagementPortal'),
+  () =>
+    import('@/components/venue/VenueManagementPortal').then((module) => ({
+      default: module.default,
+    })),
   {
     componentName: 'VenueManagement',
     loadingMessage: 'Loading venue management...',
@@ -245,7 +260,10 @@ export const LazyVenueManagement = createLazyComponent(
 );
 
 export const LazyTournamentList = createLazyComponent(
-  () => import('@/components/Tournament/TournamentList'),
+  () =>
+    import('@/components/Tournament/TournamentList').then((module) => ({
+      default: module.default,
+    })),
   {
     componentName: 'TournamentList',
     loadingMessage: 'Loading tournaments...',
@@ -253,7 +271,10 @@ export const LazyTournamentList = createLazyComponent(
 );
 
 export const LazyInventory = createLazyComponent(
-  () => import('@/components/Inventory/InventoryLayout'),
+  () =>
+    import('@/components/Inventory/InventoryLayout').then((module) => ({
+      default: module.default,
+    })),
   {
     componentName: 'Inventory',
     loadingMessage: 'Loading inventory...',
@@ -272,7 +293,7 @@ export const withLazyLoading = <P extends object>(
   const {
     componentName = Component.displayName || 'Component',
     loadingMessage = `Loading ${componentName}...`,
-    showProgress = false
+    showProgress = false,
   } = options;
 
   const LazyComponent = createLazyComponent(
@@ -285,43 +306,48 @@ export const withLazyLoading = <P extends object>(
 
 // Hook for prefetching components based on user behavior
 export const useComponentPrefetch = () => {
-  const [prefetchedComponents, setPrefetchedComponents] = useState<Set<string>>(new Set());
+  const [prefetchedComponents, setPrefetchedComponents] = useState<Set<string>>(
+    new Set()
+  );
 
-  const prefetchComponent = useCallback((componentName: string) => {
-    if (prefetchedComponents.has(componentName)) return;
+  const prefetchComponent = useCallback(
+    (componentName: string) => {
+      if (prefetchedComponents.has(componentName)) return;
 
-    // Prefetch component based on user behavior
-    switch (componentName) {
-      case 'map':
-        import('@/components/world/refactored/RefactoredWorldHubMap');
-        break;
-      case 'game':
-        import('@/components/GameSession/GameSessionView');
-        break;
-      case 'admin':
-        import('@/components/CMS/CMSDashboard');
-        break;
-      case 'chat':
-        import('@/components/chat/ChatWindow');
-        break;
-      case 'clan':
-        import('@/components/ClanProfile');
-        break;
-      case 'venue':
-        import('@/components/venue/VenueManagementPortal');
-        break;
-      case 'tournament':
-        import('@/components/Tournament/TournamentList');
-        break;
-      case 'inventory':
-        import('@/components/Inventory/InventoryLayout');
-        break;
-      default:
-        break;
-    }
+      // Prefetch component based on user behavior
+      switch (componentName) {
+        case 'map':
+          import('@/components/world/refactored/RefactoredWorldHubMap');
+          break;
+        case 'game':
+          import('@/components/GameSession/GameSessionView');
+          break;
+        case 'admin':
+          import('@/components/CMS/CMSDashboard');
+          break;
+        case 'chat':
+          import('@/components/chat/ChatWindow');
+          break;
+        case 'clan':
+          import('@/components/ClanProfile');
+          break;
+        case 'venue':
+          import('@/components/venue/VenueManagementPortal');
+          break;
+        case 'tournament':
+          import('@/components/Tournament/TournamentList');
+          break;
+        case 'inventory':
+          import('@/components/Inventory/InventoryLayout');
+          break;
+        default:
+          break;
+      }
 
-    setPrefetchedComponents(prev => new Set([...prev, componentName]));
-  }, [prefetchedComponents]);
+      setPrefetchedComponents((prev) => new Set([...prev, componentName]));
+    },
+    [prefetchedComponents]
+  );
 
   return { prefetchComponent, prefetchedComponents };
 };
@@ -336,14 +362,14 @@ export const useLazyComponentPerformance = (componentName: string) => {
   });
 
   const recordMetric = useCallback((metric: string, value: number) => {
-    setMetrics(prev => ({
+    setMetrics((prev) => ({
       ...prev,
       [metric]: value,
     }));
   }, []);
 
   const incrementCounter = useCallback((counter: string) => {
-    setMetrics(prev => ({
+    setMetrics((prev) => ({
       ...prev,
       [counter]: prev[counter as keyof typeof prev] + 1,
     }));
