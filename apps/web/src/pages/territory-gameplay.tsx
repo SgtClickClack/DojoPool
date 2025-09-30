@@ -495,10 +495,10 @@ const TerritoryGameplayPage: React.FC = () => {
                       position: 'absolute',
                       top: `${Math.random() * 80 + 10}%`,
                       left: `${Math.random() * 80 + 10}%`,
-                      width: 20,
-                      height: 20,
                       backgroundColor: 'primary.main',
-                      borderRadius: '50%',
+                      color: 'white',
+                      padding: 1,
+                      borderRadius: 1,
                       cursor: 'pointer',
                       '&:hover': {
                         backgroundColor: 'primary.dark',
@@ -506,7 +506,11 @@ const TerritoryGameplayPage: React.FC = () => {
                     }}
                     data-testid="territory-marker"
                     onClick={() => handleTerritoryClick(territory.id)}
-                  />
+                  >
+                    <Typography variant="body2" data-testid="territory-name">
+                      {territory.name}
+                    </Typography>
+                  </Box>
                 ))}
               </Box>
             </Paper>
