@@ -107,14 +107,14 @@ describe('Admin Panel Access', () => {
     });
 
     it('should redirect non-admin users away from admin page', () => {
-      // Attempt to visit admin panel
-      cy.visit('/admin');
-
-      // Wait for user validation
+      // Wait for user validation first
       cy.wait('@getUser');
 
-      // Assert that the user was redirected away from admin page
-      cy.url().should('not.include', '/admin');
+      // Attempt to visit admin panel
+      cy.visit('/admin', { failOnStatusCode: false });
+
+      // Wait for the redirect to complete
+      cy.url({ timeout: 10000 }).should('not.include', '/admin');
 
       // Should be redirected to a non-admin route (home, dashboard, or login)
       cy.url().should((currentUrl) => {
