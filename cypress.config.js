@@ -11,7 +11,7 @@ try {
 module.exports = defineConfig({
   projectId: 'yd2zoy',
   e2e: {
-    baseUrl: 'http://localhost:3002',
+    baseUrl: 'http://localhost:3000',
     supportFile: 'cypress/support/e2e.ts',
     specPattern: 'cypress/e2e/**/*.cy.ts',
     viewportWidth: 1280,
@@ -21,6 +21,7 @@ module.exports = defineConfig({
     defaultCommandTimeout: 10000,
     requestTimeout: 10000,
     responseTimeout: 10000,
+    pageLoadTimeout: 120000,
     retries: {
       runMode: 2,
       openMode: 0,
