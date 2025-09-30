@@ -14,6 +14,7 @@ const CdnCostDashboardPage: React.FC = () => {
   const [bandwidthCost, setBandwidthCost] = useState(600);
   const [requestCost, setRequestCost] = useState(400);
   const [showExportOptions, setShowExportOptions] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Simulate API responses based on URL parameters or test conditions
   useEffect(() => {
@@ -48,16 +49,57 @@ const CdnCostDashboardPage: React.FC = () => {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
+    // Check if mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    // Fetch cost data
+    const fetchCostData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/cdn/cost');
+        if (!response.ok) {
+          throw new Error('Failed to fetch cost data');
+        }
+        const data = await response.json();
+        setTotalCost(data.total_cost || 1000);
+        setBandwidthCost(data.bandwidth_cost || 600);
+        setRequestCost(data.request_cost || 400);
+      } catch (error) {
+        setHasError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCostData();
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('resize', checkMobile);
     };
   }, []);
 
   const handleRefresh = () => {
     setIsLoading(true);
     setHasError(false);
-    setTimeout(() => setIsLoading(false), 1000);
+    // Simulate API call
+    fetch('/api/cdn/cost')
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to fetch');
+        return response.json();
+      })
+      .then((data) => {
+        setTotalCost(data.total_cost || 1000);
+        setBandwidthCost(data.bandwidth_cost || 600);
+        setRequestCost(data.request_cost || 400);
+      })
+      .catch(() => setHasError(true))
+      .finally(() => setIsLoading(false));
   };
 
   const handleOptimize = () => {
@@ -97,6 +139,26 @@ const CdnCostDashboardPage: React.FC = () => {
       navigator.clipboard.writeText(JSON.stringify(data, null, 2));
     }
   };
+
+  // WebSocket simulation for real-time updates
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.WebSocket) {
+      const ws = new WebSocket('ws://localhost:3000/ws');
+      ws.onmessage = (event) => {
+        try {
+          const update = JSON.parse(event.data);
+          if (update.type === 'cost_update') {
+            setTotalCost(update.data.total_cost);
+            setBandwidthCost(update.data.bandwidth_cost);
+            setRequestCost(update.data.request_cost);
+          }
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
+        }
+      };
+      return () => ws.close();
+    }
+  }, []);
 
   return (
     <Layout>
@@ -236,7 +298,10 @@ const CdnCostDashboardPage: React.FC = () => {
 
         <div
           data-testid="cost-overview"
-          style={{ display: 'flex', flexDirection: 'column' }}
+          style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+          }}
           aria-describedby="cost-description"
           aria-label="CDN Cost Dashboard"
         >
