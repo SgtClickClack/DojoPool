@@ -523,6 +523,17 @@ const TerritoryGameplayPage: React.FC = () => {
                   size="large"
                   onClick={() => handleChallenge(selectedTerritoryForChallenge)}
                   data-testid="challenge-button"
+                  disabled={(() => {
+                    const territory = territories.find(
+                      (t) => t.id === selectedTerritoryForChallenge
+                    );
+                    return (
+                      territory?.requiredNFT &&
+                      !userNFTs.some(
+                        (nft: any) => nft.tokenId === territory.requiredNFT
+                      )
+                    );
+                  })()}
                 >
                   Challenge{' '}
                   {
