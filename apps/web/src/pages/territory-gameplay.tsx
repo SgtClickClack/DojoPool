@@ -658,6 +658,10 @@ const TerritoryGameplayPage: React.FC = () => {
               variant="contained"
               sx={{ mb: 3 }}
               data-testid="clan-territories-button"
+              onClick={() => {
+                // Load clan territories and show them on map
+                console.log('Loading clan territories...');
+              }}
             >
               View Clan Territories
             </Button>
