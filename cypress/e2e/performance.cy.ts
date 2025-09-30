@@ -32,7 +32,7 @@ describe('Performance Tests', () => {
             perfData.domContentLoadedEventEnd - perfData.navigationStart;
 
           expect(pageLoadTime).to.be.lessThan(3000); // 3s budget
-          expect(domLoadTime).to.be.lessThan(2000); // 2s budget
+          expect(domLoadTime).to.be.lessThan(2000); // 2s budget - TODO: optimize tournaments page performance
         });
 
         // Lighthouse plugin not available - using basic performance checks instead
