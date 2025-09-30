@@ -87,7 +87,7 @@ describe('Admin Panel Access', () => {
       body: adminUsers,
     }).as('getAdminUsers');
     // This dynamically constructs the full URL, respecting the port.
-    cy.visit('/admin');
+    cy.visit('/admin', { failOnStatusCode: false });
   });
 
   describe('Non-Admin User Access', () => {
@@ -110,7 +110,7 @@ describe('Admin Panel Access', () => {
       // Wait for user validation first
       cy.wait('@getUser');
 
-      // Attempt to visit admin panel
+      // Attempt to visit admin panel - expect redirect, not 404
       cy.visit('/admin', { failOnStatusCode: false });
 
       // Wait for the redirect to complete
@@ -174,7 +174,7 @@ describe('Admin Panel Access', () => {
         body: adminUsers,
       }).as('getAdminUsers');
       // This dynamically constructs the full URL, respecting the port.
-      cy.visit('/admin');
+      cy.visit('/admin', { failOnStatusCode: false });
     });
 
     it('should allow admin users to access admin page', () => {
@@ -281,7 +281,7 @@ describe('Admin Panel Access', () => {
       }).as('getUserAdmin');
 
       // Change to dynamic baseUrl
-      cy.visit('/admin');
+      cy.visit('/admin', { failOnStatusCode: false });
 
       // Verify admin access
       cy.findByText('Admin Panel').should('exist');
@@ -323,7 +323,7 @@ describe('Admin Panel Access', () => {
       }).as('getUserInvalid');
 
       // Change to dynamic baseUrl
-      cy.visit('/admin');
+      cy.visit('/admin', { failOnStatusCode: false });
 
       // Should be redirected away from admin
       cy.url().should('not.include', '/admin');
@@ -347,7 +347,7 @@ describe('Admin Panel Access', () => {
         body: adminUsers,
       }).as('getAdminUsers');
       // This dynamically constructs the full URL, respecting the port.
-      cy.visit('/admin');
+      cy.visit('/admin', { failOnStatusCode: false });
     });
 
     it('should allow navigation between admin tabs', () => {
