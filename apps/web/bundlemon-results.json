@@ -1,0 +1,1125 @@
+{
+  "files": [
+    {
+      "status": "Pass",
+      "maxSize": 102400,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/chunks/common-*.js",
+      "path": "static\\chunks\\common-723b1b5543659162.js",
+      "size": 17653,
+      "diff": {
+        "change": "Add",
+        "bytes": 17653,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 204800,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/chunks/main-*.js",
+      "path": "static\\chunks\\main-7a0fa53f72c86d66.js",
+      "size": 125,
+      "diff": {
+        "change": "Add",
+        "bytes": 125,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\404-d14e1623292acd57.js",
+      "size": 499,
+      "diff": {
+        "change": "Add",
+        "bytes": 499,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 153600,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/chunks/pages/_app-*.js",
+      "path": "static\\chunks\\pages\\_app-f0636829b499d4f4.js",
+      "size": 11775,
+      "diff": {
+        "change": "Add",
+        "bytes": 11775,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\_error-e4e2bde4e71e07bb.js",
+      "size": 712,
+      "diff": {
+        "change": "Add",
+        "bytes": 712,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\admin-217438ca91dcbaed.js",
+      "size": 1966,
+      "diff": {
+        "change": "Add",
+        "bytes": 1966,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\admin\\community-review-1a4832467376928d.js",
+      "size": 3598,
+      "diff": {
+        "change": "Add",
+        "bytes": 3598,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\admin\\content-moderation-7d20e0ac3316665d.js",
+      "size": 610,
+      "diff": {
+        "change": "Add",
+        "bytes": 610,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\admin\\feedback-d97d5ef7f82172e2.js",
+      "size": 602,
+      "diff": {
+        "change": "Add",
+        "bytes": 602,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\auth-debug-474bf3bfb3e73001.js",
+      "size": 950,
+      "diff": {
+        "change": "Add",
+        "bytes": 950,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\auth\\callback-90b8477c331416df.js",
+      "size": 641,
+      "diff": {
+        "change": "Add",
+        "bytes": 641,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\auth\\register-29399b1d9a089465.js",
+      "size": 1854,
+      "diff": {
+        "change": "Add",
+        "bytes": 1854,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\auth\\success-3ac59c51e8b48e94.js",
+      "size": 760,
+      "diff": {
+        "change": "Add",
+        "bytes": 760,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\callback-ca3f97b750852628.js",
+      "size": 723,
+      "diff": {
+        "change": "Add",
+        "bytes": 723,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\challenge-demo-e02d62a93600e794.js",
+      "size": 2536,
+      "diff": {
+        "change": "Add",
+        "bytes": 2536,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\clan-wars-2617cfcb4aa5af79.js",
+      "size": 2126,
+      "diff": {
+        "change": "Add",
+        "bytes": 2126,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\clans-3c4df68c66479c7f.js",
+      "size": 1942,
+      "diff": {
+        "change": "Add",
+        "bytes": 1942,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\clans\\[clanId]-0bd0a42e179565f5.js",
+      "size": 503,
+      "diff": {
+        "change": "Add",
+        "bytes": 503,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\clans\\create-12d2f01dcc4175bc.js",
+      "size": 1708,
+      "diff": {
+        "change": "Add",
+        "bytes": 1708,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\content\\[id]-d0d5bff31678e0ce.js",
+      "size": 2573,
+      "diff": {
+        "change": "Add",
+        "bytes": 2573,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\creator-hub-c5aa519020fa8af2.js",
+      "size": 430,
+      "diff": {
+        "change": "Add",
+        "bytes": 430,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\dashboard-admin\\cdn\\cost-7a51b33fde6337f4.js",
+      "size": 2087,
+      "diff": {
+        "change": "Add",
+        "bytes": 2087,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\dashboard-e5e189ab679b2ea8.js",
+      "size": 2655,
+      "diff": {
+        "change": "Add",
+        "bytes": 2655,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\dashboard\\cdn\\cost-cb4f8684f3b5593c.js",
+      "size": 2181,
+      "diff": {
+        "change": "Add",
+        "bytes": 2181,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\dojo\\[id]-82d5d2e09de65009.js",
+      "size": 3346,
+      "diff": {
+        "change": "Add",
+        "bytes": 3346,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\feed-8d2597f5b9bfda70.js",
+      "size": 2961,
+      "diff": {
+        "change": "Add",
+        "bytes": 2961,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\feedback-87af02acabb6949c.js",
+      "size": 627,
+      "diff": {
+        "change": "Add",
+        "bytes": 627,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\game-session-demo-8c741147182b149d.js",
+      "size": 2822,
+      "diff": {
+        "change": "Add",
+        "bytes": 2822,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\games\\[id]-a1974a79872ce083.js",
+      "size": 966,
+      "diff": {
+        "change": "Add",
+        "bytes": 966,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\games\\active-c9876d5f32677220.js",
+      "size": 1512,
+      "diff": {
+        "change": "Add",
+        "bytes": 1512,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\games\\new-ac23fafd5c55142c.js",
+      "size": 2011,
+      "diff": {
+        "change": "Add",
+        "bytes": 2011,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 204800,
+      "compression": "gzip",
+      "maxPercentIncrease": 15,
+      "pattern": "static/chunks/pages/index-*.js",
+      "path": "static\\chunks\\pages\\index-0de23d75e0646bd3.js",
+      "size": 763,
+      "diff": {
+        "change": "Add",
+        "bytes": 763,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\inventory-833a73cdb812dbe5.js",
+      "size": 4746,
+      "diff": {
+        "change": "Add",
+        "bytes": 4746,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\login-19f9803f5106d5b4.js",
+      "size": 2043,
+      "diff": {
+        "change": "Add",
+        "bytes": 2043,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\map-test-0611d0c3c28df459.js",
+      "size": 534,
+      "diff": {
+        "change": "Add",
+        "bytes": 534,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\marketplace-b99bd8e552ea429a.js",
+      "size": 2586,
+      "diff": {
+        "change": "Add",
+        "bytes": 2586,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\matches\\[id]-357b5e3ad5729dd9.js",
+      "size": 1528,
+      "diff": {
+        "change": "Add",
+        "bytes": 1528,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\messages-aa5df4c6ed32496e.js",
+      "size": 3786,
+      "diff": {
+        "change": "Add",
+        "bytes": 3786,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\my-feedback-9bf089ee9b88a0bb.js",
+      "size": 1634,
+      "diff": {
+        "change": "Add",
+        "bytes": 1634,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\onboarding\\choose-dojo-ca85a334c9aa49b3.js",
+      "size": 1548,
+      "diff": {
+        "change": "Add",
+        "bytes": 1548,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\performance-7587023b086d554f.js",
+      "size": 299,
+      "diff": {
+        "change": "Add",
+        "bytes": 299,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\players\\[id]-820637ad4b86469e.js",
+      "size": 2652,
+      "diff": {
+        "change": "Add",
+        "bytes": 2652,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\profile-d0010d932725e94d.js",
+      "size": 3442,
+      "diff": {
+        "change": "Add",
+        "bytes": 3442,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\profile\\inventory-8f61207789ffbfd2.js",
+      "size": 2824,
+      "diff": {
+        "change": "Add",
+        "bytes": 2824,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\profile\\journal-ecc08bcdf60cb8f7.js",
+      "size": 619,
+      "diff": {
+        "change": "Add",
+        "bytes": 619,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\register-54d554fc8859218b.js",
+      "size": 1351,
+      "diff": {
+        "change": "Add",
+        "bytes": 1351,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\share-content-18c7cea3ce62afcd.js",
+      "size": 717,
+      "diff": {
+        "change": "Add",
+        "bytes": 717,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\social-feed-342de1b05de5a87a.js",
+      "size": 712,
+      "diff": {
+        "change": "Add",
+        "bytes": 712,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\strategic-map-1b43d2079df685ef.js",
+      "size": 756,
+      "diff": {
+        "change": "Add",
+        "bytes": 756,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\territory-gameplay-8866fb87665ce9e8.js",
+      "size": 3275,
+      "diff": {
+        "change": "Add",
+        "bytes": 3275,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\test-components-61f5ffbf8745cb17.js",
+      "size": 985,
+      "diff": {
+        "change": "Add",
+        "bytes": 985,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\test-e3ebdcffe51c3d91.js",
+      "size": 319,
+      "diff": {
+        "change": "Add",
+        "bytes": 319,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\test-notifications-2262d4ac8d6318bf.js",
+      "size": 1278,
+      "diff": {
+        "change": "Add",
+        "bytes": 1278,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\test-venues-a91919a81a751d1b.js",
+      "size": 490,
+      "diff": {
+        "change": "Add",
+        "bytes": 490,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\test-websocket-5c43e8297ce9804c.js",
+      "size": 1458,
+      "diff": {
+        "change": "Add",
+        "bytes": 1458,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\tournaments-34fe4282342da7ce.js",
+      "size": 928,
+      "diff": {
+        "change": "Add",
+        "bytes": 928,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\user\\[userId]\\content-767561441b541832.js",
+      "size": 648,
+      "diff": {
+        "change": "Add",
+        "bytes": 648,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\venue-management-f2247feb739a1ad7.js",
+      "size": 1547,
+      "diff": {
+        "change": "Add",
+        "bytes": 1547,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\venue\\dashboard-1b4ee7bd4ece832f.js",
+      "size": 3003,
+      "diff": {
+        "change": "Add",
+        "bytes": 3003,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\venue\\portal-a21c057c4a880a2c.js",
+      "size": 1742,
+      "diff": {
+        "change": "Add",
+        "bytes": 1742,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\venue\\portal\\profile-9febfa7dfdb5f01e.js",
+      "size": 2995,
+      "diff": {
+        "change": "Add",
+        "bytes": 2995,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\venue\\portal\\specials-a80f6c6e24925323.js",
+      "size": 1298,
+      "diff": {
+        "change": "Add",
+        "bytes": 1298,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\venue\\portal\\tournaments-00154859a7d471b0.js",
+      "size": 3122,
+      "diff": {
+        "change": "Add",
+        "bytes": 3122,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\venues-bde340cef8fccb54.js",
+      "size": 2064,
+      "diff": {
+        "change": "Add",
+        "bytes": 2064,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 307200,
+      "compression": "gzip",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/pages/**/*.js",
+      "path": "static\\chunks\\pages\\world-hub-map-45a59adf5b5af628.js",
+      "size": 645,
+      "diff": {
+        "change": "Add",
+        "bytes": 645,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 819200,
+      "compression": "gzip",
+      "maxPercentIncrease": 15,
+      "pattern": "static/chunks/vendors-*.js",
+      "path": "static\\chunks\\vendors-0d89e4d8fbdc05e6.js",
+      "size": 743280,
+      "diff": {
+        "change": "Add",
+        "bytes": 743280,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 51200,
+      "compression": "gzip",
+      "maxPercentIncrease": 5,
+      "pattern": "static/chunks/webpack-*.js",
+      "path": "static\\chunks\\webpack-0c5c69144e28ed86.js",
+      "size": 2455,
+      "diff": {
+        "change": "Add",
+        "bytes": 2455,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 102400,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/css/**/*.css",
+      "path": "static\\css\\125525dfa595d16c.css",
+      "size": 3955,
+      "diff": {
+        "change": "Add",
+        "bytes": 3955,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 102400,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/css/**/*.css",
+      "path": "static\\css\\1397e190646d6243.css",
+      "size": 1539,
+      "diff": {
+        "change": "Add",
+        "bytes": 1539,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 102400,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/css/**/*.css",
+      "path": "static\\css\\4c5713d65e3cb2bf.css",
+      "size": 134,
+      "diff": {
+        "change": "Add",
+        "bytes": 134,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 102400,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/css/**/*.css",
+      "path": "static\\css\\62265db2b5c5c020.css",
+      "size": 375,
+      "diff": {
+        "change": "Add",
+        "bytes": 375,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 102400,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/css/**/*.css",
+      "path": "static\\css\\917509f42b3b83a8.css",
+      "size": 1285,
+      "diff": {
+        "change": "Add",
+        "bytes": 1285,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 102400,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/css/**/*.css",
+      "path": "static\\css\\b1e1f1e30f03397f.css",
+      "size": 176,
+      "diff": {
+        "change": "Add",
+        "bytes": 176,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 102400,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/css/**/*.css",
+      "path": "static\\css\\bceff19fe78f0ee7.css",
+      "size": 691,
+      "diff": {
+        "change": "Add",
+        "bytes": 691,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 102400,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/css/**/*.css",
+      "path": "static\\css\\debef5e37fdf8665.css",
+      "size": 4763,
+      "diff": {
+        "change": "Add",
+        "bytes": 4763,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 102400,
+      "compression": "gzip",
+      "maxPercentIncrease": 10,
+      "pattern": "static/css/**/*.css",
+      "path": "static\\css\\e168cc52cb6d6c95.css",
+      "size": 1957,
+      "diff": {
+        "change": "Add",
+        "bytes": 1957,
+        "percent": null
+      }
+    }
+  ],
+  "groups": [
+    {
+      "status": "Pass",
+      "maxSize": 2097152,
+      "compression": "gzip",
+      "label": "Total Bundle Size",
+      "maxPercentIncrease": 25,
+      "pattern": "**/*.{js,css}",
+      "path": "**/*.{js,css}",
+      "size": 1300161,
+      "diff": {
+        "change": "Add",
+        "bytes": 1300161,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 1572864,
+      "compression": "gzip",
+      "label": "Total JavaScript",
+      "maxPercentIncrease": 20,
+      "pattern": "static/chunks/**/*.js",
+      "path": "static/chunks/**/*.js",
+      "size": 951557,
+      "diff": {
+        "change": "Add",
+        "bytes": 951557,
+        "percent": null
+      }
+    },
+    {
+      "status": "Pass",
+      "maxSize": 204800,
+      "compression": "gzip",
+      "label": "Total CSS",
+      "maxPercentIncrease": 15,
+      "pattern": "static/css/**/*.css",
+      "path": "static/css/**/*.css",
+      "size": 14875,
+      "diff": {
+        "change": "Add",
+        "bytes": 14875,
+        "percent": null
+      }
+    }
+  ],
+  "stats": {
+    "currBranchSize": 894401,
+    "baseBranchSize": 0,
+    "diff": {
+      "bytes": 894401,
+      "percent": null
+    }
+  },
+  "status": "Pass",
+  "metadata": {}
+}
