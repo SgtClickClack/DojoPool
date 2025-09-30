@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:log": "powershell -Command \"$timestamp = Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'; $logFile = 'crash-log-$timestamp.txt'; Write-Host 'Starting server with crash logging...'; Write-Host 'Log file: $logFile'; Write-Host 'Press Ctrl+C to stop'; yarn run dev 2>&1 | Tee-Object -FilePath $logFile; Write-Host 'Server stopped. Check $logFile for crash details.'\"",
-    "prebuild": "npx prisma generate --schema=../../packages/prisma/schema.prisma",
+    "prebuild": "echo 'Skipping Prisma generate for Vercel deployment'",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
@@ -48,10 +48,13 @@
     "react-router-dom": "^6.11.1",
     "socket.io-client": "^4.6.1",
     "swr": "^2.2.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "zod": "^3.22.4",
+    "zustand": "^4.4.7",
+    "autoprefixer": "^10.4.16"
   },
   "prisma": {
-    "schema": "../../packages/prisma/schema.prisma"
+    "schema": "./prisma/schema.prisma"
   },
   "devDependencies": {
     "@testing-library/cypress": "^10.0.3",
