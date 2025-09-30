@@ -60,9 +60,23 @@ describe('Territory Gameplay E2E Tests', () => {
       },
     }).as('createChallenge');
 
+    // Mock user NFTs to allow challenging
+    cy.intercept('GET', '/api/user-nfts/test-user-1', {
+      statusCode: 200,
+      body: [
+        {
+          id: 'nft-1',
+          tokenId: 'trophy-1',
+          name: 'Trophy 1',
+          type: 'trophy',
+        },
+      ],
+    }).as('getUserNFTs');
+
     // Navigate to map
     cy.get('[data-testid="map-tab"]').click();
     cy.wait('@getTerritories');
+    cy.wait('@getUserNFTs');
 
     // Click on territory to challenge
     cy.get('[data-testid="territory-marker"]').first().click();
