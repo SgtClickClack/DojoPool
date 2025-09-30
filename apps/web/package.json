@@ -30,6 +30,7 @@
     "@prisma/client": "^5.17.0",
     "@react-google-maps/api": "^2.20.7",
     "@vis.gl/react-maplibre": "^8.0.4",
+    "autoprefixer": "^10.4.16",
     "axios": "^1.8.4",
     "bcryptjs": "^3.0.2",
     "critters": "^0.0.25",
@@ -50,8 +51,7 @@
     "swr": "^2.2.4",
     "typescript": "^5.3.3",
     "zod": "^3.22.4",
-    "zustand": "^4.4.7",
-    "autoprefixer": "^10.4.16"
+    "zustand": "^4.4.7"
   },
   "prisma": {
     "schema": "./prisma/schema.prisma"
