@@ -1,0 +1,83 @@
+{
+  "baseDir": "./.next",
+  "files": [
+    {
+      "path": "static/chunks/pages/_app-*.js",
+      "maxSize": "150KB",
+      "maxPercentIncrease": 10
+    },
+    {
+      "path": "static/chunks/pages/_document-*.js",
+      "maxSize": "50KB",
+      "maxPercentIncrease": 10
+    },
+    {
+      "path": "static/chunks/pages/index-*.js",
+      "maxSize": "200KB",
+      "maxPercentIncrease": 15
+    },
+    {
+      "path": "static/chunks/pages/**/*.js",
+      "maxSize": "300KB",
+      "maxPercentIncrease": 20
+    },
+    {
+      "path": "static/chunks/framework-*.js",
+      "maxSize": "100KB",
+      "maxPercentIncrease": 5
+    },
+    {
+      "path": "static/chunks/main-*.js",
+      "maxSize": "200KB",
+      "maxPercentIncrease": 10
+    },
+    {
+      "path": "static/chunks/webpack-*.js",
+      "maxSize": "50KB",
+      "maxPercentIncrease": 5
+    },
+    {
+      "path": "static/chunks/vendors-*.js",
+      "maxSize": "800KB",
+      "maxPercentIncrease": 15
+    },
+    {
+      "path": "static/chunks/common-*.js",
+      "maxSize": "100KB",
+      "maxPercentIncrease": 10
+    },
+    {
+      "path": "static/css/**/*.css",
+      "maxSize": "100KB",
+      "maxPercentIncrease": 10
+    }
+  ],
+  "groups": [
+    {
+      "label": "Total JavaScript",
+      "path": "static/chunks/**/*.js",
+      "maxSize": "1.5MB",
+      "maxPercentIncrease": 20
+    },
+    {
+      "label": "Total CSS",
+      "path": "static/css/**/*.css",
+      "maxSize": "200KB",
+      "maxPercentIncrease": 15
+    },
+    {
+      "label": "Total Bundle Size",
+      "path": "**/*.{js,css}",
+      "maxSize": "2MB",
+      "maxPercentIncrease": 25
+    }
+  ],
+  "defaultCompression": "gzip",
+  "reportOutput": ["json"],
+  "verbose": true,
+  "failOnError": true,
+  "tracking": {
+    "enabled": true,
+    "baseBranch": "main"
+  }
+}
