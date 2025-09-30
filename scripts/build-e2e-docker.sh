@@ -24,19 +24,19 @@ docker-compose -f docker-compose.e2e.yml up -d --build
 
 # Wait for services to be ready
 echo "Waiting for services to be ready..."
-timeout 120 bash -c 'until curl -f http://localhost:3001 > /dev/null 2>&1; do sleep 5; done'
+timeout 120 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 5; done'
 timeout 120 bash -c 'until curl -f http://localhost:3003/api/v1/health > /dev/null 2>&1; do sleep 5; done'
 
 echo "E2E test environment is ready!"
 echo "API: http://localhost:3003"
-echo "Web: http://localhost:3001"
+echo "Web: http://localhost:3000"
 echo "Database: localhost:5433"
 echo "Redis: localhost:6380"
 
 # Run tests if requested
 if [ "$1" = "--test" ]; then
     echo "Running E2E tests..."
-    yarn cypress:run --config baseUrl=http://localhost:3001
+    yarn cypress:run --config baseUrl=http://localhost:3000
 fi
 
 echo "Docker E2E build complete!"

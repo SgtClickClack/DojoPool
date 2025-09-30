@@ -36,7 +36,7 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "cypress:run:headless": "cypress run --headless",
-    "cypress:run:venues": "cypress run --spec \"cypress/e2e/venue-discovery-test.cy.ts\" --config baseUrl=http://localhost:3011",
+    "cypress:run:venues": "cypress run --spec \"cypress/e2e/venue-discovery-test.cy.ts\" --config baseUrl=http://localhost:3000",
     "test:e2e": "start-server-and-test dev http://localhost:3000 cypress:run",
     "test:e2e:venues": "start-server-and-test dev:frontend:3011 http://localhost:3011 cypress:run:venues",
     "test:e2e:real": "start-server-and-test 'docker-compose -f docker-compose.yml up' http://localhost:3000 cypress:run:real",
