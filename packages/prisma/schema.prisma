@@ -90,6 +90,7 @@ model User {
   communityItems CommunityCosmeticItem[]
   reviewedItems  CommunityCosmeticItem[] @relation("CosmeticItemReviewer")
   cosmeticLikes  CosmeticItemLike[]
+  warParticipants WarParticipant[]
   dojoCoinBalance Int                  @default(0)
   createdAt     DateTime               @default(now())
   updatedAt     DateTime               @updatedAt
@@ -107,6 +108,12 @@ enum UserRole {
   USER
   VENUE_ADMIN
   ADMIN
+}
+
+enum WarStatus {
+  PEACE
+  IMMINENT_WAR
+  ACTIVE_WAR
 }
 
 model Profile {
@@ -231,9 +238,15 @@ model Clan {
   leader           User         @relation("ClanLeader", fields: [leaderId], references: [id])
   members          ClanMember[]
   territories      Territory[]
+  controlledTerritories Territory[] @relation("ControlledTerritories")
   controlledVenues Venue[]
   activityEvents   ActivityEvent[]
   shadowRuns       ShadowRun[]
+  warsAsAttacker   War[]        @relation("AttackingClan")
+  warsAsDefender   War[]        @relation("DefendingClan")
+  warParticipants  WarParticipant[]
+  alliancesAsClanA Alliance[]   @relation("ClanA")
+  alliancesAsClanB Alliance[]   @relation("ClanB")
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
@@ -273,6 +286,9 @@ model Territory {
   owner        User?           @relation("TerritoryOwner", fields: [ownerId], references: [id])
   clanId       String?
   clan         Clan?           @relation(fields: [clanId], references: [id])
+  controllingClanId String?
+  controllingClan   Clan?    @relation("ControlledTerritories", fields: [controllingClanId], references: [id])
+  warStatus         WarStatus @default(PEACE)
   level        Int             @default(1)
   defenseScore Int             @default(0)
   // Strategic Map extensions
@@ -281,6 +297,8 @@ model Territory {
   resourceRate String          @default("{}") // e.g., per-hour generation rates per resource
   lastTickAt   DateTime?                      // last time periodic resource tick applied
   events       TerritoryEvent[]
+  wars         War[]           @relation("TerritoryWars")
+  battles      WarBattle[]
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 }
@@ -958,4 +976,138 @@ model RefreshToken {
   updatedAt   DateTime @updatedAt
 
   @@map("refresh_tokens")
+}
+
+model War {
+  id              String   @id @default(uuid())
+  attackingClanId String
+  defendingClanId String
+  territoryId     String
+  status          WarStatus @default(PEACE)
+  declaredAt      DateTime @default(now())
+  startedAt       DateTime?
+  endedAt         DateTime?
+  winnerClanId    String?
+  warType         String   @default("TERRITORY")
+  stakes          String   @default("{}") // JSON string for war stakes
+  rules           String   @default("{}") // JSON string for war rules
+  attackingClan   Clan     @relation("AttackingClan", fields: [attackingClanId], references: [id])
+  defendingClan   Clan     @relation("DefendingClan", fields: [defendingClanId], references: [id])
+  territory       Territory @relation("TerritoryWars", fields: [territoryId], references: [id])
+  participants    WarParticipant[]
+  battles         WarBattle[]
+  events          WarEvent[]
+  logs            WarLog[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([attackingClanId])
+  @@index([defendingClanId])
+  @@index([territoryId])
+  @@index([declaredAt])
+}
+
+model WarParticipant {
+  id          String   @id @default(uuid())
+  warId       String
+  userId      String
+  clanId      String
+  role        String   @default("SOLDIER") // SOLDIER, COMMANDER, SCOUT, etc.
+  joinedAt    DateTime @default(now())
+  status      String   @default("ACTIVE") // ACTIVE, WOUNDED, RETREATED, etc.
+  performance String   @default("{}") // JSON string for performance metrics
+  war         War      @relation(fields: [warId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clan        Clan     @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  battlesAsAttacker WarBattle[] @relation("BattleAttackers")
+  battlesAsDefender WarBattle[] @relation("BattleDefenders")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([warId, userId])
+  @@index([warId])
+  @@index([userId])
+  @@index([clanId])
+}
+
+model WarBattle {
+  id          String   @id @default(uuid())
+  warId       String
+  attackerId  String
+  defenderId  String
+  territoryId String
+  status      String   @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED
+  startedAt   DateTime?
+  endedAt     DateTime?
+  winnerId    String?
+  battleType  String   @default("POOL_MATCH") // POOL_MATCH, SKILL_CHALLENGE, etc.
+  score       String   @default("{}") // JSON string for battle scores
+  war         War      @relation(fields: [warId], references: [id], onDelete: Cascade)
+  attacker    WarParticipant @relation("BattleAttackers", fields: [attackerId], references: [id])
+  defender    WarParticipant @relation("BattleDefenders", fields: [defenderId], references: [id])
+  territory   Territory @relation(fields: [territoryId], references: [id])
+  events      WarEvent[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([warId])
+  @@index([attackerId])
+  @@index([defenderId])
+  @@index([territoryId])
+  @@index([status])
+}
+
+model WarEvent {
+  id          String   @id @default(uuid())
+  warId       String
+  battleId    String?
+  type        String   // WAR_DECLARED, BATTLE_STARTED, BATTLE_ENDED, TERRITORY_CAPTURED, etc.
+  actorId     String?
+  targetId    String?
+  metadata    String   @default("{}") // JSON string for event-specific data
+  timestamp   DateTime @default(now())
+  war         War      @relation(fields: [warId], references: [id], onDelete: Cascade)
+  battle      WarBattle? @relation(fields: [battleId], references: [id], onDelete: Cascade)
+
+  @@index([warId])
+  @@index([battleId])
+  @@index([type])
+  @@index([timestamp])
+}
+
+model Alliance {
+  id            String   @id @default(uuid())
+  clanAId       String
+  clanBId       String
+  type          String   @default("DEFENSIVE") // DEFENSIVE, OFFENSIVE, NEUTRAL
+  status        String   @default("ACTIVE") // ACTIVE, BROKEN, EXPIRED
+  establishedAt DateTime @default(now())
+  expiresAt     DateTime?
+  terms         String   @default("{}") // JSON string for alliance terms
+  clanA         Clan     @relation("ClanA", fields: [clanAId], references: [id])
+  clanB         Clan     @relation("ClanB", fields: [clanBId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([clanAId, clanBId])
+  @@index([clanAId])
+  @@index([clanBId])
+  @@index([status])
+}
+
+model WarLog {
+  id          String   @id @default(uuid())
+  warId       String
+  eventType   String   // WAR_DECLARED, BATTLE_WON, TERRITORY_LOST, etc.
+  actorId     String?
+  targetId    String?
+  description String
+  metadata    String   @default("{}") // JSON string for additional log data
+  timestamp   DateTime @default(now())
+  war         War      @relation(fields: [warId], references: [id], onDelete: Cascade)
+
+  @@index([warId])
+  @@index([eventType])
+  @@index([timestamp])
 }
