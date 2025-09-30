@@ -138,7 +138,7 @@ export class CmsController {
   @HttpCode(HttpStatus.CREATED)
   async createSystemMessage(
     @Body(ValidationPipe) createMessageDto: CreateSystemMessageDto,
-    @Request() req: any
+    @Request() req: AuthenticatedRequest
   ) {
     const payload: CreateContentDto = {
       ...(createMessageDto as any),
@@ -159,7 +159,7 @@ export class CmsController {
     @Query('limit', ValidationPipe) limit: number = 20,
     @Query('active') active?: boolean
   ) {
-    const filters: any = {
+    const filters: Record<string, any> = {
       contentType: ContentType.SYSTEM_MESSAGE,
     };
 
@@ -177,14 +177,17 @@ export class CmsController {
   async updateSystemMessage(
     @Param('id') id: string,
     @Body(ValidationPipe) updateData: Partial<CreateSystemMessageDto>,
-    @Request() req: any
+    @Request() req: AuthenticatedRequest
   ) {
     return this.contentService.update(id, updateData as any, req.user.userId);
   }
 
   @Delete('messages/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteSystemMessage(@Param('id') id: string, @Request() req: any) {
+  async deleteSystemMessage(
+    @Param('id') id: string,
+    @Request() req: AuthenticatedRequest
+  ) {
     await this.contentService.delete(id, req.user.userId);
   }
 
@@ -242,7 +245,7 @@ export class CmsController {
   @Post('bulk-publish')
   async bulkPublish(
     @Body() data: { contentIds: string[] },
-    @Request() req: any
+    @Request() req: AuthenticatedRequest
   ) {
     const results = [];
     for (const id of data.contentIds) {
@@ -263,7 +266,7 @@ export class CmsController {
   @Post('bulk-archive')
   async bulkArchive(
     @Body() data: { contentIds: string[] },
-    @Request() req: any
+    @Request() req: AuthenticatedRequest
   ) {
     const results = [];
     for (const id of data.contentIds) {

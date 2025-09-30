@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { vi } from 'vitest';
 import { CacheHelper } from '../../cache/cache.helper';
 import { NotificationsService } from '../../notifications/notifications.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -11,19 +12,19 @@ describe('CommunityService', () => {
 
   const mockPrismaService = {
     communityCosmeticItem: {
-      create: jest.fn(),
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      update: jest.fn(),
-      count: jest.fn(),
-      aggregate: jest.fn(),
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      count: vi.fn(),
+      aggregate: vi.fn(),
     },
     cosmeticItemLike: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      delete: jest.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      delete: vi.fn(),
     },
-    $transaction: jest.fn(),
+    $transaction: vi.fn(),
   };
 
   const mockCacheHelper = {
@@ -31,7 +32,7 @@ describe('CommunityService', () => {
   };
 
   const mockNotificationsService = {
-    createNotification: jest.fn(),
+    createNotification: vi.fn(),
   };
 
   beforeEach(async () => {

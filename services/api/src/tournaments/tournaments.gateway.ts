@@ -12,6 +12,13 @@ import { Server, Socket } from 'socket.io';
 import { corsOptions } from '../config/cors.config';
 import { SOCKET_NAMESPACES } from '../config/sockets.config';
 import { TournamentsService } from './tournaments.service';
+import {
+  TournamentActionData,
+  MatchResultData,
+  TournamentUpdateData,
+  MatchUpdatePayload,
+  ParticipantUpdateData,
+} from '../common/dto/websocket-events.dto';
 
 @WebSocketGateway({
   cors: corsOptions,

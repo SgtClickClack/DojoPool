@@ -13,6 +13,11 @@ import { corsOptions } from '../config/cors.config';
 import { FeatureFlagsConfig } from '../config/feature-flags.config';
 import { SOCKET_NAMESPACES } from '../config/sockets.config';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  ResourceRate,
+  ResourceData,
+  ResourceTickData,
+} from '../common/dto/websocket-events.dto';
 
 interface PlayerPosition {
   playerId: string;
@@ -264,18 +269,18 @@ export class WorldMapGateway
           : 1;
 
         // Parse stringified JSON fields into objects
-        const rate: Record<string, unknown> =
+        const rate: ResourceRate =
           typeof t.resourceRate === 'string'
             ? JSON.parse(t.resourceRate || '{}')
-            : (t.resourceRate as any) || {};
-        const current: Record<string, number> =
+            : (t.resourceRate as ResourceRate) || {};
+        const current: ResourceData =
           typeof t.resources === 'string'
             ? JSON.parse(t.resources || '{}')
-            : (t.resources as any) || {};
+            : (t.resources as ResourceData) || {};
 
-        const next: Record<string, number> = { ...current };
+        const next: ResourceData = { ...current };
         for (const key of Object.keys(rate)) {
-          const rateVal = Number((rate as any)[key]);
+          const rateVal = Number(rate[key]);
           const inc = Number.isFinite(rateVal) ? rateVal * elapsedHours : 0;
           const base = Number.isFinite(Number(next[key]))
             ? Number(next[key])
@@ -294,9 +299,10 @@ export class WorldMapGateway
       }
 
       // Broadcast a lightweight tick event
+      const tickData: ResourceTickData = { ts: now.toISOString() };
       void this.server.to('world_map').emit('message', {
         type: 'resource_tick',
-        data: { ts: now.toISOString() },
+        data: tickData,
       });
     } catch (err) {
       this.logger.warn(`Resource tick failed: ${String(err)}`);

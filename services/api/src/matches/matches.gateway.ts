@@ -11,6 +11,11 @@ import {
 import { Server, Socket } from 'socket.io';
 import { corsOptions } from '../config/cors.config';
 import { AiAnalysisService } from './ai-analysis.service';
+import {
+  MatchUpdateData,
+  TableData,
+  ShotTakenData,
+} from '../common/dto/websocket-events.dto';
 
 interface ChatMessage {
   matchId: string;
@@ -125,7 +130,7 @@ export class MatchesGateway
 
   @SubscribeMessage('matchUpdate')
   handleMatchUpdate(
-    @MessageBody() data: { matchId: string; update: any },
+    @MessageBody() data: { matchId: string; update: MatchUpdateData },
     @ConnectedSocket() _client: Socket
   ) {
     const { matchId, update } = data;
@@ -139,14 +144,7 @@ export class MatchesGateway
   @SubscribeMessage('shot_taken')
   async handleShotTaken(
     @MessageBody()
-    data: {
-      matchId: string;
-      playerId: string;
-      ballSunk: boolean;
-      wasFoul: boolean;
-      playerName?: string;
-      shotType?: string;
-    },
+    data: ShotTakenData,
     @ConnectedSocket() _client: Socket
   ) {
     const { matchId, playerId, ballSunk, wasFoul, playerName, shotType } = data;
@@ -188,7 +186,7 @@ export class MatchesGateway
   }
 
   // Venue-level broadcast helpers for table updates
-  broadcastVenueTablesUpdated(venueId: string, tables: any[]) {
+  broadcastVenueTablesUpdated(venueId: string, tables: TableData[]) {
     try {
       void this.server.to(`venue:${venueId}`).emit('tablesUpdated', tables);
     } catch (err) {
@@ -200,7 +198,7 @@ export class MatchesGateway
     }
   }
 
-  broadcastVenueTableUpdate(venueId: string, table: any) {
+  broadcastVenueTableUpdate(venueId: string, table: TableData) {
     try {
       void this.server.to(`venue:${venueId}`).emit('tableUpdated', table);
     } catch (err) {

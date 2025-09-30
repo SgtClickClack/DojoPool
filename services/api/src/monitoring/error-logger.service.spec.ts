@@ -1,14 +1,15 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { vi } from 'vitest';
 import { ErrorLogEntry, ErrorLoggerService } from './error-logger.service';
 
 describe('ErrorLoggerService', () => {
   let service: ErrorLoggerService;
-  let configService: jest.Mocked<ConfigService>;
+  let configService: any;
 
   beforeEach(async () => {
     const mockConfigService = {
-      get: jest.fn(),
+      get: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -197,7 +198,7 @@ describe('ErrorLoggerService', () => {
     it('should provide error summary for time periods', () => {
       // Mock current time
       const now = Date.now();
-      jest.spyOn(Date, 'now').mockReturnValue(now);
+      vi.spyOn(Date, 'now').mockReturnValue(now);
 
       // Log errors with different timestamps
       service.logError({
@@ -251,7 +252,7 @@ describe('ErrorLoggerService', () => {
         .mockReturnValueOnce('error')
         .mockReturnValueOnce('logs');
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
       service.logError({
         level: 'error',

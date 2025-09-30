@@ -36,7 +36,7 @@ export class ArAnalysisController {
       },
     })
   )
-  async analyze(@UploadedFile() file: any) {
+  async analyze(@UploadedFile() file: Express.Multer.File) {
     if (!file?.buffer?.length) {
       throw new BadRequestException('No file uploaded or file is empty');
     }
