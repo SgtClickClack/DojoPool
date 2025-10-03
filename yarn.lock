@@ -1518,7 +1518,7 @@ __metadata:
     "@socket.io/redis-adapter": "npm:^8.3.0"
     "@techstark/opencv-js": "npm:4.11.0-release.1"
     "@types/bcryptjs": "npm:^2.4.6"
-    "@types/dompurify": "npm:3.0.5"
+    "@types/dompurify": "npm:3.2.0"
     "@types/multer": "npm:^2.0.0"
     "@types/node": "npm:^20.19.0"
     "@types/passport": "npm:^1.0.16"
@@ -1593,7 +1593,7 @@ __metadata:
     eslint: "npm:^9.36.0"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    tailwindcss: "npm:^4.1.13"
+    tailwindcss: "npm:^4.1.14"
     typescript: "npm:^5.3.3"
   peerDependencies:
     react: ">=18.3.1"
@@ -4984,12 +4984,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dompurify@npm:3.0.5":
-  version: 3.0.5
-  resolution: "@types/dompurify@npm:3.0.5"
+"@types/dompurify@npm:3.2.0":
+  version: 3.2.0
+  resolution: "@types/dompurify@npm:3.2.0"
   dependencies:
-    "@types/trusted-types": "npm:*"
-  checksum: 10c0/a34dcc4498ca250815ccf9aecbe82df96ba5db247d0440cf266a876757d47c52519c240db3475e794d7deb0d6b1af23328e02879be368ad0e26b20c0f0865dba
+    dompurify: "npm:*"
+  checksum: 10c0/e83fec586ffbb1b43f7c8479f2a99c223814d240db912d53fb126aaeea52a4091deceeb75632b5d76004d88ef0fbf444984887b121dece6fa69f4172ed4b2b07
   languageName: node
   linkType: hard
 
@@ -5453,7 +5453,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/trusted-types@npm:*, @types/trusted-types@npm:^2.0.7":
+"@types/trusted-types@npm:^2.0.7":
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
   checksum: 10c0/4c4855f10de7c6c135e0d32ce462419d8abbbc33713b31d294596c0cc34ae1fa6112a2f9da729c8f7a20707782b0d69da3b1f8df6645b0366d08825ca1522e0c
@@ -8615,7 +8615,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.2.4":
+"dompurify@npm:*, dompurify@npm:^3.2.4":
   version: 3.2.7
   resolution: "dompurify@npm:3.2.7"
   dependencies:
@@ -15756,10 +15756,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^4.1.13":
-  version: 4.1.13
-  resolution: "tailwindcss@npm:4.1.13"
-  checksum: 10c0/2b80b4b11463818fd16063b7cc13fd0f6e18d7e3c3e54bbdc98742981be807884addb1dd657bc6816cb4085197b7d583f5064f619e1039a54221ffa36b7ed4c0
+"tailwindcss@npm:^4.1.14":
+  version: 4.1.14
+  resolution: "tailwindcss@npm:4.1.14"
+  checksum: 10c0/c7e9ebfb241707b2a3eb7d465fd326cc8fcfa22e7215e01f67cccec32db8a49a19e17d1f694fc5d0435d55350ea3f863521c52c9bbe6bd790c2009dc8ff516a1
   languageName: node
   linkType: hard
 
