@@ -117,9 +117,9 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role;
-        session.user.id = token.id;
-        session.user.username = token.name;
+        session.user.role = token.role as string;
+        session.user.id = token.id as string;
+        session.user.username = token.name as string;
       }
       return session;
     },
