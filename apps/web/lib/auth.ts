@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
-import { NextAuthOptions, DefaultSession } from 'next-auth';
+import { DefaultSession, NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { z } from 'zod';
@@ -12,7 +12,7 @@ declare module 'next-auth' {
     role?: string;
     username?: string;
   }
-  
+
   interface Session {
     user: {
       id: string;
@@ -22,14 +22,20 @@ declare module 'next-auth' {
   }
 }
 
-// Use global Prisma instance to prevent connection issues in serverless
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+// Prisma client for serverless - use singleton pattern
+let prisma: PrismaClient;
 
-const prisma = globalForPrisma.prisma ?? new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV === 'production') {
+  // In production, create a new instance for each request
+  prisma = new PrismaClient();
+} else {
+  // In development, use global singleton to prevent connection issues
+  const globalForPrisma = globalThis as unknown as {
+    prisma: PrismaClient | undefined;
+  };
+  prisma = globalForPrisma.prisma ?? new PrismaClient();
+  globalForPrisma.prisma = prisma;
+}
 
 // Input validation schemas
 const credentialsSchema = z.object({
@@ -40,12 +46,14 @@ const credentialsSchema = z.object({
 export const authOptions: NextAuthOptions = {
   providers: [
     // Only add Google provider if environment variables are set
-    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
-      GoogleProvider({
-        clientId: process.env.GOOGLE_CLIENT_ID as string,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      })
-    ] : []),
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+          }),
+        ]
+      : []),
     CredentialsProvider({
       name: 'credentials',
       credentials: {

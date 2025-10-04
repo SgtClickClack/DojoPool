@@ -47,10 +47,16 @@ const nextConfig = {
 
   // Optimized webpack configuration for better performance
   webpack: (config, { dev, isServer }) => {
-    // Add Prisma binary target for Vercel
+    // Handle Prisma for serverless deployment
     if (process.env.NODE_ENV === 'production') {
-      config.resolve.alias['@prisma/client'] = false;
-      config.resolve.alias['prisma'] = false;
+      // Don't alias Prisma - let it bundle properly
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+      };
     }
 
     // Enable webpack cache for better build performance
