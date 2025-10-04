@@ -39,6 +39,42 @@ export class TerritoriesService {
     }
   }
 
+  async getTerritoryStatistics(): Promise<any> {
+    try {
+      const totalTerritories = await this._prisma.territory.count();
+      const controlledTerritories = await this._prisma.territory.count({
+        where: {
+          ownerId: {
+            not: null,
+          },
+        },
+      });
+      const clanControlledTerritories = await this._prisma.territory.count({
+        where: {
+          clanId: {
+            not: null,
+          },
+        },
+      });
+
+      return {
+        totalTerritories,
+        controlledTerritories,
+        clanControlledTerritories,
+        uncontrolledTerritories: totalTerritories - controlledTerritories,
+      };
+    } catch (err) {
+      this.logger.error(
+        ErrorUtils.formatErrorMessage(
+          'fetch territory statistics',
+          undefined,
+          err
+        )
+      );
+      throw err;
+    }
+  }
+
   async getTerritoriesByClan(clanId: string) {
     try {
       const territories = await this._prisma.territory.findMany({
@@ -234,7 +270,7 @@ export class TerritoriesService {
       level: t.level,
       defenseScore: t.defenseScore,
       strategicValue: (t as { strategicValue?: number }).strategicValue ?? 0,
-      resources: (t as { resources?: Record<string, unknown> }).resources ?? {},
+      resources: (t as any).resources ?? {},
     }));
   }
 
@@ -280,8 +316,8 @@ export class TerritoriesService {
           select: { resources: true },
         });
         const resources = {
-          ...(current?.resources as Record<string, unknown>),
-          ...((payload?.resources as Record<string, unknown>) || {}),
+          ...(current?.resources as any),
+          ...((payload?.resources as any) || {}),
         };
         await this._prisma.territory.update({
           where: { id: territoryId },
@@ -290,7 +326,7 @@ export class TerritoriesService {
         return { success: true };
       }
       case 'transfer_ownership': {
-        const newOwnerId: string | undefined = payload?.newOwnerId;
+        const newOwnerId: string = payload?.newOwnerId as string;
         if (!newOwnerId) throw new Error('newOwnerId required');
         await this._prisma.territory.update({
           where: { id: territoryId },

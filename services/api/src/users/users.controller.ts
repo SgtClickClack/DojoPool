@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
   Patch,
   Post,
   Query,
@@ -20,8 +21,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { GetJournalQueryDto } from './dto/get-journal-query.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JournalService } from './journal.service';
-import { UsersService } from './users.service';
 import { UserProfileService } from './user-profile.service';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -89,5 +90,17 @@ export class UsersController {
   ) {
     const userId = (req.user.userId || req.user.sub || req.user.id) as string;
     return this.journalService.getJournal(userId, query.page, query.limit);
+  }
+
+  @Get(':userId/challenges')
+  @UseGuards(JwtAuthGuard)
+  async getUserChallenges(@Param('userId') userId: string) {
+    return this.usersService.getUserChallenges(userId);
+  }
+
+  @Get(':userId/nfts')
+  @UseGuards(JwtAuthGuard)
+  async getUserNFTs(@Param('userId') userId: string) {
+    return this.usersService.getUserNFTs(userId);
   }
 }

@@ -1,6 +1,5 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
 
 interface CircuitBreakerConfig {
   failureThreshold: number;
@@ -62,7 +61,9 @@ export class CircuitBreakerMiddleware implements NestMiddleware {
       } else {
         // Transition to HALF_OPEN
         circuit.state = 'HALF_OPEN';
-        this.logger.info(`Circuit breaker transitioning to HALF_OPEN for ${circuitKey}`);
+        this.logger.log(
+          `Circuit breaker transitioning to HALF_OPEN for ${circuitKey}`
+        );
       }
     }
 
@@ -72,7 +73,7 @@ export class CircuitBreakerMiddleware implements NestMiddleware {
     let responseSent = false;
 
     // Override response methods to track success/failure
-    res.send = function(body) {
+    res.send = function (body) {
       if (!responseSent) {
         this.trackResponse(circuitKey, res.statusCode);
         responseSent = true;
@@ -80,7 +81,7 @@ export class CircuitBreakerMiddleware implements NestMiddleware {
       return originalSend.call(this, body);
     }.bind(this);
 
-    res.json = function(body) {
+    res.json = function (body) {
       if (!responseSent) {
         this.trackResponse(circuitKey, res.statusCode);
         responseSent = true;
@@ -90,7 +91,7 @@ export class CircuitBreakerMiddleware implements NestMiddleware {
 
     // Handle errors
     const originalNext = next;
-    next = function(error) {
+    next = function (error) {
       if (error) {
         this.trackResponse(circuitKey, 500);
       }
@@ -102,7 +103,9 @@ export class CircuitBreakerMiddleware implements NestMiddleware {
 
   private getCircuitKey(req: Request): string {
     // Group by method and path pattern (remove dynamic segments)
-    const path = req.path.replace(/\/\d+/g, '/:id').replace(/\/[a-f0-9-]{36}/g, '/:uuid');
+    const path = req.path
+      .replace(/\/\d+/g, '/:id')
+      .replace(/\/[a-f0-9-]{36}/g, '/:uuid');
     return `${req.method}:${path}`;
   }
 
@@ -127,7 +130,9 @@ export class CircuitBreakerMiddleware implements NestMiddleware {
       if (circuit.state === 'HALF_OPEN') {
         circuit.state = 'CLOSED';
         circuit.failures = 0;
-        this.logger.info(`Circuit breaker CLOSED for ${circuitKey} - service recovered`);
+        this.logger.log(
+          `Circuit breaker CLOSED for ${circuitKey} - service recovered`
+        );
       } else if (circuit.failures > 0) {
         circuit.failures = Math.max(0, circuit.failures - 1);
       }
@@ -136,29 +141,23 @@ export class CircuitBreakerMiddleware implements NestMiddleware {
       circuit.failures++;
       circuit.lastFailureTime = Date.now();
 
-      this.logger.warn(
-        `Circuit breaker failure for ${circuitKey}`,
-        {
-          circuitKey,
-          failures: circuit.failures,
-          statusCode,
-          threshold: this.config.failureThreshold,
-        }
-      );
+      this.logger.warn(`Circuit breaker failure for ${circuitKey}`, {
+        circuitKey,
+        failures: circuit.failures,
+        statusCode,
+        threshold: this.config.failureThreshold,
+      });
 
       // Check if threshold exceeded
       if (circuit.failures >= this.config.failureThreshold) {
         circuit.state = 'OPEN';
         circuit.nextAttempt = Date.now() + this.config.recoveryTimeout;
-        
-        this.logger.error(
-          `Circuit breaker OPENED for ${circuitKey}`,
-          {
-            circuitKey,
-            failures: circuit.failures,
-            nextAttempt: new Date(circuit.nextAttempt).toISOString(),
-          }
-        );
+
+        this.logger.error(`Circuit breaker OPENED for ${circuitKey}`, {
+          circuitKey,
+          failures: circuit.failures,
+          nextAttempt: new Date(circuit.nextAttempt).toISOString(),
+        });
       }
     }
   }
@@ -166,10 +165,10 @@ export class CircuitBreakerMiddleware implements NestMiddleware {
   private cleanup() {
     const now = Date.now();
     const keys = Array.from(this.circuits.keys());
-    
+
     for (const key of keys) {
       const circuit = this.circuits.get(key)!;
-      
+
       // Remove circuits that have been closed for more than monitoring period
       if (
         circuit.state === 'CLOSED' &&

@@ -120,7 +120,8 @@ export class ClansService {
         where: { clanId },
       });
 
-      if (memberCount >= 50) { // Default max members
+      if (memberCount >= 50) {
+        // Default max members
         throw new BadRequestException('Clan is at maximum capacity');
       }
 
@@ -294,7 +295,11 @@ export class ClansService {
   }
 
   // Missing methods that tests are calling
-  async updateClan(clanId: string, updateData: any, userId: string): Promise<any> {
+  async updateClan(
+    clanId: string,
+    updateData: any,
+    userId: string
+  ): Promise<any> {
     const clan = await this._prisma.clan.findUnique({
       where: { id: clanId },
     });
@@ -325,7 +330,11 @@ export class ClansService {
     });
   }
 
-  async kickMember(clanId: string, memberId: string, leaderId: string): Promise<any> {
+  async kickMember(
+    clanId: string,
+    memberId: string,
+    leaderId: string
+  ): Promise<any> {
     const clan = await this._prisma.clan.findUnique({
       where: { id: clanId },
     });
@@ -360,9 +369,11 @@ export class ClansService {
 
       // Calculate average members per clan
       const totalClansWithMembers = clanStats.length;
-      const averageMembers = totalClansWithMembers > 0
-        ? clanStats.reduce((sum, stat) => sum + stat._count.clanId, 0) / totalClansWithMembers
-        : 0;
+      const averageMembers =
+        totalClansWithMembers > 0
+          ? clanStats.reduce((sum, stat) => sum + stat._count.clanId, 0) /
+            totalClansWithMembers
+          : 0;
 
       return {
         totalClans,
@@ -379,9 +390,10 @@ export class ClansService {
 
   async getClanRankings(sortBy: 'treasury' | 'level' = 'treasury') {
     try {
-      const orderBy = sortBy === 'treasury'
-        ? { treasury: 'desc' as const }
-        : { level: 'desc' as const };
+      const orderBy =
+        sortBy === 'treasury'
+          ? { treasury: 'desc' as const }
+          : { level: 'desc' as const };
 
       return await this._prisma.clan.findMany({
         orderBy,
@@ -399,7 +411,10 @@ export class ClansService {
     }
   }
 
-  async validateClanLeadership(clanId: string, userId: string): Promise<boolean> {
+  async validateClanLeadership(
+    clanId: string,
+    userId: string
+  ): Promise<boolean> {
     try {
       const clan = await this._prisma.clan.findUnique({
         where: { id: clanId },
@@ -415,7 +430,10 @@ export class ClansService {
     }
   }
 
-  async validateClanMembership(clanId: string, userId: string): Promise<boolean> {
+  async validateClanMembership(
+    clanId: string,
+    userId: string
+  ): Promise<boolean> {
     try {
       const membership = await this._prisma.clanMember.findFirst({
         where: { clanId, userId },
@@ -427,6 +445,39 @@ export class ClansService {
         `Failed to validate clan membership: ${ErrorUtils.getErrorMessage(err)}`
       );
       return false;
+    }
+  }
+
+  async getClanTerritories(clanId: string): Promise<any[]> {
+    try {
+      return await this._prisma.territory.findMany({
+        where: { clanId },
+        include: {
+          venue: {
+            select: {
+              id: true,
+              name: true,
+              lat: true,
+              lng: true,
+            },
+          },
+          owner: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+    } catch (err) {
+      this.logger.error(
+        `Failed to get clan territories: ${ErrorUtils.getErrorMessage(err)}`
+      );
+      return [];
     }
   }
 }

@@ -4152,6 +4152,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@prisma/client@npm:^6.16.3":
+  version: 6.16.3
+  resolution: "@prisma/client@npm:6.16.3"
+  peerDependencies:
+    prisma: "*"
+    typescript: ">=5.1.0"
+  peerDependenciesMeta:
+    prisma:
+      optional: true
+    typescript:
+      optional: true
+  checksum: 10c0/9a09642aa69e36dcdde448a30190b102ab8ca5f32da9a4309b29b068b42546e55297edfaf9e7f393028c80a52faea4542229fce5499d4e8874ea6f0d92b6a01d
+  languageName: node
+  linkType: hard
+
 "@prisma/config@npm:6.6.0":
   version: 6.6.0
   resolution: "@prisma/config@npm:6.6.0"
@@ -8465,7 +8480,7 @@ __metadata:
     "@mui/system": "npm:5.15.0"
     "@mui/x-date-pickers": "npm:^6.3.1"
     "@next-auth/prisma-adapter": "npm:^1.0.7"
-    "@prisma/client": "npm:^5.17.0"
+    "@prisma/client": "npm:^6.16.3"
     "@react-google-maps/api": "npm:^2.20.7"
     "@testing-library/cypress": "npm:^10.0.3"
     "@testing-library/jest-dom": "npm:^5.16.5"
@@ -8507,7 +8522,7 @@ __metadata:
     swr: "npm:^2.2.4"
     typescript: "npm:^5.3.3"
     vitest: "npm:^3.2.4"
-    zod: "npm:^3.22.4"
+    zod: "npm:^4.1.11"
     zustand: "npm:^4.4.7"
   languageName: unknown
   linkType: soft
@@ -17485,6 +17500,13 @@ __metadata:
   version: 3.25.76
   resolution: "zod@npm:3.25.76"
   checksum: 10c0/5718ec35e3c40b600316c5b4c5e4976f7fee68151bc8f8d90ec18a469be9571f072e1bbaace10f1e85cf8892ea12d90821b200e980ab46916a6166a4260a983c
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.1.11":
+  version: 4.1.11
+  resolution: "zod@npm:4.1.11"
+  checksum: 10c0/ce6a4c4acfbf51d7dd0f2669c82f207d62a1f00264eef608994b94eb99d86a74c99f59b0dd3e61ef82909ee136631378b709e0908f0a02a2d5c21d0c497de5db
   languageName: node
   linkType: hard
 

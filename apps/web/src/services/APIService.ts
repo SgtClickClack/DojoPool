@@ -1,13 +1,15 @@
-import type { JournalResponse } from '@/types/journal';
-import type { UserProfile } from '@/types/user';
 import type {
-  CreateGameRequest,
-  GameSummary,
-} from '@/types/game';
+  ActivityEvent,
+  ActivityEventType,
+  ActivityFeedResponse,
+} from '@/types/activity';
 import type {
-  MarkAsReadResponse,
-  NotificationResponse,
-} from '@/types/notification';
+  Clan,
+  ClanFilters,
+  ClanListResponse,
+  ClanMember,
+  ClanUpdateData,
+} from '@/types/clan';
 import type {
   Content,
   ContentFilter,
@@ -28,40 +30,34 @@ import type {
   UpdateFeedbackRequest,
   UserFeedbackListResponse,
 } from '@/types/feedback';
+import type { CreateGameRequest, GameSummary } from '@/types/game';
 import type {
-  Clan,
-  ClanListResponse,
-  ClanMember,
-  ClanUpdateData,
-  ClanFilters,
-} from '@/types/clan';
+  EquipmentSlot,
+  InventoryItem,
+  UserInventory,
+} from '@/types/inventory';
+import type { JournalResponse } from '@/types/journal';
+import type {
+  MarkAsReadResponse,
+  NotificationResponse,
+} from '@/types/notification';
 import type {
   Territory,
   TerritoryFilters,
   TerritoryManageAction,
-  TerritoryScoutResult,
   TerritoryManageResult,
+  TerritoryScoutResult,
 } from '@/types/territory';
+import type { UserProfile } from '@/types/user';
 import type {
   Venue,
   VenueSearchFilters,
   VenueSearchResponse,
 } from '@/types/venue';
 import type {
-  VenueSpecial,
   CreateVenueSpecialRequest,
+  VenueSpecial,
 } from '@/types/venue-special';
-import type {
-  ActivityEvent,
-  ActivityEventType,
-  ActivityFeedResponse,
-  ActivityFeedFilters,
-} from '@/types/activity';
-import type {
-  InventoryItem,
-  EquipmentSlot,
-  UserInventory,
-} from '@/types/inventory';
 import axios, { type AxiosError, type AxiosInstance } from 'axios';
 
 // Create axios instance with default config
@@ -72,12 +68,17 @@ const resolveApiBaseUrl = () => {
     return configured;
   }
 
+  // For development, always use localhost:3002
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3002';
+  }
+
   if (typeof window !== 'undefined') {
     const { protocol, host } = window.location;
     return `${protocol}//${host}`;
   }
 
-  return 'http://localhost:3000';
+  return 'http://localhost:3002';
 };
 
 const apiBaseUrl = resolveApiBaseUrl();

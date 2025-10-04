@@ -1,4 +1,3 @@
-import { ContentType, ContentStatus } from './dto/content-filter.dto';
 import {
   Body,
   Controller,
@@ -16,9 +15,11 @@ import {
 } from '@nestjs/common';
 import { AdminGuard } from '../auth/admin.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthenticatedRequest } from '../common/types/authenticated-request.type';
 import { ContentService } from './content.service';
-import { CreateEventDto } from './dto/create-event.dto';
+import { ContentStatus, ContentType } from './dto/content-filter.dto';
 import { type CreateContentDto } from './dto/create-content.dto';
+import { CreateEventDto } from './dto/create-event.dto';
 import { CreateNewsArticleDto } from './dto/create-news-article.dto';
 import { CreateSystemMessageDto } from './dto/create-system-message.dto';
 
@@ -41,7 +42,7 @@ export class CmsController {
     };
     return this.contentService.create(
       payload,
-      req.user.userId,
+      req.user.sub,
       undefined, // fileUrl
       undefined // thumbnailUrl
     );
@@ -67,13 +68,13 @@ export class CmsController {
     @Body(ValidationPipe) updateData: Partial<CreateEventDto>,
     @Request() req: any
   ) {
-    return this.contentService.update(id, updateData as any, req.user.userId);
+    return this.contentService.update(id, updateData as any, req.user.sub);
   }
 
   @Delete('events/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteEvent(@Param('id') id: string, @Request() req: any) {
-    await this.contentService.delete(id, req.user.userId);
+    await this.contentService.delete(id, req.user.sub);
   }
 
   // News Article Management Endpoints
@@ -90,7 +91,7 @@ export class CmsController {
     };
     return this.contentService.create(
       payload,
-      req.user.userId,
+      req.user.sub,
       undefined, // fileUrl
       createNewsDto.featuredImage // thumbnailUrl
     );
@@ -124,13 +125,13 @@ export class CmsController {
     @Body(ValidationPipe) updateData: Partial<CreateNewsArticleDto>,
     @Request() req: any
   ) {
-    return this.contentService.update(id, updateData as any, req.user.userId);
+    return this.contentService.update(id, updateData as any, req.user.sub);
   }
 
   @Delete('news/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteNewsArticle(@Param('id') id: string, @Request() req: any) {
-    await this.contentService.delete(id, req.user.userId);
+    await this.contentService.delete(id, req.user.sub);
   }
 
   // System Message Management Endpoints
@@ -147,7 +148,7 @@ export class CmsController {
     };
     return this.contentService.create(
       payload,
-      req.user.userId,
+      req.user.sub,
       undefined, // fileUrl
       undefined // thumbnailUrl
     );
@@ -179,7 +180,7 @@ export class CmsController {
     @Body(ValidationPipe) updateData: Partial<CreateSystemMessageDto>,
     @Request() req: AuthenticatedRequest
   ) {
-    return this.contentService.update(id, updateData as any, req.user.userId);
+    return this.contentService.update(id, updateData as any, req.user.sub);
   }
 
   @Delete('messages/:id')
@@ -188,7 +189,7 @@ export class CmsController {
     @Param('id') id: string,
     @Request() req: AuthenticatedRequest
   ) {
-    await this.contentService.delete(id, req.user.userId);
+    await this.contentService.delete(id, req.user.sub);
   }
 
   // Preview endpoints (for viewing content before publishing)
@@ -253,7 +254,7 @@ export class CmsController {
         const result = await this.contentService.update(
           id,
           { status: ContentStatus.APPROVED as any },
-          req.user.userId
+          req.user.sub
         );
         results.push({ id, success: true, result });
       } catch (error) {
@@ -274,7 +275,7 @@ export class CmsController {
         const result = await this.contentService.update(
           id,
           { status: ContentStatus.ARCHIVED as any },
-          req.user.userId
+          req.user.sub
         );
         results.push({ id, success: true, result });
       } catch (error) {

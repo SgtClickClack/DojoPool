@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import type { User } from '@prisma/client';
 import {
   type PermissionAction,
-  type PermissionResource,
   type PermissionContext,
+  type PermissionResource,
 } from '../common/interfaces/user.interfaces';
 
 @Injectable()
@@ -195,7 +195,10 @@ export class PermissionsService {
     }
 
     // Match participants can update their matches
-    if (action === 'update' && context?.participantIds?.includes(user.id)) {
+    if (
+      action === 'update' &&
+      (context?.participantIds as string[])?.includes(user.id)
+    ) {
       return true;
     }
 

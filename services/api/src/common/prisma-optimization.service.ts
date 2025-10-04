@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Logger } from '@nestjs/common';
 
 interface QueryBatchItem<T = unknown> {
   key: string;
@@ -121,7 +120,7 @@ export class PrismaOptimizationService {
     // Check if cached data is still valid
     if (cached && cached.expires > Date.now()) {
       this.logger.debug(`Cache hit for key: ${cacheKey}`);
-      return cached.data;
+      return cached.data as T;
     }
 
     // Execute query and cache result

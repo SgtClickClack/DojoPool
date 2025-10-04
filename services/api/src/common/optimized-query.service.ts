@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PrismaOptimizationService } from './prisma-optimization.service';
-import { Logger } from '@nestjs/common';
 
 interface UserWithRelations {
   id: string;
@@ -51,6 +50,54 @@ interface MatchWithRelations {
   };
 }
 
+interface TournamentWithRelations {
+  id: string;
+  name: string;
+  status: string;
+  type: string;
+  startDate: Date;
+  venue?: {
+    id: string;
+    name: string;
+    address: string;
+  };
+  participants: Array<{
+    id: string;
+    user: {
+      id: string;
+      username: string;
+    };
+    finalRank: number | null;
+  }>;
+  _count: {
+    participants: number;
+  };
+}
+
+interface ActivityEvent {
+  id: string;
+  type: string;
+  message: string;
+  createdAt: Date;
+  userId?: string;
+  venueId?: string;
+  clanId?: string;
+  matchId?: string;
+  tournamentId?: string;
+}
+
+interface UserStats {
+  totalMatches: number;
+  totalWins: number;
+  tournaments: number;
+  clans: number;
+}
+
+interface PrismaWhereClause {
+  OR?: Array<Record<string, unknown>>;
+  [key: string]: unknown;
+}
+
 @Injectable()
 export class OptimizedQueryService {
   private readonly logger = new Logger(OptimizedQueryService.name);
@@ -74,7 +121,7 @@ export class OptimizedQueryService {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: PrismaWhereClause = {};
 
     if (filters.search) {
       where.OR = [
@@ -91,15 +138,9 @@ export class OptimizedQueryService {
       where.isBanned = filters.isBanned;
     }
 
-    return this.optimizationService.findManyOptimized('user', {
+    const result = await this.optimizationService.findManyOptimized('user', {
       where,
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        role: true,
-        isBanned: true,
-        createdAt: true,
+      include: {
         profile: {
           select: {
             firstName: true,
@@ -124,6 +165,8 @@ export class OptimizedQueryService {
         keyPrefix: 'users',
       },
     });
+
+    return { ...result, users: result.data as UserWithRelations[] };
   }
 
   /**
@@ -148,7 +191,7 @@ export class OptimizedQueryService {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: PrismaWhereClause = {};
 
     if (filters.search) {
       where.OR = [
@@ -168,23 +211,15 @@ export class OptimizedQueryService {
       const _earthRadius = 6371; // Earth's radius in kilometers
 
       where.sql = `
-        (6371 * acos(cos(radians(${lat})) * cos(radians(lat)) * 
-         cos(radians(lng) - radians(${lng})) + sin(radians(${lat})) * 
+        (6371 * acos(cos(radians(${lat})) * cos(radians(lat)) *
+         cos(radians(lng) - radians(${lng})) + sin(radians(${lat})) *
          sin(radians(lat)))) <= ${radius}
       `;
     }
 
-    return this.optimizationService.findManyOptimized('venue', {
+    const result = await this.optimizationService.findManyOptimized('venue', {
       where,
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        address: true,
-        lat: true,
-        lng: true,
-        status: true,
-        createdAt: true,
+      include: {
         _count: {
           select: {
             matches: true,
@@ -201,6 +236,8 @@ export class OptimizedQueryService {
         keyPrefix: 'venues',
       },
     });
+
+    return { ...result, venues: result.data as VenueWithRelations[] };
   }
 
   /**
@@ -225,7 +262,7 @@ export class OptimizedQueryService {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: PrismaWhereClause = {};
 
     if (filters.status) {
       where.status = filters.status;
@@ -249,13 +286,9 @@ export class OptimizedQueryService {
       };
     }
 
-    return this.optimizationService.findManyOptimized('match', {
+    const result = await this.optimizationService.findManyOptimized('match', {
       where,
-      select: {
-        id: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
         playerA: {
           select: {
             id: true,
@@ -284,13 +317,15 @@ export class OptimizedQueryService {
         keyPrefix: 'matches',
       },
     });
+
+    return { ...result, matches: result.data as MatchWithRelations[] };
   }
 
   /**
    * Batch load user statistics for multiple users
    */
-  async batchLoadUserStats(userIds: string[]): Promise<Map<string, any>> {
-    const queries: Array<{ key: string; query: () => Promise<any> }> = [];
+  async batchLoadUserStats(userIds: string[]): Promise<Map<string, UserStats>> {
+    const queries: Array<{ key: string; query: () => Promise<number> }> = [];
 
     for (const userId of userIds) {
       // Total matches
@@ -302,7 +337,6 @@ export class OptimizedQueryService {
               OR: [{ playerAId: userId }, { playerBId: userId }],
             },
           }),
-        priority: 1,
       });
 
       // Total wins
@@ -317,7 +351,6 @@ export class OptimizedQueryService {
               ],
             },
           }),
-        priority: 1,
       });
 
       // Tournament participations
@@ -327,7 +360,6 @@ export class OptimizedQueryService {
           this._prisma.tournamentParticipant.count({
             where: { userId },
           }),
-        priority: 2,
       });
 
       // Clan memberships
@@ -337,7 +369,6 @@ export class OptimizedQueryService {
           this._prisma.clanMember.count({
             where: { userId },
           }),
-        priority: 2,
       });
     }
 
@@ -357,11 +388,15 @@ export class OptimizedQueryService {
       };
     } = {},
     pagination: { page: number; limit: number } = { page: 1, limit: 20 }
-  ): Promise<{ tournaments: any[]; total: number; hasMore: boolean }> {
+  ): Promise<{
+    tournaments: TournamentWithRelations[];
+    total: number;
+    hasMore: boolean;
+  }> {
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: PrismaWhereClause = {};
 
     if (filters.status) {
       where.status = filters.status;
@@ -378,59 +413,57 @@ export class OptimizedQueryService {
       };
     }
 
-    return this.optimizationService.findManyOptimized('tournament', {
-      where,
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        status: true,
-        type: true,
-        startDate: true,
-        endDate: true,
-        maxParticipants: true,
-        entryFee: true,
-        prizePool: true,
-        venue: {
-          select: {
-            id: true,
-            name: true,
-            address: true,
-          },
-        },
-        participants: {
-          select: {
-            id: true,
-            user: {
-              select: {
-                id: true,
-                username: true,
-              },
+    const result = await this.optimizationService.findManyOptimized(
+      'tournament',
+      {
+        where,
+        include: {
+          venue: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
             },
-            finalRank: true,
+          },
+          participants: {
+            select: {
+              id: true,
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+              finalRank: true,
+            },
+          },
+          _count: {
+            select: {
+              participants: true,
+            },
           },
         },
-        _count: {
-          select: {
-            participants: true,
-          },
+        orderBy: { startDate: 'desc' },
+        skip,
+        take: limit,
+        cache: {
+          ttl: 5 * 60 * 1000, // 5 minutes
+          maxSize: 100,
+          keyPrefix: 'tournaments',
         },
-      },
-      orderBy: { startDate: 'desc' },
-      skip,
-      take: limit,
-      cache: {
-        ttl: 5 * 60 * 1000, // 5 minutes
-        maxSize: 100,
-        keyPrefix: 'tournaments',
-      },
-    });
+      }
+    );
+
+    return { ...result, tournaments: result.data as TournamentWithRelations[] };
   }
 
   /**
    * Optimized activity feed with batched user/venue lookups
    */
-  async getActivityFeedOptimized(userId: string, limit = 20): Promise<any[]> {
+  async getActivityFeedOptimized(
+    userId: string,
+    limit = 20
+  ): Promise<ActivityEvent[]> {
     // First, get activity events
     const events = await this._prisma.activityEvent.findMany({
       where: {
@@ -483,9 +516,21 @@ export class OptimizedQueryService {
     ]);
 
     // Create lookup maps
-    const userMap = new Map(users.map((u) => [u.id, u]));
-    const venueMap = new Map(venues.map((v) => [v.id, v]));
-    const clanMap = new Map(clans.map((c) => [c.id, c]));
+    const userMap = new Map(
+      users.map(
+        (u) =>
+          [u.id, u] as [
+            string,
+            { id: string; username: string; avatarUrl?: string },
+          ]
+      )
+    );
+    const venueMap = new Map(
+      venues.map((v) => [v.id, v] as [string, { id: string; name: string }])
+    );
+    const clanMap = new Map(
+      clans.map((c) => [c.id, c] as [string, { id: string; name: string }])
+    );
 
     // Enrich events with related data
     return events.map((event) => ({
@@ -515,12 +560,16 @@ export class OptimizedQueryService {
   /**
    * Get database performance metrics
    */
-  async getPerformanceMetrics(): Promise<any> {
+  async getPerformanceMetrics(): Promise<{
+    cache: Record<string, unknown>;
+    database: Record<string, unknown>;
+    timestamp: string;
+  }> {
     const cacheStats = this.optimizationService.getCacheStats();
 
     // Get database connection info
     const dbInfo = await this._prisma.$queryRaw`
-      SELECT 
+      SELECT
         current_database() as database_name,
         version() as version,
         (SELECT count(*) FROM pg_stat_activity WHERE state = 'active') as active_connections

@@ -14,7 +14,11 @@ export interface Tournament {
   venueId: string;
   prizePool: number;
   entryFee: number;
-  tournamentType: 'SINGLE_ELIMINATION' | 'DOUBLE_ELIMINATION' | 'ROUND_ROBIN' | 'SWISS';
+  tournamentType:
+    | 'SINGLE_ELIMINATION'
+    | 'DOUBLE_ELIMINATION'
+    | 'ROUND_ROBIN'
+    | 'SWISS';
   bracket?: TournamentBracket;
   matches?: TournamentMatch[];
   prizes?: PrizeDistribution[];
@@ -86,13 +90,15 @@ export class TournamentsService {
       {
         id: '1',
         name: 'Test Tournament',
-        status: 'active',
+        status: 'IN_PROGRESS',
         participants: 8,
         maxParticipants: 16,
         startDate: new Date('2024-01-01'),
         endDate: new Date('2024-01-02'),
         venueId: 'venue-1',
         prizePool: 1000,
+        entryFee: 50,
+        tournamentType: 'SINGLE_ELIMINATION',
       },
     ];
 
@@ -120,13 +126,15 @@ export class TournamentsService {
       return {
         id: '1',
         name: 'Test Tournament',
-        status: 'active',
+        status: 'IN_PROGRESS',
         participants: 8,
         maxParticipants: 16,
         startDate: new Date('2024-01-01'),
         endDate: new Date('2024-01-02'),
         venueId: 'venue-1',
         prizePool: 1000,
+        entryFee: 50,
+        tournamentType: 'SINGLE_ELIMINATION',
       };
     }
     return null;
@@ -204,13 +212,15 @@ export class TournamentsService {
       {
         id: '1',
         name: 'Venue Championship',
-        status: 'upcoming',
+        status: 'REGISTRATION',
         participants: 16,
         maxParticipants: 24,
         startDate: new Date('2024-02-01'),
         endDate: new Date('2024-02-03'),
         venueId,
         prizePool: 2000,
+        entryFee: 100,
+        tournamentType: 'DOUBLE_ELIMINATION',
       },
     ];
 
@@ -220,9 +230,14 @@ export class TournamentsService {
   /**
    * Generate tournament bracket based on tournament type and participants
    */
-  async generateBracket(tournamentId: string, participantIds: string[]): Promise<TournamentBracket> {
-    this.logger.debug(`Generating bracket for tournament ${tournamentId} with ${participantIds.length} participants`);
-    
+  async generateBracket(
+    tournamentId: string,
+    participantIds: string[]
+  ): Promise<TournamentBracket> {
+    this.logger.debug(
+      `Generating bracket for tournament ${tournamentId} with ${participantIds.length} participants`
+    );
+
     const tournament = await this.getTournamentById(tournamentId);
     if (!tournament) {
       throw new Error('Tournament not found');
@@ -233,7 +248,10 @@ export class TournamentsService {
       tournamentId,
       rounds: [],
       currentRound: 1,
-      totalRounds: this.calculateTotalRounds(participantIds.length, tournament.tournamentType)
+      totalRounds: this.calculateTotalRounds(
+        participantIds.length,
+        tournament.tournamentType
+      ),
     };
 
     // Generate rounds based on tournament type
@@ -258,7 +276,10 @@ export class TournamentsService {
   /**
    * Calculate total rounds needed for tournament type
    */
-  private calculateTotalRounds(participantCount: number, tournamentType: string): number {
+  private calculateTotalRounds(
+    participantCount: number,
+    tournamentType: string
+  ): number {
     switch (tournamentType) {
       case 'SINGLE_ELIMINATION':
         return Math.ceil(Math.log2(participantCount));
@@ -276,14 +297,16 @@ export class TournamentsService {
   /**
    * Generate single elimination bracket rounds
    */
-  private generateSingleEliminationRounds(participantIds: string[]): BracketRound[] {
+  private generateSingleEliminationRounds(
+    participantIds: string[]
+  ): BracketRound[] {
     const rounds: BracketRound[] = [];
     const totalRounds = Math.ceil(Math.log2(participantIds.length));
-    
+
     // First round - handle byes
     const firstRoundParticipants = [...participantIds];
     const firstRoundMatches: BracketMatch[] = [];
-    
+
     for (let i = 0; i < firstRoundParticipants.length; i += 2) {
       const match: BracketMatch = {
         id: `match-${rounds.length + 1}-${Math.floor(i / 2) + 1}`,
@@ -291,7 +314,7 @@ export class TournamentsService {
         matchNumber: Math.floor(i / 2) + 1,
         player1Id: firstRoundParticipants[i],
         player2Id: firstRoundParticipants[i + 1] || undefined, // Bye if odd number
-        status: 'PENDING'
+        status: 'PENDING',
       };
       firstRoundMatches.push(match);
     }
@@ -299,27 +322,29 @@ export class TournamentsService {
     rounds.push({
       roundNumber: 1,
       matches: firstRoundMatches,
-      isComplete: false
+      isComplete: false,
     });
 
     // Generate subsequent rounds
     for (let round = 2; round <= totalRounds; round++) {
-      const matchesInRound = Math.ceil(firstRoundMatches.length / Math.pow(2, round - 1));
+      const matchesInRound = Math.ceil(
+        firstRoundMatches.length / Math.pow(2, round - 1)
+      );
       const roundMatches: BracketMatch[] = [];
-      
+
       for (let match = 1; match <= matchesInRound; match++) {
         roundMatches.push({
           id: `match-${round}-${match}`,
           roundNumber: round,
           matchNumber: match,
-          status: 'PENDING'
+          status: 'PENDING',
         });
       }
-      
+
       rounds.push({
         roundNumber: round,
         matches: roundMatches,
-        isComplete: false
+        isComplete: false,
       });
     }
 
@@ -329,15 +354,19 @@ export class TournamentsService {
   /**
    * Generate double elimination bracket rounds
    */
-  private generateDoubleEliminationRounds(participantIds: string[]): BracketRound[] {
+  private generateDoubleEliminationRounds(
+    participantIds: string[]
+  ): BracketRound[] {
     // Simplified double elimination - creates winners and losers brackets
     const winnersRounds = this.generateSingleEliminationRounds(participantIds);
-    const losersRounds = this.generateSingleEliminationRounds(participantIds.slice(0, Math.floor(participantIds.length / 2)));
-    
+    const losersRounds = this.generateSingleEliminationRounds(
+      participantIds.slice(0, Math.floor(participantIds.length / 2))
+    );
+
     // Adjust round numbers for losers bracket
-    losersRounds.forEach(round => {
+    losersRounds.forEach((round) => {
       round.roundNumber += winnersRounds.length;
-      round.matches.forEach(match => {
+      round.matches.forEach((match) => {
         match.roundNumber += winnersRounds.length;
       });
     });
@@ -351,33 +380,33 @@ export class TournamentsService {
   private generateRoundRobinRounds(participantIds: string[]): BracketRound[] {
     const rounds: BracketRound[] = [];
     const totalRounds = participantIds.length - 1;
-    
+
     for (let round = 1; round <= totalRounds; round++) {
       const matches: BracketMatch[] = [];
       const participants = [...participantIds];
-      
+
       // Rotate participants for round robin
       for (let i = 0; i < participants.length / 2; i++) {
         const player1 = participants[i];
         const player2 = participants[participants.length - 1 - i];
-        
+
         matches.push({
           id: `match-${round}-${i + 1}`,
           roundNumber: round,
           matchNumber: i + 1,
           player1Id: player1,
           player2Id: player2,
-          status: 'PENDING'
+          status: 'PENDING',
         });
       }
-      
+
       rounds.push({
         roundNumber: round,
         matches,
-        isComplete: false
+        isComplete: false,
       });
     }
-    
+
     return rounds;
   }
 
@@ -387,11 +416,11 @@ export class TournamentsService {
   private generateSwissRounds(participantIds: string[]): BracketRound[] {
     const rounds: BracketRound[] = [];
     const totalRounds = Math.ceil(Math.log2(participantIds.length));
-    
+
     for (let round = 1; round <= totalRounds; round++) {
       const matches: BracketMatch[] = [];
       const participants = [...participantIds];
-      
+
       // Pair participants (simplified Swiss pairing)
       for (let i = 0; i < participants.length; i += 2) {
         matches.push({
@@ -400,29 +429,32 @@ export class TournamentsService {
           matchNumber: Math.floor(i / 2) + 1,
           player1Id: participants[i],
           player2Id: participants[i + 1] || undefined,
-          status: 'PENDING'
+          status: 'PENDING',
         });
       }
-      
+
       rounds.push({
         roundNumber: round,
         matches,
-        isComplete: false
+        isComplete: false,
       });
     }
-    
+
     return rounds;
   }
 
   /**
    * Assign matches to players in the bracket
    */
-  async assignMatches(tournamentId: string, bracket: TournamentBracket): Promise<TournamentMatch[]> {
+  async assignMatches(
+    tournamentId: string,
+    bracket: TournamentBracket
+  ): Promise<TournamentMatch[]> {
     this.logger.debug(`Assigning matches for tournament ${tournamentId}`);
-    
+
     const matches: TournamentMatch[] = [];
     let matchCounter = 1;
-    
+
     for (const round of bracket.rounds) {
       for (const bracketMatch of round.matches) {
         if (bracketMatch.player1Id && bracketMatch.player2Id) {
@@ -432,23 +464,28 @@ export class TournamentsService {
             player1Id: bracketMatch.player1Id,
             player2Id: bracketMatch.player2Id,
             status: 'SCHEDULED',
-            scheduledTime: new Date(Date.now() + (matchCounter * 30 * 60 * 1000)) // 30 min intervals
+            scheduledTime: new Date(Date.now() + matchCounter * 30 * 60 * 1000), // 30 min intervals
           };
           matches.push(match);
           matchCounter++;
         }
       }
     }
-    
+
     return matches;
   }
 
   /**
    * Calculate prize distribution based on tournament results
    */
-  async calculatePrizeDistribution(tournamentId: string, finalStandings: string[]): Promise<PrizeDistribution[]> {
-    this.logger.debug(`Calculating prize distribution for tournament ${tournamentId}`);
-    
+  async calculatePrizeDistribution(
+    tournamentId: string,
+    finalStandings: string[]
+  ): Promise<PrizeDistribution[]> {
+    this.logger.debug(
+      `Calculating prize distribution for tournament ${tournamentId}`
+    );
+
     const tournament = await this.getTournamentById(tournamentId);
     if (!tournament) {
       throw new Error('Tournament not found');
@@ -456,24 +493,28 @@ export class TournamentsService {
 
     const prizes: PrizeDistribution[] = [];
     const totalPrizePool = tournament.prizePool;
-    
+
     // Standard prize distribution percentages
     const prizePercentages = [
-      { position: 1, percentage: 0.50 }, // 50% for 1st
-      { position: 2, percentage: 0.30 }, // 30% for 2nd
+      { position: 1, percentage: 0.5 }, // 50% for 1st
+      { position: 2, percentage: 0.3 }, // 30% for 2nd
       { position: 3, percentage: 0.15 }, // 15% for 3rd
-      { position: 4, percentage: 0.05 }  // 5% for 4th
+      { position: 4, percentage: 0.05 }, // 5% for 4th
     ];
 
-    for (let i = 0; i < Math.min(finalStandings.length, prizePercentages.length); i++) {
+    for (
+      let i = 0;
+      i < Math.min(finalStandings.length, prizePercentages.length);
+      i++
+    ) {
       const standing = finalStandings[i];
       const prizeInfo = prizePercentages[i];
-      
+
       prizes.push({
         position: prizeInfo.position,
         amount: Math.floor(totalPrizePool * prizeInfo.percentage),
         percentage: prizeInfo.percentage,
-        playerId: standing
+        playerId: standing,
       });
     }
 
@@ -483,26 +524,34 @@ export class TournamentsService {
   /**
    * Distribute prizes to winners
    */
-  async distributePrizes(tournamentId: string, prizes: PrizeDistribution[]): Promise<boolean> {
+  async distributePrizes(
+    tournamentId: string,
+    prizes: PrizeDistribution[]
+  ): Promise<boolean> {
     this.logger.debug(`Distributing prizes for tournament ${tournamentId}`);
-    
+
     try {
       // In a real implementation, this would:
       // 1. Transfer Dojo Coins to winners' wallets
       // 2. Update tournament status
       // 3. Send notifications to winners
       // 4. Log the transaction
-      
+
       for (const prize of prizes) {
         if (prize.playerId && prize.amount > 0) {
-          this.logger.debug(`Distributing ${prize.amount} Dojo Coins to player ${prize.playerId} for position ${prize.position}`);
+          this.logger.debug(
+            `Distributing ${prize.amount} Dojo Coins to player ${prize.playerId} for position ${prize.position}`
+          );
           // TODO: Implement actual wallet transfer
         }
       }
-      
+
       return true;
     } catch (error) {
-      this.logger.error(`Failed to distribute prizes for tournament ${tournamentId}:`, error);
+      this.logger.error(
+        `Failed to distribute prizes for tournament ${tournamentId}:`,
+        error
+      );
       return false;
     }
   }
@@ -781,13 +830,13 @@ export class TournamentsService {
       const tournaments = await this.getTournaments();
       const totalTournaments = tournaments.length;
       const activeTournaments = tournaments.filter(
-        (t) => t.status === 'active'
+        (t) => t.status === 'IN_PROGRESS'
       ).length;
       const upcomingTournaments = tournaments.filter(
-        (t) => t.status === 'upcoming'
+        (t) => t.status === 'REGISTRATION'
       ).length;
       const completedTournaments = tournaments.filter(
-        (t) => t.status === 'completed'
+        (t) => t.status === 'COMPLETED'
       ).length;
       const totalParticipants = tournaments.reduce(
         (sum, t) => sum + t.participants,

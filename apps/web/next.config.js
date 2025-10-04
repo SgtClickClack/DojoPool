@@ -113,10 +113,11 @@ const nextConfig = {
   // Rewrite rules for frontend routing
   async rewrites() {
     return [
-      {
-        source: '/api/:path*',
-        destination: '/pages/api/:path*',
-      },
+      // Remove the API rewrite rule to allow App Router API routes to work
+      // {
+      //   source: '/api/:path*',
+      //   destination: '/pages/api/:path*',
+      // },
       {
         source: '/store',
         destination: '/marketplace',

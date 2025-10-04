@@ -1,6 +1,5 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { NextFunction, Request, Response } from 'express';
 
 interface RequestLoggingConfig {
   logRequestBody?: boolean;
@@ -133,7 +132,7 @@ export class RequestLoggingMiddleware implements NestMiddleware {
       return data;
     }
 
-    const sanitized: Record<string, unknown> = Array.isArray(data)
+    const sanitized: Record<string, unknown> | unknown[] = Array.isArray(data)
       ? [...data]
       : { ...(data as Record<string, unknown>) };
 

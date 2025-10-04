@@ -3,15 +3,15 @@ import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../app.module';
-import { JwtStrategy } from '../auth/jwt.strategy';
 import { AdminGuard } from '../auth/admin.guard';
+import { JwtStrategy } from '../auth/jwt.strategy';
+import { NotificationTemplatesService } from '../notifications/notification-templates.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { TerritoriesService } from '../territories/territories.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationTemplatesService } from '../notifications/notification-templates.service';
 
-describe.skip('Territories strategic map (e2e)', () => {
+describe('Territories strategic map (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {

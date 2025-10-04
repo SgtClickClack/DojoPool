@@ -52,7 +52,7 @@ export function Cacheable(options: CacheDecoratorOptions = {}) {
         : generateDefaultKey(target.constructor.name, propertyKey, args);
 
       // Try to get from cache first
-      const cachedResult = await cacheServiceInstance.get(
+      const cachedResult = await (cacheServiceInstance as any).get(
         key,
         options.keyPrefix
       );
@@ -65,7 +65,7 @@ export function Cacheable(options: CacheDecoratorOptions = {}) {
 
       // Cache the result
       if (result !== undefined && result !== null) {
-        await cacheServiceInstance.set(key, result, {
+        await (cacheServiceInstance as any).set(key, result, {
           ttl: options.ttl,
           keyPrefix: options.keyPrefix,
         });
@@ -125,7 +125,7 @@ export function CacheWriteThrough(options: CacheDecoratorOptions = {}) {
         : generateDefaultKey(target.constructor.name, propertyKey, args);
 
       // Use write-through caching
-      const result = await cacheHelperInstance.writeThrough({
+      const result = await (cacheHelperInstance as any).writeThrough({
         key,
         data: args[0], // Assume first argument is the data to cache
         cacheOptions: {
@@ -170,10 +170,10 @@ export function CacheInvalidate(patterns: string[]) {
 
       // Invalidate cache patterns after successful execution
       if (cacheHelperInstance && patterns.length > 0) {
-        await cacheHelperInstance.invalidatePatterns(patterns);
+        await (cacheHelperInstance as any).invalidatePatterns(patterns);
       } else if (cacheServiceInstance && patterns.length > 0) {
         for (const pattern of patterns) {
-          await cacheServiceInstance.deleteByPattern(pattern);
+          await (cacheServiceInstance as any).deleteByPattern(pattern);
         }
       }
 

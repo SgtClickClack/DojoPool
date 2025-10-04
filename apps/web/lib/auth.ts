@@ -1,12 +1,18 @@
-/* eslint-env node */
-import NextAuth from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import { z } from 'zod';
 
-const prisma = new PrismaClient();
+// Use global Prisma instance to prevent connection issues in serverless
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Input validation schemas
 const credentialsSchema = z.object({
@@ -14,11 +20,11 @@ const credentialsSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     CredentialsProvider({
       name: 'credentials',
@@ -43,6 +49,7 @@ export const authOptions = {
           });
 
           if (!user || !user.passwordHash) {
+            console.log('User not found or no password hash');
             return null;
           }
 
@@ -52,6 +59,7 @@ export const authOptions = {
           );
 
           if (!isValidPassword) {
+            console.log('Invalid password');
             return null;
           }
 
@@ -63,7 +71,11 @@ export const authOptions = {
           };
         } catch (error) {
           console.error('Authentication error:', error);
-          return null;
+          // Don't expose database errors in production
+          if (process.env.NODE_ENV === 'production') {
+            return null;
+          }
+          throw error;
         }
       },
     }),
@@ -97,13 +109,9 @@ export const authOptions = {
     },
   },
   pages: {
-    signIn: '/login',
+    signIn: '/auth/signin',
     error: '/auth/error',
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
 };
-
-const handler = NextAuth(authOptions);
-
-export default handler;

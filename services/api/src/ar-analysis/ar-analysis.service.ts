@@ -1,7 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
+import {
+  BallDetection,
+  DecodedImage,
+  ImageData,
+  OpenCVMat,
+  OpenCVMatVector,
+  OpenCVModule,
+  TableAnalysisResult,
+  TableBounds,
+} from '../common/types/opencv.types';
 
 // Lazy imports to avoid heavy WASM init during module load
-let cv: any | null = null;
+let cv: OpenCVModule | null = null;
 
 @Injectable()
 export class ArAnalysisService {
@@ -16,12 +26,14 @@ export class ArAnalysisService {
           // Dynamic import for ESM compatibility
           const mod = await import('@techstark/opencv-js');
           // opencv-js may export default or named; normalize
-          cv = (mod as any).default ?? (mod as any);
+          cv =
+            (mod as { default?: OpenCVModule }).default ??
+            (mod as OpenCVModule);
           if (!cv || typeof cv !== 'object')
             throw new Error('OpenCV module not found');
-          if (cv['onRuntimeInitialized']) {
+          if (cv.onRuntimeInitialized) {
             await new Promise<void>((resolve) => {
-              cv['onRuntimeInitialized'] = () => resolve();
+              cv!.onRuntimeInitialized = () => resolve();
             });
           }
         } catch (err) {
@@ -35,46 +47,71 @@ export class ArAnalysisService {
     return this.cvReady;
   }
 
-  private async decodeImageToImageData(buffer: Buffer, mimeType?: string) {
+  private async decodeImageToImageData(
+    buffer: Buffer,
+    mimeType?: string
+  ): Promise<DecodedImage> {
     // Decode using jpeg-js or pngjs (no native deps)
     if (mimeType?.includes('jpeg') || mimeType?.includes('jpg')) {
       const jpeg = await import('jpeg-js');
-      const decoded = (jpeg as any).default?.decode
-        ? (jpeg as any).default.decode(buffer, { useTArray: true })
-        : (jpeg as any).decode(buffer, { useTArray: true });
+      const decoded = (
+        jpeg as {
+          default?: { decode: (buffer: Buffer, options: any) => DecodedImage };
+        }
+      ).default?.decode
+        ? (
+            jpeg as {
+              default: {
+                decode: (buffer: Buffer, options: any) => DecodedImage;
+              };
+            }
+          ).default.decode(buffer, { useTArray: true })
+        : (
+            jpeg as { decode: (buffer: Buffer, options: any) => DecodedImage }
+          ).decode(buffer, { useTArray: true });
       // jpeg-js returns RGBA Uint8Array
       return {
         data: decoded.data,
         width: decoded.width,
         height: decoded.height,
-      } as any;
+      };
     }
     if (mimeType?.includes('png')) {
       const { PNG } = await import('pngjs');
-      const img = (PNG as any).sync.read(buffer);
-      return { data: img.data, width: img.width, height: img.height } as any;
+      const img = (
+        PNG as { sync: { read: (buffer: Buffer) => DecodedImage } }
+      ).sync.read(buffer);
+      return { data: img.data, width: img.width, height: img.height };
     }
     // Fallback: try jpeg, then png
     try {
       const jpeg = await import('jpeg-js');
-      const decoded = (jpeg as any).default?.decode
-        ? (jpeg as any).default.decode(buffer, { useTArray: true })
-        : (jpeg as any).decode(buffer, { useTArray: true });
+      const decoded = (
+        jpeg as {
+          default?: { decode: (buffer: Buffer, options: any) => DecodedImage };
+        }
+      ).default?.decode
+        ? (
+            jpeg as {
+              default: {
+                decode: (buffer: Buffer, options: any) => DecodedImage;
+              };
+            }
+          ).default.decode(buffer, { useTArray: true })
+        : (
+            jpeg as { decode: (buffer: Buffer, options: any) => DecodedImage }
+          ).decode(buffer, { useTArray: true });
       return {
         data: decoded.data,
         width: decoded.width,
         height: decoded.height,
-      } as any;
+      };
     } catch (_) {
       const { PNG } = await import('pngjs');
       const img = (
         PNG as {
           sync: {
-            read: (buffer: Buffer) => {
-              data: Uint8Array;
-              width: number;
-              height: number;
-            };
+            read: (buffer: Buffer) => DecodedImage;
           };
         }
       ).sync.read(buffer);
@@ -82,7 +119,10 @@ export class ArAnalysisService {
     }
   }
 
-  async analyzeTableImage(buffer: Buffer, mimeType?: string) {
+  async analyzeTableImage(
+    buffer: Buffer,
+    mimeType?: string
+  ): Promise<TableAnalysisResult> {
     try {
       await this.ensureCvReady();
     } catch {
@@ -94,54 +134,53 @@ export class ArAnalysisService {
       };
     }
 
-    let src: Record<string, unknown> | null = null;
-    let gray: Record<string, unknown> | null = null;
-    let blurred: Record<string, unknown> | null = null;
-    let edges: Record<string, unknown> | null = null;
-    let contours: Record<string, unknown> | null = null;
-    let hierarchy: Record<string, unknown> | null = null;
-    let circles: Record<string, unknown> | null = null;
+    let src: OpenCVMat | null = null;
+    let gray: OpenCVMat | null = null;
+    let blurred: OpenCVMat | null = null;
+    let edges: OpenCVMat | null = null;
+    let contours: OpenCVMatVector | null = null;
+    let hierarchy: OpenCVMat | null = null;
+    let circles: OpenCVMat | null = null;
 
     try {
-      const imageData: { data: Uint8Array; width: number; height: number } =
-        await this.decodeImageToImageData(buffer, mimeType);
+      const imageData: ImageData = await this.decodeImageToImageData(
+        buffer,
+        mimeType
+      );
       // Create Mat from ImageData (RGBA)
-      src = cv.matFromImageData(imageData);
+      src = cv!.matFromImageData(imageData);
 
       // Convert to grayscale
-      gray = new cv.Mat();
-      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+      gray = new cv!.Mat();
+      cv!.cvtColor(src, gray, cv!.COLOR_RGBA2GRAY);
 
       // Blur to reduce noise
-      blurred = new cv.Mat();
-      cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+      blurred = new cv!.Mat();
+      cv!.GaussianBlur(gray, blurred, new cv!.Size(5, 5), 0);
 
       // Edge detection
-      edges = new cv.Mat();
-      cv.Canny(blurred, edges, 50, 150);
+      edges = new cv!.Mat();
+      cv!.Canny(blurred, edges, 50, 150);
 
       // Find contours and approximate largest quadrilateral for table bounds
-      contours = new cv.MatVector();
-      hierarchy = new cv.Mat();
-      cv.findContours(
+      contours = new cv!.MatVector();
+      hierarchy = new cv!.Mat();
+      cv!.findContours(
         edges,
         contours,
         hierarchy,
-        cv.RETR_EXTERNAL,
-        cv.CHAIN_APPROX_SIMPLE
+        cv!.RETR_EXTERNAL,
+        cv!.CHAIN_APPROX_SIMPLE
       );
 
-      let bestQuad: {
-        points: { x: number; y: number }[];
-        area: number;
-      } | null = null;
+      let bestQuad: TableBounds | null = null;
       for (let i = 0; i < contours.size(); i++) {
         const cnt = contours.get(i);
-        const peri = cv.arcLength(cnt, true);
-        const approx = new cv.Mat();
-        cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
+        const peri = cv!.arcLength(cnt, true);
+        const approx = new cv!.Mat();
+        cv!.approxPolyDP(cnt, approx, 0.02 * peri, true);
         if (approx.rows === 4) {
-          const area = Math.abs(cv.contourArea(approx));
+          const area = Math.abs(cv!.contourArea(approx));
           const data = approx.data32S;
           const pts = [
             { x: data[0], y: data[1] },
@@ -158,21 +197,20 @@ export class ArAnalysisService {
       }
 
       // Circle detection for balls
-      circles = new cv.Mat();
-      cv.HoughCircles(
+      circles = new cv!.Mat();
+      cv!.HoughCircles(
         blurred,
         circles,
-        cv.HOUGH_GRADIENT,
+        cv!.HOUGH_GRADIENT,
         1,
-        Math.floor((gray.rows as number) / 16),
+        Math.floor(gray.rows / 16),
         100,
         30,
         5,
         Math.floor(Math.min(gray.rows, gray.cols) / 8)
       );
 
-      const balls: { position: { x: number; y: number }; radius: number }[] =
-        [];
+      const balls: BallDetection[] = [];
       if (circles.rows > 0 || circles.cols > 0) {
         // opencv.js stores circle data in a flat Float32Array
         const data = circles.data32F as Float32Array;

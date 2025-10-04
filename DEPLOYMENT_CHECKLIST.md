@@ -1,143 +1,124 @@
-# DojoPool Hybrid Deployment Checklist
+# 🚀 Dojo Pool - Production Deployment Checklist
 
-## Pre-Deployment Setup ✅
+## ✅ Immediate Actions Required
 
-- [x] Created deployment scripts (PowerShell and Bash)
-- [x] Generated secure production environment configuration
-- [x] Updated Vercel configuration for monorepo
-- [x] Created comprehensive deployment guide
-- [x] Prepared troubleshooting documentation
+### 1. Environment Variables Setup
 
-## Part 1: Backend Deployment
+**Go to Vercel Dashboard → Your Project → Settings → Environment Variables**
 
-### Server Provisioning
-- [ ] Create cloud server with Docker pre-installed
-- [ ] Note server IP address
-- [ ] Ensure port 3002 is open in firewall
+Add these variables:
 
-### Backend Deployment
-- [ ] Run deployment script: `.\deploy-production.ps1 YOUR_SERVER_IP`
-- [ ] SSH into server: `ssh root@YOUR_SERVER_IP`
-- [ ] Clone repository: `git clone https://github.com/SgtClickClack/DojoPool.git`
-- [ ] Navigate to project: `cd DojoPool`
-- [ ] Create production .env file with generated secrets
-- [ ] Build Docker images: `docker-compose build`
-- [ ] Run database migrations: `docker-compose run --rm api npx prisma migrate deploy`
-- [ ] Start services: `docker-compose up -d db redis api`
-- [ ] Verify API health: `curl http://localhost:3002/api/v1/health`
-
-### Backend Verification
-- [ ] API responds with `{"status":"ok"}`
-- [ ] Database container is running
-- [ ] Redis container is running
-- [ ] API container is running
-- [ ] Check logs for any errors: `docker-compose logs api`
-
-## Part 2: Frontend Deployment
-
-### Vercel Configuration
-- [ ] Install Vercel CLI: `npm i -g vercel`
-- [ ] Login to Vercel: `vercel login`
-- [ ] Add API URL: `vercel env add NEXT_PUBLIC_API_URL http://YOUR_SERVER_IP:3002/api/v1 production`
-- [ ] Add WebSocket URL: `vercel env add NEXT_PUBLIC_WEBSOCKET_URL http://YOUR_SERVER_IP:3002 production`
-
-### Frontend Deployment
-- [ ] Commit changes: `git add . && git commit -m "feat: prepare for production deployment"`
-- [ ] Push to trigger deployment: `git push origin main`
-- [ ] Monitor Vercel dashboard for deployment status
-- [ ] Note the Vercel domain URL
-
-### CORS Configuration Update
-- [ ] Update server .env with actual Vercel domain
-- [ ] Update CORS_ORIGINS with Vercel domain
-- [ ] Update FRONTEND_URL with Vercel domain
-- [ ] Restart API service: `docker-compose restart api`
-
-## Final Verification
-
-### Backend Tests
-- [ ] Health check: `curl http://YOUR_SERVER_IP:3002/api/v1/health`
-- [ ] Database connection: `docker-compose exec db psql -U postgres -d dojopool -c "SELECT 1;"`
-- [ ] Redis connection: `docker-compose exec redis redis-cli ping`
-
-### Frontend Tests
-- [ ] Visit Vercel domain
-- [ ] Check browser console for errors
-- [ ] Test API connection from frontend
-- [ ] Verify WebSocket connection
-
-### Integration Tests
-- [ ] Test user registration/login flow
-- [ ] Test API endpoints from frontend
-- [ ] Verify real-time features work
-- [ ] Check error handling and logging
-
-## Security Checklist
-
-- [ ] Strong JWT_SECRET generated and configured
-- [ ] Strong SESSION_SECRET generated and configured
-- [ ] Google OAuth credentials configured
-- [ ] CORS properly configured with actual domains
-- [ ] Database passwords changed from defaults (recommended)
-- [ ] Server firewall configured
-- [ ] SSL certificate configured (recommended)
-
-## Post-Deployment
-
-### Monitoring Setup
-- [ ] Set up application monitoring
-- [ ] Configure log aggregation
-- [ ] Set up alerts for service failures
-
-### Backup Strategy
-- [ ] Configure database backups
-- [ ] Set up automated backup schedules
-- [ ] Test restore procedures
-
-### Domain Configuration (Optional)
-- [ ] Set up custom domain in Vercel
-- [ ] Configure DNS records
-- [ ] Update CORS settings with custom domain
-- [ ] Set up SSL certificate for server
-
-## Troubleshooting Commands
-
-### Server Issues
 ```bash
-# Check container status
-docker-compose ps
+# Authentication
+NEXTAUTH_URL=https://dojopool.com.au
+NEXTAUTH_SECRET=Q7zl3U1QEac+Yh80h0NTA7UsL4t0ytZwuJVjeesShFo=
+JWT_SECRET=AZDnYUvXs8roa9IfGiXrvBicoAkBRMkFUUgz8DFT6a8=
 
-# View logs
-docker-compose logs api
-docker-compose logs db
-docker-compose logs redis
+# Google OAuth (Get from Google Cloud Console)
+GOOGLE_CLIENT_ID=[Your Google OAuth Client ID]
+GOOGLE_CLIENT_SECRET=[Your Google OAuth Client Secret]
 
-# Restart services
-docker-compose restart api
-docker-compose restart db
-docker-compose restart redis
+# Database (CRITICAL - This is likely causing the 500 error)
+DATABASE_URL=[Production PostgreSQL connection string]
 
-# Check system resources
-docker stats
+# API Configuration
+NEXT_PUBLIC_API_URL=https://api.dojopool.com.au
+API_URL=https://api.dojopool.com.au
+
+# Mapbox
+NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=[Your Mapbox token]
+
+# Environment
+NODE_ENV=production
 ```
 
-### Vercel Issues
+### 2. Database Setup
+
+**The 500 error is most likely due to missing DATABASE_URL**
+
+Options:
+
+- **Railway** (Recommended): Easy PostgreSQL setup
+- **Supabase**: Free tier available
+- **PlanetScale**: MySQL alternative
+- **Neon**: PostgreSQL with free tier
+
+**After setting up database:**
+
 ```bash
-# Check deployment status
-vercel ls
-
-# View deployment logs
-vercel logs
-
-# Redeploy
-vercel --prod
+# Run migrations
+npx prisma migrate deploy
 ```
 
-### Network Issues
-```bash
-# Test API connectivity
-curl -v http://YOUR_SERVER_IP:3002/api/v1/health
+### 3. Commit and Deploy
 
-# Test from Vercel domain
-curl -v https://your-vercel-domain.vercel.app/api/health
+```bash
+# Make sure all files are committed
+git add .
+git commit -m "fix: update Vercel config for App Router API routes"
+git push origin main
 ```
+
+### 4. Redeploy
+
+- Go to Vercel Dashboard
+- Click "Redeploy" on your latest deployment
+- Or push a new commit to trigger automatic deployment
+
+## 🔍 Troubleshooting Steps
+
+### If you still get 404 errors:
+
+1. Check Vercel Functions logs
+2. Verify `app/api/auth/[...nextauth]/route.ts` is committed
+3. Check if Vercel is using the correct build command
+
+### If you still get 500 errors:
+
+1. **Check Vercel Logs** (most important):
+   - Go to Vercel Dashboard → Functions tab
+   - Look for error details in the logs
+   - Most likely: Missing DATABASE_URL or wrong connection string
+
+2. **Verify Environment Variables**:
+   - Make sure all variables are set correctly
+   - Check for typos in variable names
+   - Ensure DATABASE_URL points to a real database
+
+3. **Database Connection**:
+   - Test your DATABASE_URL locally
+   - Make sure the database is accessible from Vercel
+   - Run `npx prisma migrate deploy` on production database
+
+## 📋 Post-Deployment Verification
+
+1. **Test Authentication**:
+   - Visit `https://dojopool.com.au/api/auth/session`
+   - Should return JSON (not 404)
+
+2. **Test User API**:
+   - Visit `https://dojopool.com.au/api/users/me`
+   - Should return 401 (unauthorized) or user data (not 500)
+
+3. **Check Vercel Logs**:
+   - Monitor Functions logs for any errors
+   - Look for successful API calls
+
+## 🎯 Expected Results
+
+After completing these steps:
+
+- ✅ `GET /api/auth/session` should return 200 (not 404)
+- ✅ `GET /api/users/me` should return 401 or 200 (not 500)
+- ✅ Authentication should work properly
+- ✅ No more CLIENT_FETCH_ERROR in console
+
+## 🆘 Still Having Issues?
+
+If problems persist:
+
+1. **Share Vercel Logs**: Copy the exact error from Functions tab
+2. **Check Database**: Verify DATABASE_URL is working
+3. **Test Locally**: Make sure everything works in development
+
+The most critical step is setting up the production database and adding the DATABASE_URL environment variable to Vercel.

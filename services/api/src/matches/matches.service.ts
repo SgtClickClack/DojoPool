@@ -224,6 +224,9 @@ export class MatchesService {
     winnerId: string;
     venueId: string;
     round: number;
+    playerA: { username: string };
+    playerB: { username: string };
+    venue: { name: string };
   }): Promise<void> {
     try {
       const matchData = {
@@ -364,7 +367,7 @@ export class MatchesService {
 
       return {
         ...match,
-        aiAnalysis,
+        analysis: aiAnalysis,
       };
     } catch (err) {
       this.logger.error('Failed to fetch match with analysis:', matchId, err);

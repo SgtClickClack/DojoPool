@@ -1,10 +1,10 @@
 import {
-  type ArgumentsHost,
   Catch,
-  type ExceptionFilter,
   HttpException,
   HttpStatus,
   Logger,
+  type ArgumentsHost,
+  type ExceptionFilter,
 } from '@nestjs/common';
 import { type Request, type Response } from 'express';
 import { ErrorLoggerService } from '../monitoring/error-logger.service';
@@ -68,7 +68,8 @@ export class GlobalErrorHandler implements ExceptionFilter {
           (responseObj.message as string) ||
           (responseObj.error as string) ||
           message;
-        errorCode = responseObj.code || this.getErrorCodeFromStatus(status);
+        errorCode =
+          (responseObj.code as string) || this.getErrorCodeFromStatus(status);
         details = responseObj.details;
       }
     } else if (exception instanceof Error) {

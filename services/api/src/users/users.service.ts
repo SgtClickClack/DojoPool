@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  Optional,
-} from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import type { Prisma, User } from '@prisma/client';
 import { Cacheable } from '../cache/cache.decorator';
 import { CacheService } from '../cache/cache.service';
@@ -45,6 +41,8 @@ export class UsersService {
         dojoCoinBalance: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
+        emailVerified: null,
+        image: null,
       };
       this.fallbackUsers.push(user);
       return user as unknown as User;
@@ -76,8 +74,10 @@ export class UsersService {
       this.logger.warn(
         `DB findUnique failed for user ${id}: ${ErrorUtils.getErrorMessage(err)}`
       );
-      const fallbackUser = this.fallbackUsers.find(u => u.id.toString() === id);
-      return fallbackUser as unknown as User || null;
+      const fallbackUser = this.fallbackUsers.find(
+        (u) => u.id.toString() === id
+      );
+      return (fallbackUser as unknown as User) || null;
     }
   }
 
@@ -88,8 +88,8 @@ export class UsersService {
       this.logger.warn(
         `DB findUnique failed for email ${email}: ${ErrorUtils.getErrorMessage(err)}`
       );
-      const fallbackUser = this.fallbackUsers.find(u => u.email === email);
-      return fallbackUser as unknown as User || null;
+      const fallbackUser = this.fallbackUsers.find((u) => u.email === email);
+      return (fallbackUser as unknown as User) || null;
     }
   }
 
@@ -100,8 +100,10 @@ export class UsersService {
       this.logger.warn(
         `DB findUnique failed for username ${username}: ${ErrorUtils.getErrorMessage(err)}`
       );
-      const fallbackUser = this.fallbackUsers.find(u => u.username === username);
-      return fallbackUser as unknown as User || null;
+      const fallbackUser = this.fallbackUsers.find(
+        (u) => u.username === username
+      );
+      return (fallbackUser as unknown as User) || null;
     }
   }
 
@@ -129,6 +131,71 @@ export class UsersService {
         `Failed to delete user ${id}: ${ErrorUtils.getErrorMessage(err)}`
       );
       throw err;
+    }
+  }
+
+  async getUserChallenges(userId: string): Promise<any[]> {
+    try {
+      return await this._prisma.challenge.findMany({
+        where: {
+          OR: [{ challengerId: userId }, { defenderId: userId }],
+        },
+        include: {
+          challenger: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+            },
+          },
+          defender: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+    } catch (err) {
+      this.logger.error(
+        ErrorUtils.formatErrorMessage('fetch user challenges', userId, err)
+      );
+      return [];
+    }
+  }
+
+  async getUserNFTs(userId: string): Promise<any[]> {
+    try {
+      return await this._prisma.userInventoryItem.findMany({
+        where: { userId },
+        include: {
+          marketplaceItem: {
+            include: {
+              communityItem: {
+                select: {
+                  id: true,
+                  title: true,
+                  description: true,
+                  previewImageUrl: true,
+                  category: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+    } catch (err) {
+      this.logger.error(
+        ErrorUtils.formatErrorMessage('fetch user NFTs', userId, err)
+      );
+      return [];
     }
   }
 }

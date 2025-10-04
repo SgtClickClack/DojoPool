@@ -1,0 +1,140 @@
+# Git attributes for consistent line endings and file handling
+
+# Set default behavior to automatically normalize line endings
+* text=auto eol=lf
+
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.xml text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.less text eol=lf
+*.sql text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.bat text eol=lf
+*.ps1 text eol=lf
+*.env text eol=lf
+*.env.* text eol=lf
+*.txt text eol=lf
+*.log text eol=lf
+*.ini text eol=lf
+*.conf text eol=lf
+*.config text eol=lf
+
+# Declare files that will always have CRLF line endings on checkout
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Declare files that will always have LF line endings on checkout
+*.sh text eol=lf
+
+# Denote all files that are truly binary and should not be modified
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary
+*.pyc binary
+*.pdf binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+
+# Yarn specific
+.yarn/cache/**/*.zip binary
+.yarn/install-state.gz binary
+
+# Node modules
+node_modules/**/* binary
+
+# Build outputs
+dist/**/* binary
+build/**/* binary
+.next/**/* binary
+out/**/* binary
+
+# Package files
+*.tgz binary
+*.tar.gz binary
+*.rar binary
+*.7z binary
+*.deb binary
+*.rpm binary
+*.msi binary
+*.dmg binary
+*.iso binary
+*.apk binary
+*.ipa binary
+
+# Lock files should use LF
+package-lock.json text eol=lf
+yarn.lock text eol=lf
+pnpm-lock.yaml text eol=lf
+
+# Git files
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.gitmodules text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.rst text eol=lf
+*.adoc text eol=lf
+
+# Configuration files
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+*.conf text eol=lf
+
+# Docker files
+Dockerfile text eol=lf
+docker-compose*.yml text eol=lf
+.dockerignore text eol=lf
+
+# CI/CD files
+.github/**/* text eol=lf
+.gitlab-ci.yml text eol=lf
+.travis.yml text eol=lf
+.circleci/**/* text eol=lf
+azure-pipelines.yml text eol=lf
+
+# IDE files
+.vscode/**/* text eol=lf
+.idea/**/* text eol=lf
+*.sublime-project text eol=lf
+*.sublime-workspace text eol=lf
+
+# OS files
+.DS_Store binary
+Thumbs.db binary
+*.swp binary
+*.swo binary
+*~ binary

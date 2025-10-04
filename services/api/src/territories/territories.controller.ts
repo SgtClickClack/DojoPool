@@ -1,9 +1,14 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { TerritoriesService } from './territories.service';
 
-@Controller('api/v1/territories')
+@Controller('territories')
 export class TerritoriesController {
   constructor(private readonly territoriesService: TerritoriesService) {}
+
+  @Get('statistics')
+  getStatistics() {
+    return this.territoriesService.getTerritoryStatistics();
+  }
 
   @Get()
   findAll() {
