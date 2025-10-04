@@ -19,8 +19,8 @@
     "clean": "rm -rf .next node_modules/.cache"
   },
   "dependencies": {
-    "@emotion/react": "11.11.0",
-    "@emotion/styled": "11.11.0",
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.1",
     "@heroicons/react": "2.2.0",
     "@mui/icons-material": "5.15.0",
     "@mui/material": "5.15.0",
@@ -29,7 +29,7 @@
     "@next-auth/prisma-adapter": "^1.0.7",
     "@prisma/client": "^6.16.3",
     "@react-google-maps/api": "^2.20.7",
-    "@vis.gl/react-maplibre": "^8.0.4",
+    "@vis.gl/react-maplibre": "^8.1.0",
     "autoprefixer": "^10.4.16",
     "axios": "^1.8.4",
     "bcryptjs": "^3.0.2",
@@ -49,7 +49,7 @@
     "react-router-dom": "^6.11.1",
     "socket.io-client": "^4.6.1",
     "swr": "^2.2.4",
-    "typescript": "^5.3.3",
+    "typescript": "^5.9.3",
     "zod": "^4.1.11",
     "zustand": "^4.4.7"
   },
