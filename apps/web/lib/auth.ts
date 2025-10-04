@@ -1,9 +1,9 @@
-import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { DefaultSession, NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { z } from 'zod';
+import { prisma } from './prisma';
 
 // Extend NextAuth types
 declare module 'next-auth' {
@@ -22,20 +22,7 @@ declare module 'next-auth' {
   }
 }
 
-// Prisma client for serverless - use singleton pattern
-let prisma: PrismaClient;
-
-if (process.env.NODE_ENV === 'production') {
-  // In production, create a new instance for each request
-  prisma = new PrismaClient();
-} else {
-  // In development, use global singleton to prevent connection issues
-  const globalForPrisma = globalThis as unknown as {
-    prisma: PrismaClient | undefined;
-  };
-  prisma = globalForPrisma.prisma ?? new PrismaClient();
-  globalForPrisma.prisma = prisma;
-}
+// Prisma client is now imported from ./prisma.ts with proper singleton pattern
 
 // Input validation schemas
 const credentialsSchema = z.object({
@@ -147,8 +134,6 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/signin',
     error: '/auth/error',
   },
-  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
+  secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
-  // Ensure proper URL handling for production
-  ...(process.env.NEXTAUTH_URL && { url: process.env.NEXTAUTH_URL }),
 };
