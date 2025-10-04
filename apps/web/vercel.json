@@ -2,7 +2,7 @@
   "version": 2,
   "buildCommand": "yarn build",
   "outputDirectory": ".next",
-  "installCommand": "yarn install --immutable --frozen-lockfile",
+  "installCommand": "yarn install --immutable --frozen-lockfile && npx prisma generate",
   "framework": "nextjs",
   "regions": ["iad1"],
   "functions": {
