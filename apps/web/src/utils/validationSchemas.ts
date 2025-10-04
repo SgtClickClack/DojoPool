@@ -193,7 +193,7 @@ export const performanceMetricSchema = z.object({
   value: z.number(),
   unit: z.string(),
   timestamp: z.string().datetime(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 // Export all schemas as a single object for easy importing
