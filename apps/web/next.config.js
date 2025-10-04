@@ -63,25 +63,15 @@ const nextConfig = {
       };
     }
 
-    // Optimize for production - simplified to avoid chunk resolution issues
+    // Optimize for production - disable chunk splitting for serverless compatibility
     if (!dev) {
       config.optimization = {
         ...config.optimization,
         minimize: true,
         usedExports: true,
         sideEffects: false,
-        // Simplified splitChunks to avoid module resolution issues
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-            },
-            // Remove common chunk to avoid resolution issues
-          },
-        },
+        // Disable chunk splitting entirely for serverless functions
+        splitChunks: false,
         concatenateModules: true,
         moduleIds: 'deterministic',
         chunkIds: 'deterministic',
