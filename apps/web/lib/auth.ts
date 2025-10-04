@@ -135,6 +135,13 @@ export const authOptions: NextAuthOptions = {
       // Additional security checks can be added here
       return true;
     },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
   pages: {
     signIn: '/auth/signin',
@@ -142,4 +149,6 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
   debug: process.env.NODE_ENV === 'development',
+  // Ensure proper URL handling for production
+  ...(process.env.NEXTAUTH_URL && { url: process.env.NEXTAUTH_URL }),
 };
