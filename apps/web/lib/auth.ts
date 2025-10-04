@@ -1,9 +1,26 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-import { NextAuthOptions } from 'next-auth';
+import * as bcrypt from 'bcryptjs';
+import { NextAuthOptions, DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { z } from 'zod';
+
+// Extend NextAuth types
+declare module 'next-auth' {
+  interface User {
+    id: string;
+    role?: string;
+    username?: string;
+  }
+  
+  interface Session {
+    user: {
+      id: string;
+      role?: string;
+      username?: string;
+    } & DefaultSession['user'];
+  }
+}
 
 // Use global Prisma instance to prevent connection issues in serverless
 const globalForPrisma = globalThis as unknown as {
