@@ -177,7 +177,7 @@ export const useAuth = (): AuthContextType => {
       // Session will update automatically
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(err.errors[0]?.message || 'Invalid input');
+        setError(err.issues[0]?.message || 'Invalid input');
       } else {
         setError('Login failed');
       }
@@ -227,7 +227,7 @@ export const useAuth = (): AuthContextType => {
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(err.errors[0]?.message || 'Invalid input');
+        setError(err.issues[0]?.message || 'Invalid input');
       } else {
         setError('Registration failed');
       }
