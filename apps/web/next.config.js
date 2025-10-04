@@ -40,6 +40,8 @@ const nextConfig = {
   trailingSlash: false, // Disabled for API routes compatibility
   // Disable build tracing to reduce build size for Vercel deployment
   outputFileTracing: false,
+  // Disable standalone output to avoid chunk resolution issues
+  output: undefined,
   // Configure pages directory
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 
@@ -61,13 +63,14 @@ const nextConfig = {
       };
     }
 
-    // Optimize for production
+    // Optimize for production - simplified to avoid chunk resolution issues
     if (!dev) {
       config.optimization = {
         ...config.optimization,
         minimize: true,
         usedExports: true,
         sideEffects: false,
+        // Simplified splitChunks to avoid module resolution issues
         splitChunks: {
           chunks: 'all',
           cacheGroups: {
@@ -76,12 +79,7 @@ const nextConfig = {
               name: 'vendors',
               chunks: 'all',
             },
-            common: {
-              name: 'common',
-              minChunks: 2,
-              chunks: 'all',
-              enforce: true,
-            },
+            // Remove common chunk to avoid resolution issues
           },
         },
         concatenateModules: true,
@@ -106,6 +104,16 @@ const nextConfig = {
       // Add path alias for @/*
       '@/*': require('path').resolve(__dirname, 'src'),
     };
+
+    // Fix module resolution for serverless functions
+    if (isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
 
     return config;
   },
