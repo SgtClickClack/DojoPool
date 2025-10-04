@@ -1514,7 +1514,7 @@ __metadata:
     "@nestjs/swagger": "npm:^7.4.2"
     "@nestjs/testing": "npm:^10.3.0"
     "@nestjs/websockets": "npm:^10.4.20"
-    "@prisma/client": "npm:6.6.0"
+    "@prisma/client": "npm:6.16.3"
     "@socket.io/redis-adapter": "npm:^8.3.0"
     "@techstark/opencv-js": "npm:4.11.0-release.1"
     "@types/bcryptjs": "npm:^2.4.6"
@@ -1568,7 +1568,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@dojopool/prisma@workspace:packages/prisma"
   dependencies:
-    "@prisma/client": "npm:^5.17.0"
+    "@prisma/client": "npm:^6.16.3"
     prisma: "npm:^5.17.0"
   languageName: unknown
   linkType: soft
@@ -4125,34 +4125,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:6.6.0":
-  version: 6.6.0
-  resolution: "@prisma/client@npm:6.6.0"
-  peerDependencies:
-    prisma: "*"
-    typescript: ">=5.1.0"
-  peerDependenciesMeta:
-    prisma:
-      optional: true
-    typescript:
-      optional: true
-  checksum: 10c0/174e4f445ae671dc16af272743b33312f36be34d8d5c0ab92eba8c81d74dc86967fa316bd4db082f1aa0970abf31899a8305e09a6717cb285bdc700aa9273f70
-  languageName: node
-  linkType: hard
-
-"@prisma/client@npm:^5.17.0":
-  version: 5.22.0
-  resolution: "@prisma/client@npm:5.22.0"
-  peerDependencies:
-    prisma: "*"
-  peerDependenciesMeta:
-    prisma:
-      optional: true
-  checksum: 10c0/ad111b931f184249794f811637456eb38dcfd0d7047e5a1f64804e5256f462fa3ee7c7a552fc8fa181e8daacc2b958af7426cb57bf0dc66605c3ef7c4aef4afb
-  languageName: node
-  linkType: hard
-
-"@prisma/client@npm:^6.16.3":
+"@prisma/client@npm:6.16.3, @prisma/client@npm:^6.16.3":
   version: 6.16.3
   resolution: "@prisma/client@npm:6.16.3"
   peerDependencies:
